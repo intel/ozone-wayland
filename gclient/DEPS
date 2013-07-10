@@ -1,0 +1,4 @@
+deps = {
+  "src/ozone":
+    "https://github.com/tiagovignatti/ozone-wayland.git",
+}
