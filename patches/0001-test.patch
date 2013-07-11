@@ -1,0 +1,30 @@
+From 1b2ce4425094b6e14120201669a71f2a033c02eb Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Thu, 11 Jul 2013 12:09:44 -0300
+Subject: [PATCH] test
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ build/common.gypi |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/build/common.gypi b/build/common.gypi
+index 4480378..9fc7db3 100644
+--- a/build/common.gypi
++++ b/build/common.gypi
+@@ -138,6 +138,12 @@
+             'toolkit_uses_gtk%': 0,
+           }],
+ 
++          ['use_ozone==1', {
++            'dependencies': [
++              '<(DEPTH)/ozone/ozone_impl.gyp:wayland',
++            ]
++          }],
++
+           # Enable HiDPI on Mac OS and Chrome OS.
+           ['OS=="mac" or chromeos==1', {
+             'enable_hidpi%': 1,
+-- 
+1.7.9.5
+
