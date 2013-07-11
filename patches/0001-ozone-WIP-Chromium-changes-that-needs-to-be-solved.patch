@@ -1,0 +1,76 @@
+From c2b7dbad5e0f5dc2abb56318c19f1937ff1477bd Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Wed, 10 Jul 2013 19:25:15 -0300
+Subject: [PATCH] ozone: WIP: Chromium changes that needs to be solved
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ content/shell/app/shell_main_delegate.cc |    6 ++++++
+ ui/aura/demo/demo_main.cc                |    6 ++++++
+ ui/aura/root_window_host_ozone.cc        |    2 +-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
+index b16e98a..25263a5 100644
+--- a/content/shell/app/shell_main_delegate.cc
++++ b/content/shell/app/shell_main_delegate.cc
+@@ -24,6 +24,8 @@
+ #include "ui/base/ui_base_switches.h"
+ #include "ui/gl/gl_switches.h"
+ 
++#include "ozone/surface_factory_wayland.h"
++
+ #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
+ 
+ #if defined(IPC_MESSAGE_LOG_ENABLED)
+@@ -164,6 +166,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+ 
+ void ShellMainDelegate::PreSandboxStartup() {
+   InitializeResourceBundle();
++
++  /* TODO: Implementation specific. Has to go away */
++  ui::SurfaceFactoryOzone *o_factory = new ui::SurfaceFactoryWayland ();
++  ui::SurfaceFactoryOzone::SetInstance(o_factory);
+ }
+ 
+ int ShellMainDelegate::RunProcess(
+diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
+index aea286e..3d317bc 100644
+--- a/ui/aura/demo/demo_main.cc
++++ b/ui/aura/demo/demo_main.cc
+@@ -22,6 +22,8 @@
+ #include "ui/gfx/canvas.h"
+ #include "ui/gfx/rect.h"
+ 
++#include "ozone/surface_factory_wayland.h"
++
+ #if defined(USE_X11)
+ #include "base/message_loop/message_pump_aurax11.h"
+ #endif
+@@ -107,6 +109,10 @@ class DemoStackingClient : public aura::client::StackingClient {
+ };
+ 
+ int DemoMain() {
++  /* TODO: Implementation specific. Has to go away */
++  ui::SurfaceFactoryOzone *o_factory = new ui::SurfaceFactoryWayland ();
++  ui::SurfaceFactoryOzone::SetInstance(o_factory);
++
+   // Create the message-loop here before creating the root window.
+   base::MessageLoop message_loop(base::MessageLoop::TYPE_UI);
+   aura::Env::GetInstance();
+diff --git a/ui/aura/root_window_host_ozone.cc b/ui/aura/root_window_host_ozone.cc
+index 2e046bc..55ede01 100644
+--- a/ui/aura/root_window_host_ozone.cc
++++ b/ui/aura/root_window_host_ozone.cc
+@@ -10,7 +10,7 @@ namespace aura {
+ 
+ RootWindowHostOzone::RootWindowHostOzone(const gfx::Rect& bounds)
+     : delegate_(NULL), bounds_(bounds), factory_(new ui::EventFactoryOzone()) {
+-  factory_->CreateEvdevWatchers();
++//  factory_->CreateEvdevWatchers();
+   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
+ }
+ 
+-- 
+1.7.9.5
+
