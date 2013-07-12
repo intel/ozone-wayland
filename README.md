@@ -1,4 +1,4 @@
 ozone-wayland
 ============
 
-Ozone consumer
+http://www.chromium.org/developers/design-documents/ozone
