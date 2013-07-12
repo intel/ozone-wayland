@@ -1,0 +1,145 @@
+From 9c5a7d5a7542a4b41ca8a3ab4dc431d5fc605eae Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Fri, 3 May 2013 12:36:12 -0300
+Subject: [PATCH 2/3] views: Implement Ozone screen for desktop aura
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ ui/views/views.gyp                                 |    1 +
+ .../widget/desktop_aura/desktop_screen_ozone.cc    |  112 ++++++++++++++++++++
+ 2 files changed, 113 insertions(+)
+ create mode 100644 ui/views/widget/desktop_aura/desktop_screen_ozone.cc
+
+diff --git a/ui/views/views.gyp b/ui/views/views.gyp
+index a12b81d..c9c6d3c 100644
+--- a/ui/views/views.gyp
++++ b/ui/views/views.gyp
+@@ -375,6 +375,7 @@
+         'widget/desktop_aura/desktop_root_window_host_x11.cc',
+         'widget/desktop_aura/desktop_root_window_host_x11.h',
+         'widget/desktop_aura/desktop_screen.h',
++        'widget/desktop_aura/desktop_screen_ozone.cc',
+         'widget/desktop_aura/desktop_screen_position_client.cc',
+         'widget/desktop_aura/desktop_screen_position_client.h',
+         'widget/desktop_aura/desktop_screen_win.cc',
+diff --git a/ui/views/widget/desktop_aura/desktop_screen_ozone.cc b/ui/views/widget/desktop_aura/desktop_screen_ozone.cc
+new file mode 100644
+index 0000000..1a98e13
+--- /dev/null
++++ b/ui/views/widget/desktop_aura/desktop_screen_ozone.cc
+@@ -0,0 +1,112 @@
++// Copyright (c) 2013 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/views/widget/desktop_aura/desktop_screen.h"
++
++#include "base/logging.h"
++#include "ui/aura/root_window.h"
++#include "ui/aura/root_window_host.h"
++#include "ui/base/ozone/surface_factory_ozone.h"
++#include "ui/gfx/display.h"
++#include "ui/gfx/native_widget_types.h"
++#include "ui/gfx/screen.h"
++
++namespace {
++
++gfx::Size GetPrimaryDisplaySize() {
++  int width, height;
++  const char* display =
++      ui::SurfaceFactoryOzone::GetInstance()->DefaultDisplaySpec();
++
++  int sc = sscanf(display, "%dx%d", &width, &height);
++  if (sc != 2) {
++    LOG(WARNING) << "malformed display spec from "
++                 << "SurfaceFactoryOzone::DefaultDisplaySpec";
++    return gfx::Size();
++  }
++
++  return gfx::Size(width, height);
++}
++
++class DesktopScreenOzone : public gfx::Screen {
++ public:
++  DesktopScreenOzone();
++  virtual ~DesktopScreenOzone();
++
++  // Overridden from gfx::Screen:
++  virtual bool IsDIPEnabled() OVERRIDE;
++  virtual gfx::Point GetCursorScreenPoint() OVERRIDE;
++  virtual gfx::NativeWindow GetWindowAtCursorScreenPoint() OVERRIDE;
++  virtual int GetNumDisplays() OVERRIDE;
++  virtual gfx::Display GetDisplayNearestWindow(
++      gfx::NativeView window) const OVERRIDE;
++  virtual gfx::Display GetDisplayNearestPoint(
++      const gfx::Point& point) const OVERRIDE;
++  virtual gfx::Display GetDisplayMatching(
++      const gfx::Rect& match_rect) const OVERRIDE;
++  virtual gfx::Display GetPrimaryDisplay() const OVERRIDE;
++  virtual void AddObserver(gfx::DisplayObserver* observer) OVERRIDE;
++  virtual void RemoveObserver(gfx::DisplayObserver* observer) OVERRIDE;
++
++ private:
++  DISALLOW_COPY_AND_ASSIGN(DesktopScreenOzone);
++};
++
++DesktopScreenOzone::DesktopScreenOzone() {
++}
++
++DesktopScreenOzone::~DesktopScreenOzone() {
++}
++
++bool DesktopScreenOzone::IsDIPEnabled() {
++  return false;
++}
++
++gfx::Point DesktopScreenOzone::GetCursorScreenPoint() {
++  return gfx::Point();
++}
++
++gfx::NativeWindow DesktopScreenOzone::GetWindowAtCursorScreenPoint() {
++  return NULL;
++}
++
++int DesktopScreenOzone::GetNumDisplays() {
++  return 1;
++}
++
++gfx::Display DesktopScreenOzone::GetDisplayNearestWindow(
++    gfx::NativeView window) const {
++  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
++}
++
++gfx::Display DesktopScreenOzone::GetDisplayNearestPoint(
++    const gfx::Point& point) const {
++  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
++}
++
++gfx::Display DesktopScreenOzone::GetDisplayMatching(
++    const gfx::Rect& match_rect) const {
++  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
++}
++
++gfx::Display DesktopScreenOzone::GetPrimaryDisplay() const {
++  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
++}
++
++void DesktopScreenOzone::AddObserver(gfx::DisplayObserver* observer) {
++}
++void DesktopScreenOzone::RemoveObserver(gfx::DisplayObserver* observer) {
++}
++
++}  // namespace
++
++////////////////////////////////////////////////////////////////////////////////
++
++namespace views {
++
++gfx::Screen* CreateDesktopScreen() {
++  return new DesktopScreenOzone;
++}
++
++}  // namespace views
+-- 
+1.7.9.5
+

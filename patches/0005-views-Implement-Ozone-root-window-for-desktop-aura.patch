@@ -1,0 +1,871 @@
+From 1ac39138f8a201f1d4cb7a92f58d0d8f7a0d6066 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Mon, 6 May 2013 18:15:08 -0300
+Subject: [PATCH 3/3] views: Implement Ozone root window for desktop aura
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ ui/views/views.gyp                                 |    2 +
+ .../desktop_aura/desktop_root_window_host_ozone.cc |  628 ++++++++++++++++++++
+ .../desktop_aura/desktop_root_window_host_ozone.h  |  201 +++++++
+ 3 files changed, 831 insertions(+)
+ create mode 100644 ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
+ create mode 100644 ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h
+
+diff --git a/ui/views/views.gyp b/ui/views/views.gyp
+index c9c6d3c..505d305 100644
+--- a/ui/views/views.gyp
++++ b/ui/views/views.gyp
+@@ -370,6 +370,8 @@
+         'widget/desktop_aura/desktop_native_widget_aura.cc',
+         'widget/desktop_aura/desktop_native_widget_aura.h',
+         'widget/desktop_aura/desktop_root_window_host.h',
++        'widget/desktop_aura/desktop_root_window_host_ozone.cc',
++        'widget/desktop_aura/desktop_root_window_host_ozone.h',
+         'widget/desktop_aura/desktop_root_window_host_win.cc',
+         'widget/desktop_aura/desktop_root_window_host_win.h',
+         'widget/desktop_aura/desktop_root_window_host_x11.cc',
+diff --git a/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
+new file mode 100644
+index 0000000..663fa1d
+--- /dev/null
++++ b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
+@@ -0,0 +1,628 @@
++// Copyright (c) 2013 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h"
++
++#include "base/bind.h"
++#include "base/message_loop/message_pump_ozone.h"
++#include "ui/aura/client/screen_position_client.h"
++#include "ui/aura/client/user_action_client.h"
++#include "ui/aura/focus_manager.h"
++#include "ui/aura/root_window.h"
++#include "ui/aura/window_property.h"
++#include "ui/base/events/event_utils.h"
++#include "ui/base/ozone/surface_factory_ozone.h"
++#include "ui/gfx/insets.h"
++#include "ui/linux_ui/linux_ui.h"
++#include "ui/native_theme/native_theme.h"
++#include "ui/views/corewm/compound_event_filter.h"
++#include "ui/views/corewm/corewm_switches.h"
++#include "ui/views/corewm/cursor_manager.h"
++#include "ui/views/corewm/focus_controller.h"
++#include "ui/views/ime/input_method.h"
++#include "ui/views/widget/desktop_aura/desktop_activation_client.h"
++#include "ui/views/widget/desktop_aura/desktop_capture_client.h"
++#include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
++#include "ui/views/widget/desktop_aura/desktop_focus_rules.h"
++#include "ui/views/widget/desktop_aura/desktop_layout_manager.h"
++#include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
++#include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
++#include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
++
++namespace views {
++
++DesktopRootWindowHostOzone* DesktopRootWindowHostOzone::g_current_capture =
++    NULL;
++
++DEFINE_WINDOW_PROPERTY_KEY(
++    aura::Window*, kViewsWindowForRootWindow, NULL);
++
++DEFINE_WINDOW_PROPERTY_KEY(
++    DesktopRootWindowHostOzone*, kHostForRootWindow, NULL);
++
++DesktopRootWindowHostOzone::DesktopRootWindowHostOzone(
++    internal::NativeWidgetDelegate* native_widget_delegate,
++    DesktopNativeWidgetAura* desktop_native_widget_aura,
++    const gfx::Rect& bounds)
++    : close_widget_factory_(this),
++      native_widget_delegate_(native_widget_delegate),
++      window_mapped_(false),
++      desktop_native_widget_aura_(desktop_native_widget_aura) {
++}
++
++DesktopRootWindowHostOzone::~DesktopRootWindowHostOzone() {
++  root_window_->ClearProperty(kHostForRootWindow);
++  if (corewm::UseFocusControllerOnDesktop()) {
++    aura::client::SetFocusClient(root_window_, NULL);
++    aura::client::SetActivationClient(root_window_, NULL);
++  }
++}
++
++// static
++ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
++  const ui::LinuxUI* linux_ui = ui::LinuxUI::instance();
++  if (linux_ui) {
++    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
++    if (native_theme)
++      return native_theme;
++  }
++
++  return ui::NativeTheme::instance();
++}
++
++////////////////////////////////////////////////////////////////////////////////
++// DesktopRootWindowHostOzone, private:
++
++void DesktopRootWindowHostOzone::InitOzoneWindow(
++    const Widget::InitParams& params) {
++
++  window_ = ui::SurfaceFactoryOzone::GetInstance()->GetAcceleratedWidget();
++  ui::SurfaceFactoryOzone::GetInstance()->AcceleratedWidgetResize(window_, params.bounds);
++}
++
++void DesktopRootWindowHostOzone::HandleNativeWidgetActivationChanged(
++    bool active) {
++  native_widget_delegate_->OnNativeWidgetActivationChanged(active);
++  native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
++}
++
++aura::RootWindow* DesktopRootWindowHostOzone::InitRootWindow(
++    const Widget::InitParams& params) {
++  bounds_ = params.bounds;
++
++  aura::RootWindow::CreateParams rw_params(bounds_);
++  rw_params.host = this;
++  root_window_ = new aura::RootWindow(rw_params);
++  root_window_->Init();
++  root_window_->AddChild(content_window_);
++  root_window_->SetLayoutManager(new DesktopLayoutManager(root_window_));
++  root_window_->SetProperty(kViewsWindowForRootWindow, content_window_);
++  root_window_->SetProperty(kHostForRootWindow, this);
++  root_window_host_delegate_ = root_window_;
++
++  // If we're given a parent, we need to mark ourselves as transient to another
++  // window. Otherwise activation gets screwy.
++  gfx::NativeView parent = params.parent;
++  if (!params.child && params.parent)
++    parent->AddTransientChild(content_window_);
++
++  native_widget_delegate_->OnNativeWidgetCreated(true);
++
++  capture_client_.reset(new views::DesktopCaptureClient(root_window_));
++  aura::client::SetCaptureClient(root_window_, capture_client_.get());
++
++  // TODO: dispatches activation?
++  //base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
++
++  if (corewm::UseFocusControllerOnDesktop()) {
++    corewm::FocusController* focus_controller =
++        new corewm::FocusController(new DesktopFocusRules);
++    focus_client_.reset(focus_controller);
++    aura::client::SetFocusClient(root_window_, focus_controller);
++    aura::client::SetActivationClient(root_window_, focus_controller);
++    root_window_->AddPreTargetHandler(focus_controller);
++  } else {
++    focus_client_.reset(new aura::FocusManager);
++    aura::client::SetFocusClient(root_window_, focus_client_.get());
++    activation_client_.reset(new DesktopActivationClient(root_window_));
++  }
++
++  dispatcher_client_.reset(new DesktopDispatcherClient);
++  aura::client::SetDispatcherClient(root_window_,
++                                    dispatcher_client_.get());
++
++  // TODO: cursor_client_?
++
++  position_client_.reset(new DesktopScreenPositionClient);
++  aura::client::SetScreenPositionClient(root_window_,
++                                        position_client_.get());
++
++  desktop_native_widget_aura_->InstallInputMethodEventFilter(root_window_);
++
++  // TODO: drag_drop_client?
++
++  focus_client_->FocusWindow(content_window_);
++  return root_window_;
++}
++
++bool DesktopRootWindowHostOzone::IsWindowManagerPresent() {
++  return true;
++}
++
++////////////////////////////////////////////////////////////////////////////////
++// DesktopRootWindowHostOzone, DesktopRootWindowHost implementation:
++
++aura::RootWindow* DesktopRootWindowHostOzone::Init(
++    aura::Window* content_window,
++    const Widget::InitParams& params) {
++  content_window_ = content_window;
++
++  // TODO(erg): Check whether we *should* be building a RootWindowHost here, or
++  // whether we should be proxying requests to another DRWHL.
++
++  // In some situations, views tries to make a zero sized window, and that
++  // makes us crash. Make sure we have valid sizes.
++  Widget::InitParams sanitized_params = params;
++  if (sanitized_params.bounds.width() == 0)
++    sanitized_params.bounds.set_width(100);
++  if (sanitized_params.bounds.height() == 0)
++    sanitized_params.bounds.set_height(100);
++
++  InitOzoneWindow(sanitized_params);
++  return InitRootWindow(sanitized_params);
++}
++
++void DesktopRootWindowHostOzone::InitFocus(aura::Window* window) {
++}
++
++void DesktopRootWindowHostOzone::Close() {
++  // TODO(erg): Might need to do additional hiding tasks here.
++
++  if (!close_widget_factory_.HasWeakPtrs()) {
++    // And we delay the close so that if we are called from an ATL callback,
++    // we don't destroy the window before the callback returned (as the caller
++    // may delete ourselves on destroy and the ATL callback would still
++    // dereference us when the callback returns).
++    base::MessageLoop::current()->PostTask(
++        FROM_HERE,
++        base::Bind(&DesktopRootWindowHostOzone::CloseNow,
++                   close_widget_factory_.GetWeakPtr()));
++  }
++}
++
++void DesktopRootWindowHostOzone::CloseNow() {
++  native_widget_delegate_->OnNativeWidgetDestroying();
++
++  // TODO: Actually free our native resources.
++
++  desktop_native_widget_aura_->OnHostClosed();
++}
++
++aura::RootWindowHost* DesktopRootWindowHostOzone::AsRootWindowHost() {
++  return this;
++}
++
++void DesktopRootWindowHostOzone::ShowWindowWithState(
++    ui::WindowShowState show_state) {
++  if (show_state != ui::SHOW_STATE_DEFAULT &&
++      show_state != ui::SHOW_STATE_NORMAL) {
++    // Only forwarding to Show().
++    NOTIMPLEMENTED();
++  }
++
++  Show();
++}
++
++void DesktopRootWindowHostOzone::ShowMaximizedWithBounds(
++    const gfx::Rect& restored_bounds) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++
++  // TODO(erg): We shouldn't completely fall down here.
++  Show();
++}
++
++bool DesktopRootWindowHostOzone::IsVisible() const {
++  return window_mapped_;
++}
++
++void DesktopRootWindowHostOzone::SetSize(const gfx::Size& size) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::CenterWindow(const gfx::Size& size) {
++  gfx::Rect parent_bounds = GetWorkAreaBoundsInScreen();
++
++  // If |window_|'s transient parent bounds are big enough to contain |size|,
++  // use them instead.
++  if (content_window_->transient_parent()) {
++    gfx::Rect transient_parent_rect =
++        content_window_->transient_parent()->GetBoundsInScreen();
++    if (transient_parent_rect.height() >= size.height() &&
++        transient_parent_rect.width() >= size.width()) {
++      parent_bounds = transient_parent_rect;
++    }
++  }
++
++  gfx::Rect window_bounds(
++      parent_bounds.x() + (parent_bounds.width() - size.width()) / 2,
++      parent_bounds.y() + (parent_bounds.height() - size.height()) / 2,
++      size.width(),
++      size.height());
++  // Don't size the window bigger than the parent, otherwise the user may not be
++  // able to close or move it.
++  window_bounds.AdjustToFit(parent_bounds);
++
++  SetBounds(window_bounds);
++}
++
++void DesktopRootWindowHostOzone::GetWindowPlacement(
++    gfx::Rect* bounds,
++    ui::WindowShowState* show_state) const {
++  *bounds = bounds_;
++
++  // TODO(erg): This needs a better implementation. For now, we're just pass
++  // back the normal state until we keep track of this.
++  *show_state = ui::SHOW_STATE_NORMAL;
++}
++
++gfx::Rect DesktopRootWindowHostOzone::GetWindowBoundsInScreen() const {
++  return bounds_;
++}
++
++gfx::Rect DesktopRootWindowHostOzone::GetClientAreaBoundsInScreen() const {
++  // TODO(erg): The NativeWidgetAura version returns |bounds_|, claiming its
++  // needed for View::ConvertPointToScreen() to work
++  // correctly. DesktopRootWindowHostWin::GetClientAreaBoundsInScreen() just
++  // asks windows what it thinks the client rect is.
++  //
++  // Attempts to calculate the rect by asking the NonClientFrameView what it
++  // thought its GetBoundsForClientView() were broke combobox drop down
++  // placement.
++  return bounds_;
++}
++
++gfx::Rect DesktopRootWindowHostOzone::GetRestoredBounds() const {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++  return gfx::Rect();
++}
++
++gfx::Rect DesktopRootWindowHostOzone::GetWorkAreaBoundsInScreen() const {
++  NOTIMPLEMENTED();
++  return gfx::Rect(0, 0, 10, 10);
++}
++
++void DesktopRootWindowHostOzone::SetShape(gfx::NativeRegion native_region) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::Activate() {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::Deactivate() {
++  NOTIMPLEMENTED();
++}
++
++bool DesktopRootWindowHostOzone::IsActive() const {
++  return false;
++}
++
++void DesktopRootWindowHostOzone::Maximize() {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::Minimize() {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::Restore() {
++  NOTIMPLEMENTED();
++}
++
++bool DesktopRootWindowHostOzone::IsMaximized() const {
++  return true;
++}
++
++bool DesktopRootWindowHostOzone::IsMinimized() const {
++  return false;
++}
++
++void DesktopRootWindowHostOzone::OnCaptureReleased() {
++  native_widget_delegate_->OnMouseCaptureLost();
++  g_current_capture = NULL;
++}
++
++void DesktopRootWindowHostOzone::DispatchMouseEvent(ui::MouseEvent* event) {
++  if (!g_current_capture || g_current_capture == this) {
++    root_window_host_delegate_->OnHostMouseEvent(event);
++  } else {
++    // Another DesktopRootWindowHostX11 has installed itself as
++    // capture. Translate the event's location and dispatch to the other.
++    event->ConvertLocationToTarget(root_window_,
++                                   g_current_capture->root_window_);
++    g_current_capture->root_window_host_delegate_->OnHostMouseEvent(event);
++  }
++}
++
++bool DesktopRootWindowHostOzone::HasCapture() const {
++  return g_current_capture == this;
++}
++
++void DesktopRootWindowHostOzone::SetAlwaysOnTop(bool always_on_top) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::SetWindowTitle(const string16& title) {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::ClearNativeFocus() {
++  // This method is weird and misnamed. Instead of clearing the native focus,
++  // it sets the focus to our |content_window_|, which will trigger a cascade
++  // of focus changes into views.
++  if (content_window_ && aura::client::GetFocusClient(content_window_) &&
++      content_window_->Contains(
++          aura::client::GetFocusClient(content_window_)->GetFocusedWindow())) {
++    aura::client::GetFocusClient(content_window_)->FocusWindow(content_window_);
++  }
++}
++
++Widget::MoveLoopResult DesktopRootWindowHostOzone::RunMoveLoop(
++    const gfx::Vector2d& drag_offset,
++    Widget::MoveLoopSource source) {
++  NOTIMPLEMENTED();
++  return Widget::MOVE_LOOP_SUCCESSFUL;
++}
++
++void DesktopRootWindowHostOzone::EndMoveLoop() {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::SetVisibilityChangedAnimationsEnabled(
++    bool value) {
++  // Much like the previous NativeWidgetGtk, we don't have anything to do here.
++}
++
++bool DesktopRootWindowHostOzone::ShouldUseNativeFrame() {
++  return false;
++}
++
++void DesktopRootWindowHostOzone::FrameTypeChanged() {
++}
++
++NonClientFrameView* DesktopRootWindowHostOzone::CreateNonClientFrameView() {
++  return NULL;
++}
++
++void DesktopRootWindowHostOzone::SetFullscreen(bool fullscreen) {
++  NOTIMPLEMENTED();
++}
++
++bool DesktopRootWindowHostOzone::IsFullscreen() const {
++  NOTIMPLEMENTED();
++  return false;
++}
++
++void DesktopRootWindowHostOzone::SetOpacity(unsigned char opacity) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::SetWindowIcons(
++    const gfx::ImageSkia& window_icon, const gfx::ImageSkia& app_icon) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::InitModalType(ui::ModalType modal_type) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::FlashFrame(bool flash_frame) {
++  // TODO(erg):
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::OnNativeWidgetFocus() {
++  native_widget_delegate_->AsWidget()->GetInputMethod()->OnFocus();
++}
++
++void DesktopRootWindowHostOzone::OnNativeWidgetBlur() {
++  if (window_)
++    native_widget_delegate_->AsWidget()->GetInputMethod()->OnBlur();
++}
++
++void DesktopRootWindowHostOzone::SetInactiveRenderingDisabled(
++    bool disable_inactive) {
++}
++
++////////////////////////////////////////////////////////////////////////////////
++// DesktopRootWindowHostOzone, aura::RootWindowHost implementation:
++
++void DesktopRootWindowHostOzone::SetDelegate(
++    aura::RootWindowHostDelegate* delegate) {
++  root_window_host_delegate_ = delegate;
++}
++
++aura::RootWindow* DesktopRootWindowHostOzone::GetRootWindow() {
++  return root_window_;
++}
++
++gfx::AcceleratedWidget DesktopRootWindowHostOzone::GetAcceleratedWidget() {
++  return window_;
++}
++
++void DesktopRootWindowHostOzone::Show() {
++  NOTIMPLEMENTED();
++
++  window_mapped_ = true;
++}
++
++void DesktopRootWindowHostOzone::Hide() {
++  NOTIMPLEMENTED();
++
++  window_mapped_ = false;
++}
++
++void DesktopRootWindowHostOzone::ToggleFullScreen() {
++  NOTIMPLEMENTED();
++}
++
++gfx::Rect DesktopRootWindowHostOzone::GetBounds() const {
++  return bounds_;
++}
++
++void DesktopRootWindowHostOzone::SetBounds(const gfx::Rect& bounds) {
++  bool origin_changed = bounds_.origin() != bounds.origin();
++  bool size_changed = bounds_.size() != bounds.size();
++
++  bounds_ = bounds;
++
++  if (origin_changed)
++    native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
++  if (size_changed)
++    root_window_host_delegate_->OnHostResized(bounds.size());
++  else
++    root_window_host_delegate_->OnHostPaint(gfx::Rect(bounds.size()));
++}
++
++gfx::Insets DesktopRootWindowHostOzone::GetInsets() const {
++  return gfx::Insets();
++}
++
++void DesktopRootWindowHostOzone::SetInsets(const gfx::Insets& insets) {
++}
++
++gfx::Point DesktopRootWindowHostOzone::GetLocationOnNativeScreen() const {
++  return bounds_.origin();
++}
++
++void DesktopRootWindowHostOzone::SetCapture() {
++  // This is vaguely based on the old NativeWidgetGtk implementation.
++  //
++  // X11's XPointerGrab() shouldn't be used for everything; it doesn't map
++  // cleanly to Windows' SetCapture(). GTK only provides a separate concept of
++  // a grab that wasn't the X11 pointer grab, but was instead a manual
++  // redirection of the event. (You need to drop into GDK if you want to
++  // perform a raw X11 grab).
++
++  if (g_current_capture)
++    g_current_capture->OnCaptureReleased();
++
++  g_current_capture = this;
++
++  // TODO(erg): In addition to the above, NativeWidgetGtk performs a full X
++  // pointer grab when our NativeWidget is of type Menu. However, things work
++  // without it. Clicking inside a chrome window causes a release capture, and
++  // clicking outside causes an activation change. Since previous attempts at
++  // using XPointerGrab() to implement this have locked my X server, I'm going
++  // to skip this for now.
++}
++
++void DesktopRootWindowHostOzone::ReleaseCapture() {
++  if (g_current_capture)
++    g_current_capture->OnCaptureReleased();
++}
++
++void DesktopRootWindowHostOzone::SetCursor(gfx::NativeCursor cursor) {
++  NOTIMPLEMENTED();
++}
++
++bool DesktopRootWindowHostOzone::QueryMouseLocation(
++    gfx::Point* location_return) {
++  NOTIMPLEMENTED();
++  return false;
++}
++
++bool DesktopRootWindowHostOzone::ConfineCursorToRootWindow() {
++  NOTIMPLEMENTED();
++  return false;
++}
++
++void DesktopRootWindowHostOzone::UnConfineCursor() {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::OnCursorVisibilityChanged(bool show) {
++  // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
++  // the same tap-to-click disabling here that chromeos does.
++}
++
++void DesktopRootWindowHostOzone::MoveCursorTo(const gfx::Point& location) {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::SetFocusWhenShown(bool focus_when_shown) {
++  NOTIMPLEMENTED();
++}
++
++bool DesktopRootWindowHostOzone::CopyAreaToSkCanvas(
++    const gfx::Rect& source_bounds,
++    const gfx::Point& dest_offset,
++    SkCanvas* canvas) {
++  NOTIMPLEMENTED();
++  return false;
++}
++
++bool DesktopRootWindowHostOzone::GrabSnapshot(
++      const gfx::Rect& snapshot_bounds,
++      std::vector<unsigned char>* png_representation) {
++  NOTIMPLEMENTED();
++  return false;
++}
++
++void DesktopRootWindowHostOzone::PostNativeEvent(
++    const base::NativeEvent& native_event) {
++  NOTIMPLEMENTED();
++}
++
++void DesktopRootWindowHostOzone::OnDeviceScaleFactorChanged(
++    float device_scale_factor) {
++}
++
++void DesktopRootWindowHostOzone::PrepareForShutdown() {
++}
++
++#if 0
++////////////////////////////////////////////////////////////////////////////////
++// DesktopRootWindowHostOzone, ui::DesktopSelectionProviderAuraOzone implementation:
++void DesktopRootWindowHostOzone::SetDropHandler(
++    ui::OSExchangeDataProviderAuraOzone* handler) {
++  if (handler) {
++    DCHECK(!drop_handler_);
++    drop_handler_ = handler;
++  } else {
++    DCHECK(drop_handler_);
++    drop_handler_ = NULL;
++  }
++}
++#endif
++////////////////////////////////////////////////////////////////////////////////
++// DesktopRootWindowHostOzone, MessageLoop::Dispatcher implementation:
++
++bool DesktopRootWindowHostOzone::Dispatch(const base::NativeEvent& event) {
++  NOTIMPLEMENTED();
++  return false;
++}
++
++////////////////////////////////////////////////////////////////////////////////
++// DesktopRootWindowHost, public:
++
++// static
++DesktopRootWindowHost* DesktopRootWindowHost::Create(
++    internal::NativeWidgetDelegate* native_widget_delegate,
++    DesktopNativeWidgetAura* desktop_native_widget_aura,
++    const gfx::Rect& initial_bounds) {
++  return new DesktopRootWindowHostOzone(native_widget_delegate,
++                                          desktop_native_widget_aura,
++                                          initial_bounds);
++}
++
++}  // namespace views
+diff --git a/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h
+new file mode 100644
+index 0000000..ba4f31e
+--- /dev/null
++++ b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h
+@@ -0,0 +1,201 @@
++// Copyright (c) 2013 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
++#define UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
++
++#include "base/basictypes.h"
++#include "base/memory/weak_ptr.h"
++#include "ui/aura/client/cursor_client.h"
++#include "ui/aura/root_window_host.h"
++#include "ui/gfx/rect.h"
++#include "ui/views/views_export.h"
++#include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
++
++namespace aura {
++namespace client {
++class FocusClient;
++class ScreenPositionClient;
++}
++}
++
++namespace views {
++class DesktopActivationClient;
++class DesktopCaptureClient;
++class DesktopDragDropClientAuraOzone;
++class DesktopDispatcherClient;
++class OzoneDesktopWindowMoveClient;
++class OzoneWindowEventFilter;
++
++namespace corewm {
++class CursorManager;
++}
++
++class VIEWS_EXPORT DesktopRootWindowHostOzone :
++    public DesktopRootWindowHost,
++    public aura::RootWindowHost,
++    public base::MessageLoop::Dispatcher {
++ public:
++  DesktopRootWindowHostOzone(
++      internal::NativeWidgetDelegate* native_widget_delegate,
++      DesktopNativeWidgetAura* desktop_native_widget_aura,
++      const gfx::Rect& bounds);
++  virtual ~DesktopRootWindowHostOzone();
++
++  // Called by OzoneDesktopHandler to notify us that the native windowing system
++  // has changed our activation.
++  void HandleNativeWidgetActivationChanged(bool active);
++
++ private:
++  // Initializes our Ozone surface to draw on. This method performs all
++  // initialization related to talking to the Ozone server.
++  void InitOzoneWindow(const Widget::InitParams& params);
++
++  // Creates an aura::RootWindow to contain the |content_window|, along with
++  // all aura client objects that direct behavior.
++  aura::RootWindow* InitRootWindow(const Widget::InitParams& params);
++
++  // Returns true if there's an X window manager present... in most cases.  Some
++  // window managers (notably, ion3) don't implement enough of ICCCM for us to
++  // detect that they're there.
++  bool IsWindowManagerPresent();
++
++  // Called when another DRWHL takes capture, or when capture is released
++  // entirely.
++  void OnCaptureReleased();
++
++  // Dispatches a mouse event, taking mouse capture into account. If a
++  // different host has capture, we translate the event to its coordinate space
++  // and dispatch it to that host instead.
++  void DispatchMouseEvent(ui::MouseEvent* event);
++
++  // Overridden from DesktopRootWindowHost:
++  virtual aura::RootWindow* Init(aura::Window* content_window,
++                                 const Widget::InitParams& params) OVERRIDE;
++  virtual void InitFocus(aura::Window* window) OVERRIDE;
++  virtual void Close() OVERRIDE;
++  virtual void CloseNow() OVERRIDE;
++  virtual aura::RootWindowHost* AsRootWindowHost() OVERRIDE;
++  virtual void ShowWindowWithState(ui::WindowShowState show_state) OVERRIDE;
++  virtual void ShowMaximizedWithBounds(
++      const gfx::Rect& restored_bounds) OVERRIDE;
++  virtual bool IsVisible() const OVERRIDE;
++  virtual void SetSize(const gfx::Size& size) OVERRIDE;
++  virtual void CenterWindow(const gfx::Size& size) OVERRIDE;
++  virtual void GetWindowPlacement(
++      gfx::Rect* bounds,
++      ui::WindowShowState* show_state) const OVERRIDE;
++  virtual gfx::Rect GetWindowBoundsInScreen() const OVERRIDE;
++  virtual gfx::Rect GetClientAreaBoundsInScreen() const OVERRIDE;
++  virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
++  virtual gfx::Rect GetWorkAreaBoundsInScreen() const OVERRIDE;
++  virtual void SetShape(gfx::NativeRegion native_region) OVERRIDE;
++  virtual void Activate() OVERRIDE;
++  virtual void Deactivate() OVERRIDE;
++  virtual bool IsActive() const OVERRIDE;
++  virtual void Maximize() OVERRIDE;
++  virtual void Minimize() OVERRIDE;
++  virtual void Restore() OVERRIDE;
++  virtual bool IsMaximized() const OVERRIDE;
++  virtual bool IsMinimized() const OVERRIDE;
++  virtual bool HasCapture() const OVERRIDE;
++  virtual void SetAlwaysOnTop(bool always_on_top) OVERRIDE;
++  virtual void SetWindowTitle(const string16& title) OVERRIDE;
++  virtual void ClearNativeFocus() OVERRIDE;
++  virtual Widget::MoveLoopResult RunMoveLoop(
++      const gfx::Vector2d& drag_offset,
++      Widget::MoveLoopSource source) OVERRIDE;
++  virtual void EndMoveLoop() OVERRIDE;
++  virtual void SetVisibilityChangedAnimationsEnabled(bool value) OVERRIDE;
++  virtual bool ShouldUseNativeFrame() OVERRIDE;
++  virtual void FrameTypeChanged() OVERRIDE;
++  virtual NonClientFrameView* CreateNonClientFrameView() OVERRIDE;
++  virtual void SetFullscreen(bool fullscreen) OVERRIDE;
++  virtual bool IsFullscreen() const OVERRIDE;
++  virtual void SetOpacity(unsigned char opacity) OVERRIDE;
++  virtual void SetWindowIcons(const gfx::ImageSkia& window_icon,
++                              const gfx::ImageSkia& app_icon) OVERRIDE;
++  virtual void InitModalType(ui::ModalType modal_type) OVERRIDE;
++  virtual void FlashFrame(bool flash_frame) OVERRIDE;
++  virtual void OnNativeWidgetFocus() OVERRIDE;
++  virtual void OnNativeWidgetBlur() OVERRIDE;
++  virtual void SetInactiveRenderingDisabled(bool disable_inactive) OVERRIDE;
++
++  // Overridden from aura::RootWindowHost:
++  virtual void SetDelegate(aura::RootWindowHostDelegate* delegate) OVERRIDE;
++  virtual aura::RootWindow* GetRootWindow() OVERRIDE;
++  virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
++  virtual void Show() OVERRIDE;
++  virtual void Hide() OVERRIDE;
++  virtual void ToggleFullScreen() OVERRIDE;
++  virtual gfx::Rect GetBounds() const OVERRIDE;
++  virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
++  virtual gfx::Insets GetInsets() const OVERRIDE;
++  virtual void SetInsets(const gfx::Insets& insets) OVERRIDE;
++  virtual gfx::Point GetLocationOnNativeScreen() const OVERRIDE;
++  virtual void SetCapture() OVERRIDE;
++  virtual void ReleaseCapture() OVERRIDE;
++  virtual void SetCursor(gfx::NativeCursor cursor) OVERRIDE;
++  virtual bool QueryMouseLocation(gfx::Point* location_return) OVERRIDE;
++  virtual bool ConfineCursorToRootWindow() OVERRIDE;
++  virtual void UnConfineCursor() OVERRIDE;
++  virtual void OnCursorVisibilityChanged(bool show) OVERRIDE;
++  virtual void MoveCursorTo(const gfx::Point& location) OVERRIDE;
++  virtual void SetFocusWhenShown(bool focus_when_shown) OVERRIDE;
++  virtual bool CopyAreaToSkCanvas(const gfx::Rect& source_bounds,
++                                  const gfx::Point& dest_offset,
++                                  SkCanvas* canvas) OVERRIDE;
++  virtual bool GrabSnapshot(
++      const gfx::Rect& snapshot_bounds,
++      std::vector<unsigned char>* png_representation) OVERRIDE;
++  virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
++  virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE;
++  virtual void PrepareForShutdown() OVERRIDE;
++
++  // Overridden from DesktopSelectionProviderAuraOzone:
++  //virtual void SetDropHandler(
++  //    ui::OSExchangeDataProviderAuraOzone* handler) OVERRIDE;
++
++  // Overridden from Dispatcher:
++  virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
++
++  base::WeakPtrFactory<DesktopRootWindowHostOzone> close_widget_factory_;
++
++  // We are owned by the RootWindow, but we have to have a back pointer to it.
++  aura::RootWindow* root_window_;
++
++  // aura:: objects that we own.
++  scoped_ptr<DesktopCaptureClient> capture_client_;
++  scoped_ptr<aura::client::FocusClient> focus_client_;
++  scoped_ptr<DesktopActivationClient> activation_client_;
++  scoped_ptr<views::corewm::CursorManager> cursor_client_;
++  scoped_ptr<DesktopDispatcherClient> dispatcher_client_;
++  scoped_ptr<aura::client::ScreenPositionClient> position_client_;
++
++  gfx::AcceleratedWidget window_;
++  internal::NativeWidgetDelegate* native_widget_delegate_;
++
++  // Is the window mapped to the screen?
++  bool window_mapped_;
++
++  gfx::Rect bounds_;
++
++  aura::RootWindowHostDelegate* root_window_host_delegate_;
++  aura::Window* content_window_;
++
++  DesktopNativeWidgetAura* desktop_native_widget_aura_;
++
++  // The current root window host that has capture. While X11 has something
++  // like Windows SetCapture()/ReleaseCapture(), it is entirely implicit and
++  // there are no notifications when this changes. We need to track this so we
++  // can notify widgets when they have lost capture, which controls a bunch of
++  // things in views like hiding menus.
++  static DesktopRootWindowHostOzone* g_current_capture;
++
++  DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostOzone);
++};
++
++}  // namespace views
++
++#endif  // UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
+-- 
+1.7.9.5
+
