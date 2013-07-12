@@ -11,6 +11,7 @@
 namespace ui {
 
 class WaylandDisplay;
+class EventFactoryWayland;
 
 class SurfaceFactoryWayland : public SurfaceFactoryOzone {
  public:
@@ -29,6 +30,9 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
   virtual gfx::VSyncProvider* GetVSyncProvider(gfx::AcceleratedWidget w) OVERRIDE;
 
  private:
+  void InitializeWaylandEvent();
+
+  ui::EventFactoryWayland *e_factory;
   ui::WaylandDisplay* display_;
 
 };

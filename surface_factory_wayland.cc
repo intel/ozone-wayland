@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "ozone/surface_factory_wayland.h"
+#include "ozone/event_factory_wayland.h"
 
 #include "base/base_paths.h"
 #include "base/command_line.h"
@@ -72,8 +73,15 @@ bool InitializeGLBindings() {
 
 namespace ui {
 
+void SurfaceFactoryWayland::InitializeWaylandEvent()
+{
+  e_factory = new ui::EventFactoryWayland();
+  ui::EventFactoryWayland::SetInstance(e_factory);
+}
+
 SurfaceFactoryWayland::SurfaceFactoryWayland()
-    : display_(ui::WaylandDisplay::GetDisplay()) {
+    : e_factory(NULL),
+      display_(ui::WaylandDisplay::GetDisplay()) {
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
@@ -91,6 +99,9 @@ void SurfaceFactoryWayland::ShutdownHardware () {
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
   ui::WaylandWindow* window;
+
+//  if (!e_factory)
+//    InitializeWaylandEvent();
 
   window = new ui::WaylandWindow(NULL, display_);
   window->SetParentWindow(NULL);

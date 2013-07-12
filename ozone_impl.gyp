@@ -71,6 +71,8 @@
         'wayland_toolkit'
       ],
       'sources': [
+        'event_factory_wayland.cc',
+        'event_factory_wayland.h',
         'surface_factory_wayland.cc',
         'surface_factory_wayland.h',
       ],
