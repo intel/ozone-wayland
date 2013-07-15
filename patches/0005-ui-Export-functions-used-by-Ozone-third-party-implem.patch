@@ -1,0 +1,50 @@
+From 29d1f5666390a323da7385e0a8a6afba2bf476fc Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Mon, 15 Jul 2013 17:05:55 -0300
+Subject: [PATCH 5/9] ui: Export functions used by Ozone third-party
+ implementations
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ ui/base/ozone/surface_factory_ozone.h |    4 ++--
+ ui/gl/gl_implementation.h             |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
+index e1e474e..e4fdaeb 100644
+--- a/ui/base/ozone/surface_factory_ozone.h
++++ b/ui/base/ozone/surface_factory_ozone.h
+@@ -17,8 +17,8 @@ namespace ui {
+ 
+ class SurfaceFactoryOzone {
+  public:
+-  SurfaceFactoryOzone();
+-  virtual ~SurfaceFactoryOzone();
++  UI_EXPORT SurfaceFactoryOzone();
++  UI_EXPORT virtual ~SurfaceFactoryOzone();
+ 
+   // Returns the instance
+   UI_EXPORT static SurfaceFactoryOzone* GetInstance();
+diff --git a/ui/gl/gl_implementation.h b/ui/gl/gl_implementation.h
+index 2129782..bedfa9d 100644
+--- a/ui/gl/gl_implementation.h
++++ b/ui/gl/gl_implementation.h
+@@ -70,13 +70,13 @@ GLImplementation GetNamedGLImplementation(const std::string& name);
+ const char* GetGLImplementationName(GLImplementation implementation);
+ 
+ // Add a native library to those searched for GL entry points.
+-void AddGLNativeLibrary(base::NativeLibrary library);
++GL_EXPORT void AddGLNativeLibrary(base::NativeLibrary library);
+ 
+ // Unloads all native libraries.
+ void UnloadGLNativeLibraries();
+ 
+ // Set an additional function that will be called to find GL entry points.
+-void SetGLGetProcAddressProc(GLGetProcAddressProc proc);
++GL_EXPORT void SetGLGetProcAddressProc(GLGetProcAddressProc proc);
+ 
+ // Find a core (non-extension) entry point in the current GL implementation. On
+ // EGL based implementations core entry points will not be queried through
+-- 
+1.7.9.5
+

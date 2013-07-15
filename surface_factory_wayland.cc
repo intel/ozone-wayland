@@ -131,7 +131,7 @@ bool SurfaceFactoryWayland::LoadEGLGLES2Bindings() {
   return gfx::InitializeGLBindings();
 }
 
-bool SurfaceFactoryWayland::AcceleratedWidgetResize(gfx::AcceleratedWidget w,
+bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
     const gfx::Rect& bounds) {
   ui::WaylandWindow* window = (ui::WaylandWindow*)w;
   window->SetBounds(bounds);

@@ -1,0 +1,58 @@
+From f039bebb02773ec231e0b139ba2bb3432cf1367e Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Mon, 1 Jul 2013 19:10:53 -0300
+Subject: [PATCH 2/9] Chromium: Add gl changes for Wayland
+
+TODO: needs to check whether this can be upstreamed.
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ ui/base/ozone/surface_factory_ozone.h |    3 +--
+ ui/gl/gl_surface_egl.cc               |    8 +++-----
+ 2 files changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
+index b9e4403..b082eda 100644
+--- a/ui/base/ozone/surface_factory_ozone.h
++++ b/ui/base/ozone/surface_factory_ozone.h
+@@ -29,10 +29,9 @@ class SurfaceFactoryOzone {
+   // Sets the implementation delegate. Ownership is retained by the caller.
+   UI_EXPORT static void SetInstance(SurfaceFactoryOzone* impl);
+ 
+-  // TODO(rjkroege): Add a status code if necessary.
+   // Configures the display hardware. Must be called from within the GPU
+   // process before the sandbox has been activated.
+-  virtual void InitializeHardware() = 0;
++  virtual intptr_t InitializeHardware() = 0;
+ 
+   // Cleans up display hardware state. Call this from within the GPU process.
+   // This method must be safe to run inside of the sandbox.
+diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
+index 18e5406..6c5e3a2 100644
+--- a/ui/gl/gl_surface_egl.cc
++++ b/ui/gl/gl_surface_egl.cc
+@@ -101,10 +101,8 @@ bool GLSurfaceEGL::InitializeOneOff() {
+     return true;
+ 
+ #if defined (USE_OZONE)
+-  ui::SurfaceFactoryOzone::GetInstance()->InitializeHardware();
+-#endif
+-
+-#if defined(USE_X11)
++  g_native_display = ui::SurfaceFactoryOzone::GetInstance()->InitializeHardware();
++#elif defined(USE_X11)
+   g_native_display = base::MessagePumpForUI::GetDefaultXDisplay();
+ #elif defined(OS_WIN)
+   g_native_display = EGL_DEFAULT_DISPLAY;
+@@ -135,7 +133,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+     EGL_GREEN_SIZE, 8,
+     EGL_RED_SIZE, 8,
+     EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT | EGL_PBUFFER_BIT,
++    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+     EGL_NONE
+   };
+ 
+-- 
+1.7.9.5
+

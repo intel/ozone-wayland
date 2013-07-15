@@ -26,7 +26,7 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
       gfx::AcceleratedWidget w) OVERRIDE;
   virtual bool LoadEGLGLES2Bindings() OVERRIDE;
-  virtual bool AcceleratedWidgetResize(gfx::AcceleratedWidget w, const gfx::Rect& bounds) OVERRIDE;
+  virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w, const gfx::Rect& bounds) OVERRIDE;
   virtual gfx::VSyncProvider* GetVSyncProvider(gfx::AcceleratedWidget w) OVERRIDE;
 
  private:

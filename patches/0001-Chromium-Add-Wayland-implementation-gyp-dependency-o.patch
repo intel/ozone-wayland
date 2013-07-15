@@ -1,17 +1,37 @@
-From c2b7dbad5e0f5dc2abb56318c19f1937ff1477bd Mon Sep 17 00:00:00 2001
+From e0348a3160975f0175a1db8da197e52c348a98a7 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Wed, 10 Jul 2013 19:25:15 -0300
-Subject: [PATCH] ozone: WIP: Chromium changes that needs to be solved
+Date: Mon, 1 Jul 2013 19:10:53 -0300
+Subject: [PATCH 1/9] Chromium: Add Wayland implementation gyp dependency on
+ Ozone
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
+ build/common.gypi                        |    6 ++++++
  content/shell/app/shell_main_delegate.cc |    6 ++++++
+ ui/aura/aura.gyp                         |    5 +++++
  ui/aura/demo/demo_main.cc                |    6 ++++++
  ui/aura/root_window_host_ozone.cc        |    2 +-
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ 5 files changed, 24 insertions(+), 1 deletion(-)
 
+diff --git a/build/common.gypi b/build/common.gypi
+index 06ce9a0..9b65aa1 100644
+--- a/build/common.gypi
++++ b/build/common.gypi
+@@ -138,6 +138,12 @@
+             'toolkit_uses_gtk%': 0,
+           }],
+ 
++          ['use_ozone==1', {
++            'dependencies': [
++              '<(DEPTH)/ozone/ozone_impl.gyp:wayland',
++            ]
++          }],
++
+           # Enable HiDPI on Mac OS and Chrome OS.
+           ['OS=="mac" or chromeos==1', {
+             'enable_hidpi%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index b16e98a..25263a5 100644
+index bcef628..0e41a1d 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -24,6 +24,8 @@
@@ -23,7 +43,7 @@ index b16e98a..25263a5 100644
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
  #if defined(IPC_MESSAGE_LOG_ENABLED)
-@@ -164,6 +166,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+@@ -166,6 +168,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
  
  void ShellMainDelegate::PreSandboxStartup() {
    InitializeResourceBundle();
@@ -34,6 +54,22 @@ index b16e98a..25263a5 100644
  }
  
  int ShellMainDelegate::RunProcess(
+diff --git a/ui/aura/aura.gyp b/ui/aura/aura.gyp
+index 7915d09..66e0dd6 100644
+--- a/ui/aura/aura.gyp
++++ b/ui/aura/aura.gyp
+@@ -130,6 +130,11 @@
+             '../../ipc/ipc.gyp:ipc',
+           ],
+         }],
++        ['use_ozone==1', {
++          'dependencies': [
++            '../../ozone/ozone_impl.gyp:wayland',
++          ]
++        }],
+       ],
+     },
+     {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
 index aea286e..3d317bc 100644
 --- a/ui/aura/demo/demo_main.cc
