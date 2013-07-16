@@ -139,6 +139,11 @@ bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWid
   return true;
 }
 
+bool SurfaceFactoryWayland::AcceleratedWidgetCanBeResized(gfx::AcceleratedWidget w) 
+{
+  return false;
+}
+
 gfx::VSyncProvider* SurfaceFactoryWayland::GetVSyncProvider(gfx::AcceleratedWidget w) {
   return 0;
 }
