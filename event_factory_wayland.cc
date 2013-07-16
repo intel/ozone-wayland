@@ -6,7 +6,6 @@
 
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_ozone.h"
 #include "ozone/wayland_display.h"
 
@@ -27,10 +26,14 @@ EventFactoryWayland::EventFactoryWayland()
   bool success = base::MessagePumpOzone::Current()->WatchFileDescriptor(
                             fd_,
                             true,
-                            base::MessagePumpLibevent::WATCH_WRITE,
+                            base::MessagePumpLibevent::WATCH_READ,
                             &watcher_,
                             this);
   CHECK(success);
+
+  display_->ProcessTasks();
+  wl_display_dispatch_pending(display_->display());
+  wl_display_flush(display_->display());
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
@@ -46,13 +49,18 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
+  display_->ProcessTasks();
+
+  while (wl_display_prepare_read(display_->display()) != 0)
+    wl_display_dispatch_pending(display_->display());
+  wl_display_flush(display_->display());
+
+  wl_display_read_events(display_->display());
+  wl_display_dispatch_pending(display_->display());
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
-  display_->ProcessTasks();
-  wl_display_flush(display_->display());
-
-  wl_display_dispatch(display_->display());
+  NOTREACHED();
 }
 
 }  // namespace ui

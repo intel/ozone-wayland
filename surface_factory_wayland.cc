@@ -100,8 +100,8 @@ void SurfaceFactoryWayland::ShutdownHardware () {
 gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
   ui::WaylandWindow* window;
 
-//  if (!e_factory)
-//    InitializeWaylandEvent();
+  if (!e_factory)
+    InitializeWaylandEvent();
 
   window = new ui::WaylandWindow(NULL, display_);
   window->SetParentWindow(NULL);

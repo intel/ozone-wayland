@@ -199,6 +199,8 @@ void WaylandWindow::Flush()
   // TODO: gotta find a better way to not set the type every time it flushes
   if (display_->shell())
     SetType();
+
+  wl_display_flush(display_->display());
 }
 
 void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
