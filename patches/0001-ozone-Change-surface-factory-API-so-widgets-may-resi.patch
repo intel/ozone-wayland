@@ -1,4 +1,4 @@
-From 9554f242fdef3a9073e20a9beb8bc1c230ee613e Mon Sep 17 00:00:00 2001
+From f01acd5477606d51a6edbed9ab63b1b35bf04b69 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 15 Jul 2013 16:50:27 -0300
 Subject: [PATCH 1/8] ozone: Change surface factory API so widgets may resize

@@ -1,7 +1,7 @@
-From 5634b5e4667065c969a1fd6c65d9ebb0f3f5b02a Mon Sep 17 00:00:00 2001
+From 9834ef27758ef6a6be89cba091dc95e0af245cf0 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Fri, 12 Jul 2013 19:13:33 -0300
-Subject: [PATCH 7/9] content/browser: Use in-process for 3D contexts
+Subject: [PATCH 6/8] content/browser: Use in-process for 3D contexts
 
 This has to be properly implemented later to use command buffer (GPU process).
 
