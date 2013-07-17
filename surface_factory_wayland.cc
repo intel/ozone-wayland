@@ -6,10 +6,12 @@
 #include "ozone/event_factory_wayland.h"
 
 #include "base/base_paths.h"
+#include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/native_library.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
 #include "ozone/wayland_display.h"
 #include "ozone/wayland_window.h"
@@ -81,6 +83,7 @@ void SurfaceFactoryWayland::InitializeWaylandEvent()
 
 SurfaceFactoryWayland::SurfaceFactoryWayland()
     : e_factory(NULL),
+      weak_ptr_factory_(this),
       display_(ui::WaylandDisplay::GetDisplay()) {
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
@@ -94,6 +97,28 @@ intptr_t SurfaceFactoryWayland::InitializeHardware()
 }
 
 void SurfaceFactoryWayland::ShutdownHardware () {
+  return;
+}
+
+void SurfaceFactoryWayland::Flush() {
+  wl_display_flush(display_->display());
+}
+
+void SurfaceFactoryWayland::Show(gfx::AcceleratedWidget w) {
+
+  // a proper integration of libwayland should call wl_display_flush () before
+  // blocking on the client's event loop. PostNonNestableTask here will ensure
+  // that it gets delivered and ran right before libevent goes to sleep.
+  //
+  // This is a hack and not necessarily it should be here in ::Show. Ideally
+  // libevent would emit a signal mentioning its intent to sleep and libwayland
+  // would flush the remaining buffered bytes. But ::Show in general seems to
+  // be triggered just before eglSwapBuffers happens (at least on aura_demo).
+
+  base::MessageLoop::current()->PostNonNestableTask(
+      FROM_HERE,
+      base::Bind(&SurfaceFactoryWayland::Flush,
+                 weak_ptr_factory_.GetWeakPtr()));
   return;
 }
 
