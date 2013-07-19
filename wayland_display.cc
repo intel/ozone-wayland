@@ -15,7 +15,7 @@
 #include "ozone/wayland_screen.h"
 #include "ozone/wayland_window.h"
 #include "ozone/wayland_input_method_event_filter.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 
 #ifdef USE_CAIRO_GLESV2
 #include <GLES2/gl2.h>
