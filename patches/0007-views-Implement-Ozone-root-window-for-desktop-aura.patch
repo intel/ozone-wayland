@@ -1,14 +1,14 @@
-From 5935fd9f812ae83e680e832ff5e199e8b929c424 Mon Sep 17 00:00:00 2001
+From 01f2c8de25af3e295bddf4427f6ffbb762e21231 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 6 May 2013 18:15:08 -0300
-Subject: [PATCH 7/7] views: Implement Ozone root window for desktop aura
+Subject: [PATCH] views: Implement Ozone root window for desktop aura
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
  ui/views/views.gyp                                 |    2 +
- .../desktop_aura/desktop_root_window_host_ozone.cc |  628 ++++++++++++++++++++
- .../desktop_aura/desktop_root_window_host_ozone.h  |  201 +++++++
- 3 files changed, 831 insertions(+)
+ .../desktop_aura/desktop_root_window_host_ozone.cc |  663 ++++++++++++++++++++
+ .../desktop_aura/desktop_root_window_host_ozone.h  |  201 ++++++
+ 3 files changed, 866 insertions(+)
  create mode 100644 ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
  create mode 100644 ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h
 
@@ -27,10 +27,10 @@ index 47927ac..fb698ef 100644
          'widget/desktop_aura/desktop_root_window_host_x11.cc',
 diff --git a/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
 new file mode 100644
-index 0000000..375dc13
+index 0000000..4d46e58
 --- /dev/null
 +++ b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
-@@ -0,0 +1,628 @@
+@@ -0,0 +1,663 @@
 +// Copyright (c) 2013 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -145,8 +145,7 @@ index 0000000..375dc13
 +  capture_client_.reset(new views::DesktopCaptureClient(root_window_));
 +  aura::client::SetCaptureClient(root_window_, capture_client_.get());
 +
-+  // TODO: dispatches activation?
-+  //base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
++  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
 +
 +  if (corewm::UseFocusControllerOnDesktop()) {
 +    corewm::FocusController* focus_controller =
@@ -165,7 +164,7 @@ index 0000000..375dc13
 +  aura::client::SetDispatcherClient(root_window_,
 +                                    dispatcher_client_.get());
 +
-+  // TODO: cursor_client_?
++  // TODO(vignatti): cursor_client_?
 +
 +  position_client_.reset(new DesktopScreenPositionClient);
 +  aura::client::SetScreenPositionClient(root_window_,
@@ -173,7 +172,7 @@ index 0000000..375dc13
 +
 +  desktop_native_widget_aura_->InstallInputMethodEventFilter(root_window_);
 +
-+  // TODO: drag_drop_client?
++  // TODO(vignatti): drag_drop_client?
 +
 +  focus_client_->FocusWindow(content_window_);
 +  return root_window_;
@@ -623,26 +622,62 @@ index 0000000..375dc13
 +void DesktopRootWindowHostOzone::PrepareForShutdown() {
 +}
 +
-+#if 0
-+////////////////////////////////////////////////////////////////////////////////
-+// DesktopRootWindowHostOzone, ui::DesktopSelectionProviderAuraOzone implementation:
-+void DesktopRootWindowHostOzone::SetDropHandler(
-+    ui::OSExchangeDataProviderAuraOzone* handler) {
-+  if (handler) {
-+    DCHECK(!drop_handler_);
-+    drop_handler_ = handler;
-+  } else {
-+    DCHECK(drop_handler_);
-+    drop_handler_ = NULL;
-+  }
-+}
-+#endif
 +////////////////////////////////////////////////////////////////////////////////
 +// DesktopRootWindowHostOzone, MessageLoop::Dispatcher implementation:
 +
-+bool DesktopRootWindowHostOzone::Dispatch(const base::NativeEvent& event) {
-+  NOTIMPLEMENTED();
-+  return false;
++bool DesktopRootWindowHostOzone::Dispatch(const base::NativeEvent& ne) {
++  ui::Event* event = static_cast<ui::Event*>(ne);
++  ui::EventType type = ui::EventTypeFromNative(ne);
++
++  switch (type) {
++    case ui::ET_TOUCH_MOVED:
++    case ui::ET_TOUCH_PRESSED:
++    case ui::ET_TOUCH_CANCELLED:
++    case ui::ET_TOUCH_RELEASED: {
++      ui::TouchEvent touchev(event);
++      root_window_host_delegate_->OnHostTouchEvent(&touchev);
++      break;
++    }
++    case ui::ET_KEY_PRESSED: {
++      ui::KeyEvent keydown_event(event, false);
++      root_window_host_delegate_->OnHostKeyEvent(&keydown_event);
++      break;
++    }
++    case ui::ET_KEY_RELEASED: {
++      ui::KeyEvent keyup_event(event, false);
++      root_window_host_delegate_->OnHostKeyEvent(&keyup_event);
++      break;
++    }
++    case ui::ET_MOUSEWHEEL: {
++      ui::MouseWheelEvent wheelev(event);
++      DispatchMouseEvent(&wheelev);
++      break;
++    }
++    case ui::ET_MOUSE_MOVED:
++    case ui::ET_MOUSE_DRAGGED:
++    case ui::ET_MOUSE_PRESSED:
++    case ui::ET_MOUSE_RELEASED:
++    case ui::ET_MOUSE_ENTERED:
++    case ui::ET_MOUSE_EXITED: {
++      ui::MouseEvent mouseev(event);
++      DispatchMouseEvent(&mouseev);
++      break;
++    }
++    case ui::ET_SCROLL_FLING_START:
++    case ui::ET_SCROLL_FLING_CANCEL:
++    case ui::ET_SCROLL: {
++      ui::ScrollEvent scrollev(event);
++      root_window_host_delegate_->OnHostScrollEvent(&scrollev);
++      break;
++    }
++    case ui::ET_UMA_DATA:
++      break;
++    case ui::ET_UNKNOWN:
++      break;
++    default:
++      NOTIMPLEMENTED() << "DesktopRootWindowHostOzone: unknown event type.";
++  }
++  return true;
 +}
 +
 +////////////////////////////////////////////////////////////////////////////////
@@ -654,8 +689,8 @@ index 0000000..375dc13
 +    DesktopNativeWidgetAura* desktop_native_widget_aura,
 +    const gfx::Rect& initial_bounds) {
 +  return new DesktopRootWindowHostOzone(native_widget_delegate,
-+                                          desktop_native_widget_aura,
-+                                          initial_bounds);
++                                        desktop_native_widget_aura,
++                                        initial_bounds);
 +}
 +
 +}  // namespace views

@@ -9,19 +9,16 @@
 #include <linux/input.h>
 #include <wayland-client.h>
 
-#include <wayland-egl.h>
+// GLfloat
 #include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 
-//#include "base/wayland/wayland_event.h"
-#include "ozone/wayland_delegate.h"
+#include "base/bind.h"
+#include "base/message_loop/message_loop.h"
+#include "base/message_loop/message_pump_ozone.h"
+#include "ozone/wayland_kbd_conversion.h"
 #include "ozone/wayland_window.h"
 #include "ui/base/events/event.h"
-#include "ui/base/events/event_constants.h"
 #include "ui/base/hit_test.h"
-#include "ui/base/ui_base_types.h"
 
 using namespace base::wayland;
 
@@ -208,6 +205,15 @@ void WaylandInputDevice::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t 
   }
 }
 
+void WaylandInputDevice::DispatchEventHelper(scoped_ptr<ui::Event> key) {
+  base::MessagePumpOzone::Current()->Dispatch(key.get());
+}
+
+void WaylandInputDevice::DispatchEvent(scoped_ptr<ui::Event> event) {
+  base::MessageLoop::current()->PostTask(
+      FROM_HERE, base::Bind(&DispatchEventHelper, base::Passed(&event)));
+}
+
 void WaylandInputDevice::OnMotionNotify(void* data,
     wl_pointer* input_pointer,
     uint32_t time,
@@ -219,39 +225,15 @@ void WaylandInputDevice::OnMotionNotify(void* data,
   GLfloat sx = wl_fixed_to_double(sx_w);
   GLfloat sy = wl_fixed_to_double(sy_w);
 
-  device->surface_position_.SetPoint(sx, sy);
+  device->pointer_position_.SetPoint(sx, sy);
 
-#if 0
-  WaylandEvent event;
-  event.type = WAYLAND_MOTION;
-  event.motion.time = time;
-  event.motion.modifiers = device->keyboard_modifiers_;
-  event.motion.x = sx;
-  event.motion.y = sy;
+  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
+      ui::ET_MOUSE_MOVED,
+      gfx::Point(sx, sy),
+      gfx::Point(sx, sy),
+      /* flags */ 0));
 
-  if (!window->delegate())
-    return;
-
-  gfx::Point pt(event.motion.x, event.motion.y);
-  int component = window->delegate()->GetNonClientComponent(pt);
-  BoundsChangeType type = WaylandInputDevice::GetBoundsChangeForWindowComponent(component);
-
-  switch(type)
-  {
-    case kBoundsChange_Resizes:
-      WaylandDisplay::GetDisplay(device->display_)->SetPointerImage(
-          device, time, WaylandInputDevice::GetPointerImageForWindowComponent(component));
-      break;
-    case kBoundsChange_Repositions:
-    default:
-      WaylandDisplay::GetDisplay(device->display_)->SetPointerImage(
-          device, time, CURSOR_LEFT_PTR);
-      break;
-  }
-
-  if(type == kBoundsChange_None)
-    window->delegate()->OnMouseEvent(&event);
-#endif
+  DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandInputDevice::OnAxisNotify(void* data,
@@ -260,31 +242,32 @@ void WaylandInputDevice::OnAxisNotify(void* data,
     uint32_t axis,
     int32_t value)
 {
+  int x_offset = 0, y_offset = 0;
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window = device->pointer_focus_;
-#if 0
-  WaylandEvent event;
-  event.type = WAYLAND_BUTTON;
-  event.button.time = time;
-  event.button.state = 1;
-  event.button.modifiers = device->keyboard_modifiers_;
-  event.button.x = device->surface_position_.x();
-  event.button.y = device->surface_position_.y();
+  const int delta = ui::MouseWheelEvent::kWheelDelta;
 
   switch (axis) {
-  case WL_POINTER_AXIS_VERTICAL_SCROLL:
-    event.button.button = value < 0 ? 4 : 5;
-    break;
   case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
-    event.button.button = value < 0 ? 6 : 7;
+    x_offset = value > 0 ? -delta : delta;
+    break;
+  case WL_POINTER_AXIS_VERTICAL_SCROLL:
+    y_offset = value > 0 ? -delta : delta;
     break;
   }
 
-  if (!window->delegate())
-    return;
+  MouseEvent mouseev(
+      ui::ET_MOUSEWHEEL,
+      device->pointer_position_,
+      device->pointer_position_,
+      /* flags */ 0);
 
-  window->delegate()->OnMouseEvent(&event);
-#endif
+  scoped_ptr<MouseWheelEvent> wheelev(new MouseWheelEvent(
+      mouseev,
+      x_offset,
+      y_offset));
+
+  DispatchEvent(wheelev.PassAs<ui::Event>());
 }
 
 void WaylandInputDevice::OnButtonNotify(void* data,
@@ -299,51 +282,28 @@ void WaylandInputDevice::OnButtonNotify(void* data,
 
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
 
-#if 0
-  WaylandEvent event;
-  event.type = WAYLAND_BUTTON;
-  event.button.time = time;
-  event.button.button = button;
-  event.button.state = state;
-  event.button.modifiers = device->keyboard_modifiers_;
-  event.button.x = device->surface_position_.x();
-  event.button.y = device->surface_position_.y();
+  EventType type;
+  if (state == WL_POINTER_BUTTON_STATE_PRESSED)
+    type = ui::ET_MOUSE_PRESSED;
+  else
+    type = ui::ET_MOUSE_RELEASED;
 
-  if (!window->delegate())
-    return;
+  // TODO(vignatti): simultaneous clicks fail
+  int flags = 0;
+  if (button == BTN_LEFT)
+    flags = ui::EF_LEFT_MOUSE_BUTTON;
+  else if (button == BTN_RIGHT)
+    flags = ui::EF_RIGHT_MOUSE_BUTTON;
+  else if (button == BTN_MIDDLE)
+    flags = ui::EF_MIDDLE_MOUSE_BUTTON;
 
-  gfx::Point pt(event.button.x, event.button.y);
-  int component = window->delegate()->GetNonClientComponent(pt);
-  BoundsChangeType type = WaylandInputDevice::GetBoundsChangeForWindowComponent(component);
+  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
+      type,
+      device->pointer_position_,
+      device->pointer_position_,
+      flags));
 
-  if(WaylandDisplay::GetDisplay(device->display_)->shell() &&
-      button == BTN_LEFT && state == WL_POINTER_BUTTON_STATE_PRESSED)
-  {
-    switch(type)
-    {
-      case kBoundsChange_Repositions:
-        if(!window->shell_surface())
-          break;
-
-        WaylandDisplay::GetDisplay(device->display_)->SetPointerImage(
-            device, time, CURSOR_DRAGGING);
-        wl_shell_surface_move(window->shell_surface(), device->input_seat_, serial);
-        break;
-      case kBoundsChange_Resizes:
-        if(!window->shell_surface())
-          break;
-
-        wl_shell_surface_resize(window->shell_surface(), device->input_seat_, serial,
-            WaylandInputDevice::GetLocationForWindowComponent(component));
-        break;
-      default:
-        break;
-    }
-  }
-
-  if(type == kBoundsChange_None)
-    window->delegate()->OnMouseEvent(&event);
-#endif
+  DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandInputDevice::OnKeyNotify(void* data,
@@ -361,15 +321,19 @@ void WaylandInputDevice::OnKeyNotify(void* data,
   xkb_mod_mask_t mask;
 
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
-#if 0
-  WaylandEvent event;
-  event.type = WAYLAND_KEY;
-  event.key.time = time;
-  event.key.key = key;
-  event.key.state = state;
+
+  EventType type;
+  if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
+    type = ET_KEY_PRESSED;
+  else
+    type = ET_KEY_RELEASED;
 
   code = key + 8;
   num_syms = xkb_key_get_syms(device->xkb_.state, code, &syms);
+  if(num_syms == 1)
+    sym = syms[0];
+  else
+    sym = NoSymbol;
 
   mask = xkb_state_serialize_mods(device->xkb_.state,
       (xkb_state_component)(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED));
@@ -381,6 +345,16 @@ void WaylandInputDevice::OnKeyNotify(void* data,
   if (mask & device->xkb_.shift_mask)
     device->keyboard_modifiers_ |= MOD_SHIFT_MASK;
 
+  scoped_ptr<KeyEvent> keyev(new KeyEvent(
+      type,
+      ui::KeyboardCodeFromXKeysym(sym),
+      /* flags */ 0,
+      true));
+
+  DispatchEvent(keyev.PassAs<ui::Event>());
+
+
+#if 0
   if(num_syms == 1)
     event.key.sym = syms[0];
   else
