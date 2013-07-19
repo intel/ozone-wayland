@@ -1,7 +1,7 @@
-From f7ae711ebb5e003a5a4537c0f760ae812c99605b Mon Sep 17 00:00:00 2001
+From 5935fd9f812ae83e680e832ff5e199e8b929c424 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 6 May 2013 18:15:08 -0300
-Subject: [PATCH 8/8] views: Implement Ozone root window for desktop aura
+Subject: [PATCH 7/7] views: Implement Ozone root window for desktop aura
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
@@ -13,7 +13,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  create mode 100644 ui/views/widget/desktop_aura/desktop_root_window_host_ozone.h
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 23814aa..78ef1d1 100644
+index 47927ac..fb698ef 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
 @@ -372,6 +372,8 @@

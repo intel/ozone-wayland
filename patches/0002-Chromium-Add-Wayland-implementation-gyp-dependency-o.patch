@@ -1,7 +1,7 @@
-From 21a1338eaa18db0868da176ab42e488bab8c0e40 Mon Sep 17 00:00:00 2001
+From ad9f25d8fc41b1b344f1b1ec9626b9db5ac69e47 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 3/8] Chromium: Add Wayland implementation gyp dependency on
+Subject: [PATCH 2/7] Chromium: Add Wayland implementation gyp dependency on
  Ozone
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
@@ -14,7 +14,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  5 files changed, 24 insertions(+), 1 deletion(-)
 
 diff --git a/build/common.gypi b/build/common.gypi
-index 122f557..acbd0e1 100644
+index 56bce88..30581a1 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -138,6 +138,12 @@
@@ -95,18 +95,18 @@ index aea286e..3d317bc 100644
    base::MessageLoop message_loop(base::MessageLoop::TYPE_UI);
    aura::Env::GetInstance();
 diff --git a/ui/aura/root_window_host_ozone.cc b/ui/aura/root_window_host_ozone.cc
-index 84a484c..bc9dbd2 100644
+index 85068e4..045d753 100644
 --- a/ui/aura/root_window_host_ozone.cc
 +++ b/ui/aura/root_window_host_ozone.cc
-@@ -11,7 +11,7 @@ namespace aura {
- 
- RootWindowHostOzone::RootWindowHostOzone(const gfx::Rect& bounds)
-     : delegate_(NULL), bounds_(bounds), factory_(new ui::EventFactoryOzone()) {
+@@ -14,7 +14,7 @@ RootWindowHostOzone::RootWindowHostOzone(const gfx::Rect& bounds)
+       widget_(0),
+       bounds_(bounds),
+       factory_(new ui::EventFactoryOzone()) {
 -  factory_->CreateEvdevWatchers();
 +//  factory_->CreateEvdevWatchers();
    ui::SurfaceFactoryOzone* surface_factory =
-     ui::SurfaceFactoryOzone::GetInstance();
-   widget_ = (gfx::AcceleratedWidget) surface_factory->GetAcceleratedWidget();
+       ui::SurfaceFactoryOzone::GetInstance();
+   widget_ = surface_factory->GetAcceleratedWidget();
 -- 
 1.7.9.5
 
