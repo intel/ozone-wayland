@@ -1,16 +1,17 @@
-From 440db4e71b8a5542ade9f397bf1613cbd946d3b6 Mon Sep 17 00:00:00 2001
+From 83d980718a71d2a34acd884c775bb7c64a2ef4aa Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Wed, 17 Jul 2013 20:12:16 -0300
 Subject: [PATCH 1/7] ozone: Implements ::Show
 
 For now, merely forwards it to the native.
 ---
- ui/aura/root_window_host_ozone.cc     |    4 +++-
- ui/base/ozone/surface_factory_ozone.h |    4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ ui/aura/root_window_host_ozone.cc      |    4 +++-
+ ui/base/ozone/surface_factory_ozone.cc |    1 +
+ ui/base/ozone/surface_factory_ozone.h  |    4 ++++
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/ui/aura/root_window_host_ozone.cc b/ui/aura/root_window_host_ozone.cc
-index 6835134..85068e4 100644
+index 28c8d0c..cc5272a 100644
 --- a/ui/aura/root_window_host_ozone.cc
 +++ b/ui/aura/root_window_host_ozone.cc
 @@ -52,7 +52,9 @@ gfx::AcceleratedWidget RootWindowHostOzone::GetAcceleratedWidget() {
@@ -24,8 +25,20 @@ index 6835134..85068e4 100644
  
  void RootWindowHostOzone::Hide() { NOTIMPLEMENTED(); }
  
+diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
+index a617efe..a7d84e5 100644
+--- a/ui/base/ozone/surface_factory_ozone.cc
++++ b/ui/base/ozone/surface_factory_ozone.cc
+@@ -23,6 +23,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
+       gfx::AcceleratedWidget w) OVERRIDE {
+     return 0;
+   }
++  virtual void Show(gfx::AcceleratedWidget w) OVERRIDE {}
+   virtual bool LoadEGLGLES2Bindings() OVERRIDE { return true; }
+   virtual bool AttemptToResizeAcceleratedWidget(
+       gfx::AcceleratedWidget w,
 diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index 7e12489..171f251 100644
+index d98882d..0ed7fd9 100644
 --- a/ui/base/ozone/surface_factory_ozone.h
 +++ b/ui/base/ozone/surface_factory_ozone.h
 @@ -50,6 +50,10 @@ class SurfaceFactoryOzone {

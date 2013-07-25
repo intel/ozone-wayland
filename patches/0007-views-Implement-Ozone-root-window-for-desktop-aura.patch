@@ -1,7 +1,7 @@
-From 01f2c8de25af3e295bddf4427f6ffbb762e21231 Mon Sep 17 00:00:00 2001
+From 83c44ae2da60d290616be23fb43addc4c4e11e95 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 6 May 2013 18:15:08 -0300
-Subject: [PATCH] views: Implement Ozone root window for desktop aura
+Subject: [PATCH 7/7] views: Implement Ozone root window for desktop aura
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---

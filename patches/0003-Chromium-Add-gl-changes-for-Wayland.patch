@@ -1,4 +1,4 @@
-From a7f66d4e10ab2e215c3d113f89ec8cace3dfcb83 Mon Sep 17 00:00:00 2001
+From 8617df3441adc7f590cb99d045d87e96faddbb63 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
 Subject: [PATCH 3/7] Chromium: Add gl changes for Wayland
@@ -7,12 +7,26 @@ TODO: needs to check whether this can be upstreamed.
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
- ui/base/ozone/surface_factory_ozone.h |    3 +--
- ui/gl/gl_surface_egl.cc               |    8 +++-----
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ ui/base/ozone/surface_factory_ozone.cc |    2 +-
+ ui/base/ozone/surface_factory_ozone.h  |    3 +--
+ ui/gl/gl_surface_egl.cc                |    8 +++-----
+ 3 files changed, 5 insertions(+), 8 deletions(-)
 
+diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
+index a7d84e5..48014c9 100644
+--- a/ui/base/ozone/surface_factory_ozone.cc
++++ b/ui/base/ozone/surface_factory_ozone.cc
+@@ -16,7 +16,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
+   SurfaceFactoryOzoneStub() {}
+   virtual ~SurfaceFactoryOzoneStub() {}
+ 
+-  virtual void InitializeHardware() OVERRIDE {}
++  virtual intptr_t InitializeHardware() OVERRIDE { return 0; }
+   virtual void ShutdownHardware() OVERRIDE {}
+   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
+   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
 diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index 171f251..9765cb3 100644
+index 0ed7fd9..05741d0 100644
 --- a/ui/base/ozone/surface_factory_ozone.h
 +++ b/ui/base/ozone/surface_factory_ozone.h
 @@ -30,10 +30,9 @@ class SurfaceFactoryOzone {
