@@ -1,0 +1,66 @@
+From e4ed4a0cb4e29dec4a067d04ba89d094dcc2e188 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Tue, 30 Jul 2013 16:08:17 +0300
+Subject: [PATCH 8/9] Ozone: Implement key event delivery
+
+---
+ ui/base/events/event.cc          |    9 +++++++++
+ ui/base/ime/fake_input_method.cc |   21 +++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/ui/base/events/event.cc b/ui/base/events/event.cc
+index 4384d4a..56b4e7c 100644
+--- a/ui/base/events/event.cc
++++ b/ui/base/events/event.cc
+@@ -595,7 +595,16 @@ uint16 KeyEvent::GetUnmodifiedCharacter() const {
+ }
+ 
+ KeyEvent* KeyEvent::Copy() const {
++#if defined(USE_OZONE)
++  // CopyNativeEvent as it is not enough and an actual copy needs to be
++  // performed when key event is coming back carrying ACK_STATE_NOT_CONSUMED.
++  KeyEvent *copy = new KeyEvent(type(), key_code(), 0, is_char());
++  Event::DispatcherApi event_disp(copy);
++  event_disp.set_phase(phase());
++  event_disp.set_target(target());
++#else
+   KeyEvent* copy = new KeyEvent(::CopyNativeEvent(native_event()), is_char());
++#endif
+ #if defined(USE_X11)
+   copy->set_delete_native_event(true);
+ #endif
+diff --git a/ui/base/ime/fake_input_method.cc b/ui/base/ime/fake_input_method.cc
+index 1cf236d..55fac13 100644
+--- a/ui/base/ime/fake_input_method.cc
++++ b/ui/base/ime/fake_input_method.cc
+@@ -92,6 +92,27 @@ bool FakeInputMethod::DispatchKeyEvent(const base::NativeEvent& native_event) {
+         text_input_client_->InsertChar(ch, state);
+     }
+   }
++#elif defined(USE_OZONE)
++  DCHECK(native_event);
++  if (EventTypeFromNative(native_event) == ET_KEY_RELEASED) {
++    // On key release, just dispatch it.
++    delegate_->DispatchKeyEventPostIME(native_event);
++  } else {
++    const uint32 state = EventFlagsFromNative(native_event);
++    // Send a RawKeyDown event first,
++    delegate_->DispatchKeyEventPostIME(native_event);
++    if (text_input_client_) {
++      // then send a Char event via ui::TextInputClient.
++      const KeyboardCode key_code = ui::KeyboardCodeFromNative(native_event);
++      uint16 ch = 0;
++
++      // TODO(vignatti): Support EF_CONTROL_DOWN state
++
++      ch = ui::GetCharacterFromKeyCode(key_code, state);
++      if (ch)
++        text_input_client_->InsertChar(ch, state);
++    }
++  }
+ #else
+   // TODO(yusukes): Support other platforms. Call InsertChar() when necessary.
+   handled = delegate_->DispatchKeyEventPostIME(native_event);
+-- 
+1.7.9.5
+
