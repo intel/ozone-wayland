@@ -9,9 +9,6 @@
 #include <linux/input.h>
 #include <wayland-client.h>
 
-// GLfloat
-#include <GLES2/gl2.h>
-
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_ozone.h"
@@ -222,8 +219,8 @@ void WaylandInputDevice::OnMotionNotify(void* data,
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window = device->pointer_focus_;
-  GLfloat sx = wl_fixed_to_double(sx_w);
-  GLfloat sy = wl_fixed_to_double(sy_w);
+  float sx = wl_fixed_to_double(sx_w);
+  float sy = wl_fixed_to_double(sy_w);
 
   device->pointer_position_.SetPoint(sx, sy);
 
@@ -352,22 +349,6 @@ void WaylandInputDevice::OnKeyNotify(void* data,
       true));
 
   DispatchEvent(keyev.PassAs<ui::Event>());
-
-
-#if 0
-  if(num_syms == 1)
-    event.key.sym = syms[0];
-  else
-    event.key.sym = NoSymbol;
-  event.key.modifiers = device->keyboard_modifiers_;
-
-  if (!window->delegate())
-    return;
-
-  // TODO: Add key processing
-  //
-  window->delegate()->OnKeyNotify(&event);
-#endif
 }
 
 void WaylandInputDevice::OnKeyModifiers(void *data, wl_keyboard *keyboard,
@@ -390,8 +371,8 @@ void WaylandInputDevice::OnPointerEnter(void* data,
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window;
 
-  GLfloat sx = wl_fixed_to_double(sx_w);
-  GLfloat sy = wl_fixed_to_double(sy_w);
+  float sx = wl_fixed_to_double(sx_w);
+  float sy = wl_fixed_to_double(sy_w);
 
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
   device->pointer_enter_serial_ = serial;
