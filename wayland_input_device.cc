@@ -120,6 +120,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* disp, uint32_t id)
     input_pointer_(NULL),
     input_keyboard_(NULL),
     pointer_focus_(NULL),
+    pointer_surface_(NULL),
     keyboard_focus_(NULL),
     keyboard_modifiers_(0)
 {
@@ -133,10 +134,15 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* disp, uint32_t id)
   wl_seat_set_user_data(input_seat_, this);
 
   InitXKB();
+
+  pointer_surface_ = wl_compositor_create_surface(
+      WaylandDisplay::GetDisplay(display_)->GetCompositor());
 }
 
 WaylandInputDevice::~WaylandInputDevice()
 {
+  wl_surface_destroy(pointer_surface_);
+
   if (input_seat_)
     wl_seat_destroy(input_seat_);
 
@@ -218,7 +224,6 @@ void WaylandInputDevice::OnMotionNotify(void* data,
     wl_fixed_t sy_w)
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
-  WaylandWindow* window = device->pointer_focus_;
   float sx = wl_fixed_to_double(sx_w);
   float sy = wl_fixed_to_double(sy_w);
 
@@ -241,7 +246,6 @@ void WaylandInputDevice::OnAxisNotify(void* data,
 {
   int x_offset = 0, y_offset = 0;
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
-  WaylandWindow* window = device->pointer_focus_;
   const int delta = ui::MouseWheelEvent::kWheelDelta;
 
   switch (axis) {
@@ -275,7 +279,6 @@ void WaylandInputDevice::OnButtonNotify(void* data,
     uint32_t state)
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
-  WaylandWindow* window = device->pointer_focus_;
 
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
 
@@ -311,7 +314,6 @@ void WaylandInputDevice::OnKeyNotify(void* data,
     uint32_t state)
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
-  WaylandWindow* window = device->keyboard_focus_;
   uint32_t code, num_syms;
   const xkb_keysym_t *syms;
   xkb_keysym_t sym;
@@ -370,29 +372,21 @@ void WaylandInputDevice::OnPointerEnter(void* data,
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window;
-
   float sx = wl_fixed_to_double(sx_w);
   float sy = wl_fixed_to_double(sy_w);
 
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
   device->pointer_enter_serial_ = serial;
-#if 0
-  WaylandEvent event;
-  event.type = WAYLAND_POINTER_FOCUS;
-  event.pointer_focus.serial = serial;
-  event.pointer_focus.x = (int32_t)sx;
-  event.pointer_focus.y = (int32_t)sy;
 
   // If we have a surface, then a new window is in focus
-  event.pointer_focus.state = 1;
   window = static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
   device->pointer_focus_ = window;
 
-  if (!window->delegate())
-    return;
+  // TODO(vignatti): sx and sy have to be used for setting different resizing
+  // and other cursors.
 
-  window->delegate()->OnMouseEnter(&event);
-#endif
+  WaylandDisplay::GetDisplay(device->display_)->SetPointerImage(
+      device, CURSOR_LEFT_PTR);  
 }
 
 void WaylandInputDevice::OnPointerLeave(void* data,

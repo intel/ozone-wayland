@@ -235,7 +235,7 @@ static const char *cursor_names[] = {
 void WaylandDisplay::CreateCursors()
 {
   unsigned int i, array_size = sizeof(cursor_names) / sizeof(cursor_names[0]);
-  cursor_theme_ = wl_cursor_theme_load(NULL, 32, shm_);
+  cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm_);
   cursors_ = new wl_cursor*[array_size];
   memset(cursors_, 0, sizeof(wl_cursor*) * array_size);
 
@@ -258,28 +258,31 @@ void WaylandDisplay::DestroyCursors()
   }
 }
 
-void WaylandDisplay::SetPointerImage(WaylandInputDevice *device, uint32_t time, int index)
+void WaylandDisplay::SetPointerImage(WaylandInputDevice *device, int index)
 {
   struct wl_buffer *buffer;
   struct wl_cursor *cursor;
   struct wl_cursor_image *image;
-
-  if (index == device->GetCurrentPointerImage())
-    return;
+  struct wl_surface *pointer_surface;
 
   cursor = cursors_[index];
   if (!cursor)
     return;
 
+  device->SetCurrentPointerImage(index);
   image = cursor->images[0];
   buffer = wl_cursor_image_get_buffer(image);
-  if (!buffer)
-    return;
-
-  device->SetCurrentPointerImage(index);
-  // TODO:
-  //  wl_pointer_set_cursor(device->GetPointer(), time, buffer,
-  //                        image->hotspot_x, image->hotspot_y);
+  pointer_surface = device->GetPointerSurface();
+  wl_pointer_set_cursor(device->GetPointer(),
+      GetSerial(),
+      pointer_surface,
+      image->hotspot_x,
+      image->hotspot_y);
+  wl_surface_attach(pointer_surface, buffer, 0, 0);
+  wl_surface_damage(pointer_surface, 0, 0,
+      image->width,
+      image->height);
+  wl_surface_commit(pointer_surface);
 }
 
 }  // namespace ui

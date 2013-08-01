@@ -96,6 +96,7 @@ class WaylandInputDevice {
 
   wl_seat* GetInputSeat() { return input_seat_; }
   wl_pointer* GetPointer() { return input_pointer_; }
+  wl_surface* GetPointerSurface() { return pointer_surface_; }
 
  private:
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
@@ -187,6 +188,8 @@ class WaylandInputDevice {
   wl_keyboard* input_keyboard_;
   wl_display* display_;
   wl_registry* registry_;
+
+  struct wl_surface *pointer_surface_;
 
   // These keep track of the window that's currently under focus. NULL if no
   // window is under focus.

@@ -92,13 +92,15 @@ class WaylandDisplay {
 
   void ProcessTasks();
 
-  void SetPointerImage(WaylandInputDevice* device, uint32_t time, int pointer);
+  void SetPointerImage(WaylandInputDevice* device, int pointer);
 
   InputMethod* GetInputMethod() const;
 
   void SetSerial(uint32_t serial) { serial_ = serial; }
 
   uint32_t GetSerial() const { return serial_; }
+
+  wl_compositor* GetCompositor() { return compositor_; }
 
  private:
   void CreateCursors();
