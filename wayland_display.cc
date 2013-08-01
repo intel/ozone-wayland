@@ -7,25 +7,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <wayland-client.h>
-#include <wayland-cursor.h>
-#include <wayland-egl.h>
 
+#include "base/message_loop/message_loop.h"
 #include "ozone/wayland_input_device.h"
 #include "ozone/wayland_screen.h"
 #include "ozone/wayland_window.h"
 #include "ozone/wayland_input_method_event_filter.h"
-#include "base/message_loop/message_loop.h"
-
-#ifdef USE_CAIRO_GLESV2
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#else
-#include <GL/gl.h>
-#endif
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 
 namespace ui {
 
@@ -164,10 +151,10 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
 WaylandDisplay::~WaylandDisplay()
 {
   if (window_list_.size() > 0)
-    fprintf(stderr, "toytoolkit warning: windows exist.\n");
+    fprintf(stderr, "warning: windows exist.\n");
 
   if (task_list_.size() > 0)
-    fprintf(stderr, "toytoolkit warning: deferred tasks exist.\n");
+    fprintf(stderr, "warning: deferred tasks exist.\n");
 
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
@@ -293,23 +280,6 @@ void WaylandDisplay::SetPointerImage(WaylandInputDevice *device, uint32_t time, 
   // TODO:
   //  wl_pointer_set_cursor(device->GetPointer(), time, buffer,
   //                        image->hotspot_x, image->hotspot_y);
-}
-
-cairo_surface_t* WaylandDisplay::CreateSurfaceFromFile(const char *filename, gfx::Rect *rect)
-{
-  return NULL;
-}
-
-void WaylandDisplay::AddWindowCallback(const wl_callback_listener *listener, WaylandWindow *window)
-{
-  wl_callback *cb;
-  cb = wl_display_sync(display_);
-  wl_callback_add_listener(cb, listener, window);
-}
-
-cairo_surface_t* WaylandDisplay::CreateSurface(wl_surface *surface, gfx::Rect *rect, uint32_t flags)
-{
-  return NULL;
 }
 
 }  // namespace ui
