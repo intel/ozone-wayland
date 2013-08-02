@@ -27,26 +27,6 @@ class WaylandWindow;
 class WaylandInputMethodEventFilter;
 class InputMethod;
 
-enum pointer_type {
-  POINTER_BOTTOM_LEFT,
-  POINTER_BOTTOM_RIGHT,
-  POINTER_BOTTOM,
-  POINTER_DRAGGING,
-  POINTER_LEFT_PTR,
-  POINTER_LEFT,
-  POINTER_RIGHT,
-  POINTER_TOP_LEFT,
-  POINTER_TOP_RIGHT,
-  POINTER_TOP,
-  POINTER_IBEAM,
-  POINTER_HAND1,
-};
-
-enum {
-  POINTER_DEFAULT = 100,
-  POINTER_UNSET
-};
-
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...

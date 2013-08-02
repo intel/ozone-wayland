@@ -17,9 +17,12 @@
 #include "ui/base/events/event.h"
 #include "ui/base/hit_test.h"
 
-using namespace base::wayland;
-
 namespace ui {
+
+enum {
+  CURSOR_DEFAULT = 100,
+  CURSOR_UNSET
+};
 
 // static
 BoundsChangeType WaylandInputDevice::GetBoundsChangeForWindowComponent(int component)
@@ -375,6 +378,8 @@ void WaylandInputDevice::OnPointerEnter(void* data,
   float sx = wl_fixed_to_double(sx_w);
   float sy = wl_fixed_to_double(sy_w);
 
+  device->pointer_position_.SetPoint(sx, sy);
+
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
   device->pointer_enter_serial_ = serial;
 
@@ -386,7 +391,15 @@ void WaylandInputDevice::OnPointerEnter(void* data,
   // and other cursors.
 
   WaylandDisplay::GetDisplay(device->display_)->SetPointerImage(
-      device, CURSOR_LEFT_PTR);  
+      device, CURSOR_LEFT_PTR);
+
+  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
+      ui::ET_MOUSE_ENTERED,
+      device->pointer_position_,
+      device->pointer_position_,
+      /* flags */ 0));
+
+  DispatchEvent(mouseev.PassAs<ui::Event>()); 
 }
 
 void WaylandInputDevice::OnPointerLeave(void* data,
@@ -398,26 +411,17 @@ void WaylandInputDevice::OnPointerLeave(void* data,
   WaylandWindow* window = device->pointer_focus_;
 
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
-#if 0
-  WaylandEvent event;
-  event.type = WAYLAND_POINTER_FOCUS;
-  event.pointer_focus.serial = serial;
 
-  // If we have a window, then this means it loses focus
-  if (window) {
-    if(!WaylandDisplay::GetDisplay(device->display_)->IsWindow(window))
-      return;
+  device->pointer_focus_ = NULL;
+  device->current_pointer_image_ = CURSOR_UNSET;
 
-    event.pointer_focus.state = 0;
-    device->pointer_focus_ = NULL;
-    device->current_pointer_image_ = POINTER_UNSET;
+  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
+      ui::ET_MOUSE_EXITED,
+      device->pointer_position_,
+      device->pointer_position_,
+      /* flags */ 0));
 
-    if (!window->delegate())
-      return;
-
-    window->delegate()->OnMouseLeave(&event);
-  }
-#endif
+  DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandInputDevice::OnKeyboardKeymap(void *data,
