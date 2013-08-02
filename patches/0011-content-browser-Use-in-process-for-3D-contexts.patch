@@ -1,0 +1,38 @@
+From 46104f7378a752ce5379d6284059171846b004ca Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Fri, 12 Jul 2013 19:13:33 -0300
+Subject: [PATCH 11/11] content/browser: Use in-process for 3D contexts
+
+This has to be properly implemented later to use command buffer (GPU process).
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ content/browser/aura/image_transport_factory.cc |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/content/browser/aura/image_transport_factory.cc b/content/browser/aura/image_transport_factory.cc
+index 2e92dd0..94372a2 100644
+--- a/content/browser/aura/image_transport_factory.cc
++++ b/content/browser/aura/image_transport_factory.cc
+@@ -22,6 +22,10 @@ void ImageTransportFactory::Initialize() {
+   if (command_line->HasSwitch(switches::kTestCompositor)) {
+     ui::SetupTestCompositor();
+   }
++#if defined(USE_OZONE)
++    // XXX: hack for in-process only 3D contexts
++    g_factory = new NoTransportImageTransportFactory(NULL);
++#else
+   if (ui::IsTestCompositorEnabled()) {
+     g_factory = new NoTransportImageTransportFactory(
+         new ui::TestContextFactory);
+@@ -29,6 +33,7 @@ void ImageTransportFactory::Initialize() {
+     g_factory = new GpuProcessTransportFactory;
+   }
+   ui::ContextFactory::SetInstance(g_factory->AsContextFactory());
++#endif
+ }
+ 
+ // static
+-- 
+1.7.9.5
+

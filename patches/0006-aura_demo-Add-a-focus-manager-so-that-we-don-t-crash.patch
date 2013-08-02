@@ -1,0 +1,43 @@
+From 34db71acc3cfe10b3accf38b1c5814f116148c70 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Wed, 31 Jul 2013 13:41:17 +0300
+Subject: [PATCH 06/11] aura_demo: Add a focus manager so that we don't crash
+ on key press.
+
+Just like in aura_bench (commit f7af6e70).
+---
+ ui/aura/demo/demo_main.cc |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
+index aea286e..1e9cca5 100644
+--- a/ui/aura/demo/demo_main.cc
++++ b/ui/aura/demo/demo_main.cc
+@@ -11,6 +11,7 @@
+ #include "ui/aura/client/default_capture_client.h"
+ #include "ui/aura/client/stacking_client.h"
+ #include "ui/aura/env.h"
++#include "ui/aura/focus_manager.h"
+ #include "ui/aura/root_window.h"
+ #include "ui/aura/test/test_screen.h"
+ #include "ui/aura/window.h"
+@@ -116,6 +117,8 @@ int DemoMain() {
+       test_screen->CreateRootWindowForPrimaryDisplay());
+   scoped_ptr<DemoStackingClient> stacking_client(new DemoStackingClient(
+       root_window.get()));
++  scoped_ptr<aura::client::FocusClient> focus_client(new aura::FocusManager);
++  aura::client::SetFocusClient(root_window.get(), focus_client.get());
+ 
+   // Create a hierarchy of test windows.
+   DemoWindowDelegate window_delegate1(SK_ColorBLUE);
+@@ -144,6 +147,7 @@ int DemoMain() {
+ 
+   root_window->ShowRootWindow();
+   base::MessageLoopForUI::current()->Run();
++  focus_client.reset();
+ 
+   return 0;
+ }
+-- 
+1.7.9.5
+

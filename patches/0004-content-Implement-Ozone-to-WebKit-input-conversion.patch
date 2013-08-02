@@ -1,7 +1,7 @@
-From 4bf0484353643c4b3cefe37cf5b8fa8279c6b4d1 Mon Sep 17 00:00:00 2001
+From fb8d3df166087b29c98dd08e92c5d241d3e21396 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Tue, 30 Jul 2013 16:09:44 +0300
-Subject: [PATCH 9/9] content: Implement Ozone to WebKit input conversion
+Subject: [PATCH 04/11] content: Implement Ozone to WebKit input conversion
 
 ---
  .../browser/renderer_host/web_input_event_aura.cc  |    2 +-
@@ -202,10 +202,10 @@ index 0000000..4dbc94d
 +
 +}  // namespace content
 diff --git a/content/content_browser.gypi b/content/content_browser.gypi
-index 4fc0861..504df87 100644
+index ce11fc7..a09a380 100644
 --- a/content/content_browser.gypi
 +++ b/content/content_browser.gypi
-@@ -977,6 +977,7 @@
+@@ -987,6 +987,7 @@
      'browser/renderer_host/ui_events_helper.h',
      'browser/renderer_host/web_input_event_aura.cc',
      'browser/renderer_host/web_input_event_aura.h',

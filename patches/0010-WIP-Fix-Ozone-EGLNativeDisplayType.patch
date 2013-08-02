@@ -1,7 +1,7 @@
-From 8423d7eadd9aea54d5511fb4e3d811ffc97c5a87 Mon Sep 17 00:00:00 2001
+From db5806beed0c369c0e4aca524cbcbe4ad031c97e Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 8 Jul 2013 19:42:09 -0300
-Subject: [PATCH 4/7] WIP: Fix Ozone EGLNativeDisplayType
+Subject: [PATCH 10/11] WIP: Fix Ozone EGLNativeDisplayType
 
 Use a pointer for storing the display type instead an integer, which may not
 fit the value of a native display number.

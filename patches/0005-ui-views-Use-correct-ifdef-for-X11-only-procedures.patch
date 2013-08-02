@@ -1,0 +1,37 @@
+From b3b25bfc63edc5a4fae0c095076ec1adbb5092da Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Wed, 31 Jul 2013 12:49:39 +0300
+Subject: [PATCH 05/11] ui/views: Use correct ifdef for X11 only procedures
+
+We need to remember that Ozone is playing together nowadays and different
+window systems in Linux might be used. In particular, this changes fix my
+downstream Ozone-Wayland implementation.
+---
+ ui/views/widget/native_widget_aura.cc |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ui/views/widget/native_widget_aura.cc b/ui/views/widget/native_widget_aura.cc
+index 1163f4a..9e14f20 100644
+--- a/ui/views/widget/native_widget_aura.cc
++++ b/ui/views/widget/native_widget_aura.cc
+@@ -48,7 +48,7 @@
+ #include "ui/views/widget/desktop_aura/desktop_root_window_host_win.h"
+ #endif
+ 
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+ #include "ui/views/widget/desktop_aura/desktop_root_window_host_x11.h"
+ #endif
+ 
+@@ -947,7 +947,7 @@ void Widget::CloseAllSecondaryWidgets() {
+   EnumThreadWindows(GetCurrentThreadId(), WindowCallbackProc, 0);
+ #endif
+ 
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+   std::vector<aura::Window*> open_windows =
+       DesktopRootWindowHostX11::GetAllOpenWindows();
+   std::for_each(open_windows.begin(), open_windows.end(), CloseWindow);
+-- 
+1.7.9.5
+

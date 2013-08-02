@@ -1,14 +1,15 @@
-From 83d980718a71d2a34acd884c775bb7c64a2ef4aa Mon Sep 17 00:00:00 2001
+From b0e3ae7b7bceb3a44bceba399fcb3a3a0ea3270c Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Wed, 17 Jul 2013 20:12:16 -0300
-Subject: [PATCH 1/7] ozone: Implements ::Show
+Subject: [PATCH 07/11] ozone: Implements ::Show
 
 For now, merely forwards it to the native.
 ---
- ui/aura/root_window_host_ozone.cc      |    4 +++-
- ui/base/ozone/surface_factory_ozone.cc |    1 +
- ui/base/ozone/surface_factory_ozone.h  |    4 ++++
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ ui/aura/root_window_host_ozone.cc                  |    4 +++-
+ ui/base/ozone/surface_factory_ozone.cc             |    1 +
+ ui/base/ozone/surface_factory_ozone.h              |    4 ++++
+ .../desktop_aura/desktop_root_window_host_ozone.cc |    2 ++
+ 4 files changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/ui/aura/root_window_host_ozone.cc b/ui/aura/root_window_host_ozone.cc
 index 28c8d0c..cc5272a 100644
@@ -52,6 +53,19 @@ index d98882d..0ed7fd9 100644
    // Sets up GL bindings for the native surface.
    virtual bool LoadEGLGLES2Bindings() = 0;
  
+diff --git a/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
+index 4d46e58..a205308 100644
+--- a/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
++++ b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
+@@ -462,6 +462,8 @@ void DesktopRootWindowHostOzone::Show() {
+   NOTIMPLEMENTED();
+ 
+   window_mapped_ = true;
++
++  ui::SurfaceFactoryOzone::GetInstance()->Show(window_);
+ }
+ 
+ void DesktopRootWindowHostOzone::Hide() {
 -- 
 1.7.9.5
 

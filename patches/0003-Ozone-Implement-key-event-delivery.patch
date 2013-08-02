@@ -1,7 +1,7 @@
-From e4ed4a0cb4e29dec4a067d04ba89d094dcc2e188 Mon Sep 17 00:00:00 2001
+From 773850b482728a2aaa4c73f4e9009a619ca03542 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Tue, 30 Jul 2013 16:08:17 +0300
-Subject: [PATCH 8/9] Ozone: Implement key event delivery
+Subject: [PATCH 03/11] Ozone: Implement key event delivery
 
 ---
  ui/base/events/event.cc          |    9 +++++++++

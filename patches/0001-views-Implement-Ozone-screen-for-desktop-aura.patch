@@ -1,7 +1,7 @@
-From 02b56ac344eac8e236741ff1d61898b19f73e25d Mon Sep 17 00:00:00 2001
+From 3f794670152a6a8fe7d15d117f2916ed0fbea6f2 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Fri, 3 May 2013 12:36:12 -0300
-Subject: [PATCH 6/7] views: Implement Ozone screen for desktop aura
+Subject: [PATCH 01/11] views: Implement Ozone screen for desktop aura
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
@@ -11,10 +11,10 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  create mode 100644 ui/views/widget/desktop_aura/desktop_screen_ozone.cc
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index ab24111..47927ac 100644
+index ea0285b..68b4d2b 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -377,6 +377,7 @@
+@@ -378,6 +378,7 @@
          'widget/desktop_aura/desktop_root_window_host_x11.cc',
          'widget/desktop_aura/desktop_root_window_host_x11.h',
          'widget/desktop_aura/desktop_screen.h',

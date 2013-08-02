@@ -1,7 +1,7 @@
-From 8617df3441adc7f590cb99d045d87e96faddbb63 Mon Sep 17 00:00:00 2001
+From 534e6846fcac2564322cdc180611d2b6e860c517 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 3/7] Chromium: Add gl changes for Wayland
+Subject: [PATCH 09/11] Chromium: Add gl changes for Wayland
 
 TODO: needs to check whether this can be upstreamed.
 
