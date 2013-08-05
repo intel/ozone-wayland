@@ -1,7 +1,7 @@
-From 3271d40db83c6f0a2841d0366c42a2f2d5f74c25 Mon Sep 17 00:00:00 2001
+From 86ec73f6cd8e1b428d64ca38318f2fbe7e276c46 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 08/11] Chromium: Add Wayland implementation gyp dependency on
+Subject: [PATCH 07/10] Chromium: Add Wayland implementation gyp dependency on
  Ozone
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
@@ -13,7 +13,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  4 files changed, 23 insertions(+)
 
 diff --git a/build/common.gypi b/build/common.gypi
-index 6b98fc0..5558265 100644
+index 7cbe6b2..6ec1084 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -138,6 +138,12 @@
@@ -30,7 +30,7 @@ index 6b98fc0..5558265 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index bcef628..0e41a1d 100644
+index 544fafb..1549d84 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -24,6 +24,8 @@
@@ -42,7 +42,7 @@ index bcef628..0e41a1d 100644
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
  #if defined(IPC_MESSAGE_LOG_ENABLED)
-@@ -166,6 +168,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+@@ -164,6 +166,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
  
  void ShellMainDelegate::PreSandboxStartup() {
    InitializeResourceBundle();

@@ -1,7 +1,7 @@
-From b3b25bfc63edc5a4fae0c095076ec1adbb5092da Mon Sep 17 00:00:00 2001
+From 6d81b01cec5a708a262996540455398278b2eeb4 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Wed, 31 Jul 2013 12:49:39 +0300
-Subject: [PATCH 05/11] ui/views: Use correct ifdef for X11 only procedures
+Subject: [PATCH 05/10] ui/views: Use correct ifdef for X11 only procedures
 
 We need to remember that Ozone is playing together nowadays and different
 window systems in Linux might be used. In particular, this changes fix my

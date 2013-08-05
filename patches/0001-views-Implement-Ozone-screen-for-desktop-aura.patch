@@ -1,7 +1,7 @@
-From 3f794670152a6a8fe7d15d117f2916ed0fbea6f2 Mon Sep 17 00:00:00 2001
+From c18653b3dbde5b61e31419c84dea416bc1f769fa Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Fri, 3 May 2013 12:36:12 -0300
-Subject: [PATCH 01/11] views: Implement Ozone screen for desktop aura
+Subject: [PATCH 01/10] views: Implement Ozone screen for desktop aura
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---

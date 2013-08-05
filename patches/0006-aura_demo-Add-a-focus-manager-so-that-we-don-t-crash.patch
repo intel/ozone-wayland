@@ -1,7 +1,7 @@
-From 34db71acc3cfe10b3accf38b1c5814f116148c70 Mon Sep 17 00:00:00 2001
+From c1f6034bc17a3034162f439638694ac13cab0f60 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Wed, 31 Jul 2013 13:41:17 +0300
-Subject: [PATCH 06/11] aura_demo: Add a focus manager so that we don't crash
+Subject: [PATCH 06/10] aura_demo: Add a focus manager so that we don't crash
  on key press.
 
 Just like in aura_bench (commit f7af6e70).

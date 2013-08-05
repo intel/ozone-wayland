@@ -1,7 +1,7 @@
-From 773850b482728a2aaa4c73f4e9009a619ca03542 Mon Sep 17 00:00:00 2001
+From c5b94f799cf4552ba184c3f3f27a7ed1b0bcce82 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Tue, 30 Jul 2013 16:08:17 +0300
-Subject: [PATCH 03/11] Ozone: Implement key event delivery
+Subject: [PATCH 03/10] Ozone: Implement key event delivery
 
 ---
  ui/base/events/event.cc          |    9 +++++++++
@@ -9,10 +9,10 @@ Subject: [PATCH 03/11] Ozone: Implement key event delivery
  2 files changed, 30 insertions(+)
 
 diff --git a/ui/base/events/event.cc b/ui/base/events/event.cc
-index 4384d4a..56b4e7c 100644
+index 0281310..d8f8864 100644
 --- a/ui/base/events/event.cc
 +++ b/ui/base/events/event.cc
-@@ -595,7 +595,16 @@ uint16 KeyEvent::GetUnmodifiedCharacter() const {
+@@ -600,7 +600,16 @@ uint16 KeyEvent::GetUnmodifiedCharacter() const {
  }
  
  KeyEvent* KeyEvent::Copy() const {

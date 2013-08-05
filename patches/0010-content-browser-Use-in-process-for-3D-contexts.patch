@@ -1,14 +1,15 @@
-From 46104f7378a752ce5379d6284059171846b004ca Mon Sep 17 00:00:00 2001
+From 11a9ca4d29e02578ab5473c9a2c736e3e0ec4cf1 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Fri, 12 Jul 2013 19:13:33 -0300
-Subject: [PATCH 11/11] content/browser: Use in-process for 3D contexts
+Subject: [PATCH 10/10] content/browser: Use in-process for 3D contexts
 
 This has to be properly implemented later to use command buffer (GPU process).
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
  content/browser/aura/image_transport_factory.cc |    5 +++++
- 1 file changed, 5 insertions(+)
+ content/browser/browser_main_loop.cc            |    3 ++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/content/browser/aura/image_transport_factory.cc b/content/browser/aura/image_transport_factory.cc
 index 2e92dd0..94372a2 100644
@@ -33,6 +34,20 @@ index 2e92dd0..94372a2 100644
  }
  
  // static
+diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
+index 1c6b1a0..d8d19cd 100644
+--- a/content/browser/browser_main_loop.cc
++++ b/content/browser/browser_main_loop.cc
+@@ -650,7 +650,8 @@ int BrowserMainLoop::PreMainMessageLoopRun() {
+   // If the UI thread blocks, the whole UI is unresponsive.
+   // Do not allow disk IO from the UI thread.
+   base::ThreadRestrictions::SetIOAllowed(false);
+-  base::ThreadRestrictions::DisallowWaiting();
++  // InProcessCommandBuffer::Initialize needs Wait() (r19522006)
++  //base::ThreadRestrictions::DisallowWaiting();
+   return result_code_;
+ }
+ 
 -- 
 1.7.9.5
 
