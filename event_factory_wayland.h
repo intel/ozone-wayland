@@ -7,6 +7,7 @@
 
 #include "ui/base/ui_export.h"
 #include "base/event_types.h"
+#include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_libevent.h"
 #include "base/native_library.h"
 
@@ -14,7 +15,8 @@ namespace ui {
 
 class WaylandDisplay;
 
-class EventFactoryWayland : public base::MessagePumpLibevent::Watcher {
+class EventFactoryWayland : public base::MessageLoop::TaskObserver,
+                            public base::MessagePumpLibevent::Watcher {
  public:
   EventFactoryWayland();
   virtual ~EventFactoryWayland();
@@ -29,6 +31,10 @@ class EventFactoryWayland : public base::MessagePumpLibevent::Watcher {
   // base::MessagePump:Libevent::Watcher implementation.
   virtual void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
   virtual void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE;
+
+  // Implements MessageLoop::TaskObserver.
+  virtual void WillProcessTask(const base::PendingTask& pending_task) OVERRIDE;
+  virtual void DidProcessTask(const base::PendingTask& pending_task) OVERRIDE;
 
   ui::WaylandDisplay* display_;
   int fd_;

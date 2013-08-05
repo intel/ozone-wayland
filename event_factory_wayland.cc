@@ -6,7 +6,6 @@
 
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/message_loop/message_pump_ozone.h"
 #include "ozone/wayland_display.h"
 
 namespace ui {
@@ -34,9 +33,12 @@ EventFactoryWayland::EventFactoryWayland()
   display_->ProcessTasks();
   wl_display_dispatch_pending(display_->display());
   wl_display_flush(display_->display());
+
+  base::MessageLoop::current()->AddTaskObserver(this);
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
+  base::MessageLoop::current()->RemoveTaskObserver(this);
   watcher_.StopWatchingFileDescriptor();
 }
 
@@ -61,6 +63,28 @@ void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
   NOTREACHED();
+}
+
+void EventFactoryWayland::WillProcessTask(
+    const base::PendingTask& pending_task) {
+}
+
+void EventFactoryWayland::DidProcessTask(
+    const base::PendingTask& pending_task) {
+
+  // a proper integration of libwayland should call wl_display_flush() only
+  // before the client's event loop is about to go sleep. Ideally libevent
+  // would emit a signal mentioning its intent to sleep and libwayland would
+  // flush the remaining buffered bytes.
+  // The catch with this hack in DidProcessTask is to be careful and flush only
+  // when needed like after eglSwapBuffers (PostSwapBuffersComplete) and others
+
+  if (strcmp(pending_task.posted_from.function_name(),
+      "PostSwapBuffersComplete") != 0)
+    return;
+
+  wl_display_dispatch_pending(display_->display());
+  wl_display_flush(display_->display());
 }
 
 }  // namespace ui

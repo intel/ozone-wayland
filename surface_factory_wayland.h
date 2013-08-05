@@ -6,7 +6,6 @@
 #define OZONE_WAYLAND_SURFACE_FACTORY_H_
 
 #include "base/compiler_specific.h"
-#include "base/memory/weak_ptr.h"
 #include "ui/base/ozone/surface_factory_ozone.h"
 
 namespace ui {
@@ -23,7 +22,6 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
   virtual const char* DefaultDisplaySpec() OVERRIDE;
   virtual intptr_t InitializeHardware() OVERRIDE;
   virtual void ShutdownHardware() OVERRIDE;
-  virtual void Show(gfx::AcceleratedWidget w) OVERRIDE;
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
       gfx::AcceleratedWidget w) OVERRIDE;
@@ -34,14 +32,9 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
 
  private:
   void InitializeWaylandEvent();
-  void Flush();
 
   ui::EventFactoryWayland *e_factory;
   ui::WaylandDisplay* display_;
-
-  // Used for making callbacks.
-  base::WeakPtrFactory<SurfaceFactoryWayland> weak_ptr_factory_;
-
 };
 
 }  // namespace ui
