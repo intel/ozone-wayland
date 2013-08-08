@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "ozone/desktop_screen_wayland.h"
 #include "ozone/surface_factory_wayland.h"
 #include "ozone/event_factory_wayland.h"
 
@@ -126,6 +127,10 @@ const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
   base::snprintf(str, sizeof(str), "%dx%d", scrn.width(), scrn.height());
 
   return str;
+}
+
+gfx::Screen* SurfaceFactoryWayland::CreateDesktopScreen() {
+  return new DesktopScreenWayland;
 }
 
 bool SurfaceFactoryWayland::LoadEGLGLES2Bindings() {

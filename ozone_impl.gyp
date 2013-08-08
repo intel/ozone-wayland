@@ -73,6 +73,8 @@
         'wayland_toolkit'
       ],
       'sources': [
+        'desktop_screen_wayland.cc',
+        'desktop_screen_wayland.h',
         'event_factory_wayland.cc',
         'event_factory_wayland.h',
         'surface_factory_wayland.cc',
