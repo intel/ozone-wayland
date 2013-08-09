@@ -1,0 +1,93 @@
+From 97225b8d939ab1150a7130dd5cd49bfa779791d0 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Fri, 3 May 2013 12:36:12 -0300
+Subject: [PATCH 2/7] views: Implement Ozone screen for desktop aura
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ ui/base/ozone/surface_factory_ozone.cc             |    1 +
+ ui/base/ozone/surface_factory_ozone.h              |   11 +++++++++--
+ ui/views/views.gyp                                 |    1 +
+ .../widget/desktop_aura/desktop_screen_ozone.cc    |   13 +++++++++++++
+ 4 files changed, 24 insertions(+), 2 deletions(-)
+ create mode 100644 ui/views/widget/desktop_aura/desktop_screen_ozone.cc
+
+diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
+index a617efe..fa6d6d3 100644
+--- a/ui/base/ozone/surface_factory_ozone.cc
++++ b/ui/base/ozone/surface_factory_ozone.cc
+@@ -16,6 +16,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
+   SurfaceFactoryOzoneStub() {}
+   virtual ~SurfaceFactoryOzoneStub() {}
+ 
++  virtual gfx::Screen* CreateDesktopScreen() { return 0; }
+   virtual void InitializeHardware() OVERRIDE {}
+   virtual void ShutdownHardware() OVERRIDE {}
+   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
+diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
+index d98882d..c19343d 100644
+--- a/ui/base/ozone/surface_factory_ozone.h
++++ b/ui/base/ozone/surface_factory_ozone.h
+@@ -10,6 +10,7 @@
+ #include "ui/gfx/rect.h"
+ 
+ namespace gfx {
++class Screen;
+ class VSyncProvider;
+ } //  namespace gfx
+ 
+@@ -23,12 +24,18 @@ class SurfaceFactoryOzone {
+   // Returns the instance
+   UI_EXPORT static SurfaceFactoryOzone* GetInstance();
+ 
++  // Sets the implementation delegate. Ownership is retained by the caller.
++  UI_EXPORT static void SetInstance(SurfaceFactoryOzone* impl);
++
+   // Returns a display spec as in |CreateDisplayFromSpec| for the default
+   // native surface.
+   virtual const char* DefaultDisplaySpec();
+ 
+-  // Sets the implementation delegate. Ownership is retained by the caller.
+-  UI_EXPORT static void SetInstance(SurfaceFactoryOzone* impl);
++  // On desktop_aura targets (Chrome browser, Content Shell, etc) the renderer
++  // host relies on information related with the screen and display from the
++  // native system. This method is responsible for it and overrides
++  // gfx::Screen.
++  virtual gfx::Screen* CreateDesktopScreen() = 0;
+ 
+   // TODO(rjkroege): Add a status code if necessary.
+   // Configures the display hardware. Must be called from within the GPU
+diff --git a/ui/views/views.gyp b/ui/views/views.gyp
+index ea0285b..68b4d2b 100644
+--- a/ui/views/views.gyp
++++ b/ui/views/views.gyp
+@@ -378,6 +378,7 @@
+         'widget/desktop_aura/desktop_root_window_host_x11.cc',
+         'widget/desktop_aura/desktop_root_window_host_x11.h',
+         'widget/desktop_aura/desktop_screen.h',
++        'widget/desktop_aura/desktop_screen_ozone.cc',
+         'widget/desktop_aura/desktop_screen_position_client.cc',
+         'widget/desktop_aura/desktop_screen_position_client.h',
+         'widget/desktop_aura/desktop_screen_win.cc',
+diff --git a/ui/views/widget/desktop_aura/desktop_screen_ozone.cc b/ui/views/widget/desktop_aura/desktop_screen_ozone.cc
+new file mode 100644
+index 0000000..da43963
+--- /dev/null
++++ b/ui/views/widget/desktop_aura/desktop_screen_ozone.cc
+@@ -0,0 +1,13 @@
++// Copyright (c) 2013 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/base/ozone/surface_factory_ozone.h"
++
++namespace views {
++
++gfx::Screen* CreateDesktopScreen() {
++  return ui::SurfaceFactoryOzone::GetInstance()->CreateDesktopScreen();
++}
++
++}  // namespace views
+-- 
+1.7.9.5
+

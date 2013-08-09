@@ -1,7 +1,7 @@
-From 86ec73f6cd8e1b428d64ca38318f2fbe7e276c46 Mon Sep 17 00:00:00 2001
+From bfd85e24c90752e64c49c2d3dce1a224ca46a863 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 07/10] Chromium: Add Wayland implementation gyp dependency on
+Subject: [PATCH 4/7] Chromium: Add Wayland implementation gyp dependency on
  Ozone
 
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
@@ -13,7 +13,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  4 files changed, 23 insertions(+)
 
 diff --git a/build/common.gypi b/build/common.gypi
-index 7cbe6b2..6ec1084 100644
+index 29f1278..21379a3 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -138,6 +138,12 @@
@@ -30,7 +30,7 @@ index 7cbe6b2..6ec1084 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index 544fafb..1549d84 100644
+index b5adadb..6c1054c 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -24,6 +24,8 @@
@@ -42,7 +42,7 @@ index 544fafb..1549d84 100644
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
  #if defined(IPC_MESSAGE_LOG_ENABLED)
-@@ -164,6 +166,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+@@ -165,6 +167,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
  
  void ShellMainDelegate::PreSandboxStartup() {
    InitializeResourceBundle();
@@ -54,10 +54,10 @@ index 544fafb..1549d84 100644
  
  int ShellMainDelegate::RunProcess(
 diff --git a/ui/aura/aura.gyp b/ui/aura/aura.gyp
-index 7915d09..66e0dd6 100644
+index a4fe861..760ff82 100644
 --- a/ui/aura/aura.gyp
 +++ b/ui/aura/aura.gyp
-@@ -130,6 +130,11 @@
+@@ -128,6 +128,11 @@
              '../../ipc/ipc.gyp:ipc',
            ],
          }],
@@ -70,10 +70,10 @@ index 7915d09..66e0dd6 100644
      },
      {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
-index 1e9cca5..0974c8e 100644
+index aea286e..3d317bc 100644
 --- a/ui/aura/demo/demo_main.cc
 +++ b/ui/aura/demo/demo_main.cc
-@@ -23,6 +23,8 @@
+@@ -22,6 +22,8 @@
  #include "ui/gfx/canvas.h"
  #include "ui/gfx/rect.h"
  
@@ -82,7 +82,7 @@ index 1e9cca5..0974c8e 100644
  #if defined(USE_X11)
  #include "base/message_loop/message_pump_aurax11.h"
  #endif
-@@ -108,6 +110,10 @@ class DemoStackingClient : public aura::client::StackingClient {
+@@ -107,6 +109,10 @@ class DemoStackingClient : public aura::client::StackingClient {
  };
  
  int DemoMain() {
