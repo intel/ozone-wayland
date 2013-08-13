@@ -1,4 +1,4 @@
-From 758af43fd920f01797d4e4300ad38ec53a705792 Mon Sep 17 00:00:00 2001
+From 1869f3bcc4da0f7f8a90332287cd8ac59ecbc626 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Tue, 30 Jul 2013 16:08:17 +0300
 Subject: [PATCH 1/7] Implement fake input method key event conversion from
@@ -775,10 +775,10 @@ index fdde17e..0000000
 -
 -}  // namespace content
 diff --git a/content/content_browser.gypi b/content/content_browser.gypi
-index 1124248..6e09742 100644
+index da6449c..52e4868 100644
 --- a/content/content_browser.gypi
 +++ b/content/content_browser.gypi
-@@ -992,8 +992,6 @@
+@@ -1013,8 +1013,6 @@
      'browser/renderer_host/ui_events_helper.h',
      'browser/renderer_host/web_input_event_aura.cc',
      'browser/renderer_host/web_input_event_aura.h',
@@ -809,7 +809,7 @@ index 0281310..d8f8864 100644
    copy->set_delete_native_event(true);
  #endif
 diff --git a/ui/base/ime/fake_input_method.cc b/ui/base/ime/fake_input_method.cc
-index 1cf236d..55fac13 100644
+index 1cf236d..dbd3371 100644
 --- a/ui/base/ime/fake_input_method.cc
 +++ b/ui/base/ime/fake_input_method.cc
 @@ -92,6 +92,27 @@ bool FakeInputMethod::DispatchKeyEvent(const base::NativeEvent& native_event) {
@@ -820,11 +820,11 @@ index 1cf236d..55fac13 100644
 +  DCHECK(native_event);
 +  if (EventTypeFromNative(native_event) == ET_KEY_RELEASED) {
 +    // On key release, just dispatch it.
-+    delegate_->DispatchKeyEventPostIME(native_event);
++    handled = delegate_->DispatchKeyEventPostIME(native_event);
 +  } else {
 +    const uint32 state = EventFlagsFromNative(native_event);
 +    // Send a RawKeyDown event first,
-+    delegate_->DispatchKeyEventPostIME(native_event);
++    handled = delegate_->DispatchKeyEventPostIME(native_event);
 +    if (text_input_client_) {
 +      // then send a Char event via ui::TextInputClient.
 +      const KeyboardCode key_code = ui::KeyboardCodeFromNative(native_event);

@@ -1,4 +1,4 @@
-From 97225b8d939ab1150a7130dd5cd49bfa779791d0 Mon Sep 17 00:00:00 2001
+From f8f8ca95ed903d0e6ca3cef578ded58730408110 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Fri, 3 May 2013 12:36:12 -0300
 Subject: [PATCH 2/7] views: Implement Ozone screen for desktop aura
@@ -6,14 +6,14 @@ Subject: [PATCH 2/7] views: Implement Ozone screen for desktop aura
 Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
  ui/base/ozone/surface_factory_ozone.cc             |    1 +
- ui/base/ozone/surface_factory_ozone.h              |   11 +++++++++--
+ ui/base/ozone/surface_factory_ozone.h              |    7 +++++++
  ui/views/views.gyp                                 |    1 +
  .../widget/desktop_aura/desktop_screen_ozone.cc    |   13 +++++++++++++
- 4 files changed, 24 insertions(+), 2 deletions(-)
+ 4 files changed, 22 insertions(+)
  create mode 100644 ui/views/widget/desktop_aura/desktop_screen_ozone.cc
 
 diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
-index a617efe..fa6d6d3 100644
+index f082e7d..36f1ff4 100644
 --- a/ui/base/ozone/surface_factory_ozone.cc
 +++ b/ui/base/ozone/surface_factory_ozone.cc
 @@ -16,6 +16,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
@@ -25,7 +25,7 @@ index a617efe..fa6d6d3 100644
    virtual void ShutdownHardware() OVERRIDE {}
    virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
 diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index d98882d..c19343d 100644
+index 50a9b4b..37f443c 100644
 --- a/ui/base/ozone/surface_factory_ozone.h
 +++ b/ui/base/ozone/surface_factory_ozone.h
 @@ -10,6 +10,7 @@
@@ -36,32 +36,24 @@ index d98882d..c19343d 100644
  class VSyncProvider;
  } //  namespace gfx
  
-@@ -23,12 +24,18 @@ class SurfaceFactoryOzone {
-   // Returns the instance
-   UI_EXPORT static SurfaceFactoryOzone* GetInstance();
+@@ -30,6 +31,12 @@ class SurfaceFactoryOzone {
+   // Sets the implementation delegate. Ownership is retained by the caller.
+   UI_EXPORT static void SetInstance(SurfaceFactoryOzone* impl);
  
-+  // Sets the implementation delegate. Ownership is retained by the caller.
-+  UI_EXPORT static void SetInstance(SurfaceFactoryOzone* impl);
-+
-   // Returns a display spec as in |CreateDisplayFromSpec| for the default
-   // native surface.
-   virtual const char* DefaultDisplaySpec();
- 
--  // Sets the implementation delegate. Ownership is retained by the caller.
--  UI_EXPORT static void SetInstance(SurfaceFactoryOzone* impl);
 +  // On desktop_aura targets (Chrome browser, Content Shell, etc) the renderer
 +  // host relies on information related with the screen and display from the
 +  // native system. This method is responsible for it and overrides
 +  // gfx::Screen.
 +  virtual gfx::Screen* CreateDesktopScreen() = 0;
- 
++
    // TODO(rjkroege): Add a status code if necessary.
    // Configures the display hardware. Must be called from within the GPU
+   // process before the sandbox has been activated.
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index ea0285b..68b4d2b 100644
+index ff3ab0a..979b788 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -378,6 +378,7 @@
+@@ -376,6 +376,7 @@
          'widget/desktop_aura/desktop_root_window_host_x11.cc',
          'widget/desktop_aura/desktop_root_window_host_x11.h',
          'widget/desktop_aura/desktop_screen.h',

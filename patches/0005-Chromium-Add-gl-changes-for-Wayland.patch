@@ -1,4 +1,4 @@
-From 33f9a400a74751cd2b2e8bcf353a2c08be3c3af0 Mon Sep 17 00:00:00 2001
+From 9ec48ebe4248cfddbd5cc297e86aaf3cba2b1359 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
 Subject: [PATCH 5/7] Chromium: Add gl changes for Wayland
@@ -13,7 +13,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  3 files changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
-index fa6d6d3..b17ddc4 100644
+index 36f1ff4..cf242e9 100644
 --- a/ui/base/ozone/surface_factory_ozone.cc
 +++ b/ui/base/ozone/surface_factory_ozone.cc
 @@ -17,7 +17,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
@@ -26,7 +26,7 @@ index fa6d6d3..b17ddc4 100644
    virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
    virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
 diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index c19343d..43e3478 100644
+index 37f443c..fa6e2e8 100644
 --- a/ui/base/ozone/surface_factory_ozone.h
 +++ b/ui/base/ozone/surface_factory_ozone.h
 @@ -37,10 +37,9 @@ class SurfaceFactoryOzone {
