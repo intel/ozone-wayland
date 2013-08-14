@@ -26,7 +26,7 @@ http://wayland.freedesktop.org/building.html
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
-Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use an special `.gclient` configuration that clones both of the trees. Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium toplevel directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
+Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use an special `.gclient` configuration that clones both of the trees (see next section). Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium toplevel directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
 
   ```
   $ gclient sync
@@ -55,3 +55,43 @@ That's all. At this point you should be able to connect content_shell on Weston 
   $ ~/git/weston/src/weston &
   $ ./out/Debug/content_shell --no-sandbox
   ```
+
+.gclient file
+-------------
+```python
+solutions = [
+  {
+    u'managed': True,
+    "name": "src",
+    u'url': u'https://chromium.googlesource.com/chromium/src.git',
+    u'custom_deps': {},
+    u'deps_file': u'.DEPS.git',
+    u'safesync_url': u'',
+    u'custom_vars': {u'webkit_rev': u''},
+
+    # this suppresses the execution of the gyp action from src/DEPS by setting
+    # the action to nothing.
+    # TODO: rjkroege recommended but in fact I'm not sure this is needed.
+    "custom_hooks": [ {"name": "gyp"} ]
+  },
+  {
+    "name"  : "src-ozone",
+    "url"   : "https://github.com/otcshare/ozone-wayland.git",
+    "deps_file": "gclient/DEPS"
+  }
+]
+
+hooks = [
+  {
+    # this will apply the needed patches in Chromium tree. It pretty much
+    # generates the Wayland dependencies on .gyp files there and also patch
+    # other small changes. Ideally this shouldn't exist and Ozone-Wayland would
+    # be just dynamically loaded within Ozone there.
+    "name": "gyp",
+    "pattern": ".",
+    "action": [
+        "bash", "src/ozone/patches/patch-chromium.sh"
+    ]
+  }
+]
+```
