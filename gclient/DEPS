@@ -1,4 +1,4 @@
 deps = {
   "src/ozone":
-    "https://github.com/otcshare/ozone-wayland.git",
+    "ssh://git@github.com/otcshare/ozone-wayland.git",
 }
