@@ -5,6 +5,12 @@ Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland g
 
 ![Alt text](https://raw.github.com/tiagovignatti/misc/master/chromium-2013-06-07-small.png "Content Shell running on Weston")
 
+Contents
+-------
+  - [Design](#design)
+  - [Howto](#howto)
+  - [.gclient file](#gclient-file)
+
 
 Design
 ------
