@@ -105,7 +105,7 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
   if (!e_factory)
     InitializeWaylandEvent();
 
-  window = new ui::WaylandWindow(NULL, display_);
+  window = new ui::WaylandWindow(display_);
   window->SetParentWindow(NULL);
   window->Flush();
 

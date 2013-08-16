@@ -10,18 +10,12 @@
 #include <xkbcommon/xkbcommon.h>
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
+#include "ozone/wayland_display.h"
 #include "ui/gfx/point.h"
-#include "ozone/wayland_delegate.h"
 
 #define MOD_SHIFT_MASK		0x01
 #define MOD_ALT_MASK		0x02
 #define MOD_CONTROL_MASK	0x04
-
-struct wl_array;
-struct wl_buffer;
-struct wl_display;
-struct wl_input_device;
-struct wl_surface;
 
 namespace ui {
 

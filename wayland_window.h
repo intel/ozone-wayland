@@ -20,17 +20,14 @@ struct wl_egl_window;
 namespace ui {
 
 class WaylandDisplay;
-class WaylandDelegate;
 
 // WaylandWindow wraps a wl_surface and some basic operations for the surface.
-// WaylandWindow also keeps track of the WaylandDelegate that will process all
-// events related to the window.
 class WaylandWindow {
  public:
   typedef std::vector<WaylandWindow*> Windows;
 
   // Creates a toplevel window.
-  WaylandWindow(WaylandDelegate* delegate, WaylandDisplay* display);
+  WaylandWindow(WaylandDisplay* display);
 
   ~WaylandWindow();
 
@@ -50,13 +47,10 @@ class WaylandWindow {
   WaylandWindow* GetParentWindow() const { return parent_window_; }
   void SetParentWindow(WaylandWindow* parent_window);
 
-  WaylandDelegate* delegate() const { return delegate_; }
-
   // Returns the pointer to the surface associated with the window.
   // The WaylandWindow object owns the pointer.
   wl_surface* surface() const { return surface_; }
   wl_shell_surface* shell_surface() const { return shell_surface_; }
-  void set_egl_window(wl_egl_window* egl_window) { window_ = egl_window; }
   wl_egl_window* egl_window() const { return window_; }
 
   void SetBounds(const gfx::Rect& new_bounds);
@@ -87,12 +81,6 @@ class WaylandWindow {
  private:
   static void FreeSurface(void *data, wl_callback *callback, uint32_t time);
 
-  enum WindowBufferType {
-    WINDOW_BUFFER_TYPE_EGL_WINDOW,
-    WINDOW_BUFFER_TYPE_EGL_IMAGE,
-    WINDOW_BUFFER_TYPE_SHM,
-  };
-
   enum WindowType{
     TYPE_TOPLEVEL,
     TYPE_FULLSCREEN,
@@ -116,10 +104,6 @@ class WaylandWindow {
     WINDOW_TITLEBAR = 17,
     WINDOW_CLIENT_AREA = 18,
   };
-
-  // The delegate that will process events for this window. This is not owned
-  // by the window.
-  WaylandDelegate* delegate_;
 
   // Pointer to the display this window is using. This doesn't own the pointer
   // to the display.
@@ -147,8 +131,6 @@ class WaylandWindow {
   gfx::Rect saved_allocation_;
   gfx::Rect server_allocation_;
   gfx::Rect pending_allocation_;
-  bool transparent_;
-  WindowBufferType buffer_type_;
   WindowType type_;
   bool resize_scheduled_;
   bool redraw_scheduled_;

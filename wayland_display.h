@@ -20,7 +20,6 @@
 
 namespace ui {
 
-class WaylandBuffer;
 class WaylandInputDevice;
 class WaylandScreen;
 class WaylandWindow;

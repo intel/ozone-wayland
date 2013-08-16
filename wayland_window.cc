@@ -8,7 +8,6 @@
 
 #include "base/logging.h"
 #include "ozone/wayland_display.h"
-#include "ozone/wayland_delegate.h"
 #include "ozone/wayland_task.h"
 #include "ozone/wayland_input_device.h"
 #include "ui/gl/gl_surface.h"
@@ -21,9 +20,8 @@
 
 namespace ui {
 
-WaylandWindow::WaylandWindow(WaylandDelegate* delegate, WaylandDisplay* display)
-    : delegate_(delegate),
-    display_(display),
+WaylandWindow::WaylandWindow(WaylandDisplay* display)
+    : display_(display),
     parent_window_(NULL),
     user_data_(NULL),
     relative_position_(),
@@ -33,8 +31,6 @@ WaylandWindow::WaylandWindow(WaylandDelegate* delegate, WaylandDisplay* display)
     window_(NULL),
     resize_scheduled_(false),
     redraw_scheduled_(false),
-    transparent_(false),
-    buffer_type_(WINDOW_BUFFER_TYPE_SHM),
     type_(TYPE_TOPLEVEL),
     resize_edges_(0),
     allocation_(gfx::Rect(0, 0, 0, 0)),
@@ -65,12 +61,7 @@ WaylandWindow::WaylandWindow(WaylandDelegate* delegate, WaylandDisplay* display)
 
   allocation_.SetRect(0, 0, 0, 0);
   saved_allocation_ = allocation_;
-  transparent_ = 1;
 
-  // TODO: make buffer type choosable for testing and etc
-  buffer_type_ = WINDOW_BUFFER_TYPE_EGL_WINDOW;
-
-  //	wl_shell_surface_set_toplevel(shell_surface_);
   display->AddWindow(this);
 }
 
@@ -216,7 +207,6 @@ void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
     WaylandResizeTask *task = new WaylandResizeTask(this);
     display_->AddTask(task);
 
-    //		delegate_->OnBoundsChanged(allocation_, pending_allocation_);
     resize_scheduled_ = true;
   }
   ScheduleRedraw();
