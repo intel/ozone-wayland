@@ -135,7 +135,6 @@ void WaylandWindow::SetParentWindow(WaylandWindow* parent_window)
   if(parent_window)
     parent_window->AddChild(this);
 
-  if (display_->shell())
     SetType();
 }
 
