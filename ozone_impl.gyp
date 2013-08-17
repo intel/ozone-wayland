@@ -47,9 +47,11 @@
         '../..',
       ],
       'sources': [
-        'wayland_delegate.h',
+        'wayland_cursor.cc',
+        'wayland_cursor.h',
         'wayland_display.cc',
         'wayland_display.h',
+        'wayland_global.h',
         'wayland_input_device.cc',
         'wayland_input_device.h',
         'wayland_input_method_event_filter.cc',

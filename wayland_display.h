@@ -12,7 +12,6 @@
 #include <list>
 #include <stdint.h>
 #include <wayland-client.h>
-#include <wayland-cursor.h>
 
 #include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
@@ -94,8 +93,6 @@ class WaylandDisplay {
   wl_compositor* GetCompositor() { return compositor_; }
 
  private:
-  void CreateCursors();
-  void DestroyCursors();
   void scheduleFlush() { handle_flush_ = true; }
 
   // This handler resolves all server events used in initialization. It also
@@ -121,9 +118,6 @@ class WaylandDisplay {
   WaylandInputMethodEventFilter *input_method_filter_;
 
   uint32_t serial_;
-
-  wl_cursor_theme *cursor_theme_;
-  wl_cursor **cursors_;
   bool handle_flush_ :1;
 
   friend class WaylandWindow;

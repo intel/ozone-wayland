@@ -12,17 +12,13 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_ozone.h"
+#include "ozone/wayland_cursor.h"
 #include "ozone/wayland_kbd_conversion.h"
 #include "ozone/wayland_window.h"
 #include "ui/base/events/event.h"
 #include "ui/base/hit_test.h"
 
 namespace ui {
-
-enum {
-  CURSOR_DEFAULT = 100,
-  CURSOR_UNSET
-};
 
 // static
 BoundsChangeType WaylandInputDevice::GetBoundsChangeForWindowComponent(int component)
@@ -47,35 +43,6 @@ BoundsChangeType WaylandInputDevice::GetBoundsChangeForWindowComponent(int compo
       break;
   }
   return bounds_change;
-}
-
-// static
-int WaylandInputDevice::GetPointerImageForWindowComponent(int component)
-{
-  WindowLocation location = WaylandInputDevice::GetLocationForWindowComponent(component);
-
-  switch (location) {
-    case WINDOW_RESIZING_TOP:
-      return CURSOR_TOP;
-    case WINDOW_RESIZING_BOTTOM:
-      return CURSOR_BOTTOM;
-    case WINDOW_RESIZING_LEFT:
-      return CURSOR_LEFT;
-    case WINDOW_RESIZING_RIGHT:
-      return CURSOR_RIGHT;
-    case WINDOW_RESIZING_TOP_LEFT:
-      return CURSOR_TOP_LEFT;
-    case WINDOW_RESIZING_TOP_RIGHT:
-      return CURSOR_TOP_RIGHT;
-    case WINDOW_RESIZING_BOTTOM_LEFT:
-      return CURSOR_BOTTOM_LEFT;
-    case WINDOW_RESIZING_BOTTOM_RIGHT:
-      return CURSOR_BOTTOM_RIGHT;
-    case WINDOW_EXTERIOR:
-    case WINDOW_TITLEBAR:
-    default:
-      return CURSOR_LEFT_PTR;
-  }
 }
 
 // static
@@ -116,14 +83,46 @@ WindowLocation WaylandInputDevice::GetLocationForWindowComponent(int component)
   return location;
 }
 
+static WaylandCursor::CursorType cursorType(WindowLocation location)
+{
+    switch (location) {
+      case WINDOW_RESIZING_TOP:
+        return WaylandCursor::CURSOR_TOP;
+        break;
+      case WINDOW_RESIZING_BOTTOM:
+        return WaylandCursor::CURSOR_BOTTOM;
+        break;
+      case WINDOW_RESIZING_LEFT:
+        return WaylandCursor::CURSOR_LEFT;
+        break;
+      case WINDOW_RESIZING_RIGHT:
+        return WaylandCursor::CURSOR_RIGHT;
+        break;
+      case WINDOW_RESIZING_TOP_LEFT:
+        return WaylandCursor::CURSOR_TOP_LEFT;
+        break;
+      case WINDOW_RESIZING_TOP_RIGHT:
+        return WaylandCursor::CURSOR_TOP_RIGHT;
+        break;
+      case WINDOW_RESIZING_BOTTOM_LEFT:
+        return WaylandCursor::CURSOR_BOTTOM_LEFT;
+        break;
+      case WINDOW_RESIZING_BOTTOM_RIGHT:
+        return WaylandCursor::CURSOR_BOTTOM_RIGHT;
+        break;
+      case WINDOW_EXTERIOR:
+      case WINDOW_TITLEBAR:
+        default:
+        return WaylandCursor::CURSOR_LEFT_PTR;
+      }
+}
+
 WaylandInputDevice::WaylandInputDevice(WaylandDisplay* disp, uint32_t id)
   : input_seat_(NULL),
     display_(disp->display()),
-    current_pointer_image_(CURSOR_LEFT_PTR),
-    input_pointer_(NULL),
     input_keyboard_(NULL),
     pointer_focus_(NULL),
-    pointer_surface_(NULL),
+    cursor_(NULL),
     keyboard_focus_(NULL),
     keyboard_modifiers_(0)
 {
@@ -137,14 +136,14 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* disp, uint32_t id)
   wl_seat_set_user_data(input_seat_, this);
 
   InitXKB();
-
-  pointer_surface_ = wl_compositor_create_surface(
-      WaylandDisplay::GetDisplay(display_)->GetCompositor());
+  WaylandDisplay* display = WaylandDisplay::GetDisplay(display_);
+  cursor_ = new WaylandCursor(display->GetCompositor(), display->shm());
 }
 
 WaylandInputDevice::~WaylandInputDevice()
 {
-  wl_surface_destroy(pointer_surface_);
+  if (cursor_)
+    delete cursor_;
 
   if (input_seat_)
     wl_seat_destroy(input_seat_);
@@ -182,14 +181,14 @@ void WaylandInputDevice::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t 
     WaylandInputDevice::OnAxisNotify,
   };
 
-  if ((caps & WL_SEAT_CAPABILITY_POINTER) && !device->input_pointer_) {
-    device->input_pointer_ = wl_seat_get_pointer(seat);
-    wl_pointer_set_user_data(device->input_pointer_, device);
-    wl_pointer_add_listener(device->input_pointer_, &kInputPointerListener,
-        device);
-  } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && device->input_pointer_) {
-    wl_pointer_destroy(device->input_pointer_);
-    device->input_pointer_ = NULL;
+  if ((caps & WL_SEAT_CAPABILITY_POINTER) && !device->cursor_->GetInputPointer()) {
+    wl_pointer* input_pointer = wl_seat_get_pointer(seat);
+    device->cursor_->SetInputPointer(input_pointer);
+    wl_pointer_set_user_data(input_pointer, device);
+    wl_pointer_add_listener(input_pointer, &kInputPointerListener, device);
+  } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && device->cursor_->GetInputPointer()) {
+    wl_pointer_destroy(device->cursor_->GetInputPointer());
+    device->cursor_->SetInputPointer(NULL);
   }
 
   static const struct wl_keyboard_listener kInputKeyboardListener = {
@@ -389,17 +388,14 @@ void WaylandInputDevice::OnPointerEnter(void* data,
 
   // TODO(vignatti): sx and sy have to be used for setting different resizing
   // and other cursors.
-
-  WaylandDisplay::GetDisplay(device->display_)->SetPointerImage(
-      device, CURSOR_LEFT_PTR);
-
+  device->cursor_->Update(cursorType(WINDOW_TITLEBAR), serial);
   scoped_ptr<MouseEvent> mouseev(new MouseEvent(
       ui::ET_MOUSE_ENTERED,
       device->pointer_position_,
       device->pointer_position_,
       /* flags */ 0));
 
-  DispatchEvent(mouseev.PassAs<ui::Event>()); 
+  DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandInputDevice::OnPointerLeave(void* data,
@@ -413,7 +409,7 @@ void WaylandInputDevice::OnPointerLeave(void* data,
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
 
   device->pointer_focus_ = NULL;
-  device->current_pointer_image_ = CURSOR_UNSET;
+  device->cursor_->Reset();
 
   scoped_ptr<MouseEvent> mouseev(new MouseEvent(
       ui::ET_MOUSE_EXITED,

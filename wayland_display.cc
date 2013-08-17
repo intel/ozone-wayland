@@ -55,8 +55,6 @@ WaylandDisplay* WaylandDisplay::Connect(char* name)
       return NULL;
     }
 
-  display->CreateCursors();
-
   return display;
 }
 
@@ -168,8 +166,6 @@ WaylandDisplay* WaylandDisplay::GetDisplay(wl_display* display)
 }
 
 WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
-    cursor_theme_(NULL),
-    cursors_(NULL),
     compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
@@ -196,8 +192,6 @@ WaylandDisplay::~WaylandDisplay()
       i != screen_list_.end(); ++i) {
     delete *i;
   }
-
-  DestroyCursors();
 
   if (compositor_)
     wl_compositor_destroy(compositor_);
@@ -246,74 +240,6 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
   }
-}
-
-static const char *cursor_names[] = {
-  "bottom_left_corner",
-  "bottom_right_corner",
-  "bottom_side",
-  "grabbing",
-  "left_ptr",
-  "left_side",
-  "right_side",
-  "top_left_corner",
-  "top_right_corner",
-  "top_side",
-  "xterm",
-  "hand1",
-};
-
-void WaylandDisplay::CreateCursors()
-{
-  unsigned int i, array_size = sizeof(cursor_names) / sizeof(cursor_names[0]);
-  cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm_);
-  cursors_ = new wl_cursor*[array_size];
-  memset(cursors_, 0, sizeof(wl_cursor*) * array_size);
-
-  for(i = 0; i < array_size; i++)
-    cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
-}
-
-void WaylandDisplay::DestroyCursors()
-{
-  if(cursor_theme_)
-  {
-    wl_cursor_theme_destroy(cursor_theme_);
-    cursor_theme_ = NULL;
-  }
-
-  if(cursors_)
-  {
-    delete[] cursors_;
-    cursors_ = NULL;
-  }
-}
-
-void WaylandDisplay::SetPointerImage(WaylandInputDevice *device, int index)
-{
-  struct wl_buffer *buffer;
-  struct wl_cursor *cursor;
-  struct wl_cursor_image *image;
-  struct wl_surface *pointer_surface;
-
-  cursor = cursors_[index];
-  if (!cursor)
-    return;
-
-  device->SetCurrentPointerImage(index);
-  image = cursor->images[0];
-  buffer = wl_cursor_image_get_buffer(image);
-  pointer_surface = device->GetPointerSurface();
-  wl_pointer_set_cursor(device->GetPointer(),
-      GetSerial(),
-      pointer_surface,
-      image->hotspot_x,
-      image->hotspot_y);
-  wl_surface_attach(pointer_surface, buffer, 0, 0);
-  wl_surface_damage(pointer_surface, 0, 0,
-      image->width,
-      image->height);
-  wl_surface_commit(pointer_surface);
 }
 
 }  // namespace ui

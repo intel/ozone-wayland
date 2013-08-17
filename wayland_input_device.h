@@ -11,55 +11,14 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "ozone/wayland_display.h"
+#include "ozone/wayland_global.h"
 #include "ui/gfx/point.h"
-
-#define MOD_SHIFT_MASK		0x01
-#define MOD_ALT_MASK		0x02
-#define MOD_CONTROL_MASK	0x04
 
 namespace ui {
 
 class Event;
 class WaylandWindow;
-
-enum CursorType {
-  CURSOR_BOTTOM_LEFT,
-  CURSOR_BOTTOM_RIGHT,
-  CURSOR_BOTTOM,
-  CURSOR_DRAGGING,
-  CURSOR_LEFT_PTR,
-  CURSOR_LEFT,
-  CURSOR_RIGHT,
-  CURSOR_TOP_LEFT,
-  CURSOR_TOP_RIGHT,
-  CURSOR_TOP,
-  CURSOR_IBEAM,
-  CURSOR_HAND1,
-};
-
-// Constants to identify the type of resize.
-enum BoundsChangeType
-{
-  kBoundsChange_None = 0,
-  kBoundsChange_Repositions,
-  kBoundsChange_Resizes,
-};
-
-enum WindowLocation {
-  WINDOW_INTERIOR = 0,
-  WINDOW_RESIZING_TOP = 1,
-  WINDOW_RESIZING_BOTTOM = 2,
-  WINDOW_RESIZING_LEFT = 4,
-  WINDOW_RESIZING_TOP_LEFT = 5,
-  WINDOW_RESIZING_BOTTOM_LEFT = 6,
-  WINDOW_RESIZING_RIGHT = 8,
-  WINDOW_RESIZING_TOP_RIGHT = 9,
-  WINDOW_RESIZING_BOTTOM_RIGHT = 10,
-  WINDOW_RESIZING_MASK = 15,
-  WINDOW_EXTERIOR = 16,
-  WINDOW_TITLEBAR = 17,
-  WINDOW_CLIENT_AREA = 18,
-};
+class WaylandCursor;
 
 // This class represents an input device that was registered with Wayland.
 // The purpose of this class is to parse and wrap events into generic
@@ -83,14 +42,9 @@ class WaylandInputDevice {
   // Returns a bitmask of the kBoundsChange_ values.
   static BoundsChangeType GetBoundsChangeForWindowComponent(int component);
   static WindowLocation GetLocationForWindowComponent(int component);
-  static int GetPointerImageForWindowComponent(int component);
-
-  void SetCurrentPointerImage(int pointer) { current_pointer_image_ = pointer; }
-  int GetCurrentPointerImage() { return current_pointer_image_; }
 
   wl_seat* GetInputSeat() { return input_seat_; }
-  wl_pointer* GetPointer() { return input_pointer_; }
-  wl_surface* GetPointerSurface() { return pointer_surface_; }
+  WaylandCursor* cursor() { return cursor_; }
 
  private:
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
@@ -178,12 +132,11 @@ class WaylandInputDevice {
       uint32_t caps);
 
   wl_seat* input_seat_;
-  wl_pointer* input_pointer_;
   wl_keyboard* input_keyboard_;
   wl_display* display_;
   wl_registry* registry_;
 
-  struct wl_surface *pointer_surface_;
+  WaylandCursor* cursor_;
 
   // These keep track of the window that's currently under focus. NULL if no
   // window is under focus.
@@ -218,8 +171,6 @@ class WaylandInputDevice {
 
   void InitXKB();
   void FiniXKB();
-
-  int current_pointer_image_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandInputDevice);
 };
