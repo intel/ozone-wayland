@@ -69,7 +69,19 @@ class WaylandDisplay {
 
   void AddTask(WaylandTask* task);
 
-  void ProcessTasks();
+  // Returns true if any pending tasks have been handled otherwise
+  // returns false.
+  bool ProcessTasks();
+
+  // Handles any pending Wayland tasks and sends
+  // all buffered data on client side to the server.
+  // The call has no effect if there are no pending
+  // WaylandTasks.
+  void FlushTasks();
+
+  // Handles any pending Wayland tasks and sends
+  // all buffered data on client side to the server.
+  void Flush();
 
   void SetPointerImage(WaylandInputDevice* device, int pointer);
 
@@ -83,8 +95,8 @@ class WaylandDisplay {
 
  private:
   void CreateCursors();
-
   void DestroyCursors();
+  void scheduleFlush() { handle_flush_ = true; }
 
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
@@ -112,7 +124,9 @@ class WaylandDisplay {
 
   wl_cursor_theme *cursor_theme_;
   wl_cursor **cursors_;
+  bool handle_flush_ :1;
 
+  friend class WaylandWindow;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };
 

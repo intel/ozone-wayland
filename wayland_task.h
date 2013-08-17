@@ -49,16 +49,6 @@ class WaylandResizeTask : public WaylandTask {
   DISALLOW_COPY_AND_ASSIGN(WaylandResizeTask);
 };
 
-class WaylandRedrawTask : public WaylandTask {
- public:
-  WaylandRedrawTask(WaylandWindow* window);
-  virtual ~WaylandRedrawTask();
-  virtual void Run();
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(WaylandRedrawTask);
-};
-
 }  // namespace ui
 
 #endif  // OZONE_WAYLAND_TASK_H_

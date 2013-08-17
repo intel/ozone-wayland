@@ -50,7 +50,10 @@ WaylandDisplay* WaylandDisplay::Connect(char* name)
   display->registry_ =  wl_display_get_registry(display->display_);
   wl_registry_add_listener(display->registry_, &registry_listener, display);
 
-  wl_display_dispatch(display->display_);
+  if (wl_display_roundtrip(display->display_) < 0) {
+      delete display;
+      return NULL;
+    }
 
   display->CreateCursors();
 
@@ -59,8 +62,10 @@ WaylandDisplay* WaylandDisplay::Connect(char* name)
 
 void WaylandDisplay::AddWindow(WaylandWindow* window)
 {
-  if(window)
+  if(window) {
     window_list_.push_back(window);
+    handle_flush_ = true;
+  }
 }
 
 void WaylandDisplay::AddTask(WaylandTask* task)
@@ -69,9 +74,11 @@ void WaylandDisplay::AddTask(WaylandTask* task)
     task_list_.push_back(task);
 }
 
-void WaylandDisplay::ProcessTasks()
+bool WaylandDisplay::ProcessTasks()
 {
   WaylandTask *task = NULL;
+  if (task_list_.empty())
+      return false;
 
   while(!task_list_.empty())
   {
@@ -80,6 +87,28 @@ void WaylandDisplay::ProcessTasks()
     task_list_.pop_front();
     delete task;
   }
+
+  return true;
+}
+
+void WaylandDisplay::FlushTasks()
+{
+  if (!handle_flush_ && task_list_.empty())
+      return;
+
+  Flush();
+}
+
+void WaylandDisplay::Flush()
+{
+  ProcessTasks();
+  while (wl_display_prepare_read(display_) != 0)
+      wl_display_dispatch_pending(display_);
+
+  wl_display_flush(display_);
+  wl_display_read_events(display_);
+  wl_display_dispatch_pending(display_);
+  handle_flush_ = false;
 }
 
 void WaylandDisplay::RemoveWindow(WaylandWindow* window)
@@ -88,6 +117,7 @@ void WaylandDisplay::RemoveWindow(WaylandWindow* window)
     return;
 
   WaylandTask *task = NULL;
+  handle_flush_ = true;
 
   for (std::list<WaylandTask*>::iterator i = task_list_.begin();
       i != task_list_.end(); ++i) {
@@ -142,7 +172,8 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
     cursors_(NULL),
     compositor_(NULL),
     shell_(NULL),
-    shm_(NULL)
+    shm_(NULL),
+    handle_flush_(false)
 {
   display_ = wl_display_connect(name);
   input_method_filter_ = new WaylandInputMethodEventFilter;
