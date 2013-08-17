@@ -122,9 +122,9 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
 const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
   std::list<ui::WaylandScreen*> screens = display_->GetScreenList();
   gfx::Rect scrn = screens.front()->GetAllocation();
-  char *str = new char[12];
-
-  base::snprintf(str, sizeof(str), "%dx%d", scrn.width(), scrn.height());
+  int size = 12;
+  char *str = new char[size];
+  base::snprintf(str, size, "%dx%d", scrn.width(), scrn.height());
 
   return str;
 }
