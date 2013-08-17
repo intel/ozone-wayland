@@ -107,7 +107,6 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
 
   window = new ui::WaylandWindow(display_);
   window->SetParentWindow(NULL);
-  window->Flush();
 
   return (gfx::AcceleratedWidget)window;
 }
@@ -120,13 +119,13 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
 }
 
 const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
-  std::list<ui::WaylandScreen*> screens = display_->GetScreenList();
-  gfx::Rect scrn = screens.front()->GetAllocation();
-  char *str = new char[12];
+    std::list<ui::WaylandScreen*> screens = display_->GetScreenList();
+    gfx::Rect scrn = screens.front()->GetAllocation();
+    int size = 12;
+    char *str = new char[size];
+    base::snprintf(str, size, "%dx%d", scrn.width(), scrn.height());
 
-  base::snprintf(str, sizeof(str), "%dx%d", scrn.width(), scrn.height());
-
-  return str;
+    return str;
 }
 
 gfx::Screen* SurfaceFactoryWayland::CreateDesktopScreen() {

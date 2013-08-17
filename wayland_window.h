@@ -55,15 +55,13 @@ class WaylandWindow {
 
   void SetBounds(const gfx::Rect& new_bounds);
   gfx::Rect GetBounds() const;
-  void Flush();
   void GetResizeDelta(int &x, int &y);
 
   void ScheduleResize(int32_t width, int32_t height);
   void SchedulePaintInRect(const gfx::Rect& rect);
-  void ScheduleRedraw();
+  void ScheduleFlush();
 
   virtual void OnResize();
-  virtual void OnRedraw();
 
   const Windows& GetChildren() const { return children_; }
   void AddChild(WaylandWindow* child);
@@ -133,7 +131,6 @@ class WaylandWindow {
   gfx::Rect pending_allocation_;
   WindowType type_;
   bool resize_scheduled_;
-  bool redraw_scheduled_;
   wl_egl_window *window_;
 
   // Child windows. Topmost is last.

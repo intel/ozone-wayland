@@ -30,10 +30,7 @@ EventFactoryWayland::EventFactoryWayland()
                             this);
   CHECK(success);
 
-  display_->ProcessTasks();
-  wl_display_dispatch_pending(display_->display());
-  wl_display_flush(display_->display());
-
+  display_->FlushTasks();
   base::MessageLoop::current()->AddTaskObserver(this);
 }
 
@@ -51,14 +48,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
-  display_->ProcessTasks();
-
-  while (wl_display_prepare_read(display_->display()) != 0)
-    wl_display_dispatch_pending(display_->display());
-  wl_display_flush(display_->display());
-
-  wl_display_read_events(display_->display());
-  wl_display_dispatch_pending(display_->display());
+  display_->Flush();
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
@@ -78,13 +68,15 @@ void EventFactoryWayland::DidProcessTask(
   // flush the remaining buffered bytes.
   // The catch with this hack in DidProcessTask is to be careful and flush only
   // when needed like after eglSwapBuffers (PostSwapBuffersComplete) and others
+  // This would not be needed after we start using transport surface, as nested
+  // server would be responsible for flushing the client as needed. We need to
+  // come back to this once we have it working.
 
   if (strcmp(pending_task.posted_from.function_name(),
       "PostSwapBuffersComplete") != 0)
     return;
 
-  wl_display_dispatch_pending(display_->display());
-  wl_display_flush(display_->display());
+  display_->Flush();
 }
 
 }  // namespace ui
