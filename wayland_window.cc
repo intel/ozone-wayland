@@ -30,7 +30,6 @@ WaylandWindow::WaylandWindow(WaylandDisplay* display)
     fullscreen_(false),
     window_(NULL),
     resize_scheduled_(false),
-    redraw_scheduled_(false),
     type_(TYPE_TOPLEVEL),
     resize_edges_(0),
     allocation_(gfx::Rect(0, 0, 0, 0)),
@@ -38,14 +37,14 @@ WaylandWindow::WaylandWindow(WaylandDisplay* display)
     saved_allocation_(gfx::Rect(0, 0, 0, 0)),
     pending_allocation_(gfx::Rect(0, 0, 0, 0))
 {
-  if(display_->shell())
+  if (display_->shell())
   {
     shell_surface_ = wl_shell_get_shell_surface(display_->shell(), surface_);
   }
 
   wl_surface_set_user_data(surface_, this);
 
-  if(shell_surface_)
+  if (shell_surface_)
   {
     wl_shell_surface_set_user_data(shell_surface_, this);
 
@@ -135,6 +134,9 @@ void WaylandWindow::SetParentWindow(WaylandWindow* parent_window)
 
   if(parent_window)
     parent_window->AddChild(this);
+
+  if (display_->shell())
+    SetType();
 }
 
 gfx::Rect WaylandWindow::GetBounds() const
@@ -185,15 +187,6 @@ bool WaylandWindow::IsVisible() const {
   return surface_ != NULL;
 }
 
-void WaylandWindow::Flush()
-{
-  // TODO: gotta find a better way to not set the type every time it flushes
-  if (display_->shell())
-    SetType();
-
-  wl_display_flush(display_->display());
-}
-
 void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 {
   if(!window_)
@@ -209,22 +202,17 @@ void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 
     resize_scheduled_ = true;
   }
-  ScheduleRedraw();
 }
 
-void WaylandWindow::ScheduleRedraw()
+void WaylandWindow::ScheduleFlush()
 {
-  if(IsVisible() && !redraw_scheduled_)
-  {
-    WaylandRedrawTask *task = new WaylandRedrawTask(this);
-    display_->AddTask(task);
-    redraw_scheduled_ = true;
-  }
+  if (surface_)
+    display_->scheduleFlush();
 }
 
 void WaylandWindow::SchedulePaintInRect(const gfx::Rect& rect)
 {
-  ScheduleRedraw();
+  ScheduleFlush();
 }
 
 void WaylandWindow::HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
@@ -251,17 +239,8 @@ void WaylandWindow::HandlePing(void *data, struct wl_shell_surface *shell_surfac
 void WaylandWindow::OnResize()
 {
   resize_scheduled_ = false;
-  if(pending_allocation_ != allocation_)
-  {
+  if (pending_allocation_ != allocation_)
     allocation_ = pending_allocation_;
-    ScheduleRedraw();
-  }
-}
-
-void WaylandWindow::OnRedraw()
-{
-  Flush();
-  redraw_scheduled_ = false;
 }
 
 }  // namespace ui
