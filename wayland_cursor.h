@@ -9,6 +9,7 @@
 #include <wayland-cursor.h>
 
 namespace ui {
+class WaylandCursorData;
 
 class WaylandCursor {
 public:
@@ -32,24 +33,14 @@ public:
   virtual ~WaylandCursor();
 
   void Update(CursorType type, uint32_t serial);
-  void Reset() { cursor_type_ = CURSOR_UNSET; }
-  CursorType type() const { return cursor_type_; }
   struct wl_surface* GetSurface() const { return pointer_surface_; }
 
   wl_pointer* GetInputPointer() { return input_pointer_; }
-  void SetPointer(wl_pointer* pointer);
+  void SetInputPointer(wl_pointer* pointer);
 
 private:
-  void initialize(wl_shm* shm);
-  void Destroy();
-
-  wl_cursor_theme *cursor_theme_;
-  wl_cursor **cursors_;
-  wl_pointer* input_pointer_;
+  wl_pointer *input_pointer_;
   struct wl_surface *pointer_surface_;
-  struct wl_buffer *buffer_;
-  CursorType cursor_type_;
-
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 

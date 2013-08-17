@@ -409,7 +409,6 @@ void WaylandInputDevice::OnPointerLeave(void* data,
   WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
 
   device->pointer_focus_ = NULL;
-  device->cursor_->Reset();
 
   scoped_ptr<MouseEvent> mouseev(new MouseEvent(
       ui::ET_MOUSE_EXITED,
