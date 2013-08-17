@@ -84,7 +84,7 @@ void SurfaceFactoryWayland::InitializeWaylandEvent()
 SurfaceFactoryWayland::SurfaceFactoryWayland()
     : e_factory(NULL),
       display_(ui::WaylandDisplay::GetDisplay()),
-      spec_(0 ){
+      spec_(0){
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
