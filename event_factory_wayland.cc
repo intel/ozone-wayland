@@ -7,7 +7,6 @@
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
 #include "ozone/wayland_display.h"
-#include "ozone/surface_factory_wayland.h"
 
 namespace ui {
 

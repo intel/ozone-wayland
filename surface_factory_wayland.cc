@@ -89,12 +89,7 @@ SurfaceFactoryWayland::SurfaceFactoryWayland()
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
-SurfaceFactoryWayland::~SurfaceFactoryWayland()
-{
-  if (spec_)
-    delete spec_;
-
-  WaylandDisplay::DestroyDisplay();
+SurfaceFactoryWayland::~SurfaceFactoryWayland() {
 }
 
 intptr_t SurfaceFactoryWayland::InitializeHardware()
