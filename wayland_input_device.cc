@@ -135,7 +135,6 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
   wl_seat_set_user_data(input_seat_, this);
 
   InitXKB();
-  cursor_ = new WaylandCursor(display->GetCompositor(), display->shm());
 }
 
 WaylandInputDevice::~WaylandInputDevice()
@@ -178,6 +177,9 @@ void WaylandInputDevice::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t 
     WaylandInputDevice::OnButtonNotify,
     WaylandInputDevice::OnAxisNotify,
   };
+
+  if (!device->cursor_)
+    device->cursor_ = new WaylandCursor(WaylandDisplay::GetDisplay()->shm());
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !device->cursor_->GetInputPointer()) {
     wl_pointer* input_pointer = wl_seat_get_pointer(seat);
@@ -386,6 +388,7 @@ void WaylandInputDevice::OnPointerEnter(void* data,
 
   // TODO(vignatti): sx and sy have to be used for setting different resizing
   // and other cursors.
+
   device->cursor_->Update(cursorType(WINDOW_TITLEBAR), serial);
   scoped_ptr<MouseEvent> mouseev(new MouseEvent(
       ui::ET_MOUSE_ENTERED,

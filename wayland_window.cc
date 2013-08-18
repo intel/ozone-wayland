@@ -3,11 +3,9 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland_window.h"
-
 #include <wayland-egl.h>
-
 #include "base/logging.h"
-#include "ozone/wayland_display.h"
+#include "ozone/wayland_surface.h"
 #include "ozone/wayland_task.h"
 #include "ozone/wayland_input_device.h"
 #include "ui/gl/gl_surface.h"
@@ -24,6 +22,7 @@ WaylandWindow::WaylandWindow()
     : parent_window_(NULL),
     user_data_(NULL),
     relative_position_(),
+    surface_(NULL),
     shell_surface_(NULL),
     fullscreen_(false),
     window_(NULL),
@@ -39,13 +38,13 @@ WaylandWindow::WaylandWindow()
   if (!display)
       return;
 
-  surface_ = display->CreateSurface();
+  surface_ = new WaylandSurface();
   if (display->shell())
   {
-    shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_);
+    shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_->wlSurface());
   }
 
-  wl_surface_set_user_data(surface_, this);
+  wl_surface_set_user_data(surface_->wlSurface(), this);
 
   if (shell_surface_)
   {
@@ -82,7 +81,7 @@ void WaylandWindow::SetType()
       break;
     case TYPE_TRANSIENT:
       wl_shell_surface_set_transient(shell_surface_,
-          parent_window_->surface_,
+          parent_window_->surface_->wlSurface(),
           relative_position_.x(), relative_position_.y(), 0);
       break;
     case TYPE_MENU:
@@ -173,12 +172,12 @@ void WaylandWindow::Hide()
 }
 
 WaylandWindow::~WaylandWindow() {
-  if(window_)
+  if (window_)
     wl_egl_window_destroy(window_);
 
   if (surface_)
   {
-    wl_surface_destroy(surface_);
+    delete surface_;
     surface_ = NULL;
   }
 
@@ -192,7 +191,7 @@ bool WaylandWindow::IsVisible() const {
 void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 {
   if (!window_) {
-    window_ = wl_egl_window_create(surface_, width, height);
+    window_ = wl_egl_window_create(surface_->wlSurface(), width, height);
     allocation_ = gfx::Rect(0, 0, width, height);
     return;
   }
@@ -209,8 +208,7 @@ void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 
 void WaylandWindow::ScheduleFlush()
 {
-  if (surface_)
-    WaylandDisplay::GetDisplay()->scheduleFlush();
+    WaylandDisplay::GetDisplay()->addPendingTask();
 }
 
 void WaylandWindow::SchedulePaintInRect(const gfx::Rect& rect)

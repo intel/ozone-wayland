@@ -20,6 +20,7 @@ struct wl_egl_window;
 namespace ui {
 
 class WaylandDisplay;
+class WaylandSurface;
 
 // WaylandWindow wraps a wl_surface and some basic operations for the surface.
 class WaylandWindow {
@@ -49,7 +50,7 @@ class WaylandWindow {
 
   // Returns the pointer to the surface associated with the window.
   // The WaylandWindow object owns the pointer.
-  wl_surface* surface() const { return surface_; }
+  WaylandSurface* surface() const { return surface_; }
   wl_shell_surface* shell_surface() const { return shell_surface_; }
   wl_egl_window* egl_window() const { return window_; }
 
@@ -114,7 +115,7 @@ class WaylandWindow {
   gfx::Point relative_position_;
 
   // The native wayland surface associated with this window.
-  wl_surface* surface_;
+  WaylandSurface* surface_;
   wl_shell_surface* shell_surface_;
 
   // Whether the window is in fullscreen mode.

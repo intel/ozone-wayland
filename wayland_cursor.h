@@ -10,6 +10,7 @@
 
 namespace ui {
 class WaylandCursorData;
+class WaylandSurface;
 
 class WaylandCursor {
 public:
@@ -29,18 +30,17 @@ public:
     CURSOR_HAND1
    };
 
-  WaylandCursor(wl_compositor* compositor, wl_shm* shm);
+  WaylandCursor(wl_shm* shm);
   virtual ~WaylandCursor();
 
   void Update(CursorType type, uint32_t serial);
-  struct wl_surface* GetSurface() const { return pointer_surface_; }
 
   wl_pointer* GetInputPointer() { return input_pointer_; }
   void SetInputPointer(wl_pointer* pointer);
 
 private:
-  wl_pointer *input_pointer_;
-  struct wl_surface *pointer_surface_;
+  wl_pointer* input_pointer_;
+  WaylandSurface* pointer_surface_;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 

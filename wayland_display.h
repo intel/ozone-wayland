@@ -19,6 +19,7 @@
 
 namespace ui {
 
+class SurfaceFactoryWayland;
 class WaylandInputDevice;
 class WaylandScreen;
 class WaylandWindow;
@@ -30,23 +31,9 @@ class InputMethod;
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay {
  public:
-  WaylandDisplay(char* name);
   virtual ~WaylandDisplay();
 
-  // Attempt to create a connection to the display. If it fails this returns
-  // NULL
-  static WaylandDisplay* Connect(char* name);
-
-  // Get the WaylandDisplay associated with the native Wayland display
-  static WaylandDisplay* GetDisplay(wl_display* display);
-
   static WaylandDisplay* GetDisplay();
-
-  static void DestroyDisplay();
-
-  // Creates a wayland surface. This is used to create a window surface.
-  // The returned pointer should be deleted by the caller.
-  wl_surface* CreateSurface();
 
   // Returns a pointer to the wl_display.
   wl_display* display() const { return display_; }
@@ -68,21 +55,26 @@ class WaylandDisplay {
 
   void AddTask(WaylandTask* task);
 
-  // Returns true if any pending tasks have been handled otherwise
-  // returns false.
+  // Ensures display is flushed when
+  // FlushTasks is called. This is only for
+  // convenience.
+  void addPendingTask() { handle_flush_ = true; }
+
+  // Returns true if any pending tasks have been handled
+  // otherwise returns false.
   bool ProcessTasks();
 
-  // Handles any pending Wayland tasks and sends
-  // all buffered data on client side to the server.
-  // The call has no effect if there are no pending
-  // WaylandTasks.
+  // The call has no effect unless there are any pending
+  // WaylandTasks, otherwise similar to Flush.
   void FlushTasks();
 
-  // Handles any pending Wayland tasks and sends
-  // all buffered data on client side to the server.
+  // Handle any pending Wayland tasks and send
+  // all buffered data on client side to server.
   void Flush();
 
-  void SetPointerImage(WaylandInputDevice* device, int pointer);
+  // Handle all pending events in queue.
+  // Forces a round trip to server.
+  int SyncDisplay();
 
   InputMethod* GetInputMethod() const;
 
@@ -92,9 +84,16 @@ class WaylandDisplay {
 
   wl_compositor* GetCompositor() { return compositor_; }
 
- private:
-  void scheduleFlush() { handle_flush_ = true; }
+  // callback.
+  static void SyncCallback(void *data, struct wl_callback *callback, uint32_t serial);
 
+ private:
+  WaylandDisplay(char* name);
+  void terminate();
+  // Attempt to create a connection to the display. If it fails this returns
+  // NULL
+  static WaylandDisplay* Connect(char* name = NULL);
+  static void DestroyDisplay();
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
@@ -106,10 +105,11 @@ class WaylandDisplay {
 
   // WaylandDisplay manages the memory of all these pointers.
   wl_display* display_;
-  wl_registry *registry_;
+  wl_registry* registry_;
   wl_compositor* compositor_;
   wl_shell* shell_;
   wl_shm* shm_;
+  struct wl_event_queue* queue_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
@@ -120,7 +120,7 @@ class WaylandDisplay {
   uint32_t serial_;
   bool handle_flush_ :1;
 
-  friend class WaylandWindow;
+  friend class SurfaceFactoryWayland;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };
 

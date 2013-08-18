@@ -60,6 +60,8 @@
         "wayland_kbd_conversion.h",
         'wayland_screen.cc',
         'wayland_screen.h',
+        'wayland_surface.h',
+        'wayland_surface.cc',
         'wayland_task.cc',
         'wayland_task.h',
         'wayland_window.cc',

@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland_cursor.h"
-#include <stdio.h>
+#include "ozone/wayland_surface.h"
+
 namespace ui {
 
 class WaylandCursorData {
@@ -79,18 +80,19 @@ WaylandCursorData::~WaylandCursorData()
   }
 }
 
-WaylandCursor::WaylandCursor(wl_compositor* compositor, wl_shm* shm) :
-  input_pointer_(NULL),
-  pointer_surface_(NULL)
+WaylandCursor::WaylandCursor(wl_shm* shm) :
+  input_pointer_(NULL)
 {
-  pointer_surface_ = wl_compositor_create_surface(compositor);
+  pointer_surface_ = new WaylandSurface();
   WaylandCursorData::Initialize(shm);
 }
 
 WaylandCursor::~WaylandCursor()
 {
-  if (pointer_surface_)
-    wl_surface_destroy(pointer_surface_);
+  if (pointer_surface_) {
+    delete pointer_surface_;
+    pointer_surface_ = NULL;
+  }
 }
 
 void WaylandCursor::SetInputPointer(wl_pointer* pointer)
@@ -105,10 +107,11 @@ void WaylandCursor::Update(CursorType type, uint32_t serial)
 
   struct wl_cursor_image *image = WaylandCursorData::GetInstance()->GetCursorImage(type - 1);
   struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-  wl_pointer_set_cursor(input_pointer_, serial, pointer_surface_, image->hotspot_x, image->hotspot_y);
-  wl_surface_attach(pointer_surface_, buffer, 0, 0);
-  wl_surface_damage(pointer_surface_, 0, 0, image->width, image->height);
-  wl_surface_commit(pointer_surface_);
+  struct wl_surface* surface = pointer_surface_->wlSurface();
+  wl_pointer_set_cursor(input_pointer_, serial, surface, image->hotspot_x, image->hotspot_y);
+  wl_surface_attach(surface, buffer, 0, 0);
+  wl_surface_damage(surface, 0, 0, image->width, image->height);
+  wl_surface_commit(surface);
 }
 
 }  // namespace ui

@@ -5,7 +5,6 @@
 #include "ozone/wayland_display.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "base/message_loop/message_loop.h"
@@ -17,45 +16,66 @@
 namespace ui {
 
 WaylandDisplay* g_display = NULL;
+static const struct wl_callback_listener syncListener = {
+    WaylandDisplay::SyncCallback
+};
 
 WaylandDisplay* WaylandDisplay::GetDisplay()
 {
-  if (!g_display)
-    g_display = WaylandDisplay::Connect(NULL);
   return g_display;
 }
 
 void WaylandDisplay::DestroyDisplay()
 {
-  if(g_display)
+  if (g_display)
     delete g_display;
+
   g_display = NULL;
 }
 
 // static
 WaylandDisplay* WaylandDisplay::Connect(char* name)
 {
+  if (g_display)
+    return g_display;
+
+  g_display = new WaylandDisplay(name);
+
+  return g_display;
+}
+
+WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
+    compositor_(NULL),
+    shell_(NULL),
+    shm_(NULL),
+    queue_(NULL),
+    handle_flush_(false)
+{
+  display_ = wl_display_connect(name);
+  if (!display_)
+      return;
+
   static const struct wl_registry_listener registry_listener = {
     WaylandDisplay::DisplayHandleGlobal
   };
 
-  WaylandDisplay* display = new WaylandDisplay(name);
-  if (!display->display_) {
-    delete display;
-    return NULL;
+  input_method_filter_ = new WaylandInputMethodEventFilter;
+  registry_ = wl_display_get_registry(display_);
+  wl_registry_add_listener(registry_, &registry_listener, this);
+
+  if (wl_display_roundtrip(display_) < 0) {
+      terminate();
+      return;
   }
 
-  wl_display_set_user_data(display->display_, display);
+  wl_display_set_user_data(display_, this);
+  queue_ = wl_display_create_queue(display_);
+  wl_proxy_set_queue((struct wl_proxy *)registry_, queue_);
+}
 
-  display->registry_ =  wl_display_get_registry(display->display_);
-  wl_registry_add_listener(display->registry_, &registry_listener, display);
-
-  if (wl_display_roundtrip(display->display_) < 0) {
-      delete display;
-      return NULL;
-    }
-
-  return display;
+WaylandDisplay::~WaylandDisplay()
+{
+  terminate();
 }
 
 void WaylandDisplay::AddWindow(WaylandWindow* window)
@@ -159,23 +179,7 @@ InputMethod* WaylandDisplay::GetInputMethod() const
   return input_method_filter_ ? input_method_filter_->GetInputMethod(): NULL;
 }
 
-// static
-WaylandDisplay* WaylandDisplay::GetDisplay(wl_display* display)
-{
-  return static_cast<WaylandDisplay*>(wl_display_get_user_data(display));
-}
-
-WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
-    compositor_(NULL),
-    shell_(NULL),
-    shm_(NULL),
-    handle_flush_(false)
-{
-  display_ = wl_display_connect(name);
-  input_method_filter_ = new WaylandInputMethodEventFilter;
-}
-
-WaylandDisplay::~WaylandDisplay()
+void WaylandDisplay::terminate()
 {
   if (window_list_.size() > 0)
     fprintf(stderr, "warning: windows exist.\n");
@@ -185,33 +189,66 @@ WaylandDisplay::~WaylandDisplay()
 
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
-    delete *i;
+      delete *i;
   }
 
   for (std::list<WaylandScreen*>::iterator i = screen_list_.begin();
       i != screen_list_.end(); ++i) {
-    delete *i;
+      delete *i;
+  }
+
+  if (queue_) {
+    wl_event_queue_destroy(queue_);
+    queue_ = 0;
   }
 
   if (compositor_)
     wl_compositor_destroy(compositor_);
+
   if (shell_)
     wl_shell_destroy(shell_);
+
   if (shm_)
     wl_shm_destroy(shm_);
-  if (display_)
-    wl_display_disconnect(display_);
+
+  if (registry_)
+      wl_registry_destroy(registry_);
 
   delete input_method_filter_;
-}
 
-wl_surface* WaylandDisplay::CreateSurface()
-{
-  return wl_compositor_create_surface(compositor_);
+  if (display_) {
+    wl_display_flush(display_);
+    wl_display_disconnect(display_);
+  }
 }
 
 std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {
   return screen_list_;
+}
+
+void WaylandDisplay::SyncCallback(void *data, struct wl_callback *callback, uint32_t serial)
+{
+    int* done = static_cast<int*>(data);
+    *done = 1;
+    wl_callback_destroy(callback);
+}
+
+int WaylandDisplay::SyncDisplay()
+{
+  if (!queue_)
+    return -1;
+
+  ProcessTasks();
+  int done = 0, ret = 0;
+  handle_flush_ = false;
+  struct wl_callback* callback = wl_display_sync(display_);
+  wl_callback_add_listener(callback, &syncListener, &done);
+  wl_proxy_set_queue((struct wl_proxy *) callback, queue_);
+  while (ret != -1 && !done)
+    ret = wl_display_dispatch_queue(display_, queue_);
+  wl_display_dispatch_pending(display_);
+
+  return ret;
 }
 
 // static
