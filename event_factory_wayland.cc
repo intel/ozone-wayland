@@ -7,6 +7,7 @@
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
 #include "ozone/wayland_display.h"
+#include "ozone/surface_factory_wayland.h"
 
 namespace ui {
 
@@ -17,9 +18,8 @@ static base::LazyInstance<scoped_ptr<EventFactoryWayland> > impl_ =
 EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
-
-  display_ = ui::WaylandDisplay::GetDisplay();
-  fd_ = wl_display_get_fd(display_->display());
+  WaylandDisplay* dis = WaylandDisplay::GetDisplay();
+  fd_ = wl_display_get_fd(dis->display());
 
   CHECK_GE(fd_, 0);
   bool success = base::MessagePumpOzone::Current()->WatchFileDescriptor(
@@ -30,7 +30,7 @@ EventFactoryWayland::EventFactoryWayland()
                             this);
   CHECK(success);
 
-  display_->FlushTasks();
+  dis->FlushTasks();
   base::MessageLoop::current()->AddTaskObserver(this);
 }
 
@@ -48,7 +48,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
-  display_->Flush();
+  WaylandDisplay::GetDisplay()->Flush();
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
@@ -76,7 +76,7 @@ void EventFactoryWayland::DidProcessTask(
       "PostSwapBuffersComplete") != 0)
     return;
 
-  display_->Flush();
+  WaylandDisplay::GetDisplay()->Flush();
 }
 
 }  // namespace ui

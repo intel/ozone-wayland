@@ -36,7 +36,6 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
   virtual void WillProcessTask(const base::PendingTask& pending_task) OVERRIDE;
   virtual void DidProcessTask(const base::PendingTask& pending_task) OVERRIDE;
 
-  ui::WaylandDisplay* display_;
   int fd_;
   base::MessagePumpLibevent::FileDescriptorWatcher watcher_;
 };

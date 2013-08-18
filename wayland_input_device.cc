@@ -117,9 +117,8 @@ static WaylandCursor::CursorType cursorType(WindowLocation location)
       }
 }
 
-WaylandInputDevice::WaylandInputDevice(WaylandDisplay* disp, uint32_t id)
+WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
   : input_seat_(NULL),
-    display_(disp->display()),
     input_keyboard_(NULL),
     pointer_focus_(NULL),
     cursor_(NULL),
@@ -131,12 +130,11 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* disp, uint32_t id)
   };
 
   input_seat_ = static_cast<wl_seat*>(
-      wl_registry_bind(disp->registry(), id, &wl_seat_interface, 1));
+      wl_registry_bind(display->registry(), id, &wl_seat_interface, 1));
   wl_seat_add_listener(input_seat_, &kInputSeatListener, this);
   wl_seat_set_user_data(input_seat_, this);
 
   InitXKB();
-  WaylandDisplay* display = WaylandDisplay::GetDisplay(display_);
   cursor_ = new WaylandCursor(display->GetCompositor(), display->shm());
 }
 
@@ -282,7 +280,7 @@ void WaylandInputDevice::OnButtonNotify(void* data,
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
 
-  WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
+  WaylandDisplay::GetDisplay()->SetSerial(serial);
 
   EventType type;
   if (state == WL_POINTER_BUTTON_STATE_PRESSED)
@@ -321,7 +319,7 @@ void WaylandInputDevice::OnKeyNotify(void* data,
   xkb_keysym_t sym;
   xkb_mod_mask_t mask;
 
-  WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
+  WaylandDisplay::GetDisplay()->SetSerial(serial);
 
   EventType type;
   if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
@@ -379,7 +377,7 @@ void WaylandInputDevice::OnPointerEnter(void* data,
 
   device->pointer_position_.SetPoint(sx, sy);
 
-  WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
+  WaylandDisplay::GetDisplay()->SetSerial(serial);
   device->pointer_enter_serial_ = serial;
 
   // If we have a surface, then a new window is in focus
@@ -395,7 +393,7 @@ void WaylandInputDevice::OnPointerEnter(void* data,
       device->pointer_position_,
       /* flags */ 0));
 
-  DispatchEvent(mouseev.PassAs<ui::Event>());
+  DispatchEvent(mouseev.PassAs<ui::Event>()); 
 }
 
 void WaylandInputDevice::OnPointerLeave(void* data,
@@ -406,7 +404,7 @@ void WaylandInputDevice::OnPointerLeave(void* data,
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window = device->pointer_focus_;
 
-  WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
+  WaylandDisplay::GetDisplay()->SetSerial(serial);
 
   device->pointer_focus_ = NULL;
 
@@ -474,7 +472,7 @@ void WaylandInputDevice::OnKeyboardEnter(void* data,
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window;
 
-  WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
+  WaylandDisplay::GetDisplay()->SetSerial(serial);
   window = device->keyboard_focus_ =
     static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
 
@@ -501,7 +499,7 @@ void WaylandInputDevice::OnKeyboardLeave(void* data,
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   WaylandWindow* window = device->keyboard_focus_;
 
-  WaylandDisplay::GetDisplay(device->display_)->SetSerial(serial);
+  WaylandDisplay::GetDisplay()->SetSerial(serial);
 #if 0
   WaylandEvent event;
   event.type = WAYLAND_KEYBOARD_FOCUS;
@@ -510,7 +508,7 @@ void WaylandInputDevice::OnKeyboardLeave(void* data,
 
   // If there is a window, then it loses focus
   if (window) {
-    if(!WaylandDisplay::GetDisplay(device->display_)->IsWindow(window))
+    if(!WaylandDisplay::GetDisplay()->IsWindow(window))
       return;
 
     event.keyboard_focus.state = 0;

@@ -133,8 +133,6 @@ class WaylandInputDevice {
 
   wl_seat* input_seat_;
   wl_keyboard* input_keyboard_;
-  wl_display* display_;
-  wl_registry* registry_;
 
   WaylandCursor* cursor_;
 

@@ -20,12 +20,10 @@
 
 namespace ui {
 
-WaylandWindow::WaylandWindow(WaylandDisplay* display)
-    : display_(display),
-    parent_window_(NULL),
+WaylandWindow::WaylandWindow()
+    : parent_window_(NULL),
     user_data_(NULL),
     relative_position_(),
-    surface_(display->CreateSurface()),
     shell_surface_(NULL),
     fullscreen_(false),
     window_(NULL),
@@ -37,9 +35,14 @@ WaylandWindow::WaylandWindow(WaylandDisplay* display)
     saved_allocation_(gfx::Rect(0, 0, 0, 0)),
     pending_allocation_(gfx::Rect(0, 0, 0, 0))
 {
-  if (display_->shell())
+  WaylandDisplay* display = WaylandDisplay::GetDisplay();
+  if (!display)
+      return;
+
+  surface_ = display->CreateSurface();
+  if (display->shell())
   {
-    shell_surface_ = wl_shell_get_shell_surface(display_->shell(), surface_);
+    shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_);
   }
 
   wl_surface_set_user_data(surface_, this);
@@ -179,7 +182,7 @@ WaylandWindow::~WaylandWindow() {
     surface_ = NULL;
   }
 
-  display_->RemoveWindow(this);
+  WaylandDisplay::GetDisplay()->RemoveWindow(this);
 }
 
 bool WaylandWindow::IsVisible() const {
@@ -188,16 +191,17 @@ bool WaylandWindow::IsVisible() const {
 
 void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 {
-  if(!window_)
-    window_ = wl_egl_window_create(surface_,
-        width, height);
+  if (!window_) {
+    window_ = wl_egl_window_create(surface_, width, height);
+    allocation_ = gfx::Rect(0, 0, width, height);
+    return;
+  }
 
   pending_allocation_ = gfx::Rect(0, 0, width, height);
-
   if(IsVisible() && !resize_scheduled_ && pending_allocation_ != allocation_)
   {
     WaylandResizeTask *task = new WaylandResizeTask(this);
-    display_->AddTask(task);
+    WaylandDisplay::GetDisplay()->AddTask(task);
 
     resize_scheduled_ = true;
   }
@@ -206,7 +210,7 @@ void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 void WaylandWindow::ScheduleFlush()
 {
   if (surface_)
-    display_->scheduleFlush();
+    WaylandDisplay::GetDisplay()->scheduleFlush();
 }
 
 void WaylandWindow::SchedulePaintInRect(const gfx::Rect& rect)

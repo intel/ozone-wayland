@@ -83,20 +83,27 @@ void SurfaceFactoryWayland::InitializeWaylandEvent()
 
 SurfaceFactoryWayland::SurfaceFactoryWayland()
     : e_factory(NULL),
-      display_(ui::WaylandDisplay::GetDisplay()) {
+      spec_(0 )
+{
+  WaylandDisplay::Connect();
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
-SurfaceFactoryWayland::~SurfaceFactoryWayland() {
+SurfaceFactoryWayland::~SurfaceFactoryWayland()
+{
+  if (spec_)
+    delete spec_;
+
+  WaylandDisplay::DestroyDisplay();
 }
 
 intptr_t SurfaceFactoryWayland::InitializeHardware()
 {
-  return (intptr_t) display_->display();
+  return (intptr_t) WaylandDisplay::GetDisplay()->display();
 }
 
 void SurfaceFactoryWayland::ShutdownHardware() {
-  return;
+  WaylandDisplay::DestroyDisplay();
 }
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {

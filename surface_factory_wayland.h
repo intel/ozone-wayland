@@ -35,7 +35,6 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
   void InitializeWaylandEvent();
 
   ui::EventFactoryWayland *e_factory;
-  ui::WaylandDisplay* display_;
 };
 
 }  // namespace ui

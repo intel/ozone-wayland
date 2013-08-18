@@ -27,7 +27,7 @@ class WaylandWindow {
   typedef std::vector<WaylandWindow*> Windows;
 
   // Creates a toplevel window.
-  WaylandWindow(WaylandDisplay* display);
+  WaylandWindow();
 
   ~WaylandWindow();
 
@@ -102,10 +102,6 @@ class WaylandWindow {
     WINDOW_TITLEBAR = 17,
     WINDOW_CLIENT_AREA = 18,
   };
-
-  // Pointer to the display this window is using. This doesn't own the pointer
-  // to the display.
-  WaylandDisplay* display_;
 
   // When creating a transient window, |parent_window_| is set to point to the
   // parent of this window. We will then use |parent_window_| to align this
