@@ -11,6 +11,7 @@
 #include "ozone/wayland_input_device.h"
 #include "ozone/wayland_screen.h"
 #include "ozone/wayland_window.h"
+#include "ozone/wayland_cursor.h"
 #include "ozone/wayland_input_method_event_filter.h"
 
 namespace ui {
@@ -154,11 +155,6 @@ void WaylandDisplay::RemoveWindow(WaylandWindow* window)
       break;
     }
   }
-
-  if(window_list_.size() < 1)
-  {
-    base::MessageLoop::current()->PostTask(FROM_HERE, base::MessageLoop::QuitClosure());
-  }
 }
 
 bool WaylandDisplay::IsWindow(WaylandWindow* window)
@@ -181,11 +177,15 @@ InputMethod* WaylandDisplay::GetInputMethod() const
 
 void WaylandDisplay::terminate()
 {
-  if (window_list_.size() > 0)
+  if (window_list_.size() > 0) {
     fprintf(stderr, "warning: windows exist.\n");
+    window_list_.erase(window_list_.begin(), window_list_.end());
+  }
 
-  if (task_list_.size() > 0)
-    fprintf(stderr, "warning: deferred tasks exist.\n");
+  for (std::list<WaylandTask*>::iterator i = task_list_.begin();
+      i != task_list_.end(); ++i) {
+      delete *i;
+  }
 
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
@@ -197,10 +197,16 @@ void WaylandDisplay::terminate()
       delete *i;
   }
 
+  screen_list_.clear();
+  input_list_.clear();
+  task_list_.clear();
+
   if (queue_) {
     wl_event_queue_destroy(queue_);
     queue_ = 0;
   }
+
+  WaylandCursor::Clear();
 
   if (compositor_)
     wl_compositor_destroy(compositor_);

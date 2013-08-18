@@ -77,12 +77,13 @@ namespace ui {
 
 void SurfaceFactoryWayland::InitializeWaylandEvent()
 {
-  e_factory = new ui::EventFactoryWayland();
-  ui::EventFactoryWayland::SetInstance(e_factory);
+  e_factory = new EventFactoryWayland();
+  EventFactoryWayland::SetInstance(e_factory);
 }
 
 SurfaceFactoryWayland::SurfaceFactoryWayland()
     : e_factory(NULL),
+      root_window_(NULL),
       spec_(NULL)
 {
   WaylandDisplay::Connect();
@@ -93,6 +94,8 @@ SurfaceFactoryWayland::~SurfaceFactoryWayland()
 {
   if (spec_)
     delete[] spec_;
+
+  WaylandDisplay::DestroyDisplay();
 }
 
 intptr_t SurfaceFactoryWayland::InitializeHardware()
@@ -101,19 +104,25 @@ intptr_t SurfaceFactoryWayland::InitializeHardware()
 }
 
 void SurfaceFactoryWayland::ShutdownHardware() {
+  if (root_window_) {
+    delete root_window_;
+    root_window_ =NULL;
+  }
+
   WaylandDisplay::DestroyDisplay();
 }
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
-  ui::WaylandWindow* window;
 
   if (!e_factory)
     InitializeWaylandEvent();
 
-  window = new ui::WaylandWindow(display_);
-  window->SetParentWindow(NULL);
+  if (!root_window_)  {
+    root_window_ = new WaylandWindow();
+    root_window_->SetParentWindow(NULL);
+  }
 
-  return (gfx::AcceleratedWidget)window;
+  return (gfx::AcceleratedWidget)root_window_;
 }
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
@@ -153,7 +162,7 @@ bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWid
   return true;
 }
 
-bool SurfaceFactoryWayland::AcceleratedWidgetCanBeResized(gfx::AcceleratedWidget w) 
+bool SurfaceFactoryWayland::AcceleratedWidgetCanBeResized(gfx::AcceleratedWidget w)
 {
   return false;
 }

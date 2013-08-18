@@ -34,7 +34,6 @@ EventFactoryWayland::EventFactoryWayland()
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
-  base::MessageLoop::current()->RemoveTaskObserver(this);
   watcher_.StopWatchingFileDescriptor();
 }
 

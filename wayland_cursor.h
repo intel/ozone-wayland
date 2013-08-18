@@ -11,6 +11,7 @@
 namespace ui {
 class WaylandCursorData;
 class WaylandSurface;
+class WaylandDisplay;
 
 class WaylandCursor {
 public:
@@ -39,8 +40,15 @@ public:
   void SetInputPointer(wl_pointer* pointer);
 
 private:
+  void ValidateBuffer(CursorType type, uint32_t serial);
+  static void Clear();
   wl_pointer* input_pointer_;
   WaylandSurface* pointer_surface_;
+  struct wl_buffer* buffer_;
+  int width_;
+  int height_;
+  CursorType type_;
+  friend class WaylandDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 
