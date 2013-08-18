@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "ozone/desktop_screen_wayland.h"
-
 #include <stdio.h>
 #include "ui/base/ozone/surface_factory_ozone.h"
 
@@ -26,6 +25,9 @@ gfx::Size GetPrimaryDisplaySize() {
 }  // namespace
 
 DesktopScreenWayland::DesktopScreenWayland() {
+}
+
+DesktopScreenWayland::~DesktopScreenWayland() {
 }
 
 bool DesktopScreenWayland::IsDIPEnabled() {

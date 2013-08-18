@@ -20,6 +20,7 @@ struct wl_egl_window;
 namespace ui {
 
 class WaylandDisplay;
+class WaylandSurface;
 
 // WaylandWindow wraps a wl_surface and some basic operations for the surface.
 class WaylandWindow {
@@ -27,7 +28,7 @@ class WaylandWindow {
   typedef std::vector<WaylandWindow*> Windows;
 
   // Creates a toplevel window.
-  WaylandWindow(WaylandDisplay* display);
+  WaylandWindow();
 
   ~WaylandWindow();
 
@@ -49,21 +50,19 @@ class WaylandWindow {
 
   // Returns the pointer to the surface associated with the window.
   // The WaylandWindow object owns the pointer.
-  wl_surface* surface() const { return surface_; }
+  WaylandSurface* surface() const { return surface_; }
   wl_shell_surface* shell_surface() const { return shell_surface_; }
   wl_egl_window* egl_window() const { return window_; }
 
   void SetBounds(const gfx::Rect& new_bounds);
   gfx::Rect GetBounds() const;
-  void Flush();
   void GetResizeDelta(int &x, int &y);
 
   void ScheduleResize(int32_t width, int32_t height);
   void SchedulePaintInRect(const gfx::Rect& rect);
-  void ScheduleRedraw();
+  void ScheduleFlush();
 
   virtual void OnResize();
-  virtual void OnRedraw();
 
   const Windows& GetChildren() const { return children_; }
   void AddChild(WaylandWindow* child);
@@ -105,10 +104,6 @@ class WaylandWindow {
     WINDOW_CLIENT_AREA = 18,
   };
 
-  // Pointer to the display this window is using. This doesn't own the pointer
-  // to the display.
-  WaylandDisplay* display_;
-
   // When creating a transient window, |parent_window_| is set to point to the
   // parent of this window. We will then use |parent_window_| to align this
   // window at the specified offset in |relative_position_|.
@@ -120,7 +115,7 @@ class WaylandWindow {
   gfx::Point relative_position_;
 
   // The native wayland surface associated with this window.
-  wl_surface* surface_;
+  WaylandSurface* surface_;
   wl_shell_surface* shell_surface_;
 
   // Whether the window is in fullscreen mode.
@@ -133,7 +128,6 @@ class WaylandWindow {
   gfx::Rect pending_allocation_;
   WindowType type_;
   bool resize_scheduled_;
-  bool redraw_scheduled_;
   wl_egl_window *window_;
 
   // Child windows. Topmost is last.

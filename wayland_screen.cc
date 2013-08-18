@@ -3,9 +3,7 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland_screen.h"
-
 #include <wayland-client.h>
-
 #include "ozone/wayland_display.h"
 
 namespace ui {

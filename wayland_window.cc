@@ -3,11 +3,9 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland_window.h"
-
 #include <wayland-egl.h>
-
 #include "base/logging.h"
-#include "ozone/wayland_display.h"
+#include "ozone/wayland_surface.h"
 #include "ozone/wayland_task.h"
 #include "ozone/wayland_input_device.h"
 #include "ui/gl/gl_surface.h"
@@ -20,17 +18,15 @@
 
 namespace ui {
 
-WaylandWindow::WaylandWindow(WaylandDisplay* display)
-    : display_(display),
-    parent_window_(NULL),
+WaylandWindow::WaylandWindow()
+    : parent_window_(NULL),
     user_data_(NULL),
     relative_position_(),
-    surface_(display->CreateSurface()),
+    surface_(NULL),
     shell_surface_(NULL),
     fullscreen_(false),
     window_(NULL),
     resize_scheduled_(false),
-    redraw_scheduled_(false),
     type_(TYPE_TOPLEVEL),
     resize_edges_(0),
     allocation_(gfx::Rect(0, 0, 0, 0)),
@@ -38,14 +34,19 @@ WaylandWindow::WaylandWindow(WaylandDisplay* display)
     saved_allocation_(gfx::Rect(0, 0, 0, 0)),
     pending_allocation_(gfx::Rect(0, 0, 0, 0))
 {
-  if(display_->shell())
+  WaylandDisplay* display = WaylandDisplay::GetDisplay();
+  if (!display)
+      return;
+
+  surface_ = new WaylandSurface();
+  if (display->shell())
   {
-    shell_surface_ = wl_shell_get_shell_surface(display_->shell(), surface_);
+    shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_->wlSurface());
   }
 
-  wl_surface_set_user_data(surface_, this);
+  wl_surface_set_user_data(surface_->wlSurface(), this);
 
-  if(shell_surface_)
+  if (shell_surface_)
   {
     wl_shell_surface_set_user_data(shell_surface_, this);
 
@@ -80,7 +81,7 @@ void WaylandWindow::SetType()
       break;
     case TYPE_TRANSIENT:
       wl_shell_surface_set_transient(shell_surface_,
-          parent_window_->surface_,
+          parent_window_->surface_->wlSurface(),
           relative_position_.x(), relative_position_.y(), 0);
       break;
     case TYPE_MENU:
@@ -135,6 +136,8 @@ void WaylandWindow::SetParentWindow(WaylandWindow* parent_window)
 
   if(parent_window)
     parent_window->AddChild(this);
+
+    SetType();
 }
 
 gfx::Rect WaylandWindow::GetBounds() const
@@ -169,62 +172,48 @@ void WaylandWindow::Hide()
 }
 
 WaylandWindow::~WaylandWindow() {
-  if(window_)
+  if (window_)
     wl_egl_window_destroy(window_);
 
   if (surface_)
   {
-    wl_surface_destroy(surface_);
+    delete surface_;
     surface_ = NULL;
   }
 
-  display_->RemoveWindow(this);
+  WaylandDisplay::GetDisplay()->RemoveWindow(this);
 }
 
 bool WaylandWindow::IsVisible() const {
   return surface_ != NULL;
 }
 
-void WaylandWindow::Flush()
-{
-  // TODO: gotta find a better way to not set the type every time it flushes
-  if (display_->shell())
-    SetType();
-
-  wl_display_flush(display_->display());
-}
-
 void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
 {
-  if(!window_)
-    window_ = wl_egl_window_create(surface_,
-        width, height);
+  if (!window_) {
+    window_ = wl_egl_window_create(surface_->wlSurface(), width, height);
+    allocation_ = gfx::Rect(0, 0, width, height);
+    return;
+  }
 
   pending_allocation_ = gfx::Rect(0, 0, width, height);
-
   if(IsVisible() && !resize_scheduled_ && pending_allocation_ != allocation_)
   {
     WaylandResizeTask *task = new WaylandResizeTask(this);
-    display_->AddTask(task);
+    WaylandDisplay::GetDisplay()->AddTask(task);
 
     resize_scheduled_ = true;
   }
-  ScheduleRedraw();
 }
 
-void WaylandWindow::ScheduleRedraw()
+void WaylandWindow::ScheduleFlush()
 {
-  if(IsVisible() && !redraw_scheduled_)
-  {
-    WaylandRedrawTask *task = new WaylandRedrawTask(this);
-    display_->AddTask(task);
-    redraw_scheduled_ = true;
-  }
+    WaylandDisplay::GetDisplay()->addPendingTask();
 }
 
 void WaylandWindow::SchedulePaintInRect(const gfx::Rect& rect)
 {
-  ScheduleRedraw();
+  ScheduleFlush();
 }
 
 void WaylandWindow::HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
@@ -251,17 +240,8 @@ void WaylandWindow::HandlePing(void *data, struct wl_shell_surface *shell_surfac
 void WaylandWindow::OnResize()
 {
   resize_scheduled_ = false;
-  if(pending_allocation_ != allocation_)
-  {
+  if (pending_allocation_ != allocation_)
     allocation_ = pending_allocation_;
-    ScheduleRedraw();
-  }
-}
-
-void WaylandWindow::OnRedraw()
-{
-  Flush();
-  redraw_scheduled_ = false;
 }
 
 }  // namespace ui
