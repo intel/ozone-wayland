@@ -9,8 +9,7 @@
 namespace ui {
 
 WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
-    : output_(NULL),
-      display_(display)
+    : output_(NULL)
 {
   static const wl_output_listener kOutputListener = {
     WaylandScreen::OutputHandleGeometry,
@@ -18,7 +17,7 @@ WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
   };
 
   output_ = static_cast<wl_output*>(
-      wl_registry_bind(display_->registry(), id, &wl_output_interface, 1));
+      wl_registry_bind(display->registry(), id, &wl_output_interface, 1));
   wl_output_add_listener(output_, &kOutputListener, this);
 }
 
@@ -28,21 +27,9 @@ WaylandScreen::~WaylandScreen()
     wl_output_destroy(output_);
 }
 
-gfx::Rect WaylandScreen::GetAllocation() const
+gfx::Rect WaylandScreen::Geometry() const
 {
-  gfx::Rect allocation;
-  allocation.set_origin(position_);
-
-  // Find the active mode and pass its dimensions.
-  for (Modes::const_iterator i = modes_.begin(); i != modes_.end(); ++i) {
-    if ((*i).flags & WL_OUTPUT_MODE_CURRENT) {
-      allocation.set_width((*i).width);
-      allocation.set_height((*i).height);
-      break;
-    }
-  }
-
-  return allocation;
+  return rect_;
 }
 
 // static
@@ -53,7 +40,8 @@ void WaylandScreen::OutputHandleGeometry(void *data,
     const char* model, int32_t output_transform)
 {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
-  screen->position_.SetPoint(x, y);
+  gfx::Point point = gfx::Point(x, y);
+  screen->rect_.set_origin(point);
 }
 
 // static
@@ -63,14 +51,11 @@ void WaylandScreen::OutputHandleMode(void* data,
     int32_t refresh)
 {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
-
-  Mode mode;
-  mode.width = width;
-  mode.height = height;
-  mode.refresh = refresh;
-  mode.flags = flags;
-
-  screen->modes_.push_back(mode);
+  if (flags & WL_OUTPUT_MODE_CURRENT) {
+      screen->rect_.set_width(width);
+      screen->rect_.set_height(height);
+      screen->refresh_ = refresh;
+  }
 }
 
 }  // namespace ui

@@ -27,20 +27,9 @@ class WaylandScreen {
   ~WaylandScreen();
 
   // Returns the active allocation of the screen.
-  gfx::Rect GetAllocation() const;
+  gfx::Rect Geometry() const;
 
  private:
-  // Used to store information regarding the available modes for the current
-  // screen.
-  // - (width, height): is the resolution of the screen
-  // - refresh: is the refresh rate of the screen under this mode
-  // - flags: contains extra information regarding the mode. The most important
-  //          is the active mode flag.
-  struct Mode {
-    int32_t width, height, refresh, flags;
-  };
-  typedef std::list<Mode> Modes;
-
   // Callback functions that allows the display to initialize the screen's
   // position and available modes.
   static void OutputHandleGeometry(void* data,
@@ -56,14 +45,13 @@ class WaylandScreen {
 
   // The Wayland output this object wraps
   wl_output* output_;
-  // The display that the output is associated with
-  WaylandDisplay* display_;
   // The position of the screen. This is important in multi monitor display
   // since it provides the position of the screen in the virtual screen.
   gfx::Point position_;
 
-  // List of supported modes
-  Modes modes_;
+  // Rect and Refresh rate of active mode.
+  gfx::Rect rect_;
+  int32_t refresh_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandScreen);
 };

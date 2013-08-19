@@ -42,6 +42,7 @@ class WaylandDisplay {
 
   // Returns a list of the registered screens.
   std::list<WaylandScreen*> GetScreenList() const;
+  WaylandScreen* PrimaryScreen() const { return primary_screen_ ; }
 
   wl_shell* shell() const { return shell_; }
 
@@ -110,6 +111,7 @@ class WaylandDisplay {
   wl_shell* shell_;
   wl_shm* shm_;
   struct wl_event_queue* queue_;
+  WaylandScreen* primary_screen_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;

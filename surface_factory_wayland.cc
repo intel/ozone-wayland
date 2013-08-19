@@ -133,10 +133,7 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
 }
 
 const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
-  // (kalyan) We could track active mode of front screen
-  // instead of having to go through the modes on every call.
-  std::list<ui::WaylandScreen*> screens = WaylandDisplay::GetDisplay()->GetScreenList();
-  gfx::Rect scrn = screens.front()->GetAllocation();
+  gfx::Rect scrn = WaylandDisplay::GetDisplay()->PrimaryScreen()->Geometry();
   int size = 2 * sizeof scrn.width();
   if (!spec_)
     spec_ = new char[size];
