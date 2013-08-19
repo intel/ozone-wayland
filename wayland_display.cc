@@ -50,6 +50,7 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
     shell_(NULL),
     shm_(NULL),
     queue_(NULL),
+    primary_screen_(NULL),
     handle_flush_(false)
 {
   display_ = wl_display_connect(name);
@@ -273,6 +274,8 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else if (strcmp(interface, "wl_output") == 0) {
     WaylandScreen* screen = new WaylandScreen(disp, name);
     disp->screen_list_.push_back(screen);
+    // (kalyan) Support extended output.
+    disp->primary_screen_ = disp->screen_list_.front();
   } else if (strcmp(interface, "wl_seat") == 0) {
     WaylandInputDevice *input_device = new WaylandInputDevice(disp, name);
     disp->input_list_.push_back(input_device);
