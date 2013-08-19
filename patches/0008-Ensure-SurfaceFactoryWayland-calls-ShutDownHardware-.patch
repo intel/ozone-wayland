@@ -1,0 +1,49 @@
+From 6062bdcf1b1e7b94a4e11f18dd0c6c2f84f40ee3 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Mon, 19 Aug 2013 01:00:46 +0300
+Subject: [PATCH] Ensure SurfaceFactoryWayland calls ShutDownHardware during
+ exit.
+
+ContentShell and Aura demo initialize SurfaceFactoryWayland but
+donot call ShutdownHardware leading to potential resource leaks.
+This patch makes changes so that ShutDownHardware is called and
+SurfaceFactoryWayland is destroyed at exit.
+---
+ content/shell/app/shell_main_delegate.cc |    6 ++++++
+ ui/aura/demo/demo_main.cc                |    3 +++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
+index 6c1054c..0365d29 100644
+--- a/content/shell/app/shell_main_delegate.cc
++++ b/content/shell/app/shell_main_delegate.cc
+@@ -90,6 +90,12 @@ ShellMainDelegate::ShellMainDelegate() {
+ }
+ 
+ ShellMainDelegate::~ShellMainDelegate() {
++  ui::SurfaceFactoryOzone* surface_factory = ui::SurfaceFactoryOzone::GetInstance();
++  if (surface_factory) {
++    surface_factory->ShutdownHardware();
++    ui::SurfaceFactoryOzone::SetInstance(NULL);
++    delete surface_factory;
++  }
+ }
+ 
+ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
+index 99c9de7..82dc893 100644
+--- a/ui/aura/demo/demo_main.cc
++++ b/ui/aura/demo/demo_main.cc
+@@ -159,6 +159,9 @@ int DemoMain() {
+   root_window->ShowRootWindow();
+   base::MessageLoopForUI::current()->Run();
+ 
++  o_factory->ShutdownHardware();
++  delete o_factory;
++
+   return 0;
+ }
+ 
+-- 
+1.7.9.5
+
