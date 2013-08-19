@@ -17,9 +17,8 @@ static base::LazyInstance<scoped_ptr<EventFactoryWayland> > impl_ =
 EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
-
-  display_ = ui::WaylandDisplay::GetDisplay();
-  fd_ = wl_display_get_fd(display_->display());
+  WaylandDisplay* dis = WaylandDisplay::GetDisplay();
+  fd_ = wl_display_get_fd(dis->display());
 
   CHECK_GE(fd_, 0);
   bool success = base::MessagePumpOzone::Current()->WatchFileDescriptor(
@@ -30,15 +29,11 @@ EventFactoryWayland::EventFactoryWayland()
                             this);
   CHECK(success);
 
-  display_->ProcessTasks();
-  wl_display_dispatch_pending(display_->display());
-  wl_display_flush(display_->display());
-
+  dis->FlushTasks();
   base::MessageLoop::current()->AddTaskObserver(this);
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
-  base::MessageLoop::current()->RemoveTaskObserver(this);
   watcher_.StopWatchingFileDescriptor();
 }
 
@@ -51,14 +46,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
-  display_->ProcessTasks();
-
-  while (wl_display_prepare_read(display_->display()) != 0)
-    wl_display_dispatch_pending(display_->display());
-  wl_display_flush(display_->display());
-
-  wl_display_read_events(display_->display());
-  wl_display_dispatch_pending(display_->display());
+  WaylandDisplay::GetDisplay()->Flush();
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
@@ -78,13 +66,15 @@ void EventFactoryWayland::DidProcessTask(
   // flush the remaining buffered bytes.
   // The catch with this hack in DidProcessTask is to be careful and flush only
   // when needed like after eglSwapBuffers (PostSwapBuffersComplete) and others
+  // This would not be needed after we start using transport surface, as nested
+  // server would be responsible for flushing the client as needed. We need to
+  // come back to this once we have it working.
 
   if (strcmp(pending_task.posted_from.function_name(),
       "PostSwapBuffersComplete") != 0)
     return;
 
-  wl_display_dispatch_pending(display_->display());
-  wl_display_flush(display_->display());
+  WaylandDisplay::GetDisplay()->Flush();
 }
 
 }  // namespace ui

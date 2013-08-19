@@ -11,6 +11,7 @@
 namespace ui {
 
 class WaylandDisplay;
+class WaylandWindow;
 class EventFactoryWayland;
 
 class SurfaceFactoryWayland : public SurfaceFactoryOzone {
@@ -34,8 +35,9 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
  private:
   void InitializeWaylandEvent();
 
-  ui::EventFactoryWayland *e_factory;
-  ui::WaylandDisplay* display_;
+  EventFactoryWayland* e_factory;
+  WaylandWindow* root_window_;
+  char* spec_;
 };
 
 }  // namespace ui

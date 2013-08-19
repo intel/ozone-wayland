@@ -34,18 +34,4 @@ void WaylandResizeTask::Run()
   window_->OnResize();
 }
 
-////////////////// WaylandRedrawTask Implementation ////////////////////////////
-WaylandRedrawTask::WaylandRedrawTask(WaylandWindow *window) : WaylandTask(window)
-{
-}
-
-WaylandRedrawTask::~WaylandRedrawTask()
-{
-}
-
-void WaylandRedrawTask::Run()
-{
-  window_->OnRedraw();
-}
-
 }  // namespace ui

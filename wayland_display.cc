@@ -5,62 +5,86 @@
 #include "ozone/wayland_display.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "base/message_loop/message_loop.h"
 #include "ozone/wayland_input_device.h"
 #include "ozone/wayland_screen.h"
 #include "ozone/wayland_window.h"
+#include "ozone/wayland_cursor.h"
 #include "ozone/wayland_input_method_event_filter.h"
 
 namespace ui {
 
 WaylandDisplay* g_display = NULL;
+static const struct wl_callback_listener syncListener = {
+    WaylandDisplay::SyncCallback
+};
 
 WaylandDisplay* WaylandDisplay::GetDisplay()
 {
-  if (!g_display)
-    g_display = WaylandDisplay::Connect(NULL);
   return g_display;
 }
 
 void WaylandDisplay::DestroyDisplay()
 {
-  if(g_display)
+  if (g_display)
     delete g_display;
+
   g_display = NULL;
 }
 
 // static
 WaylandDisplay* WaylandDisplay::Connect(char* name)
 {
+  if (g_display)
+    return g_display;
+
+  g_display = new WaylandDisplay(name);
+
+  return g_display;
+}
+
+WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
+    compositor_(NULL),
+    shell_(NULL),
+    shm_(NULL),
+    queue_(NULL),
+    handle_flush_(false)
+{
+  display_ = wl_display_connect(name);
+  if (!display_)
+      return;
+
   static const struct wl_registry_listener registry_listener = {
     WaylandDisplay::DisplayHandleGlobal
   };
 
-  WaylandDisplay* display = new WaylandDisplay(name);
-  if (!display->display_) {
-    delete display;
-    return NULL;
+  input_method_filter_ = new WaylandInputMethodEventFilter;
+  registry_ = wl_display_get_registry(display_);
+  wl_registry_add_listener(registry_, &registry_listener, this);
+
+  if (wl_display_roundtrip(display_) < 0) {
+      terminate();
+      return;
   }
 
-  wl_display_set_user_data(display->display_, display);
+  wl_display_set_user_data(display_, this);
+  queue_ = wl_display_create_queue(display_);
+  wl_proxy_set_queue((struct wl_proxy *)registry_, queue_);
+}
 
-  display->registry_ =  wl_display_get_registry(display->display_);
-  wl_registry_add_listener(display->registry_, &registry_listener, display);
-
-  wl_display_dispatch(display->display_);
-
-  display->CreateCursors();
-
-  return display;
+WaylandDisplay::~WaylandDisplay()
+{
+  terminate();
 }
 
 void WaylandDisplay::AddWindow(WaylandWindow* window)
 {
-  if(window)
+  if(window) {
     window_list_.push_back(window);
+    handle_flush_ = true;
+  }
 }
 
 void WaylandDisplay::AddTask(WaylandTask* task)
@@ -69,9 +93,11 @@ void WaylandDisplay::AddTask(WaylandTask* task)
     task_list_.push_back(task);
 }
 
-void WaylandDisplay::ProcessTasks()
+bool WaylandDisplay::ProcessTasks()
 {
   WaylandTask *task = NULL;
+  if (task_list_.empty())
+      return false;
 
   while(!task_list_.empty())
   {
@@ -80,6 +106,28 @@ void WaylandDisplay::ProcessTasks()
     task_list_.pop_front();
     delete task;
   }
+
+  return true;
+}
+
+void WaylandDisplay::FlushTasks()
+{
+  if (!handle_flush_ && task_list_.empty())
+      return;
+
+  Flush();
+}
+
+void WaylandDisplay::Flush()
+{
+  ProcessTasks();
+  while (wl_display_prepare_read(display_) != 0)
+      wl_display_dispatch_pending(display_);
+
+  wl_display_flush(display_);
+  wl_display_read_events(display_);
+  wl_display_dispatch_pending(display_);
+  handle_flush_ = false;
 }
 
 void WaylandDisplay::RemoveWindow(WaylandWindow* window)
@@ -88,6 +136,7 @@ void WaylandDisplay::RemoveWindow(WaylandWindow* window)
     return;
 
   WaylandTask *task = NULL;
+  handle_flush_ = true;
 
   for (std::list<WaylandTask*>::iterator i = task_list_.begin();
       i != task_list_.end(); ++i) {
@@ -105,11 +154,6 @@ void WaylandDisplay::RemoveWindow(WaylandWindow* window)
       i = window_list_.erase(i);
       break;
     }
-  }
-
-  if(window_list_.size() < 1)
-  {
-    base::MessageLoop::current()->PostTask(FROM_HERE, base::MessageLoop::QuitClosure());
   }
 }
 
@@ -131,62 +175,86 @@ InputMethod* WaylandDisplay::GetInputMethod() const
   return input_method_filter_ ? input_method_filter_->GetInputMethod(): NULL;
 }
 
-// static
-WaylandDisplay* WaylandDisplay::GetDisplay(wl_display* display)
+void WaylandDisplay::terminate()
 {
-  return static_cast<WaylandDisplay*>(wl_display_get_user_data(display));
-}
-
-WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
-    cursor_theme_(NULL),
-    cursors_(NULL),
-    compositor_(NULL),
-    shell_(NULL),
-    shm_(NULL)
-{
-  display_ = wl_display_connect(name);
-  input_method_filter_ = new WaylandInputMethodEventFilter;
-}
-
-WaylandDisplay::~WaylandDisplay()
-{
-  if (window_list_.size() > 0)
+  if (window_list_.size() > 0) {
     fprintf(stderr, "warning: windows exist.\n");
+    window_list_.erase(window_list_.begin(), window_list_.end());
+  }
 
-  if (task_list_.size() > 0)
-    fprintf(stderr, "warning: deferred tasks exist.\n");
+  for (std::list<WaylandTask*>::iterator i = task_list_.begin();
+      i != task_list_.end(); ++i) {
+      delete *i;
+  }
 
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
-    delete *i;
+      delete *i;
   }
 
   for (std::list<WaylandScreen*>::iterator i = screen_list_.begin();
       i != screen_list_.end(); ++i) {
-    delete *i;
+      delete *i;
   }
 
-  DestroyCursors();
+  screen_list_.clear();
+  input_list_.clear();
+  task_list_.clear();
+
+  if (queue_) {
+    wl_event_queue_destroy(queue_);
+    queue_ = 0;
+  }
+
+  WaylandCursor::Clear();
 
   if (compositor_)
     wl_compositor_destroy(compositor_);
+
   if (shell_)
     wl_shell_destroy(shell_);
+
   if (shm_)
     wl_shm_destroy(shm_);
-  if (display_)
-    wl_display_disconnect(display_);
+
+  if (registry_)
+      wl_registry_destroy(registry_);
 
   delete input_method_filter_;
-}
 
-wl_surface* WaylandDisplay::CreateSurface()
-{
-  return wl_compositor_create_surface(compositor_);
+  if (display_) {
+    wl_display_flush(display_);
+    wl_display_disconnect(display_);
+  }
 }
 
 std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {
   return screen_list_;
+}
+
+void WaylandDisplay::SyncCallback(void *data, struct wl_callback *callback, uint32_t serial)
+{
+    int* done = static_cast<int*>(data);
+    *done = 1;
+    wl_callback_destroy(callback);
+}
+
+int WaylandDisplay::SyncDisplay()
+{
+  if (!queue_)
+    return -1;
+
+  ProcessTasks();
+  int done = 0, ret = 0;
+  handle_flush_ = false;
+  struct wl_callback* callback = wl_display_sync(display_);
+  wl_callback_add_listener(callback, &syncListener, &done);
+  wl_proxy_set_queue((struct wl_proxy *) callback, queue_);
+  while (ret != -1 && !done)
+    ret = wl_display_dispatch_queue(display_, queue_);
+  wl_display_dispatch_pending(display_);
+
+  return ret;
 }
 
 // static
@@ -215,74 +283,6 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
   }
-}
-
-static const char *cursor_names[] = {
-  "bottom_left_corner",
-  "bottom_right_corner",
-  "bottom_side",
-  "grabbing",
-  "left_ptr",
-  "left_side",
-  "right_side",
-  "top_left_corner",
-  "top_right_corner",
-  "top_side",
-  "xterm",
-  "hand1",
-};
-
-void WaylandDisplay::CreateCursors()
-{
-  unsigned int i, array_size = sizeof(cursor_names) / sizeof(cursor_names[0]);
-  cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm_);
-  cursors_ = new wl_cursor*[array_size];
-  memset(cursors_, 0, sizeof(wl_cursor*) * array_size);
-
-  for(i = 0; i < array_size; i++)
-    cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
-}
-
-void WaylandDisplay::DestroyCursors()
-{
-  if(cursor_theme_)
-  {
-    wl_cursor_theme_destroy(cursor_theme_);
-    cursor_theme_ = NULL;
-  }
-
-  if(cursors_)
-  {
-    delete[] cursors_;
-    cursors_ = NULL;
-  }
-}
-
-void WaylandDisplay::SetPointerImage(WaylandInputDevice *device, int index)
-{
-  struct wl_buffer *buffer;
-  struct wl_cursor *cursor;
-  struct wl_cursor_image *image;
-  struct wl_surface *pointer_surface;
-
-  cursor = cursors_[index];
-  if (!cursor)
-    return;
-
-  device->SetCurrentPointerImage(index);
-  image = cursor->images[0];
-  buffer = wl_cursor_image_get_buffer(image);
-  pointer_surface = device->GetPointerSurface();
-  wl_pointer_set_cursor(device->GetPointer(),
-      GetSerial(),
-      pointer_surface,
-      image->hotspot_x,
-      image->hotspot_y);
-  wl_surface_attach(pointer_surface, buffer, 0, 0);
-  wl_surface_damage(pointer_surface, 0, 0,
-      image->width,
-      image->height);
-  wl_surface_commit(pointer_surface);
 }
 
 }  // namespace ui

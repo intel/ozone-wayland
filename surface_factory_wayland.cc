@@ -77,39 +77,52 @@ namespace ui {
 
 void SurfaceFactoryWayland::InitializeWaylandEvent()
 {
-  e_factory = new ui::EventFactoryWayland();
-  ui::EventFactoryWayland::SetInstance(e_factory);
+  e_factory = new EventFactoryWayland();
+  EventFactoryWayland::SetInstance(e_factory);
 }
 
 SurfaceFactoryWayland::SurfaceFactoryWayland()
     : e_factory(NULL),
-      display_(ui::WaylandDisplay::GetDisplay()) {
+      root_window_(NULL),
+      spec_(NULL)
+{
+  WaylandDisplay::Connect();
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
-SurfaceFactoryWayland::~SurfaceFactoryWayland() {
+SurfaceFactoryWayland::~SurfaceFactoryWayland()
+{
+  if (spec_)
+    delete[] spec_;
+
+  WaylandDisplay::DestroyDisplay();
 }
 
 intptr_t SurfaceFactoryWayland::InitializeHardware()
 {
-  return (intptr_t) display_->display();
+  return (intptr_t) WaylandDisplay::GetDisplay()->display();
 }
 
 void SurfaceFactoryWayland::ShutdownHardware() {
-  return;
+  if (root_window_) {
+    delete root_window_;
+    root_window_ =NULL;
+  }
+
+  WaylandDisplay::DestroyDisplay();
 }
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
-  ui::WaylandWindow* window;
 
   if (!e_factory)
     InitializeWaylandEvent();
 
-  window = new ui::WaylandWindow(display_);
-  window->SetParentWindow(NULL);
-  window->Flush();
+  if (!root_window_)  {
+    root_window_ = new WaylandWindow();
+    root_window_->SetParentWindow(NULL);
+  }
 
-  return (gfx::AcceleratedWidget)window;
+  return (gfx::AcceleratedWidget)root_window_;
 }
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
@@ -120,13 +133,17 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
 }
 
 const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
-  std::list<ui::WaylandScreen*> screens = display_->GetScreenList();
+  // (kalyan) We could track active mode of front screen
+  // instead of having to go through the modes on every call.
+  std::list<ui::WaylandScreen*> screens = WaylandDisplay::GetDisplay()->GetScreenList();
   gfx::Rect scrn = screens.front()->GetAllocation();
-  char *str = new char[12];
+  int size = 2 * sizeof scrn.width();
+  if (!spec_)
+    spec_ = new char[size];
 
-  base::snprintf(str, sizeof(str), "%dx%d", scrn.width(), scrn.height());
+  base::snprintf(spec_, size, "%dx%d", scrn.width(), scrn.height());
 
-  return str;
+  return spec_;
 }
 
 gfx::Screen* SurfaceFactoryWayland::CreateDesktopScreen() {
@@ -145,7 +162,7 @@ bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWid
   return true;
 }
 
-bool SurfaceFactoryWayland::AcceleratedWidgetCanBeResized(gfx::AcceleratedWidget w) 
+bool SurfaceFactoryWayland::AcceleratedWidgetCanBeResized(gfx::AcceleratedWidget w)
 {
   return false;
 }

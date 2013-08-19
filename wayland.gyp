@@ -22,8 +22,13 @@
         '../..',
       ],
       'sources': [
+        'wayland_cursor.cc',
+        'wayland_cursor.h',
         'wayland_display.cc',
         'wayland_display.h',
+        'wayland_global.h',
+        'wayland_surface.h',
+        'wayland_surface.cc',
         'wayland_task.cc',
         'wayland_task.h',
         'wayland_input_device.cc',

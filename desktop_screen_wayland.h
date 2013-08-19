@@ -10,6 +10,7 @@
 class DesktopScreenWayland : public gfx::Screen {
  public:
   DesktopScreenWayland();
+  virtual ~DesktopScreenWayland();
 
  private:
   // Overridden from gfx::Screen:
