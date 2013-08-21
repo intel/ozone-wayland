@@ -74,9 +74,12 @@
       'dependencies': [
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
+        '<(DEPTH)/skia/skia.gyp:skia',
         'wayland_toolkit'
       ],
       'sources': [
+        'desktop_root_window_host_wayland.cc',
+        'desktop_root_window_host_wayland.h',
         'desktop_screen_wayland.cc',
         'desktop_screen_wayland.h',
         'event_factory_wayland.cc',

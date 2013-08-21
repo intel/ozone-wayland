@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "ozone/desktop_root_window_host_wayland.h"
 #include "ozone/desktop_screen_wayland.h"
 #include "ozone/surface_factory_wayland.h"
 #include "ozone/event_factory_wayland.h"
@@ -147,11 +148,22 @@ gfx::Screen* SurfaceFactoryWayland::CreateDesktopScreen() {
   return new DesktopScreenWayland;
 }
 
+views::DesktopRootWindowHost*
+SurfaceFactoryWayland::CreateDesktopRootWindowHost(
+    views::internal::NativeWidgetDelegate* native_widget_delegate,
+    views::DesktopNativeWidgetAura* desktop_native_widget_aura,
+    const gfx::Rect& bounds) {
+  return new views::DesktopRootWindowHostWayland(native_widget_delegate,
+                                                 desktop_native_widget_aura,
+                                                 bounds);
+}
+
 bool SurfaceFactoryWayland::LoadEGLGLES2Bindings() {
   return gfx::InitializeGLBindings();
 }
 
-bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
+bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(
+    gfx::AcceleratedWidget w,
     const gfx::Rect& bounds) {
   ui::WaylandWindow* window = (ui::WaylandWindow*)w;
   window->SetBounds(bounds);

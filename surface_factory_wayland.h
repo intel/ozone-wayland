@@ -22,6 +22,10 @@ class SurfaceFactoryWayland : public SurfaceFactoryOzone {
   // ui::SurfaceFactoryOzone
   virtual const char* DefaultDisplaySpec() OVERRIDE;
   virtual gfx::Screen* CreateDesktopScreen() OVERRIDE;
+  virtual views::DesktopRootWindowHost* CreateDesktopRootWindowHost(
+      views::internal::NativeWidgetDelegate* native_widget_delegate,
+      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
+      const gfx::Rect& bounds) OVERRIDE;
   virtual intptr_t InitializeHardware() OVERRIDE;
   virtual void ShutdownHardware() OVERRIDE;
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
