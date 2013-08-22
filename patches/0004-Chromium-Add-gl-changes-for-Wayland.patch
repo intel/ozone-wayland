@@ -1,7 +1,7 @@
-From 9ec48ebe4248cfddbd5cc297e86aaf3cba2b1359 Mon Sep 17 00:00:00 2001
+From c60968806da38b54eff6a037e421f5715c1a7218 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 5/7] Chromium: Add gl changes for Wayland
+Subject: [PATCH 4/6] Chromium: Add gl changes for Wayland
 
 TODO: needs to check whether this can be upstreamed.
 
@@ -13,25 +13,25 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  3 files changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
-index 36f1ff4..cf242e9 100644
+index f8d3cb5..acc4773 100644
 --- a/ui/base/ozone/surface_factory_ozone.cc
 +++ b/ui/base/ozone/surface_factory_ozone.cc
-@@ -17,7 +17,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
+@@ -16,7 +16,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
+   SurfaceFactoryOzoneStub() {}
    virtual ~SurfaceFactoryOzoneStub() {}
  
-   virtual gfx::Screen* CreateDesktopScreen() { return 0; }
 -  virtual void InitializeHardware() OVERRIDE {}
 +  virtual intptr_t InitializeHardware() OVERRIDE { return 0; }
    virtual void ShutdownHardware() OVERRIDE {}
    virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
    virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
 diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index 37f443c..fa6e2e8 100644
+index 6c903fb..8d835ef 100644
 --- a/ui/base/ozone/surface_factory_ozone.h
 +++ b/ui/base/ozone/surface_factory_ozone.h
-@@ -37,10 +37,9 @@ class SurfaceFactoryOzone {
-   // gfx::Screen.
-   virtual gfx::Screen* CreateDesktopScreen() = 0;
+@@ -51,10 +51,9 @@ class UI_EXPORT SurfaceFactoryOzone {
+       views::DesktopNativeWidgetAura* desktop_native_widget_aura,
+       const gfx::Rect& bounds);
  
 -  // TODO(rjkroege): Add a status code if necessary.
    // Configures the display hardware. Must be called from within the GPU

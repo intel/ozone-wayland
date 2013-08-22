@@ -1,7 +1,7 @@
-From 1869f3bcc4da0f7f8a90332287cd8ac59ecbc626 Mon Sep 17 00:00:00 2001
+From 0d89ed870cf30a4f3681dc4c599c1a1cd24ebfa8 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Tue, 30 Jul 2013 16:08:17 +0300
-Subject: [PATCH 1/7] Implement fake input method key event conversion from
+Subject: [PATCH 1/6] Implement fake input method key event conversion from
  Aura to Webkit
 
 In particular, this patch adds Ozone support but it also merges all Aura
@@ -775,10 +775,10 @@ index fdde17e..0000000
 -
 -}  // namespace content
 diff --git a/content/content_browser.gypi b/content/content_browser.gypi
-index da6449c..52e4868 100644
+index b1fbb95..53c90da 100644
 --- a/content/content_browser.gypi
 +++ b/content/content_browser.gypi
-@@ -1013,8 +1013,6 @@
+@@ -1011,8 +1011,6 @@
      'browser/renderer_host/ui_events_helper.h',
      'browser/renderer_host/web_input_event_aura.cc',
      'browser/renderer_host/web_input_event_aura.h',

@@ -1,7 +1,7 @@
-From 8296c12f1f259959d3274de566570ba25c8eaf44 Mon Sep 17 00:00:00 2001
+From 89dc9860d31823616ffd3b402290523484cd2817 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 4/7] Set Wayland as the implementation for
+Subject: [PATCH 3/6] Set Wayland as the implementation for
  SurfaceFactoryOzone
 
 The fundamental problem to be solved here is to find a way to set downstream
@@ -22,7 +22,7 @@ This is patch is a hack and in principle shouldn't be extended much.
  4 files changed, 32 insertions(+)
 
 diff --git a/build/common.gypi b/build/common.gypi
-index 50144f4..6c65275 100644
+index e70eaac..042e392 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -143,6 +143,12 @@
@@ -39,7 +39,7 @@ index 50144f4..6c65275 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index b5adadb..0365d29 100644
+index 8e60a32..28feb00 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -24,6 +24,8 @@
@@ -64,7 +64,7 @@ index b5adadb..0365d29 100644
  }
  
  bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
-@@ -165,6 +173,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+@@ -169,6 +177,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
  
  void ShellMainDelegate::PreSandboxStartup() {
    InitializeResourceBundle();
