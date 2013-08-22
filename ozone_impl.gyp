@@ -78,6 +78,8 @@
         'wayland_toolkit'
       ],
       'sources': [
+        'desktop_factory_wayland.cc',
+        'desktop_factory_wayland.h',
         'desktop_root_window_host_wayland.cc',
         'desktop_root_window_host_wayland.h',
         'desktop_screen_wayland.cc',
