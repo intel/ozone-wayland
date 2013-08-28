@@ -1,4 +1,4 @@
-From c60968806da38b54eff6a037e421f5715c1a7218 Mon Sep 17 00:00:00 2001
+From 6a243f6635a02dbd280090eb4232778f9d4fefcd Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
 Subject: [PATCH 4/6] Chromium: Add gl changes for Wayland
@@ -13,7 +13,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  3 files changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
-index f8d3cb5..acc4773 100644
+index 7d8d64b..b97b486 100644
 --- a/ui/base/ozone/surface_factory_ozone.cc
 +++ b/ui/base/ozone/surface_factory_ozone.cc
 @@ -16,7 +16,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
@@ -26,12 +26,12 @@ index f8d3cb5..acc4773 100644
    virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
    virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
 diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index 6c903fb..8d835ef 100644
+index 5df6bd9..1931dd0 100644
 --- a/ui/base/ozone/surface_factory_ozone.h
 +++ b/ui/base/ozone/surface_factory_ozone.h
-@@ -51,10 +51,9 @@ class UI_EXPORT SurfaceFactoryOzone {
-       views::DesktopNativeWidgetAura* desktop_native_widget_aura,
-       const gfx::Rect& bounds);
+@@ -35,10 +35,9 @@ class UI_EXPORT SurfaceFactoryOzone {
+   // This method implements gfx::Screen, particularly useful in Desktop Aura.
+   virtual gfx::Screen* CreateDesktopScreen();
  
 -  // TODO(rjkroege): Add a status code if necessary.
    // Configures the display hardware. Must be called from within the GPU

@@ -1,4 +1,4 @@
-From 89dc9860d31823616ffd3b402290523484cd2817 Mon Sep 17 00:00:00 2001
+From 6717595c4783d273bfd25c0dfd4ea9a1734e1f8c Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 1 Jul 2013 19:10:53 -0300
 Subject: [PATCH 3/6] Set Wayland as the implementation for
@@ -16,13 +16,13 @@ start investigating this problem, we should contact rjkroege for any advice.
 This is patch is a hack and in principle shouldn't be extended much.
 ---
  build/common.gypi                        |    6 ++++++
- content/shell/app/shell_main_delegate.cc |   12 ++++++++++++
+ content/shell/app/shell_main_delegate.cc |   15 +++++++++++++++
  ui/aura/aura.gyp                         |    5 +++++
  ui/aura/demo/demo_main.cc                |    9 +++++++++
- 4 files changed, 32 insertions(+)
+ 4 files changed, 35 insertions(+)
 
 diff --git a/build/common.gypi b/build/common.gypi
-index e70eaac..042e392 100644
+index a13bc6f..9d8ab5a 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -143,6 +143,12 @@
@@ -39,19 +39,20 @@ index e70eaac..042e392 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index 8e60a32..28feb00 100644
+index 8e60a32..269bb8b 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
-@@ -24,6 +24,8 @@
+@@ -24,6 +24,9 @@
  #include "ui/base/ui_base_switches.h"
  #include "ui/gl/gl_switches.h"
  
++#include "ozone/desktop_factory_wayland.h"
 +#include "ozone/surface_factory_wayland.h"
 +
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
  #if defined(IPC_MESSAGE_LOG_ENABLED)
-@@ -88,6 +90,12 @@ ShellMainDelegate::ShellMainDelegate() {
+@@ -88,6 +91,12 @@ ShellMainDelegate::ShellMainDelegate() {
  }
  
  ShellMainDelegate::~ShellMainDelegate() {
@@ -64,7 +65,7 @@ index 8e60a32..28feb00 100644
  }
  
  bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
-@@ -169,6 +177,10 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+@@ -169,6 +178,12 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
  
  void ShellMainDelegate::PreSandboxStartup() {
    InitializeResourceBundle();
@@ -72,6 +73,8 @@ index 8e60a32..28feb00 100644
 +  /* TODO: Implementation specific. Has to go away */
 +  ui::SurfaceFactoryOzone *o_factory = new ui::SurfaceFactoryWayland ();
 +  ui::SurfaceFactoryOzone::SetInstance(o_factory);
++  views::DesktopFactoryOzone *d_factory = new views::DesktopFactoryWayland();
++  views::DesktopFactoryOzone::SetInstance(d_factory);
  }
  
  int ShellMainDelegate::RunProcess(
@@ -92,7 +95,7 @@ index a4fe861..760ff82 100644
      },
      {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
-index 06938d8..8c52b0c 100644
+index 9bd8ad0..5506f98 100644
 --- a/ui/aura/demo/demo_main.cc
 +++ b/ui/aura/demo/demo_main.cc
 @@ -23,6 +23,8 @@

@@ -1,74 +1,32 @@
-From e32c1f3b0464ddbf584eaf6a296365bf1e015dd9 Mon Sep 17 00:00:00 2001
+From ecfefbdc6a0af82eb13527257ee959a659c409bf Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 6 May 2013 18:15:08 -0300
 Subject: [PATCH 2/6] views: Implement Ozone root window for desktop aura
 
-Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
 ---
- ui/base/ozone/surface_factory_ozone.cc             |    7 ++++++
- ui/base/ozone/surface_factory_ozone.h              |   16 ++++++++++++++
- ui/views/views.gyp                                 |    1 +
- .../desktop_aura/desktop_root_window_host_ozone.cc |   23 ++++++++++++++++++++
- 4 files changed, 47 insertions(+)
+ ui/views/views.gyp                                 |    3 ++
+ .../widget/desktop_aura/desktop_factory_ozone.cc   |   29 ++++++++++++
+ .../widget/desktop_aura/desktop_factory_ozone.h    |   46 ++++++++++++++++++++
+ .../desktop_aura/desktop_root_window_host_ozone.cc |   22 ++++++++++
+ 4 files changed, 100 insertions(+)
+ create mode 100644 ui/views/widget/desktop_aura/desktop_factory_ozone.cc
+ create mode 100644 ui/views/widget/desktop_aura/desktop_factory_ozone.h
  create mode 100644 ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
 
-diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
-index 7d8d64b..f8d3cb5 100644
---- a/ui/base/ozone/surface_factory_ozone.cc
-+++ b/ui/base/ozone/surface_factory_ozone.cc
-@@ -61,6 +61,13 @@ gfx::Screen* SurfaceFactoryOzone::CreateDesktopScreen() {
-   return NULL;
- }
- 
-+views::DesktopRootWindowHost* SurfaceFactoryOzone::CreateDesktopRootWindowHost(
-+    views::internal::NativeWidgetDelegate* native_widget_delegate,
-+    views::DesktopNativeWidgetAura* desktop_native_widget_aura,
-+    const gfx::Rect& bounds) {
-+  return NULL;
-+}
-+
- // static
- SurfaceFactoryOzone* SurfaceFactoryOzone::CreateTestHelper() {
-   return new SurfaceFactoryOzoneStub;
-diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index 5df6bd9..6c903fb 100644
---- a/ui/base/ozone/surface_factory_ozone.h
-+++ b/ui/base/ozone/surface_factory_ozone.h
-@@ -14,6 +14,15 @@ class Screen;
- class VSyncProvider;
- } //  namespace gfx
- 
-+namespace views {
-+class DesktopNativeWidgetAura;
-+class DesktopRootWindowHost;
-+
-+namespace internal {
-+class NativeWidgetDelegate;
-+} // namespace internal
-+} // namespace views
-+
- namespace ui {
- 
- class UI_EXPORT SurfaceFactoryOzone {
-@@ -35,6 +44,13 @@ class UI_EXPORT SurfaceFactoryOzone {
-   // This method implements gfx::Screen, particularly useful in Desktop Aura.
-   virtual gfx::Screen* CreateDesktopScreen();
- 
-+  // TODO(rjkroege): decide how to separate screen/display stuff from SFOz
-+  // TODO(vignatti): description
-+  virtual views::DesktopRootWindowHost* CreateDesktopRootWindowHost(
-+      views::internal::NativeWidgetDelegate* native_widget_delegate,
-+      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
-+      const gfx::Rect& bounds);
-+
-   // TODO(rjkroege): Add a status code if necessary.
-   // Configures the display hardware. Must be called from within the GPU
-   // process before the sandbox has been activated.
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 979b788..ccf95db 100644
+index 7bf7666..3e40c36 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -371,6 +371,7 @@
+@@ -367,6 +367,8 @@
+         'widget/desktop_aura/desktop_drag_drop_client_win.h',
+         'widget/desktop_aura/desktop_drop_target_win.cc',
+         'widget/desktop_aura/desktop_drop_target_win.h',
++        'widget/desktop_aura/desktop_factory_ozone.cc',
++        'widget/desktop_aura/desktop_factory_ozone.h',
+         'widget/desktop_aura/desktop_focus_rules.cc',
+         'widget/desktop_aura/desktop_focus_rules.h',
+         'widget/desktop_aura/desktop_layout_manager.cc',
+@@ -376,6 +378,7 @@
          'widget/desktop_aura/desktop_native_widget_aura.cc',
          'widget/desktop_aura/desktop_native_widget_aura.h',
          'widget/desktop_aura/desktop_root_window_host.h',
@@ -76,20 +34,106 @@ index 979b788..ccf95db 100644
          'widget/desktop_aura/desktop_root_window_host_win.cc',
          'widget/desktop_aura/desktop_root_window_host_win.h',
          'widget/desktop_aura/desktop_root_window_host_x11.cc',
+diff --git a/ui/views/widget/desktop_aura/desktop_factory_ozone.cc b/ui/views/widget/desktop_aura/desktop_factory_ozone.cc
+new file mode 100644
+index 0000000..bbed16f
+--- /dev/null
++++ b/ui/views/widget/desktop_aura/desktop_factory_ozone.cc
+@@ -0,0 +1,29 @@
++// Copyright (c) 2013 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
++
++#include "base/logging.h"
++
++namespace views {
++
++// static
++DesktopFactoryOzone* DesktopFactoryOzone::impl_ = NULL;
++
++DesktopFactoryOzone::DesktopFactoryOzone() {
++}
++
++DesktopFactoryOzone::~DesktopFactoryOzone() {
++}
++
++DesktopFactoryOzone* DesktopFactoryOzone::GetInstance() {
++  CHECK(impl_) << "DesktopFactoryOzone accessed before constructed";
++  return impl_;
++}
++
++void DesktopFactoryOzone::SetInstance(DesktopFactoryOzone* impl) {
++  impl_ = impl;
++}
++
++} // namespace views
+diff --git a/ui/views/widget/desktop_aura/desktop_factory_ozone.h b/ui/views/widget/desktop_aura/desktop_factory_ozone.h
+new file mode 100644
+index 0000000..3457922
+--- /dev/null
++++ b/ui/views/widget/desktop_aura/desktop_factory_ozone.h
+@@ -0,0 +1,46 @@
++// Copyright (c) 2013 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_FACTORY_OZONE_H_
++#define UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_FACTORY_OZONE_H_
++
++#include "ui/views/views_export.h"
++
++namespace gfx {
++class Rect;
++}
++
++namespace views {
++class DesktopNativeWidgetAura;
++class DesktopRootWindowHost;
++
++namespace internal {
++class NativeWidgetDelegate;
++}
++
++class VIEWS_EXPORT DesktopFactoryOzone {
++ public:
++  DesktopFactoryOzone();
++  virtual ~DesktopFactoryOzone();
++
++  // Returns the instance.
++  static DesktopFactoryOzone* GetInstance();
++
++  // Sets the implementation delegate. Ownership is retained by the caller.
++  static void SetInstance(DesktopFactoryOzone* impl);
++
++  // Delegates implementation of DesktopRootWindowHost::Create externally to
++  // Ozone implementation.
++  virtual DesktopRootWindowHost* CreateRootWindowHost(
++      internal::NativeWidgetDelegate* native_widget_delegate,
++      DesktopNativeWidgetAura* desktop_native_widget_aura,
++      const gfx::Rect& initial_bounds) = 0;
++
++ private:
++  static DesktopFactoryOzone* impl_; // not owned
++};
++
++}  // namespace views
++
++#endif // UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_FACTORY_OZONE_H_
 diff --git a/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
 new file mode 100644
-index 0000000..cbc20d4
+index 0000000..06d6a85
 --- /dev/null
 +++ b/ui/views/widget/desktop_aura/desktop_root_window_host_ozone.cc
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,22 @@
 +// Copyright (c) 2013 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
 +
 +#include "ui/aura/root_window_host.h"
 +#include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
-+
-+#include "ui/base/ozone/surface_factory_ozone.h"
++#include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
 +
 +namespace views {
 +
@@ -97,11 +141,11 @@ index 0000000..cbc20d4
 +    internal::NativeWidgetDelegate* native_widget_delegate,
 +    DesktopNativeWidgetAura* desktop_native_widget_aura,
 +    const gfx::Rect& initial_bounds) {
-+  ui::SurfaceFactoryOzone* factory = ui::SurfaceFactoryOzone::GetInstance();
++  DesktopFactoryOzone* d_factory = DesktopFactoryOzone::GetInstance();
 +
-+  return factory->CreateDesktopRootWindowHost(native_widget_delegate,
-+                                              desktop_native_widget_aura,
-+                                              initial_bounds);
++  return d_factory->CreateRootWindowHost(native_widget_delegate,
++                                         desktop_native_widget_aura,
++                                         initial_bounds);
 +}
 +
 +}  // namespace views
