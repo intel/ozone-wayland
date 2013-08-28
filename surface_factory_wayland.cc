@@ -82,7 +82,8 @@ void SurfaceFactoryWayland::InitializeWaylandEvent()
 }
 
 SurfaceFactoryWayland::SurfaceFactoryWayland()
-    : e_factory(NULL),
+    : desktop_screen_(NULL),
+      e_factory(NULL),
       root_window_(NULL),
       spec_(NULL)
 {
@@ -107,6 +108,11 @@ void SurfaceFactoryWayland::ShutdownHardware() {
   if (root_window_) {
     delete root_window_;
     root_window_ =NULL;
+  }
+
+  if (desktop_screen_)  {
+    delete desktop_screen_;
+    desktop_screen_ = NULL;
   }
 
   WaylandDisplay::DestroyDisplay();
@@ -144,7 +150,10 @@ const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
 }
 
 gfx::Screen* SurfaceFactoryWayland::CreateDesktopScreen() {
-  return new DesktopScreenWayland;
+  if (!desktop_screen_)
+    desktop_screen_ = new DesktopScreenWayland();
+
+  return (gfx::Screen*)desktop_screen_;
 }
 
 bool SurfaceFactoryWayland::LoadEGLGLES2Bindings() {

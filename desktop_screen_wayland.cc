@@ -24,6 +24,7 @@ gfx::Size GetPrimaryDisplaySize() {
 }
 }  // namespace
 
+namespace ui {
 DesktopScreenWayland::DesktopScreenWayland() {
 }
 
@@ -78,4 +79,6 @@ void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
 }
 
 void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
+}
+
 }
