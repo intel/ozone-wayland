@@ -20,9 +20,7 @@
 #include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/cursor_manager.h"
 #include "ui/views/corewm/focus_controller.h"
-#include "ui/views/ime/input_method.h"
 #include "ui/views/widget/desktop_aura/desktop_activation_client.h"
-#include "ui/views/widget/desktop_aura/desktop_capture_client.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
 #include "ui/views/widget/desktop_aura/desktop_focus_rules.h"
 #include "ui/views/widget/desktop_aura/desktop_layout_manager.h"
@@ -109,8 +107,7 @@ aura::RootWindow* DesktopRootWindowHostWayland::InitRootWindow(
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
 
-  capture_client_.reset(new views::DesktopCaptureClient(root_window_));
-  aura::client::SetCaptureClient(root_window_, capture_client_.get());
+  desktop_native_widget_aura_->CreateCaptureClient(root_window_);
 
   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
 
@@ -427,15 +424,6 @@ void DesktopRootWindowHostWayland::InitModalType(ui::ModalType modal_type) {
 void DesktopRootWindowHostWayland::FlashFrame(bool flash_frame) {
   // TODO(erg):
   NOTIMPLEMENTED();
-}
-
-void DesktopRootWindowHostWayland::OnNativeWidgetFocus() {
-  native_widget_delegate_->AsWidget()->GetInputMethod()->OnFocus();
-}
-
-void DesktopRootWindowHostWayland::OnNativeWidgetBlur() {
-  if (window_)
-    native_widget_delegate_->AsWidget()->GetInputMethod()->OnBlur();
 }
 
 void DesktopRootWindowHostWayland::SetInactiveRenderingDisabled(

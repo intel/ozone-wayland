@@ -22,7 +22,6 @@ class ScreenPositionClient;
 
 namespace views {
 class DesktopActivationClient;
-class DesktopCaptureClient;
 class DesktopDragDropClientAuraOzone;
 class DesktopDispatcherClient;
 class OzoneDesktopWindowMoveClient;
@@ -118,8 +117,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
                               const gfx::ImageSkia& app_icon) OVERRIDE;
   virtual void InitModalType(ui::ModalType modal_type) OVERRIDE;
   virtual void FlashFrame(bool flash_frame) OVERRIDE;
-  virtual void OnNativeWidgetFocus() OVERRIDE;
-  virtual void OnNativeWidgetBlur() OVERRIDE;
   virtual void SetInactiveRenderingDisabled(bool disable_inactive) OVERRIDE;
 
   // Overridden from aura::RootWindowHost:
@@ -163,7 +160,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   aura::RootWindow* root_window_;
 
   // aura:: objects that we own.
-  scoped_ptr<DesktopCaptureClient> capture_client_;
   scoped_ptr<aura::client::FocusClient> focus_client_;
   scoped_ptr<DesktopActivationClient> activation_client_;
   scoped_ptr<views::corewm::CursorManager> cursor_client_;
