@@ -38,12 +38,21 @@ gfx::Point DesktopScreenWayland::GetCursorScreenPoint() {
   return gfx::Point();
 }
 
-gfx::NativeWindow DesktopScreenWayland::GetWindowAtCursorScreenPoint() {
+gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
   return NULL;
 }
 
-int DesktopScreenWayland::GetNumDisplays() {
+gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(
+    const gfx::Point& point) {
+  return NULL;
+}
+
+int DesktopScreenWayland::GetNumDisplays() const {
   return 1;
+}
+
+std::vector<gfx::Display> DesktopScreenWayland::GetAllDisplays() const {
+  return std::vector<gfx::Display>(1, GetPrimaryDisplay());
 }
 
 gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
