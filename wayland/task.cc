@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland_task.h"
+#include "ozone/wayland/task.h"
 
 #include <wayland-client.h>
 
-#include "ozone/wayland_display.h"
-#include "ozone/wayland_window.h"
+#include "ozone/wayland/display.h"
+#include "ozone/wayland/window.h"
 
 namespace ui {
 

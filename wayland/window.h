@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
-#include "ozone/wayland_display.h"
+#include "ozone/wayland/display.h"
 #include <vector>
 
 struct wl_surface;

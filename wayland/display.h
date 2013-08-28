@@ -15,7 +15,7 @@
 
 #include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
-#include "ozone/wayland_task.h"
+#include "ozone/wayland/task.h"
 
 namespace ui {
 

@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/desktop_screen_wayland.h"
+#include "ozone/impl/desktop_screen_wayland.h"
+
 #include <stdio.h>
 #include "ui/base/ozone/surface_factory_ozone.h"
 

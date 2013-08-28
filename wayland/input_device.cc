@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland_input_device.h"
+#include "ozone/wayland/input_device.h"
 
 #include <X11/X.h>
 #include <sys/mman.h>
@@ -12,9 +12,9 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_ozone.h"
-#include "ozone/wayland_cursor.h"
-#include "ozone/wayland_kbd_conversion.h"
-#include "ozone/wayland_window.h"
+#include "ozone/wayland/cursor.h"
+#include "ozone/wayland/kbd_conversion.h"
+#include "ozone/wayland/window.h"
 #include "ui/base/events/event.h"
 #include "ui/base/hit_test.h"
 
