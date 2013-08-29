@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/desktop_root_window_host_wayland.h"
+#include "ozone/impl/desktop_root_window_host_wayland.h"
 
 #include "base/bind.h"
 #include "base/message_loop/message_pump_ozone.h"

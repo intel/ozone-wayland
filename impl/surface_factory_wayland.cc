@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/desktop_screen_wayland.h"
-#include "ozone/surface_factory_wayland.h"
-#include "ozone/event_factory_wayland.h"
+#include "ozone/impl/surface_factory_wayland.h"
 
 #include "base/base_paths.h"
 #include "base/command_line.h"
@@ -13,9 +11,11 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
-#include "ozone/wayland_display.h"
-#include "ozone/wayland_window.h"
-#include "ozone/wayland_screen.h"
+#include "ozone/impl/desktop_screen_wayland.h"
+#include "ozone/impl/event_factory_wayland.h"
+#include "ozone/wayland/display.h"
+#include "ozone/wayland/window.h"
+#include "ozone/wayland/screen.h"
 #include "ui/gl/gl_bindings.h"
 #include "ui/gl/gl_egl_api_implementation.h"
 #include "ui/gl/gl_gl_api_implementation.h"

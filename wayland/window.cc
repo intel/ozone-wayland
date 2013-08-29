@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland_window.h"
+#include "ozone/wayland/window.h"
+
 #include <wayland-egl.h>
 #include "base/logging.h"
-#include "ozone/wayland_surface.h"
-#include "ozone/wayland_task.h"
-#include "ozone/wayland_input_device.h"
+#include "ozone/wayland/surface.h"
+#include "ozone/wayland/task.h"
+#include "ozone/wayland/input_device.h"
 #include "ui/gl/gl_surface.h"
 
 #include <GL/gl.h>

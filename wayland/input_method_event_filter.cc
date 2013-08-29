@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland_input_method_event_filter.h"
+#include "ozone/wayland/input_method_event_filter.h"
 
 #include "ui/base/ime/input_method.h"
 #include "ui/base/ime/input_method_factory.h"

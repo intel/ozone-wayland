@@ -10,8 +10,8 @@
 #include <xkbcommon/xkbcommon.h>
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
-#include "ozone/wayland_display.h"
-#include "ozone/wayland_global.h"
+#include "ozone/wayland/display.h"
+#include "ozone/wayland/global.h"
 #include "ui/gfx/point.h"
 
 namespace ui {
