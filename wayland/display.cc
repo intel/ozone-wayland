@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland_display.h"
+#include "ozone/wayland/display.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "base/message_loop/message_loop.h"
-#include "ozone/wayland_input_device.h"
-#include "ozone/wayland_screen.h"
-#include "ozone/wayland_window.h"
-#include "ozone/wayland_cursor.h"
-#include "ozone/wayland_input_method_event_filter.h"
+#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/screen.h"
+#include "ozone/wayland/window.h"
+#include "ozone/wayland/cursor.h"
+#include "ozone/wayland/input_method_event_filter.h"
 
 namespace ui {
 

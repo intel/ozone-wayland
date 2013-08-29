@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/event_factory_wayland.h"
+#include "ozone/impl/event_factory_wayland.h"
 
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
-#include "ozone/wayland_display.h"
+#include "ozone/wayland/display.h"
 
 namespace ui {
 
