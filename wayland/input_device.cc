@@ -339,16 +339,16 @@ void WaylandInputDevice::OnKeyNotify(void* data,
       (xkb_state_component)(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED));
   device->keyboard_modifiers_ = 0;
   if (mask & device->xkb_.control_mask)
-    device->keyboard_modifiers_ |= MOD_CONTROL_MASK;
+    device->keyboard_modifiers_ |= EF_CONTROL_DOWN;
   if (mask & device->xkb_.alt_mask)
-    device->keyboard_modifiers_ |= MOD_ALT_MASK;
+    device->keyboard_modifiers_ |= EF_ALT_DOWN;
   if (mask & device->xkb_.shift_mask)
-    device->keyboard_modifiers_ |= MOD_SHIFT_MASK;
+    device->keyboard_modifiers_ |= EF_SHIFT_DOWN;
 
   scoped_ptr<KeyEvent> keyev(new KeyEvent(
       type,
       ui::KeyboardCodeFromXKeysym(sym),
-      /* flags */ 0,
+      device->keyboard_modifiers_,
       true));
 
   DispatchEvent(keyev.PassAs<ui::Event>());
