@@ -4,7 +4,6 @@
 
 #include "ozone/wayland/input_device.h"
 
-#include <X11/X.h>
 #include <sys/mman.h>
 #include <linux/input.h>
 #include <wayland-client.h>
@@ -334,7 +333,7 @@ void WaylandInputDevice::OnKeyNotify(void* data,
   if(num_syms == 1)
     sym = syms[0];
   else
-    sym = NoSymbol;
+    sym = XKB_KEY_NoSymbol;
 
   mask = xkb_state_serialize_mods(device->xkb_.state,
       (xkb_state_component)(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED));
