@@ -146,6 +146,8 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
   virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE;
   virtual void PrepareForShutdown() OVERRIDE;
+  virtual void OnNativeWidgetFocus() OVERRIDE;
+  virtual void OnNativeWidgetBlur() OVERRIDE;
 
   // Overridden from DesktopSelectionProviderAuraOzone:
   //virtual void SetDropHandler(

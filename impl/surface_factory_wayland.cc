@@ -98,7 +98,12 @@ SurfaceFactoryWayland::~SurfaceFactoryWayland()
   WaylandDisplay::DestroyDisplay();
 }
 
-intptr_t SurfaceFactoryWayland::InitializeHardware()
+SurfaceFactoryOzone::HardwareState SurfaceFactoryWayland::InitializeHardware()
+{
+  return WaylandDisplay::GetDisplay()->display() ? SurfaceFactoryOzone::INITIALIZED : SurfaceFactoryOzone::FAILED;
+}
+
+intptr_t SurfaceFactoryWayland::GetNativeDisplay()
 {
   return (intptr_t) WaylandDisplay::GetDisplay()->display();
 }

@@ -430,6 +430,14 @@ void DesktopRootWindowHostWayland::SetInactiveRenderingDisabled(
     bool disable_inactive) {
 }
 
+void DesktopRootWindowHostWayland::OnNativeWidgetFocus() {
+  NOTIMPLEMENTED();
+}
+
+void DesktopRootWindowHostWayland::OnNativeWidgetBlur() {
+  NOTIMPLEMENTED();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostWayland, aura::RootWindowHost implementation:
 

@@ -1,64 +1,30 @@
-From 6a243f6635a02dbd280090eb4232778f9d4fefcd Mon Sep 17 00:00:00 2001
-From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 4/6] Chromium: Add gl changes for Wayland
+From 6c56714cc0c2b441da30c0498b31d72fa0068615 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Sat, 31 Aug 2013 01:47:46 +0300
+Subject: [PATCH] Most of our changes in glsurfaceegl are obsolete after [1]
+ recent changes to surface factory api. Changes still
+ present are in return type of EGLDisplay and EGLConfig.
 
-TODO: needs to check whether this can be upstreamed.
-
-Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+[1] https://chromiumcodereview.appspot.com/23438002
 ---
- ui/base/ozone/surface_factory_ozone.cc |    2 +-
- ui/base/ozone/surface_factory_ozone.h  |    3 +--
- ui/gl/gl_surface_egl.cc                |    8 +++-----
- 3 files changed, 5 insertions(+), 8 deletions(-)
+ ui/gl/gl_surface_egl.cc |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/ui/base/ozone/surface_factory_ozone.cc b/ui/base/ozone/surface_factory_ozone.cc
-index 7d8d64b..b97b486 100644
---- a/ui/base/ozone/surface_factory_ozone.cc
-+++ b/ui/base/ozone/surface_factory_ozone.cc
-@@ -16,7 +16,7 @@ class SurfaceFactoryOzoneStub : public SurfaceFactoryOzone {
-   SurfaceFactoryOzoneStub() {}
-   virtual ~SurfaceFactoryOzoneStub() {}
- 
--  virtual void InitializeHardware() OVERRIDE {}
-+  virtual intptr_t InitializeHardware() OVERRIDE { return 0; }
-   virtual void ShutdownHardware() OVERRIDE {}
-   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE { return 0; }
-   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
-diff --git a/ui/base/ozone/surface_factory_ozone.h b/ui/base/ozone/surface_factory_ozone.h
-index 5df6bd9..1931dd0 100644
---- a/ui/base/ozone/surface_factory_ozone.h
-+++ b/ui/base/ozone/surface_factory_ozone.h
-@@ -35,10 +35,9 @@ class UI_EXPORT SurfaceFactoryOzone {
-   // This method implements gfx::Screen, particularly useful in Desktop Aura.
-   virtual gfx::Screen* CreateDesktopScreen();
- 
--  // TODO(rjkroege): Add a status code if necessary.
-   // Configures the display hardware. Must be called from within the GPU
-   // process before the sandbox has been activated.
--  virtual void InitializeHardware() = 0;
-+  virtual intptr_t InitializeHardware() = 0;
- 
-   // Cleans up display hardware state. Call this from within the GPU process.
-   // This method must be safe to run inside of the sandbox.
 diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
-index 8c29342..fc57aef 100644
+index 5f4edf4..4414d17 100644
 --- a/ui/gl/gl_surface_egl.cc
 +++ b/ui/gl/gl_surface_egl.cc
-@@ -101,10 +101,8 @@ bool GLSurfaceEGL::InitializeOneOff() {
-     return true;
- 
- #if defined (USE_OZONE)
--  ui::SurfaceFactoryOzone::GetInstance()->InitializeHardware();
--#endif
--
--#if defined(USE_X11)
-+  g_native_display = ui::SurfaceFactoryOzone::GetInstance()->InitializeHardware();
-+#elif defined(USE_X11)
-   g_native_display = base::MessagePumpForUI::GetDefaultXDisplay();
- #elif defined(OS_WIN)
+@@ -115,8 +115,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+     LOG(ERROR) << "OZONE failed to initialize hardware";
+     return false;
+   }
+-  g_native_display = reinterpret_cast<EGLNativeDisplayType>(
+-      surface_factory->GetNativeDisplay());
++  g_native_display = surface_factory->GetNativeDisplay();
+ #else
    g_native_display = EGL_DEFAULT_DISPLAY;
-@@ -134,7 +132,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+ #endif
+@@ -140,7 +139,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
      EGL_GREEN_SIZE, 8,
      EGL_RED_SIZE, 8,
      EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
