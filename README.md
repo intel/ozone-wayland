@@ -108,7 +108,7 @@ hooks = [
 
 **users or developers**:
   1. start a [new issue](https://github.com/otcshare/ozone-wayland/issues).
-  2. [find an ONWER](http://dev.chromium.org/developers/owners-files) and discuss whether the issue is valid.
+  2. [find an OWNER](http://dev.chromium.org/developers/owners-files) and discuss whether the issue is valid.
   3. branch the repository and work with a solution.
   4. send a pull request.
   5. get review from a OWNER, meaning an explict LGTM and wait the onwers manage the merge.
