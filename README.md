@@ -1,19 +1,18 @@
-Ozone-Wayland
-============
+# Ozone-Wayland
 
 Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland graphics system. Different projects based on Chromium/Blink like the Chrome browser, ChromeOS, among others can be enabled now using Wayland.
 
 ![Alt text](https://raw.github.com/tiagovignatti/misc/master/chromium-2013-06-07-small.png "Content Shell running on Weston")
 
-Contents
--------
-  - [Design](#design)
-  - [Howto](#howto)
-  - [.gclient file](#gclient-file)
+## Contents
+
+  - [Design](#design) - the architecture behind
+  - [Howto](#howto) - set up the system environment, build and run
+    - [.gclient file](#gclient-file)
+  - [Contributing](#contributing) - help develop and send patches
 
 
-Design
-------
+## Design
 
 Ozone is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling. 
 
@@ -23,8 +22,7 @@ Before when using Aura on Linux, all the native windowing system code (X11) was 
 
 Worth to mention also that when Aura is used, there's no need for graphics toolkits, such as GTK+, EFL etc.
 
-Howto
------
+## Howto
 
 My system is a Core i7 running Ubuntu 12.04 LTS (Precise Pangolin), 64-bit. I'm using a kernel from Raring though, which you can install pretty easily just `sudo apt-get install linux-generic-lts-raring` (I need this version cause I'm using Mesa master, 9.2.0-devel, for Weston).
 
@@ -64,8 +62,8 @@ That's all. At this point you should be able to connect content_shell on Weston 
   $ ./out/Debug/content_shell --no-sandbox
   ```
 
-.gclient file
--------------
+### .gclient file
+
 ```python
 solutions = [
   {
@@ -105,3 +103,17 @@ hooks = [
   }
 ]
 ```
+
+## Contributing
+
+**users or developers**:
+  1. start a [new issue](https://github.com/otcshare/ozone-wayland/issues).
+  2. [find an ONWER](http://dev.chromium.org/developers/owners-files) and discuss whether the issue is valid.
+  3. branch the repository and work with a solution.
+  4. send a pull request.
+  5. get review from a OWNER, meaning an explict LGTM and wait the onwers manage the merge.
+
+**owners**:
+  1. unless critical fix, nothing should go into master branch without the review from **one** other OWNER.
+  2. merge pull request from developers.
+  3. guarantee the integrity of the whole project together with other owners.
