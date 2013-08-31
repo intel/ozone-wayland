@@ -16,8 +16,3 @@ fi
 
 git checkout -b $HACKING_BRANCH origin/master
 git am $PATCH_DIR/00*
-
-# jump now to mesa dir and apply the needed patches there
-cd third_party/mesa/src
-git reset --hard origin/master
-git am $PATCH_DIR/100*
