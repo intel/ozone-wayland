@@ -111,7 +111,7 @@ hooks = [
   2. [find an OWNER](http://dev.chromium.org/developers/owners-files) and discuss whether the issue is valid.
   3. branch the repository and work with a solution.
   4. send a pull request.
-  5. get review from a OWNER, meaning an explict LGTM and wait the onwers manage the merge.
+  5. get review from an OWNER, meaning an explicit LGTM and wait the owners manage the merge.
 
 **owners**:
   1. unless critical fix, nothing should go into master branch without the review from **one** other OWNER.
