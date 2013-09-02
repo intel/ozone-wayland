@@ -12,6 +12,7 @@
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/events/event_utils.h"
+#include "base/strings/utf_string_conversions.h"
 #include "ui/base/ozone/surface_factory_ozone.h"
 #include "ui/gfx/insets.h"
 #include "ui/linux_ui/linux_ui.h"
@@ -45,7 +46,6 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     const gfx::Rect& bounds)
     : close_widget_factory_(this),
       native_widget_delegate_(native_widget_delegate),
-      window_mapped_(false),
       desktop_native_widget_aura_(desktop_native_widget_aura) {
 }
 
@@ -74,9 +74,17 @@ ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
 
 void DesktopRootWindowHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
+  native_window_ = NULL;
+  ui::SurfaceFactoryOzone* surface_factory = ui::SurfaceFactoryOzone::GetInstance();
+  ui::SurfaceFactoryOzone::HardwareState displayInitialization = surface_factory->InitializeHardware();
+  if (displayInitialization != ui::SurfaceFactoryOzone::INITIALIZED) {
+    LOG(ERROR) << "OZONE failed to initialize hardware";
+    return;
+  }
 
-  window_ = ui::SurfaceFactoryOzone::GetInstance()->GetAcceleratedWidget();
-  ui::SurfaceFactoryOzone::GetInstance()->AttemptToResizeAcceleratedWidget(window_, params.bounds);
+  window_ = surface_factory->GetAcceleratedWidget();
+  native_window_ = (ui::WaylandWindow*)window_;
+  surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
 }
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
@@ -87,9 +95,8 @@ void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
 
 aura::RootWindow* DesktopRootWindowHostWayland::InitRootWindow(
     const Widget::InitParams& params) {
-  bounds_ = params.bounds;
 
-  aura::RootWindow::CreateParams rw_params(bounds_);
+  aura::RootWindow::CreateParams rw_params(params.bounds);
   rw_params.host = this;
   root_window_ = new aura::RootWindow(rw_params);
   root_window_->Init();
@@ -139,6 +146,13 @@ aura::RootWindow* DesktopRootWindowHostWayland::InitRootWindow(
   // TODO(vignatti): drag_drop_client?
 
   focus_client_->FocusWindow(content_window_);
+
+  if (native_window_) {
+    root_window_host_delegate_->OnHostResized(native_window_->GetBounds().size());
+    native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
+    // (kalyan) Handle all other cases i.e Menu, parent, top level etc
+  }
+
   return root_window_;
 }
 
@@ -174,7 +188,7 @@ void DesktopRootWindowHostWayland::InitFocus(aura::Window* window) {
 
 void DesktopRootWindowHostWayland::Close() {
   // TODO(erg): Might need to do additional hiding tasks here.
-
+  native_window_ = NULL;
   if (!close_widget_factory_.HasWeakPtrs()) {
     // And we delay the close so that if we are called from an ATL callback,
     // we don't destroy the window before the callback returned (as the caller
@@ -191,8 +205,8 @@ void DesktopRootWindowHostWayland::CloseNow() {
   native_widget_delegate_->OnNativeWidgetDestroying();
 
   // TODO: Actually free our native resources.
-
   desktop_native_widget_aura_->OnHostClosed();
+  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(0);
 }
 
 aura::RootWindowHost* DesktopRootWindowHostWayland::AsRootWindowHost() {
@@ -212,20 +226,20 @@ void DesktopRootWindowHostWayland::ShowWindowWithState(
 
 void DesktopRootWindowHostWayland::ShowMaximizedWithBounds(
     const gfx::Rect& restored_bounds) {
-  // TODO(erg):
-  NOTIMPLEMENTED();
-
-  // TODO(erg): We shouldn't completely fall down here.
+  Maximize();
   Show();
 }
 
 bool DesktopRootWindowHostWayland::IsVisible() const {
-  return window_mapped_;
+  if (native_window_)
+    return native_window_->State() & ui::WaylandWindow::Visible;
+
+  return false;
 }
 
 void DesktopRootWindowHostWayland::SetSize(const gfx::Size& size) {
-  // TODO(erg):
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->SetBounds(gfx::Rect(0, 0, size.width(), size.height()));
 }
 
 void DesktopRootWindowHostWayland::CenterWindow(const gfx::Size& size) {
@@ -250,14 +264,16 @@ void DesktopRootWindowHostWayland::CenterWindow(const gfx::Size& size) {
   // Don't size the window bigger than the parent, otherwise the user may not be
   // able to close or move it.
   window_bounds.AdjustToFit(parent_bounds);
-
   SetBounds(window_bounds);
 }
 
 void DesktopRootWindowHostWayland::GetWindowPlacement(
     gfx::Rect* bounds,
     ui::WindowShowState* show_state) const {
-  *bounds = bounds_;
+  if (native_window_)
+    *bounds = native_window_->GetBounds();
+  else
+    *bounds = gfx::Rect();
 
   // TODO(erg): This needs a better implementation. For now, we're just pass
   // back the normal state until we keep track of this.
@@ -265,7 +281,10 @@ void DesktopRootWindowHostWayland::GetWindowPlacement(
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetWindowBoundsInScreen() const {
-  return bounds_;
+  if (native_window_)
+    return native_window_->GetBounds();
+
+  return gfx::Rect();
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetClientAreaBoundsInScreen() const {
@@ -277,17 +296,23 @@ gfx::Rect DesktopRootWindowHostWayland::GetClientAreaBoundsInScreen() const {
   // Attempts to calculate the rect by asking the NonClientFrameView what it
   // thought its GetBoundsForClientView() were broke combobox drop down
   // placement.
-  return bounds_;
+  if (native_window_)
+    return native_window_->GetBounds();
+
+  return gfx::Rect();
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetRestoredBounds() const {
-  // TODO(erg):
-  NOTIMPLEMENTED();
+  if (native_window_)
+    return native_window_->GetBounds();
+
   return gfx::Rect();
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetWorkAreaBoundsInScreen() const {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    return native_window_->GetBounds();
+
   return gfx::Rect(0, 0, 10, 10);
 }
 
@@ -297,34 +322,48 @@ void DesktopRootWindowHostWayland::SetShape(gfx::NativeRegion native_region) {
 }
 
 void DesktopRootWindowHostWayland::Activate() {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->OnActivate();
 }
 
 void DesktopRootWindowHostWayland::Deactivate() {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->OnDeActivate();
 }
 
 bool DesktopRootWindowHostWayland::IsActive() const {
+  if (native_window_)
+    return native_window_->State() & ui::WaylandWindow::Activated;
+
   return false;
 }
 
 void DesktopRootWindowHostWayland::Maximize() {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->OnMaximize();
 }
 
 void DesktopRootWindowHostWayland::Minimize() {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->OnMinimize();
 }
 
 void DesktopRootWindowHostWayland::Restore() {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->OnRestore();
 }
 
 bool DesktopRootWindowHostWayland::IsMaximized() const {
-  return true;
+  if (native_window_)
+    return native_window_->State() & ui::WaylandWindow::Maximized;
+
+  return false;
 }
 
 bool DesktopRootWindowHostWayland::IsMinimized() const {
+  if (native_window_)
+    return native_window_->State() & ui::WaylandWindow::Minimized;
+
   return false;
 }
 
@@ -355,7 +394,8 @@ void DesktopRootWindowHostWayland::SetAlwaysOnTop(bool always_on_top) {
 }
 
 void DesktopRootWindowHostWayland::SetWindowTitle(const string16& title) {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->SetWindowTitle( UTF16ToUTF8(title).c_str());
 }
 
 void DesktopRootWindowHostWayland::ClearNativeFocus() {
@@ -397,11 +437,14 @@ NonClientFrameView* DesktopRootWindowHostWayland::CreateNonClientFrameView() {
 }
 
 void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->SetFullScreen(fullscreen);
 }
 
 bool DesktopRootWindowHostWayland::IsFullscreen() const {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    return native_window_->State() & ui::WaylandWindow::FullScreen;
+
   return false;
 }
 
@@ -455,30 +498,33 @@ gfx::AcceleratedWidget DesktopRootWindowHostWayland::GetAcceleratedWidget() {
 }
 
 void DesktopRootWindowHostWayland::Show() {
-  NOTIMPLEMENTED();
-
-  window_mapped_ = true;
+  if (native_window_) {
+    native_window_->OnShow();
+    root_window_host_delegate_->OnHostPaint(gfx::Rect(native_window_->GetBounds().size()));
+  }
 }
 
 void DesktopRootWindowHostWayland::Hide() {
-  NOTIMPLEMENTED();
-
-  window_mapped_ = false;
+  if (native_window_)
+    native_window_->OnHide();
 }
 
 void DesktopRootWindowHostWayland::ToggleFullScreen() {
-  NOTIMPLEMENTED();
+  if (native_window_)
+    native_window_->ToggleFullScreen();
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetBounds() const {
-  return bounds_;
+  if (native_window_)
+  return native_window_->GetBounds();
+
+  return gfx::Rect();
 }
 
 void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
-  bool origin_changed = bounds_.origin() != bounds.origin();
-  bool size_changed = bounds_.size() != bounds.size();
-
-  bounds_ = bounds;
+   gfx::Rect currentBounds = native_window_->GetBounds();
+  bool origin_changed = currentBounds.origin() != bounds.origin();
+  bool size_changed = currentBounds.size() != bounds.size();
 
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
@@ -486,6 +532,9 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
     root_window_host_delegate_->OnHostResized(bounds.size());
   else
     root_window_host_delegate_->OnHostPaint(gfx::Rect(bounds.size()));
+
+  if (size_changed || origin_changed)
+    native_window_->SetBounds(bounds);
 }
 
 gfx::Insets DesktopRootWindowHostWayland::GetInsets() const {
@@ -496,7 +545,10 @@ void DesktopRootWindowHostWayland::SetInsets(const gfx::Insets& insets) {
 }
 
 gfx::Point DesktopRootWindowHostWayland::GetLocationOnNativeScreen() const {
-  return bounds_.origin();
+  if (native_window_)
+    return native_window_->GetBounds().origin();
+
+  return gfx::Point();
 }
 
 void DesktopRootWindowHostWayland::SetCapture() {
