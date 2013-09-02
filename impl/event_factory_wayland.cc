@@ -18,7 +18,6 @@ EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
   WaylandDisplay* dis = WaylandDisplay::GetDisplay();
-  //WaylandDispatcher::HandleFlush();
 
   fd_ = wl_display_get_fd(dis->display());
 

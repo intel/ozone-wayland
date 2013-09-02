@@ -22,12 +22,12 @@
       ],
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(<(pkg-config) --cflags wayland-client wayland-cursor wayland-egl  xkbcommon)',
+          '<!@(<(pkg-config) --cflags wayland-client wayland-cursor wayland-egl xkbcommon)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(<(pkg-config) --libs-only-L --libs-only-other wayland-client wayland-cursor wayland-egl  xkbcommon)',
+          '<!@(<(pkg-config) --libs-only-L --libs-only-other wayland-client wayland-cursor wayland-egl xkbcommon)',
         ],
         'libraries': [
           '<!@(<(pkg-config) --libs-only-l wayland-client wayland-cursor wayland-egl xkbcommon)',
