@@ -5,11 +5,6 @@
 #ifndef OZONE_WAYLAND_SCREEN_H_
 #define OZONE_WAYLAND_SCREEN_H_
 
-#include <stdint.h>
-
-#include <list>
-
-#include "base/basictypes.h"
 #include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
 

@@ -5,39 +5,68 @@
 #ifndef OZONE_WAYLAND_WINDOW_H_
 #define OZONE_WAYLAND_WINDOW_H_
 
-#include <stdint.h>
-
-#include "base/basictypes.h"
-#include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
 #include "ozone/wayland/display.h"
-#include <vector>
 
-struct wl_surface;
-struct wl_shell_surface;
-struct wl_egl_window;
+#include <stdint.h>
+#include <vector>
 
 namespace ui {
 
 class WaylandDisplay;
-class WaylandSurface;
+class WaylandShellSurface;
+class EGLWindow;
+struct wl_egl_window;
 
-// WaylandWindow wraps a wl_surface and some basic operations for the surface.
 class WaylandWindow {
  public:
+  enum State {
+    Default = 0x00,
+    Visible = 0x01, // Whether the window is visible.
+    Focus = 0x02, // Whether the window has current focus.
+    FullScreen = 0x04,  // Whether the window is in fullscreen mode.
+    Maximized = 0x08, // Window is maximized,
+    Minimized = 0x10, // Window is minimized.
+    Normal = 0x20, // Window is in Normal Mode.
+    Activated = 0x40, // Window is Active.
+    PendingResize = 0x80 // Pending Resize.
+  };
+
+  enum Shell {
+    TOPLEVEL,
+    FULLSCREEN,
+    TRANSIENT,
+    MENU,
+    CUSTOM
+  };
+
   typedef std::vector<WaylandWindow*> Windows;
+  typedef unsigned WindowState;
+  typedef unsigned ShellType;
 
   // Creates a toplevel window.
   WaylandWindow();
-
   ~WaylandWindow();
 
-  bool IsVisible() const;
+  WindowState State() const { return state_; }
+  void SetShellType(ShellType type);
 
   // Sets the window to fullscreen if |fullscreen| is true. Otherwise it sets
   // it as a normal window.
-  void set_fullscreen(bool fullscreen) { fullscreen_ = fullscreen; }
-  bool fullscreen() const { return fullscreen_; }
+  void SetFullScreen(bool fullscreen);
+  void ToggleFullScreen() { SetFullScreen(!(state_ & FullScreen)); }
+
+  void OnShow();
+  void OnHide();
+
+  void OnActivate();
+  void OnDeActivate();
+
+  void OnMaximize();
+  void OnMinimize();
+  void OnRestore();
+  void SetFocus(bool focus);
+  void SetWindowTitle(const char *title);
 
   void SetUserData(void *user_data) { user_data_ = user_data; }
   void* GetUserData() const { return user_data_; }
@@ -47,94 +76,46 @@ class WaylandWindow {
   WaylandWindow* GetToplevelWindow() { return this; }
   WaylandWindow* GetParentWindow() const { return parent_window_; }
   void SetParentWindow(WaylandWindow* parent_window);
+  void RealizeAcceleratedWidget();
 
   // Returns the pointer to the surface associated with the window.
   // The WaylandWindow object owns the pointer.
-  WaylandSurface* surface() const { return surface_; }
-  wl_shell_surface* shell_surface() const { return shell_surface_; }
-  wl_egl_window* egl_window() const { return window_; }
+  wl_egl_window* egl_window() const;
+  struct wl_surface* wlSurface() const;
 
   void SetBounds(const gfx::Rect& new_bounds);
-  gfx::Rect GetBounds() const;
+  gfx::Rect GetBounds() const { return allocation_; }
   void GetResizeDelta(int &x, int &y);
-
-  void ScheduleResize(int32_t width, int32_t height);
-  void SchedulePaintInRect(const gfx::Rect& rect);
-  void ScheduleFlush();
-
-  virtual void OnResize();
 
   const Windows& GetChildren() const { return children_; }
   void AddChild(WaylandWindow* child);
   void RemoveChild(WaylandWindow* child);
 
-  void Show();
-  void Hide();
-  void SetType();
-
-  static void HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
-      uint32_t edges, int32_t width, int32_t height);
-  static void HandlePopupDone(void *data, struct wl_shell_surface *shell_surface);
-  static void HandlePing(void *data, struct wl_shell_surface *shell_surface, uint32_t serial);
+  void HandleConfigure(uint32_t edges, int32_t width, int32_t height);
 
  private:
-  static void FreeSurface(void *data, wl_callback *callback, uint32_t time);
-
-  enum WindowType{
-    TYPE_TOPLEVEL,
-    TYPE_FULLSCREEN,
-    TYPE_TRANSIENT,
-    TYPE_MENU,
-    TYPE_CUSTOM
-  };
-
-  enum WindowLocation {
-    WINDOW_INTERIOR = 0,
-    WINDOW_RESIZING_TOP = 1,
-    WINDOW_RESIZING_BOTTOM = 2,
-    WINDOW_RESIZING_LEFT = 4,
-    WINDOW_RESIZING_TOP_LEFT = 5,
-    WINDOW_RESIZING_BOTTOM_LEFT = 6,
-    WINDOW_RESIZING_RIGHT = 8,
-    WINDOW_RESIZING_TOP_RIGHT = 9,
-    WINDOW_RESIZING_BOTTOM_RIGHT = 10,
-    WINDOW_RESIZING_MASK = 15,
-    WINDOW_EXTERIOR = 16,
-    WINDOW_TITLEBAR = 17,
-    WINDOW_CLIENT_AREA = 18,
-  };
+  void UpdateWindowType();
+  void HandleResize(int32_t width, int32_t height);
+  void Resize();
 
   // When creating a transient window, |parent_window_| is set to point to the
   // parent of this window. We will then use |parent_window_| to align this
-  // window at the specified offset in |relative_position_|.
+  // window at the specified offset.
   // |parent_window_| is not owned by this window.
   WaylandWindow* parent_window_;
+  WaylandShellSurface* shell_surface_;
+  EGLWindow* window_;
+  void* user_data_;
 
-  // Position relative to parent window. This is only used by
-  // a transient window.
-  gfx::Point relative_position_;
-
-  // The native wayland surface associated with this window.
-  WaylandSurface* surface_;
-  wl_shell_surface* shell_surface_;
-
-  // Whether the window is in fullscreen mode.
-  bool fullscreen_;
-
-  int resize_edges_;
   gfx::Rect allocation_;
   gfx::Rect saved_allocation_;
   gfx::Rect server_allocation_;
-  gfx::Rect pending_allocation_;
-  WindowType type_;
-  bool resize_scheduled_;
-  wl_egl_window *window_;
+  int resize_edges_;
+  WindowState state_;
+  ShellType type_;
 
   // Child windows. Topmost is last.
   Windows children_;
-
-  void *user_data_;
-
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
 

@@ -5,11 +5,10 @@
 #ifndef OZONE_WAYLAND_SURFACE_H_
 #define OZONE_WAYLAND_SURFACE_H_
 
-#include <wayland-client.h>
-#include <wayland-server.h>
+#include "ozone/wayland/display.h"
 
 namespace ui {
-typedef uint WaylandSurfaceId;
+typedef unsigned WaylandSurfaceId;
 
 class WaylandDisplay;
 

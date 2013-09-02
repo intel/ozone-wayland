@@ -1,0 +1,124 @@
+// Copyright 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "ozone/wayland/shell_surface.h"
+#include "ozone/wayland/surface.h"
+
+namespace ui {
+
+WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
+    : surface_(NULL),
+    shell_surface_(NULL)
+{
+  WaylandDisplay* display = WaylandDisplay::GetDisplay();
+  if (!display)
+      return;
+
+  surface_ = new WaylandSurface();
+  if (display->shell())
+  {
+    shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_->wlSurface());
+    wl_shell_surface_set_toplevel(shell_surface_);
+  }
+
+  wl_surface_set_user_data(surface_->wlSurface(), window);
+
+  if (shell_surface_)
+  {
+    wl_shell_surface_set_user_data(shell_surface_, window);
+
+    static const wl_shell_surface_listener shell_surface_listener = {
+      WaylandShellSurface::HandlePing,
+      WaylandShellSurface::HandleConfigure,
+      WaylandShellSurface::HandlePopupDone
+    };
+
+    wl_shell_surface_add_listener(shell_surface_, &shell_surface_listener, window);
+  }
+}
+
+WaylandShellSurface::~WaylandShellSurface() {
+
+  if (shell_surface_)
+  {
+    wl_shell_surface_destroy(shell_surface_);
+    shell_surface_ = NULL;
+  }
+
+  if (surface_)
+  {
+    delete surface_;
+    surface_ = NULL;
+  }
+}
+
+void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type, WaylandWindow* parentWindow) const
+{
+  switch (type) {
+    case WaylandWindow::FULLSCREEN:
+      wl_shell_surface_set_fullscreen(shell_surface_,
+          WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, NULL);
+      break;
+    case WaylandWindow::TOPLEVEL:
+      wl_shell_surface_set_toplevel(shell_surface_);
+      break;
+    case WaylandWindow::TRANSIENT:
+      if (parentWindow)
+        wl_shell_surface_set_transient(shell_surface_,
+          parentWindow->wlSurface(),
+          parentWindow->GetBounds().x(), parentWindow->GetBounds().y(), 0);
+      break;
+    case WaylandWindow::MENU:
+      break;
+    case WaylandWindow::CUSTOM:
+      break;
+  }
+}
+
+void WaylandShellSurface::SetMaximized(WaylandWindow::ShellType type) const
+{
+  switch (type) {
+    case WaylandWindow::FULLSCREEN:
+      wl_shell_surface_set_maximized(shell_surface_, NULL);
+      break;
+    case WaylandWindow::TOPLEVEL:
+    case WaylandWindow::TRANSIENT:
+    case WaylandWindow::MENU:
+    case WaylandWindow::CUSTOM:
+      wl_shell_surface_set_toplevel(shell_surface_);
+      break;
+    default:
+      break;
+  }
+}
+
+void WaylandShellSurface::SetMinimized() const
+{
+  // cannot find a way to do with shell.
+  //wl_shell_surface_set_maximized(shell_surface_, NULL);
+}
+
+void WaylandShellSurface::SetWindowTitle(const char *title) const
+{
+    wl_shell_surface_set_title(shell_surface_, title);
+}
+
+void WaylandShellSurface::HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
+    uint32_t edges, int32_t width, int32_t height)
+{
+  WaylandWindow *window = static_cast<WaylandWindow*>(data);
+  window->HandleConfigure(edges, width, height);
+}
+
+void WaylandShellSurface::HandlePopupDone(void *data, struct wl_shell_surface *shell_surface)
+{
+}
+
+void WaylandShellSurface::HandlePing(void *data, struct wl_shell_surface *shell_surface, uint32_t serial)
+{
+  wl_shell_surface_pong(shell_surface, serial);
+}
+
+}  // namespace ui
+

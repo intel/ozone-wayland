@@ -4,74 +4,13 @@
 
 #include "ozone/impl/surface_factory_wayland.h"
 
-#include "base/base_paths.h"
-#include "base/command_line.h"
-#include "base/files/file_path.h"
-#include "base/native_library.h"
-#include "base/memory/scoped_ptr.h"
-#include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
+#include "ozone/egl/shims.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/event_factory_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/screen.h"
-#include "ui/gl/gl_bindings.h"
-#include "ui/gl/gl_egl_api_implementation.h"
-#include "ui/gl/gl_gl_api_implementation.h"
-#include "ui/gl/gl_implementation.h"
-#include "ui/gl/gl_switches.h"
-
-namespace gfx {
-namespace {
-
-// Load a library, printing an error message on failure.
-base::NativeLibrary LoadLibrary(const base::FilePath& filename) {
-  std::string error;
-  base::NativeLibrary library = base::LoadNativeLibrary(filename,
-                                                        &error);
-  if (!library) {
-    DVLOG(1) << "Failed to load " << filename.MaybeAsASCII() << ": " << error;
-    return NULL;
-  }
-  return library;
-}
-
-base::NativeLibrary LoadLibrary(const char* filename) {
-  return LoadLibrary(base::FilePath(filename));
-}
-
-}  // namespace
-
-bool InitializeGLBindings() {
-  base::NativeLibrary gles_library = LoadLibrary("libGLESv2.so.2");
-  if (!gles_library)
-    return false;
-  base::NativeLibrary egl_library = LoadLibrary("libEGL.so.1");
-  if (!egl_library) {
-    base::UnloadNativeLibrary(gles_library);
-    return false;
-  }
-
-  GLGetProcAddressProc get_proc_address =
-      reinterpret_cast<GLGetProcAddressProc>(
-          base::GetFunctionPointerFromNativeLibrary(
-              egl_library, "eglGetProcAddress"));
-  if (!get_proc_address) {
-    LOG(ERROR) << "eglGetProcAddress not found.";
-    base::UnloadNativeLibrary(egl_library);
-    base::UnloadNativeLibrary(gles_library);
-    return false;
-  }
-
-  SetGLGetProcAddressProc(get_proc_address);
-  AddGLNativeLibrary(egl_library);
-  AddGLNativeLibrary(gles_library);
-
-  return true;
-}
-
-}  // namespace gfx
 
 namespace ui {
 
@@ -86,7 +25,6 @@ SurfaceFactoryWayland::SurfaceFactoryWayland()
       root_window_(NULL),
       spec_(NULL)
 {
-  WaylandDisplay::Connect();
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
@@ -100,6 +38,9 @@ SurfaceFactoryWayland::~SurfaceFactoryWayland()
 
 SurfaceFactoryOzone::HardwareState SurfaceFactoryWayland::InitializeHardware()
 {
+  if (!WaylandDisplay::GetDisplay())
+    WaylandDisplay::ConnectDisplay();
+
   return WaylandDisplay::GetDisplay()->display() ? SurfaceFactoryOzone::INITIALIZED : SurfaceFactoryOzone::FAILED;
 }
 
@@ -115,17 +56,18 @@ void SurfaceFactoryWayland::ShutdownHardware() {
   }
 
   WaylandDisplay::DestroyDisplay();
+  eglReleaseThread();
 }
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
-
-  if (!e_factory)
-    InitializeWaylandEvent();
 
   if (!root_window_)  {
     root_window_ = new WaylandWindow();
     root_window_->SetParentWindow(NULL);
   }
+
+  if (!e_factory)
+    InitializeWaylandEvent();
 
   return (gfx::AcceleratedWidget)root_window_;
 }
@@ -133,8 +75,13 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
 gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
   ui::WaylandWindow* window = (ui::WaylandWindow*)w;
+  if (!root_window_)  {
+    root_window_ = new WaylandWindow();
+    root_window_->SetParentWindow(NULL);
+  }
 
-  return (gfx::AcceleratedWidget)window->egl_window();
+  root_window_->RealizeAcceleratedWidget();
+  return (gfx::AcceleratedWidget)root_window_->egl_window();
 }
 
 const char* SurfaceFactoryWayland::DefaultDisplaySpec() {

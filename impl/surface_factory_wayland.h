@@ -5,7 +5,6 @@
 #ifndef OZONE_WAYLAND_SURFACE_FACTORY_H_
 #define OZONE_WAYLAND_SURFACE_FACTORY_H_
 
-#include "base/compiler_specific.h"
 #include "ui/base/ozone/surface_factory_ozone.h"
 
 namespace ui {
