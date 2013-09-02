@@ -18,7 +18,7 @@ EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
   WaylandDisplay* dis = WaylandDisplay::GetDisplay();
-  WaylandDispatcher::HandleFlush();
+  //WaylandDispatcher::HandleFlush();
 
   fd_ = wl_display_get_fd(dis->display());
 
@@ -33,8 +33,10 @@ EventFactoryWayland::EventFactoryWayland()
 
   loop_ = base::MessageLoop::current();
 
-  if (loop_)
+  if (loop_) {
     loop_->AddDestructionObserver(this);
+    loop_->AddTaskObserver(this);
+  }
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
@@ -56,6 +58,30 @@ void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
   NOTREACHED();
 }
 
+void EventFactoryWayland::WillProcessTask(
+    const base::PendingTask& pending_task) {
+}
+
+void EventFactoryWayland::DidProcessTask(
+    const base::PendingTask& pending_task) {
+
+  // a proper integration of libwayland should call wl_display_flush() only
+  // before the client's event loop is about to go sleep. Ideally libevent
+  // would emit a signal mentioning its intent to sleep and libwayland would
+  // flush the remaining buffered bytes.
+  // The catch with this hack in DidProcessTask is to be careful and flush only
+  // when needed like after eglSwapBuffers (PostSwapBuffersComplete) and others
+  // This would not be needed after we start using transport surface, as nested
+  // server would be responsible for flushing the client as needed. We need to
+  // come back to this once we have it working.
+
+  if (strcmp(pending_task.posted_from.function_name(),
+      "PostSwapBuffersComplete") != 0)
+    return;
+
+  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
+}
+
 void EventFactoryWayland::WillDestroyCurrentMessageLoop()
 {
   DCHECK(base::MessageLoop::current());
@@ -65,6 +91,7 @@ void EventFactoryWayland::WillDestroyCurrentMessageLoop()
 
     watcher_.StopWatchingFileDescriptor();
     base::MessageLoop::current()->RemoveDestructionObserver(this);
+    base::MessageLoop::current()->RemoveTaskObserver(this);
     loop_ = NULL;
   }
 }
