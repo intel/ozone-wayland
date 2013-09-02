@@ -1,4 +1,4 @@
-// Copyright 2013 The Chromium Authors. All rights reserved.
+// Copyright 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -119,6 +119,7 @@ void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial)
   width_ = image->width;
   height_ = image->height;
   wl_pointer_set_cursor(input_pointer_, serial, pointer_surface_->wlSurface(), image->hotspot_x, image->hotspot_y);
+  type_ = type;
 }
 
 void WaylandCursor::Update(CursorType type, uint32_t serial)
@@ -139,4 +140,3 @@ void WaylandCursor::Clear()
 }
 
 }  // namespace ui
-

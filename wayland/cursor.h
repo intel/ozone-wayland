@@ -1,11 +1,11 @@
-// Copyright 2013 The Chromium Authors. All rights reserved.
+// Copyright 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef OZONE_WAYLAND_CURSOR_H_
 #define OZONE_WAYLAND_CURSOR_H_
 
-#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/display.h"
 #include <wayland-cursor.h>
 
 namespace ui {

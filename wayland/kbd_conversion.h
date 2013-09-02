@@ -5,7 +5,6 @@
 #ifndef OZONE_WAYLAND_KBD_CONVERSION_H_
 #define OZONE_WAYLAND_KBD_CONVERSION_H_
 
-#include "base/basictypes.h"
 #include "ui/base/keycodes/keyboard_codes_posix.h"
 #include "ui/base/ui_export.h"
 

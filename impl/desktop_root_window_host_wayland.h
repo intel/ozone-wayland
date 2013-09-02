@@ -47,7 +47,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   void HandleNativeWidgetActivationChanged(bool active);
 
  private:
-  typedef unsigned WindowStateAttribute;
   // Initializes our Ozone surface to draw on. This method performs all
   // initialization related to talking to the Ozone server.
   void InitWaylandWindow(const Widget::InitParams& params);
