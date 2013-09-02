@@ -1,0 +1,33 @@
+From 3db9bdfd3d8b2a6c185e6b504db67f98e9db3f67 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Thu, 11 Jul 2013 18:10:26 -0300
+Subject: [PATCH] Mesa fix
+
+We won't need this as soon the fix the order ui/gl/ is picking the headers, ie
+first khronos and then mesa.
+
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ include/EGL/eglplatform.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/EGL/eglplatform.h b/include/EGL/eglplatform.h
+index 28455fb..9c05dca 100644
+--- a/include/EGL/eglplatform.h
++++ b/include/EGL/eglplatform.h
+@@ -104,6 +104,12 @@ typedef struct ANativeWindow        *EGLNativeWindowType;
+ typedef struct egl_native_pixmap_t  *EGLNativePixmapType;
+ typedef void                        *EGLNativeDisplayType;
+ 
++#elif defined(USE_OZONE)
++
++typedef intptr_t EGLNativeDisplayType;
++typedef intptr_t EGLNativeWindowType;
++typedef intptr_t EGLNativePixmapType;
++
+ #elif defined(__unix__)
+ 
+ #ifdef MESA_EGL_NO_X11_HEADERS
+-- 
+1.7.9.5
+
