@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland/surface.h"
-#include "ozone/wayland/display.h"
+#include "ozone/wayland/dispatcher.h"
 
 namespace ui {
 static const struct wl_callback_listener frameListener = {
@@ -24,7 +24,6 @@ WaylandSurface::WaylandSurface()
 
   bufferHandleId++;
   id_ = bufferHandleId;
-  display->addPendingTask();
 }
 
 WaylandSurface::~WaylandSurface()
@@ -36,8 +35,6 @@ WaylandSurface::~WaylandSurface()
     wl_surface_destroy(surface_);
     surface_ = 0;
   }
-
-  WaylandDisplay::GetDisplay()->addPendingTask();
 }
 
 void WaylandSurface::addFrameCallBack()
@@ -47,7 +44,6 @@ void WaylandSurface::addFrameCallBack()
 
   frameCallBack_ = wl_surface_frame(surface_);
   wl_callback_add_listener(frameCallBack_, &frameListener, this);
-  WaylandDisplay::GetDisplay()->addPendingTask();
 }
 
 void WaylandSurface::deleteFrameCallBack()
@@ -61,8 +57,9 @@ void WaylandSurface::deleteFrameCallBack()
 int WaylandSurface::ensureFrameCallBackDone()
 {
   int ret = 0;
-  while (frameCallBack_ && ret != -1)
-    ret = WaylandDisplay::GetDisplay()->SyncDisplay();
+  //(kalyan) Handle round trip to display.
+ // while (frameCallBack_ && ret != -1)
+  //  ret = WaylandDisplay::GetDisplay()->SyncDisplay();
 
   return ret;
 }

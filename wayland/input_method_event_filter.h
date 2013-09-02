@@ -6,7 +6,6 @@
 #define OZONE_WAYLAND_INPUT_METHOD_EVENT_FILTER_
 
 #include "base/basictypes.h"
-#include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/base/ime/input_method_delegate.h"
 

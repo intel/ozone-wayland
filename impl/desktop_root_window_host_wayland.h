@@ -5,13 +5,13 @@
 #ifndef DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 #define DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 
-#include "base/basictypes.h"
 #include "base/memory/weak_ptr.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/root_window_host.h"
-#include "ui/gfx/rect.h"
 #include "ui/views/views_export.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
+
+#include "ozone/wayland/window.h"
 
 namespace aura {
 namespace client {
@@ -169,13 +169,8 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   scoped_ptr<aura::client::ScreenPositionClient> position_client_;
 
   gfx::AcceleratedWidget window_;
+  ui::WaylandWindow* native_window_;
   internal::NativeWidgetDelegate* native_widget_delegate_;
-
-  // Is the window mapped to the screen?
-  bool window_mapped_;
-
-  gfx::Rect bounds_;
-
   aura::RootWindowHostDelegate* root_window_host_delegate_;
   aura::Window* content_window_;
 

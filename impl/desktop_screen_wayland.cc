@@ -4,8 +4,8 @@
 
 #include "ozone/impl/desktop_screen_wayland.h"
 
-#include <stdio.h>
 #include "ui/base/ozone/surface_factory_ozone.h"
+#include <stdio.h>
 
 namespace {
 

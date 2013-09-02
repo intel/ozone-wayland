@@ -4,56 +4,61 @@
 
 #include "ozone/wayland/display.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-#include "base/message_loop/message_loop.h"
+#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/cursor.h"
-#include "ozone/wayland/input_method_event_filter.h"
 
 namespace ui {
 
-WaylandDisplay* g_display = NULL;
-static const struct wl_callback_listener syncListener = {
-    WaylandDisplay::SyncCallback
-};
+WaylandDisplay* WaylandDisplay::m_instance = NULL;
 
-WaylandDisplay* WaylandDisplay::GetDisplay()
-{
-  return g_display;
+WaylandDisplay* WaylandDisplay::GetDisplay() {
+  return m_instance;
 }
 
-void WaylandDisplay::DestroyDisplay()
-{
-  if (g_display)
-    delete g_display;
-
-  g_display = NULL;
+void WaylandDisplay::DestroyDisplay() {
+  if (m_instance)
+    m_instance->Terminate();
 }
 
 // static
-WaylandDisplay* WaylandDisplay::Connect(char* name)
-{
-  if (g_display)
-    return g_display;
+WaylandDisplay* WaylandDisplay::ConnectDisplay() {
 
-  g_display = new WaylandDisplay(name);
+  if (!m_instance)
+    m_instance = OpenStaticConnection();
 
-  return g_display;
+  if (!m_instance->display())
+    m_instance->Connect();
+
+  return m_instance;
 }
 
-WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
+WaylandDisplay* WaylandDisplay::OpenStaticConnection()
+{
+  static WaylandDisplay display;
+  return &display;
+}
+
+WaylandDisplay::WaylandDisplay()
+    : display_(NULL),
     compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
-    queue_(NULL),
     primary_screen_(NULL),
-    handle_flush_(false)
+    primary_input_device_(NULL),
+    dispatcher_(NULL)
 {
-  display_ = wl_display_connect(name);
+}
+
+WaylandDisplay::~WaylandDisplay()
+{
+  Terminate();
+}
+
+void WaylandDisplay::Connect() {
+  display_ = wl_display_connect(NULL);
   if (!display_)
       return;
 
@@ -61,132 +66,22 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
     WaylandDisplay::DisplayHandleGlobal
   };
 
-  input_method_filter_ = new WaylandInputMethodEventFilter;
   registry_ = wl_display_get_registry(display_);
   wl_registry_add_listener(registry_, &registry_listener, this);
 
   if (wl_display_roundtrip(display_) < 0) {
-      terminate();
+      Terminate();
       return;
   }
 
   wl_display_set_user_data(display_, this);
-  queue_ = wl_display_create_queue(display_);
-  wl_proxy_set_queue((struct wl_proxy *)registry_, queue_);
+  dispatcher_ = new WaylandDispatcher(this);
 }
 
-WaylandDisplay::~WaylandDisplay()
+void WaylandDisplay::Terminate()
 {
-  terminate();
-}
-
-void WaylandDisplay::AddWindow(WaylandWindow* window)
-{
-  if(window) {
-    window_list_.push_back(window);
-    handle_flush_ = true;
-  }
-}
-
-void WaylandDisplay::AddTask(WaylandTask* task)
-{
-  if(task)
-    task_list_.push_back(task);
-}
-
-bool WaylandDisplay::ProcessTasks()
-{
-  WaylandTask *task = NULL;
-  if (task_list_.empty())
-      return false;
-
-  while(!task_list_.empty())
-  {
-    task = task_list_.front();
-    task->Run();
-    task_list_.pop_front();
-    delete task;
-  }
-
-  return true;
-}
-
-void WaylandDisplay::FlushTasks()
-{
-  if (!handle_flush_ && task_list_.empty())
-      return;
-
-  Flush();
-}
-
-void WaylandDisplay::Flush()
-{
-  ProcessTasks();
-  while (wl_display_prepare_read(display_) != 0)
-      wl_display_dispatch_pending(display_);
-
-  wl_display_flush(display_);
-  wl_display_read_events(display_);
-  wl_display_dispatch_pending(display_);
-  handle_flush_ = false;
-}
-
-void WaylandDisplay::RemoveWindow(WaylandWindow* window)
-{
-  if(!window)
+  if (!display_)
     return;
-
-  WaylandTask *task = NULL;
-  handle_flush_ = true;
-
-  for (std::list<WaylandTask*>::iterator i = task_list_.begin();
-      i != task_list_.end(); ++i) {
-    if((*i)->GetWindow() == window)
-    {
-      delete *i;
-      i = task_list_.erase(i);
-    }
-  }
-
-  for (std::list<WaylandWindow*>::iterator i = window_list_.begin();
-      i != window_list_.end(); ++i) {
-    if((*i) == window)
-    {
-      i = window_list_.erase(i);
-      break;
-    }
-  }
-}
-
-bool WaylandDisplay::IsWindow(WaylandWindow* window)
-{
-  for (std::list<WaylandWindow*>::iterator i = window_list_.begin();
-      i != window_list_.end(); ++i) {
-    if((*i) == window)
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-InputMethod* WaylandDisplay::GetInputMethod() const
-{
-  return input_method_filter_ ? input_method_filter_->GetInputMethod(): NULL;
-}
-
-void WaylandDisplay::terminate()
-{
-  if (window_list_.size() > 0) {
-    fprintf(stderr, "warning: windows exist.\n");
-    window_list_.erase(window_list_.begin(), window_list_.end());
-  }
-
-  for (std::list<WaylandTask*>::iterator i = task_list_.begin();
-      i != task_list_.end(); ++i) {
-      delete *i;
-  }
 
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
@@ -200,12 +95,6 @@ void WaylandDisplay::terminate()
 
   screen_list_.clear();
   input_list_.clear();
-  task_list_.clear();
-
-  if (queue_) {
-    wl_event_queue_destroy(queue_);
-    queue_ = 0;
-  }
 
   WaylandCursor::Clear();
 
@@ -221,41 +110,16 @@ void WaylandDisplay::terminate()
   if (registry_)
       wl_registry_destroy(registry_);
 
-  delete input_method_filter_;
+  if (dispatcher_) {
+    delete dispatcher_;
+    dispatcher_ = NULL;
+  }
 
   if (display_) {
     wl_display_flush(display_);
     wl_display_disconnect(display_);
+    display_ = NULL;
   }
-}
-
-std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {
-  return screen_list_;
-}
-
-void WaylandDisplay::SyncCallback(void *data, struct wl_callback *callback, uint32_t serial)
-{
-    int* done = static_cast<int*>(data);
-    *done = 1;
-    wl_callback_destroy(callback);
-}
-
-int WaylandDisplay::SyncDisplay()
-{
-  if (!queue_)
-    return -1;
-
-  ProcessTasks();
-  int done = 0, ret = 0;
-  handle_flush_ = false;
-  struct wl_callback* callback = wl_display_sync(display_);
-  wl_callback_add_listener(callback, &syncListener, &done);
-  wl_proxy_set_queue((struct wl_proxy *) callback, queue_);
-  while (ret != -1 && !done)
-    ret = wl_display_dispatch_queue(display_, queue_);
-  wl_display_dispatch_pending(display_);
-
-  return ret;
 }
 
 // static
@@ -279,6 +143,7 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else if (strcmp(interface, "wl_seat") == 0) {
     WaylandInputDevice *input_device = new WaylandInputDevice(disp, name);
     disp->input_list_.push_back(input_device);
+    disp->primary_input_device_ = disp->input_list_.front();
   } else if (strcmp(interface, "wl_shell") == 0) {
     disp->shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));

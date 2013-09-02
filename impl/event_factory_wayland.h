@@ -6,17 +6,16 @@
 #define OZONE_WAYLAND_EVENT_FACTORY_H_
 
 #include "ui/base/ui_export.h"
-#include "base/event_types.h"
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_libevent.h"
-#include "base/native_library.h"
 
 namespace ui {
 
 class WaylandDisplay;
 
 class EventFactoryWayland : public base::MessageLoop::TaskObserver,
-                            public base::MessagePumpLibevent::Watcher {
+                            public base::MessagePumpLibevent::Watcher,
+                            public base::MessageLoop::DestructionObserver {
  public:
   EventFactoryWayland();
   virtual ~EventFactoryWayland();
@@ -32,11 +31,15 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
   virtual void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
   virtual void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE;
 
+  // MessageLoop::DestructionObserver overrides.
+  virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
+
   // Implements MessageLoop::TaskObserver.
-  virtual void WillProcessTask(const base::PendingTask& pending_task) OVERRIDE;
-  virtual void DidProcessTask(const base::PendingTask& pending_task) OVERRIDE;
+  virtual void WillProcessTask(const base::PendingTask& pending_task);
+  virtual void DidProcessTask(const base::PendingTask& pending_task);
 
   int fd_;
+  base::MessageLoop* loop_;
   base::MessagePumpLibevent::FileDescriptorWatcher watcher_;
 };
 

@@ -5,8 +5,8 @@
 #include "ozone/impl/event_factory_wayland.h"
 
 #include "base/lazy_instance.h"
-#include "base/memory/scoped_ptr.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/dispatcher.h"
 
 namespace ui {
 
@@ -18,6 +18,7 @@ EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
   WaylandDisplay* dis = WaylandDisplay::GetDisplay();
+
   fd_ = wl_display_get_fd(dis->display());
 
   CHECK_GE(fd_, 0);
@@ -29,12 +30,15 @@ EventFactoryWayland::EventFactoryWayland()
                             this);
   CHECK(success);
 
-  dis->FlushTasks();
-  base::MessageLoop::current()->AddTaskObserver(this);
+  loop_ = base::MessageLoop::current();
+
+  if (loop_) {
+    loop_->AddDestructionObserver(this);
+    loop_->AddTaskObserver(this);
+  }
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
-  watcher_.StopWatchingFileDescriptor();
 }
 
 EventFactoryWayland* EventFactoryWayland::GetInstance() {
@@ -46,7 +50,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
-  WaylandDisplay::GetDisplay()->Flush();
+  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
@@ -74,7 +78,21 @@ void EventFactoryWayland::DidProcessTask(
       "PostSwapBuffersComplete") != 0)
     return;
 
-  WaylandDisplay::GetDisplay()->Flush();
+  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
+}
+
+void EventFactoryWayland::WillDestroyCurrentMessageLoop()
+{
+  DCHECK(base::MessageLoop::current());
+  if (loop_) {
+    if (WaylandDisplay::GetDisplay() && WaylandDisplay::GetDisplay()->Dispatcher())
+      WaylandDisplay::GetDisplay()->Dispatcher()->StopPolling();
+
+    watcher_.StopWatchingFileDescriptor();
+    base::MessageLoop::current()->RemoveDestructionObserver(this);
+    base::MessageLoop::current()->RemoveTaskObserver(this);
+    loop_ = NULL;
+  }
 }
 
 }  // namespace ui
