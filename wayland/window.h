@@ -22,6 +22,7 @@ namespace ui {
 
 class WaylandDisplay;
 class WaylandSurface;
+class EGLWindow;
 
 // WaylandWindow wraps a wl_surface and some basic operations for the surface.
 class WaylandWindow {
@@ -53,7 +54,7 @@ class WaylandWindow {
   // The WaylandWindow object owns the pointer.
   WaylandSurface* surface() const { return surface_; }
   wl_shell_surface* shell_surface() const { return shell_surface_; }
-  wl_egl_window* egl_window() const { return window_; }
+  wl_egl_window* egl_window() const;
 
   void SetBounds(const gfx::Rect& new_bounds);
   gfx::Rect GetBounds() const;
@@ -62,8 +63,9 @@ class WaylandWindow {
   void ScheduleResize(int32_t width, int32_t height);
   void SchedulePaintInRect(const gfx::Rect& rect);
   void ScheduleFlush();
+  void RealizeAcceleratedWidget();
 
-  virtual void OnResize();
+  virtual void OnResize() { }
 
   const Windows& GetChildren() const { return children_; }
   void AddChild(WaylandWindow* child);
@@ -80,6 +82,8 @@ class WaylandWindow {
 
  private:
   static void FreeSurface(void *data, wl_callback *callback, uint32_t time);
+  void HandleResize(int32_t width, int32_t height);
+  void Resize();
 
   enum WindowType{
     TYPE_TOPLEVEL,
@@ -126,10 +130,9 @@ class WaylandWindow {
   gfx::Rect allocation_;
   gfx::Rect saved_allocation_;
   gfx::Rect server_allocation_;
-  gfx::Rect pending_allocation_;
   WindowType type_;
   bool resize_scheduled_;
-  wl_egl_window *window_;
+  EGLWindow* window_;
 
   // Child windows. Topmost is last.
   Windows children_;
