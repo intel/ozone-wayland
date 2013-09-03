@@ -16,7 +16,6 @@
 
 #include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
-#include "ozone/wayland/task.h"
 
 namespace ui {
 
@@ -49,29 +48,12 @@ class WaylandDisplay {
 
   wl_shm* shm() const { return shm_; }
 
-  void AddWindow(WaylandWindow* window);
-
-  void RemoveWindow(WaylandWindow* window);
-
-  bool IsWindow(WaylandWindow* window);
-
-  void AddTask(WaylandTask* task);
-
   // Ensures display is flushed when
   // FlushTasks is called. This is only for
   // convenience.
   void addPendingTask() { handle_flush_ = true; }
 
-  // Returns true if any pending tasks have been handled
-  // otherwise returns false.
-  bool ProcessTasks();
-
-  // The call has no effect unless there are any pending
-  // WaylandTasks, otherwise similar to Flush.
-  void FlushTasks();
-
-  // Handle any pending Wayland tasks and send
-  // all buffered data on client side to server.
+  // Send all buffered data on client side to server.
   void Flush();
 
   // Handle all pending events in queue.
@@ -116,8 +98,6 @@ class WaylandDisplay {
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
-  std::list<WaylandTask*> task_list_;
-  std::list<WaylandWindow*> window_list_;
   WaylandInputMethodEventFilter *input_method_filter_;
 
   uint32_t serial_;
