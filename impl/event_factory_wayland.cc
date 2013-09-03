@@ -30,11 +30,15 @@ EventFactoryWayland::EventFactoryWayland()
   CHECK(success);
 
   dis->FlushTasks();
-  base::MessageLoop::current()->AddTaskObserver(this);
+  loop_ = base::MessageLoop::current();
+
+  if (loop_) {
+    loop_->AddDestructionObserver(this);
+    loop_->AddTaskObserver(this);
+  }
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
-  watcher_.StopWatchingFileDescriptor();
 }
 
 EventFactoryWayland* EventFactoryWayland::GetInstance() {
@@ -75,6 +79,17 @@ void EventFactoryWayland::DidProcessTask(
     return;
 
   WaylandDisplay::GetDisplay()->Flush();
+}
+
+void EventFactoryWayland::WillDestroyCurrentMessageLoop()
+{
+  DCHECK(base::MessageLoop::current());
+  if (loop_) {
+    watcher_.StopWatchingFileDescriptor();
+    base::MessageLoop::current()->RemoveDestructionObserver(this);
+    base::MessageLoop::current()->RemoveTaskObserver(this);
+    loop_ = NULL;
+  }
 }
 
 }  // namespace ui
