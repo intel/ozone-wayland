@@ -30,12 +30,9 @@ EventFactoryWayland::EventFactoryWayland()
   CHECK(success);
 
   dis->FlushTasks();
-  loop_ = base::MessageLoop::current();
-
-  if (loop_) {
-    loop_->AddDestructionObserver(this);
-    loop_->AddTaskObserver(this);
-  }
+  DCHECK(base::MessageLoop::current());
+  base::MessageLoop::current()->AddDestructionObserver(this);
+  base::MessageLoop::current()->AddTaskObserver(this);
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
@@ -84,12 +81,9 @@ void EventFactoryWayland::DidProcessTask(
 void EventFactoryWayland::WillDestroyCurrentMessageLoop()
 {
   DCHECK(base::MessageLoop::current());
-  if (loop_) {
     watcher_.StopWatchingFileDescriptor();
     base::MessageLoop::current()->RemoveDestructionObserver(this);
     base::MessageLoop::current()->RemoveTaskObserver(this);
-    loop_ = NULL;
-  }
 }
 
 }  // namespace ui
