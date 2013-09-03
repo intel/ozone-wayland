@@ -28,8 +28,6 @@ EventFactoryWayland::EventFactoryWayland()
                             &watcher_,
                             this);
   CHECK(success);
-
-  dis->FlushTasks();
   DCHECK(base::MessageLoop::current());
   base::MessageLoop::current()->AddDestructionObserver(this);
   base::MessageLoop::current()->AddTaskObserver(this);
