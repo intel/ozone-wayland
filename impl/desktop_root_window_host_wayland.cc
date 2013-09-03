@@ -76,8 +76,17 @@ ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
 void DesktopRootWindowHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
 
-  window_ = ui::SurfaceFactoryOzone::GetInstance()->GetAcceleratedWidget();
-  ui::SurfaceFactoryOzone::GetInstance()->AttemptToResizeAcceleratedWidget(window_, params.bounds);
+  ui::SurfaceFactoryOzone* surface_factory =
+          ui::SurfaceFactoryOzone::GetInstance();
+  ui::SurfaceFactoryOzone::HardwareState displayInitialization =
+          surface_factory->InitializeHardware();
+  if (displayInitialization != ui::SurfaceFactoryOzone::INITIALIZED) {
+    LOG(ERROR) << "DesktopRootWindowHostWayland failed to initialize hardware";
+    return;
+  }
+
+  window_ = surface_factory->GetAcceleratedWidget();
+  surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
 }
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
