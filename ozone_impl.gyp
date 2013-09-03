@@ -46,6 +46,8 @@
         '../..',
       ],
       'sources': [
+        'wayland/egl/egl_window.cc',
+        'wayland/egl/egl_window.h',
         'wayland/cursor.cc',
         'wayland/cursor.h',
         'wayland/display.cc',
