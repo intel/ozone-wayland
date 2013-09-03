@@ -29,7 +29,6 @@ EventFactoryWayland::EventFactoryWayland()
                             this);
   CHECK(success);
 
-  dis->FlushTasks();
   base::MessageLoop::current()->AddTaskObserver(this);
 }
 

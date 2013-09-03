@@ -20,69 +20,6 @@
 
 namespace ui {
 
-// static
-BoundsChangeType WaylandInputDevice::GetBoundsChangeForWindowComponent(int component)
-{
-  BoundsChangeType bounds_change = kBoundsChange_None;
-  switch (component) {
-    case HTCAPTION:
-      bounds_change = kBoundsChange_Repositions;
-      break;
-    case HTTOPLEFT:
-    case HTTOP:
-    case HTTOPRIGHT:
-    case HTLEFT:
-    case HTBOTTOMLEFT:
-    case HTRIGHT:
-    case HTBOTTOMRIGHT:
-    case HTBOTTOM:
-      //case HTGROWBOX:
-      bounds_change = kBoundsChange_Resizes;
-      break;
-    default:
-      break;
-  }
-  return bounds_change;
-}
-
-// static
-WindowLocation WaylandInputDevice::GetLocationForWindowComponent(int component)
-{
-  WindowLocation location = WINDOW_INTERIOR;
-  switch (component) {
-    case HTCAPTION:
-      location = WINDOW_TITLEBAR;
-      break;
-    case HTTOPLEFT:
-      location = WINDOW_RESIZING_TOP_LEFT;
-      break;
-    case HTTOP:
-      location = WINDOW_RESIZING_TOP;
-      break;
-    case HTTOPRIGHT:
-      location = WINDOW_RESIZING_TOP_RIGHT;
-      break;
-    case HTLEFT:
-      location = WINDOW_RESIZING_LEFT;
-      break;
-    case HTBOTTOMLEFT:
-      location = WINDOW_RESIZING_BOTTOM_LEFT;
-      break;
-    case HTRIGHT:
-      location = WINDOW_RESIZING_RIGHT;
-      break;
-    case HTBOTTOMRIGHT:
-      location = WINDOW_RESIZING_BOTTOM_RIGHT;
-      break;
-    case HTBOTTOM:
-      location = WINDOW_RESIZING_BOTTOM;
-      break;
-    default:
-      break;
-  }
-  return location;
-}
-
 static WaylandCursor::CursorType cursorType(WindowLocation location)
 {
     switch (location) {
@@ -396,7 +333,7 @@ void WaylandInputDevice::OnPointerEnter(void* data,
       device->pointer_position_,
       /* flags */ 0));
 
-  DispatchEvent(mouseev.PassAs<ui::Event>()); 
+  DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandInputDevice::OnPointerLeave(void* data,

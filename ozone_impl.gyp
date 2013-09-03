@@ -63,8 +63,6 @@
         'wayland/screen.h',
         'wayland/surface.h',
         'wayland/surface.cc',
-        'wayland/task.cc',
-        'wayland/task.h',
         'wayland/window.cc',
         'wayland/window.h',
       ],

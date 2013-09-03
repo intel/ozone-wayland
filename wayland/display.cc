@@ -81,48 +81,8 @@ WaylandDisplay::~WaylandDisplay()
   terminate();
 }
 
-void WaylandDisplay::AddWindow(WaylandWindow* window)
-{
-  if(window) {
-    window_list_.push_back(window);
-    handle_flush_ = true;
-  }
-}
-
-void WaylandDisplay::AddTask(WaylandTask* task)
-{
-  if(task)
-    task_list_.push_back(task);
-}
-
-bool WaylandDisplay::ProcessTasks()
-{
-  WaylandTask *task = NULL;
-  if (task_list_.empty())
-      return false;
-
-  while(!task_list_.empty())
-  {
-    task = task_list_.front();
-    task->Run();
-    task_list_.pop_front();
-    delete task;
-  }
-
-  return true;
-}
-
-void WaylandDisplay::FlushTasks()
-{
-  if (!handle_flush_ && task_list_.empty())
-      return;
-
-  Flush();
-}
-
 void WaylandDisplay::Flush()
 {
-  ProcessTasks();
   while (wl_display_prepare_read(display_) != 0)
       wl_display_dispatch_pending(display_);
 
@@ -132,46 +92,6 @@ void WaylandDisplay::Flush()
   handle_flush_ = false;
 }
 
-void WaylandDisplay::RemoveWindow(WaylandWindow* window)
-{
-  if(!window)
-    return;
-
-  WaylandTask *task = NULL;
-  handle_flush_ = true;
-
-  for (std::list<WaylandTask*>::iterator i = task_list_.begin();
-      i != task_list_.end(); ++i) {
-    if((*i)->GetWindow() == window)
-    {
-      delete *i;
-      i = task_list_.erase(i);
-    }
-  }
-
-  for (std::list<WaylandWindow*>::iterator i = window_list_.begin();
-      i != window_list_.end(); ++i) {
-    if((*i) == window)
-    {
-      i = window_list_.erase(i);
-      break;
-    }
-  }
-}
-
-bool WaylandDisplay::IsWindow(WaylandWindow* window)
-{
-  for (std::list<WaylandWindow*>::iterator i = window_list_.begin();
-      i != window_list_.end(); ++i) {
-    if((*i) == window)
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 InputMethod* WaylandDisplay::GetInputMethod() const
 {
   return input_method_filter_ ? input_method_filter_->GetInputMethod(): NULL;
@@ -179,16 +99,6 @@ InputMethod* WaylandDisplay::GetInputMethod() const
 
 void WaylandDisplay::terminate()
 {
-  if (window_list_.size() > 0) {
-    fprintf(stderr, "warning: windows exist.\n");
-    window_list_.erase(window_list_.begin(), window_list_.end());
-  }
-
-  for (std::list<WaylandTask*>::iterator i = task_list_.begin();
-      i != task_list_.end(); ++i) {
-      delete *i;
-  }
-
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
       delete *i;
@@ -201,7 +111,6 @@ void WaylandDisplay::terminate()
 
   screen_list_.clear();
   input_list_.clear();
-  task_list_.clear();
 
   if (queue_) {
     wl_event_queue_destroy(queue_);
@@ -236,9 +145,9 @@ std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {
 
 void WaylandDisplay::SyncCallback(void *data, struct wl_callback *callback, uint32_t serial)
 {
-    int* done = static_cast<int*>(data);
-    *done = 1;
-    wl_callback_destroy(callback);
+  int* done = static_cast<int*>(data);
+  *done = 1;
+  wl_callback_destroy(callback);
 }
 
 int WaylandDisplay::SyncDisplay()
@@ -246,7 +155,6 @@ int WaylandDisplay::SyncDisplay()
   if (!queue_)
     return -1;
 
-  ProcessTasks();
   int done = 0, ret = 0;
   handle_flush_ = false;
   struct wl_callback* callback = wl_display_sync(display_);
@@ -271,7 +179,7 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
 
   if (strcmp(interface, "wl_compositor") == 0) {
     disp->compositor_ = static_cast<wl_compositor*>(
-        wl_registry_bind(registry, name, &wl_compositor_interface, 1));
+    wl_registry_bind(registry, name, &wl_compositor_interface, 1));
   } else if (strcmp(interface, "wl_output") == 0) {
     WaylandScreen* screen = new WaylandScreen(disp, name);
     disp->screen_list_.push_back(screen);
@@ -282,10 +190,10 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     disp->input_list_.push_back(input_device);
   } else if (strcmp(interface, "wl_shell") == 0) {
     disp->shell_ = static_cast<wl_shell*>(
-        wl_registry_bind(registry, name, &wl_shell_interface, 1));
+    wl_registry_bind(registry, name, &wl_shell_interface, 1));
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
-        wl_registry_bind(registry, name, &wl_shm_interface, 1));
+    wl_registry_bind(registry, name, &wl_shm_interface, 1));
   }
 }
 

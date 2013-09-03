@@ -40,10 +40,6 @@ class WaylandInputDevice {
   WaylandInputDevice(WaylandDisplay* display, uint32_t id);
   ~WaylandInputDevice();
 
-  // Returns a bitmask of the kBoundsChange_ values.
-  static BoundsChangeType GetBoundsChangeForWindowComponent(int component);
-  static WindowLocation GetLocationForWindowComponent(int component);
-
   wl_seat* GetInputSeat() { return input_seat_; }
   WaylandCursor* cursor() { return cursor_; }
 
