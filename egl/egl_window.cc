@@ -5,8 +5,6 @@
 #include "ozone/egl/egl_window.h"
 
 #include "ozone/wayland/surface.h"
-#include "ozone/wayland/dispatcher.h"
-
 #include <wayland-egl.h>
 
 namespace ui {
@@ -15,7 +13,8 @@ EGLWindow::EGLWindow(struct wl_surface* surface, int32_t width, int32_t height)
     : window_(NULL)
 {
   allocation_ = gfx::Rect(0, 0, width, height);
-  window_ = wl_egl_window_create(surface, allocation_.width(), allocation_.height());
+  window_ = wl_egl_window_create(surface, allocation_.width(),
+                                 allocation_.height());
 }
 
 EGLWindow::~EGLWindow() {
@@ -29,7 +28,8 @@ void EGLWindow::Resize(int32_t width, int32_t height)
   if (!window_)
     return;
 
-  wl_egl_window_resize(window_, allocation_.x(), allocation_.y(), allocation_.width(), allocation_.height());
+  wl_egl_window_resize(window_, allocation_.x(), allocation_.y(),
+                       allocation_.width(), allocation_.height());
   // (kalyan) handle window resize.
 }
 
