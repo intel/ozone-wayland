@@ -213,7 +213,8 @@ void WaylandWindow::Resize()
 void WaylandWindow::RealizeAcceleratedWidget()
 {
   if (!window_)
-      window_ = new EGLWindow(surface_->wlSurface(), allocation_.width(), allocation_.height());
+      window_ = new EGLWindow(surface_->wlSurface(), allocation_.width(),
+                              allocation_.height());
 }
 
 void WaylandWindow::ScheduleFlush()
