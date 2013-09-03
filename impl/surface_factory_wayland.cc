@@ -86,7 +86,6 @@ SurfaceFactoryWayland::SurfaceFactoryWayland()
       root_window_(NULL),
       spec_(NULL)
 {
-  WaylandDisplay::Connect();
   LOG(INFO) << "Ozone: SurfaceFactoryWayland";
 }
 
@@ -100,6 +99,9 @@ SurfaceFactoryWayland::~SurfaceFactoryWayland()
 
 SurfaceFactoryOzone::HardwareState SurfaceFactoryWayland::InitializeHardware()
 {
+  if (!WaylandDisplay::GetDisplay())
+    WaylandDisplay::Connect();
+
   return WaylandDisplay::GetDisplay()->display() ? SurfaceFactoryOzone::INITIALIZED : SurfaceFactoryOzone::FAILED;
 }
 
