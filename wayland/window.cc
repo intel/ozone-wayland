@@ -5,16 +5,11 @@
 
 #include "ozone/wayland/window.h"
 
-#include <wayland-egl.h>
 #include "base/logging.h"
+#include "ozone/egl/egl_window.h"
 #include "ozone/wayland/surface.h"
-#include "ozone/wayland/task.h"
 #include "ozone/wayland/input_device.h"
 #include "ui/gl/gl_surface.h"
-
-#include <GL/gl.h>
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 
 #include <algorithm>
 
@@ -22,19 +17,13 @@ namespace ui {
 
 WaylandWindow::WaylandWindow()
     : parent_window_(NULL),
-    user_data_(NULL),
     relative_position_(),
     surface_(NULL),
     shell_surface_(NULL),
-    fullscreen_(false),
     window_(NULL),
-    resize_scheduled_(false),
     type_(TYPE_TOPLEVEL),
-    resize_edges_(0),
     allocation_(gfx::Rect(0, 0, 0, 0)),
-    server_allocation_(gfx::Rect(0, 0, 0, 0)),
-    saved_allocation_(gfx::Rect(0, 0, 0, 0)),
-    pending_allocation_(gfx::Rect(0, 0, 0, 0))
+    fullscreen_(false)
 {
   WaylandDisplay* display = WaylandDisplay::GetDisplay();
   if (!display)
@@ -61,11 +50,11 @@ WaylandWindow::WaylandWindow()
     wl_shell_surface_add_listener(shell_surface_,
         &shell_surface_listener, this);
   }
+}
 
-  allocation_.SetRect(0, 0, 0, 0);
-  saved_allocation_ = allocation_;
-
-  display->AddWindow(this);
+wl_egl_window* WaylandWindow::egl_window() const
+{
+  return window_ ? window_->egl_window() : 0;
 }
 
 void WaylandWindow::SetType()
@@ -93,39 +82,6 @@ void WaylandWindow::SetType()
   }
 }
 
-void WaylandWindow::GetResizeDelta(int &x, int &y)
-{
-  if (resize_edges_ & WINDOW_RESIZING_LEFT)
-    x = server_allocation_.width() - allocation_.width();
-  else
-    x = 0;
-
-  if (resize_edges_ & WINDOW_RESIZING_TOP)
-    y = server_allocation_.height() - allocation_.height();
-  else
-    y = 0;
-
-  resize_edges_ = 0;
-}
-
-void WaylandWindow::AddChild(WaylandWindow* child)
-{
-  DCHECK(std::find(children_.begin(), children_.end(), child) ==
-      children_.end());
-  if (child->GetParentWindow())
-    child->GetParentWindow()->RemoveChild(child);
-  child->parent_window_ = this;
-  children_.push_back(child);
-}
-
-void WaylandWindow::RemoveChild(WaylandWindow* child)
-{
-  Windows::iterator i = std::find(children_.begin(), children_.end(), child);
-  DCHECK(i != children_.end());
-  child->parent_window_ = NULL;
-  children_.erase(i);
-}
-
 void WaylandWindow::SetParentWindow(WaylandWindow* parent_window)
 {
   if (fullscreen_) {
@@ -136,15 +92,12 @@ void WaylandWindow::SetParentWindow(WaylandWindow* parent_window)
     type_ = TYPE_TRANSIENT;
   }
 
-  if(parent_window)
-    parent_window->AddChild(this);
-
-    SetType();
+  SetType();
 }
 
 gfx::Rect WaylandWindow::GetBounds() const
 {
-  gfx::Rect rect = resize_scheduled_ ? pending_allocation_ : allocation_;
+  gfx::Rect rect = allocation_;
 
   if(type_ == TYPE_TRANSIENT && parent_window_)
     rect.set_origin(relative_position_);
@@ -160,62 +113,46 @@ void WaylandWindow::SetBounds(const gfx::Rect& new_bounds)
     relative_position_ = new_bounds.origin();
   }
 
-  ScheduleResize(new_bounds.width(), new_bounds.height());
-}
-
-void WaylandWindow::Show()
-{
-  NOTIMPLEMENTED();
-}
-
-void WaylandWindow::Hide()
-{
-  NOTIMPLEMENTED();
+  HandleResize(new_bounds.width(), new_bounds.height());
 }
 
 WaylandWindow::~WaylandWindow() {
-  if (window_)
-    wl_egl_window_destroy(window_);
+  if (window_) {
+    delete window_;
+    window_ = NULL;
+  }
 
   if (surface_)
   {
     delete surface_;
     surface_ = NULL;
   }
-
-  WaylandDisplay::GetDisplay()->RemoveWindow(this);
 }
 
-bool WaylandWindow::IsVisible() const {
-  return surface_ != NULL;
+void WaylandWindow::HandleResize(int32_t width, int32_t height)
+{
+  if ((width == allocation_.width()) && (allocation_.height() == height))
+      return;
+
+  allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);
+  Resize();
 }
 
-void WaylandWindow::ScheduleResize(int32_t width, int32_t height)
+void WaylandWindow::Resize()
 {
   if (!window_) {
-    window_ = wl_egl_window_create(surface_->wlSurface(), width, height);
-    allocation_ = gfx::Rect(0, 0, width, height);
+    RealizeAcceleratedWidget();
     return;
   }
 
-  pending_allocation_ = gfx::Rect(0, 0, width, height);
-  if(IsVisible() && !resize_scheduled_ && pending_allocation_ != allocation_)
-  {
-    WaylandResizeTask *task = new WaylandResizeTask(this);
-    WaylandDisplay::GetDisplay()->AddTask(task);
-
-    resize_scheduled_ = true;
-  }
+  window_->Resize(allocation_.width(), allocation_.height());
 }
 
-void WaylandWindow::ScheduleFlush()
+void WaylandWindow::RealizeAcceleratedWidget()
 {
-    WaylandDisplay::GetDisplay()->addPendingTask();
-}
-
-void WaylandWindow::SchedulePaintInRect(const gfx::Rect& rect)
-{
-  ScheduleFlush();
+  if (!window_)
+    window_ = new EGLWindow(surface_->wlSurface(), allocation_.width(),
+                            allocation_.height());
 }
 
 void WaylandWindow::HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
@@ -226,8 +163,7 @@ void WaylandWindow::HandleConfigure(void *data, struct wl_shell_surface *shell_s
   if (width <= 0 || height <= 0)
     return;
 
-  window->resize_edges_ = edges;
-  window->ScheduleResize(width, height);
+  window->HandleResize(width, height);
 }
 
 void WaylandWindow::HandlePopupDone(void *data, struct wl_shell_surface *shell_surface)
@@ -237,13 +173,6 @@ void WaylandWindow::HandlePopupDone(void *data, struct wl_shell_surface *shell_s
 void WaylandWindow::HandlePing(void *data, struct wl_shell_surface *shell_surface, uint32_t serial)
 {
   wl_shell_surface_pong(shell_surface, serial);
-}
-
-void WaylandWindow::OnResize()
-{
-  resize_scheduled_ = false;
-  if (pending_allocation_ != allocation_)
-    allocation_ = pending_allocation_;
 }
 
 }  // namespace ui
