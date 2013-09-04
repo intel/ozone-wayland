@@ -13,13 +13,14 @@
 
 namespace ui {
 
-WaylandWindow::WaylandWindow()
+WaylandWindow::WaylandWindow(ShellType type)
     : shell_surface_(NULL),
     window_(NULL),
-    type_(None),
+    type_(type),
     allocation_(gfx::Rect(0, 0, 1, 1))
 {
-  shell_surface_ = new WaylandShellSurface(this);
+  if (type_ != None)
+    shell_surface_ = new WaylandShellSurface(this);
 }
 
 WaylandWindow::~WaylandWindow() {
@@ -59,11 +60,6 @@ void WaylandWindow::SetShellType(ShellType type)
     default:
       break;
   }
-}
-
-void WaylandWindow::SetParentWindow(WaylandWindow* parent_window)
-{
-  SetShellType(TOPLEVEL);
 }
 
 void WaylandWindow::SetBounds(const gfx::Rect& new_bounds)

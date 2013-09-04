@@ -124,10 +124,8 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
   if (!e_factory)
     InitializeWaylandEvent();
 
-  if (!root_window_)  {
+  if (!root_window_)
     root_window_ = new WaylandWindow();
-    root_window_->SetParentWindow(NULL);
-  }
 
   return (gfx::AcceleratedWidget)root_window_;
 }

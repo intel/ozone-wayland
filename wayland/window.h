@@ -29,11 +29,11 @@ class WaylandWindow {
   typedef unsigned ShellType;
 
   // Creates a toplevel window.
-  WaylandWindow();
+  WaylandWindow(ShellType type = TOPLEVEL);
   ~WaylandWindow();
 
   void SetShellType(ShellType type);
-  void SetParentWindow(WaylandWindow* parent_window);
+  ShellType Type() const { return type_; }
   void RealizeAcceleratedWidget();
 
   // Returns pointer to egl window associated with the window.

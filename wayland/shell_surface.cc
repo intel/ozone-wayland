@@ -6,6 +6,7 @@
 #include "ozone/wayland/surface.h"
 
 #include "base/logging.h"
+
 namespace ui {
 
 WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
@@ -17,8 +18,10 @@ WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
       return;
 
   surface_ = new WaylandSurface();
-  if (display->shell())
+  if (display->shell()) {
     shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_->wlSurface());
+    UpdateShellSurface(window->Type());
+  }
 
   if (shell_surface_)
   {
