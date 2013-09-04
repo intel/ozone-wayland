@@ -60,8 +60,6 @@ class WaylandDisplay {
   // Forces a round trip to server.
   int SyncDisplay();
 
-  InputMethod* GetInputMethod() const;
-
   void SetSerial(uint32_t serial) { serial_ = serial; }
 
   uint32_t GetSerial() const { return serial_; }
@@ -98,7 +96,6 @@ class WaylandDisplay {
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
-  WaylandInputMethodEventFilter *input_method_filter_;
 
   uint32_t serial_;
   bool handle_flush_ :1;

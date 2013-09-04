@@ -13,7 +13,6 @@
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/cursor.h"
-#include "ozone/wayland/input_method_event_filter.h"
 
 namespace ui {
 
@@ -62,7 +61,6 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
     WaylandDisplay::DisplayHandleGlobal
   };
 
-  input_method_filter_ = new WaylandInputMethodEventFilter;
   registry_ = wl_display_get_registry(display_);
   wl_registry_add_listener(registry_, &registry_listener, this);
 
@@ -90,11 +88,6 @@ void WaylandDisplay::Flush()
   wl_display_read_events(display_);
   wl_display_dispatch_pending(display_);
   handle_flush_ = false;
-}
-
-InputMethod* WaylandDisplay::GetInputMethod() const
-{
-  return input_method_filter_ ? input_method_filter_->GetInputMethod(): NULL;
 }
 
 void WaylandDisplay::terminate()
@@ -130,8 +123,6 @@ void WaylandDisplay::terminate()
 
   if (registry_)
       wl_registry_destroy(registry_);
-
-  delete input_method_filter_;
 
   if (display_) {
     wl_display_flush(display_);
