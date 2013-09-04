@@ -59,6 +59,8 @@
         'wayland/input_method_event_filter.h',
         "wayland/kbd_conversion.cc",
         "wayland/kbd_conversion.h",
+        "wayland/keyboard.cc",
+        "wayland/keyboard.h",
         "wayland/pointer.cc",
         "wayland/pointer.h",
         'wayland/screen.cc',
