@@ -12,7 +12,9 @@ namespace ui {
 
 WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
   :input_keyboard_(NULL),
-   input_pointer_(NULL)
+   input_pointer_(NULL),
+   input_method_filter_(NULL)
+
 {
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
@@ -34,6 +36,9 @@ WaylandInputDevice::~WaylandInputDevice()
 
   if (input_seat_)
     wl_seat_destroy(input_seat_);
+
+  if (input_method_filter_)
+    delete input_method_filter_;
 }
 
 void WaylandInputDevice::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t caps)
@@ -58,6 +63,14 @@ void WaylandInputDevice::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t 
 
   if (device->input_pointer_)
     device->input_pointer_->OnSeatCapabilities(seat, caps);
+}
+
+InputMethod* WaylandInputDevice::GetInputMethod() const
+{
+  if (!input_method_filter_)
+    input_method_filter_ = new WaylandInputMethodEventFilter;
+
+  input_method_filter_->GetInputMethod();
 }
 
 }  // namespace ui
