@@ -63,6 +63,8 @@
         'wayland/screen.h',
         'wayland/surface.h',
         'wayland/surface.cc',
+        'wayland/shell_surface.h',
+        'wayland/shell_surface.cc',
         'wayland/window.cc',
         'wayland/window.h',
       ],
