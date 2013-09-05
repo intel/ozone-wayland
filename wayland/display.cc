@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "base/message_loop/message_loop.h"
+#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
@@ -51,7 +52,8 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
     shm_(NULL),
     queue_(NULL),
     primary_screen_(NULL),
-    handle_flush_(false)
+    handle_flush_(false),
+    dispatcher_(NULL)
 {
   display_ = wl_display_connect(name);
   if (!display_)
@@ -72,6 +74,7 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
   wl_display_set_user_data(display_, this);
   queue_ = wl_display_create_queue(display_);
   wl_proxy_set_queue((struct wl_proxy *)registry_, queue_);
+  dispatcher_ = new WaylandDispatcher();
 }
 
 WaylandDisplay::~WaylandDisplay()
@@ -123,6 +126,11 @@ void WaylandDisplay::terminate()
 
   if (registry_)
       wl_registry_destroy(registry_);
+
+  if (dispatcher_) {
+    delete dispatcher_;
+    dispatcher_ = NULL;
+  }
 
   if (display_) {
     wl_display_flush(display_);

@@ -5,11 +5,9 @@
 #include "ozone/wayland/pointer.h"
 
 #include "ozone/wayland/cursor.h"
+#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/global.h"
 
-#include "base/bind.h"
-#include "base/message_loop/message_loop.h"
-#include "base/message_loop/message_pump_ozone.h"
 #include "ui/base/events/event.h"
 #include "ui/base/hit_test.h"
 
@@ -18,7 +16,8 @@
 namespace ui {
 
 WaylandPointer::WaylandPointer()
-  : cursor_(NULL)
+  : cursor_(NULL),
+    dispatcher_(NULL)
 {
 }
 
@@ -28,15 +27,6 @@ WaylandPointer::~WaylandPointer()
     delete cursor_;
     cursor_ = NULL;
   }
-}
-
-void WaylandPointer::DispatchEventHelper(scoped_ptr<ui::Event> key) {
-  base::MessagePumpOzone::Current()->Dispatch(key.get());
-}
-
-void WaylandPointer::DispatchEvent(scoped_ptr<ui::Event> event) {
-  base::MessageLoop::current()->PostTask(
-      FROM_HERE, base::Bind(&DispatchEventHelper, base::Passed(&event)));
 }
 
 void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
@@ -51,6 +41,8 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
 
   if (!cursor_)
    cursor_ = new WaylandCursor(WaylandDisplay::GetDisplay()->shm());
+
+  dispatcher_ = WaylandDisplay::GetDisplay()->Dispatcher();
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !cursor_->GetInputPointer()) {
     wl_pointer* input_pointer = wl_seat_get_pointer(seat);
@@ -80,7 +72,8 @@ void WaylandPointer::OnMotionNotify(void* data,
       gfx::Point(sx, sy),
       gfx::Point(sx, sy),
       /* flags */ 0));
-   DispatchEvent(mouseev.PassAs<ui::Event>());
+
+  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandPointer::OnAxisNotify(void* data,
@@ -113,7 +106,7 @@ void WaylandPointer::OnAxisNotify(void* data,
       x_offset,
       y_offset));
 
-  DispatchEvent(wheelev.PassAs<ui::Event>());
+  device->dispatcher_->DispatchEvent(wheelev.PassAs<ui::Event>());
 }
 
 void WaylandPointer::OnButtonNotify(void* data,
@@ -145,7 +138,7 @@ void WaylandPointer::OnButtonNotify(void* data,
       device->pointer_position_,
       flags));
 
-  DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandPointer::OnPointerEnter(void* data,
@@ -166,7 +159,7 @@ void WaylandPointer::OnPointerEnter(void* data,
       device->pointer_position_,
       /* flags */ 0));
 
-  DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 void WaylandPointer::OnPointerLeave(void* data,
@@ -181,7 +174,7 @@ void WaylandPointer::OnPointerLeave(void* data,
       device->pointer_position_,
       /* flags */ 0));
 
-  DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
 }
 
 }  // namespace ui

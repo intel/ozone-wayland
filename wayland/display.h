@@ -25,6 +25,7 @@ class WaylandScreen;
 class WaylandWindow;
 class WaylandInputMethodEventFilter;
 class InputMethod;
+class WaylandDispatcher;
 
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
@@ -65,6 +66,7 @@ class WaylandDisplay {
   uint32_t GetSerial() const { return serial_; }
 
   wl_compositor* GetCompositor() { return compositor_; }
+  WaylandDispatcher* Dispatcher() const { return dispatcher_; }
 
   // callback.
   static void SyncCallback(void *data, struct wl_callback *callback, uint32_t serial);
@@ -93,6 +95,7 @@ class WaylandDisplay {
   wl_shm* shm_;
   struct wl_event_queue* queue_;
   WaylandScreen* primary_screen_;
+  WaylandDispatcher* dispatcher_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
