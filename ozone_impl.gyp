@@ -52,6 +52,8 @@
         'wayland/cursor.h',
         'wayland/display.cc',
         'wayland/display.h',
+        'wayland/dispatcher.cc',
+        'wayland/dispatcher.h',
         'wayland/global.h',
         'wayland/input_device.cc',
         'wayland/input_device.h',

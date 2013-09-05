@@ -4,11 +4,8 @@
 
 #include "ozone/wayland/keyboard.h"
 
+#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/kbd_conversion.h"
-
-#include "base/bind.h"
-#include "base/message_loop/message_loop.h"
-#include "base/message_loop/message_pump_ozone.h"
 #include "ui/base/events/event.h"
 #include <sys/mman.h>
 
@@ -16,7 +13,8 @@ namespace ui {
 
 WaylandKeyboard::WaylandKeyboard()
   : input_keyboard_(NULL),
-    keyboard_modifiers_(0)
+    keyboard_modifiers_(0),
+    dispatcher_(NULL)
 {
   xkb_.context = NULL;
 }
@@ -49,15 +47,6 @@ void WaylandKeyboard::FiniXKB()
     xkb_context_unref(xkb_.context);
 }
 
-void WaylandKeyboard::DispatchEventHelper(scoped_ptr<ui::Event> key) {
-  base::MessagePumpOzone::Current()->Dispatch(key.get());
-}
-
-void WaylandKeyboard::DispatchEvent(scoped_ptr<ui::Event> event) {
-  base::MessageLoop::current()->PostTask(
-      FROM_HERE, base::Bind(&DispatchEventHelper, base::Passed(&event)));
-}
-
 void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
 {
   static const struct wl_keyboard_listener kInputKeyboardListener = {
@@ -68,6 +57,7 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
     WaylandKeyboard::OnKeyModifiers,
   };
 
+  dispatcher_ = WaylandDisplay::GetDisplay()->Dispatcher();
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
     InitXKB();
     input_keyboard_ = wl_seat_get_keyboard(seat);
@@ -122,7 +112,7 @@ void WaylandKeyboard::OnKeyNotify(void* data,
       device->keyboard_modifiers_,
       true));
 
-  DispatchEvent(keyev.PassAs<ui::Event>());
+  device->dispatcher_->DispatchEvent(keyev.PassAs<ui::Event>());
 }
 
 void WaylandKeyboard::OnKeyModifiers(void *data, wl_keyboard *keyboard,

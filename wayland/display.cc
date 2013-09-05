@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "base/message_loop/message_loop.h"
+#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
@@ -17,9 +18,6 @@
 namespace ui {
 
 WaylandDisplay* g_display = NULL;
-static const struct wl_callback_listener syncListener = {
-    WaylandDisplay::SyncCallback
-};
 
 WaylandDisplay* WaylandDisplay::GetDisplay()
 {
@@ -49,9 +47,8 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
     compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
-    queue_(NULL),
     primary_screen_(NULL),
-    handle_flush_(false)
+    dispatcher_(NULL)
 {
   display_ = wl_display_connect(name);
   if (!display_)
@@ -65,29 +62,16 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
   wl_registry_add_listener(registry_, &registry_listener, this);
 
   if (wl_display_roundtrip(display_) < 0) {
-      terminate();
-      return;
+    terminate();
+    return;
   }
 
-  wl_display_set_user_data(display_, this);
-  queue_ = wl_display_create_queue(display_);
-  wl_proxy_set_queue((struct wl_proxy *)registry_, queue_);
+  dispatcher_ = new WaylandDispatcher();
 }
 
 WaylandDisplay::~WaylandDisplay()
 {
   terminate();
-}
-
-void WaylandDisplay::Flush()
-{
-  while (wl_display_prepare_read(display_) != 0)
-      wl_display_dispatch_pending(display_);
-
-  wl_display_flush(display_);
-  wl_display_read_events(display_);
-  wl_display_dispatch_pending(display_);
-  handle_flush_ = false;
 }
 
 void WaylandDisplay::terminate()
@@ -105,11 +89,6 @@ void WaylandDisplay::terminate()
   screen_list_.clear();
   input_list_.clear();
 
-  if (queue_) {
-    wl_event_queue_destroy(queue_);
-    queue_ = 0;
-  }
-
   WaylandCursor::Clear();
 
   if (compositor_)
@@ -124,6 +103,11 @@ void WaylandDisplay::terminate()
   if (registry_)
       wl_registry_destroy(registry_);
 
+  if (dispatcher_) {
+    delete dispatcher_;
+    dispatcher_ = NULL;
+  }
+
   if (display_) {
     wl_display_flush(display_);
     wl_display_disconnect(display_);
@@ -132,30 +116,6 @@ void WaylandDisplay::terminate()
 
 std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {
   return screen_list_;
-}
-
-void WaylandDisplay::SyncCallback(void *data, struct wl_callback *callback, uint32_t serial)
-{
-  int* done = static_cast<int*>(data);
-  *done = 1;
-  wl_callback_destroy(callback);
-}
-
-int WaylandDisplay::SyncDisplay()
-{
-  if (!queue_)
-    return -1;
-
-  int done = 0, ret = 0;
-  handle_flush_ = false;
-  struct wl_callback* callback = wl_display_sync(display_);
-  wl_callback_add_listener(callback, &syncListener, &done);
-  wl_proxy_set_queue((struct wl_proxy *) callback, queue_);
-  while (ret != -1 && !done)
-    ret = wl_display_dispatch_queue(display_, queue_);
-  wl_display_dispatch_pending(display_);
-
-  return ret;
 }
 
 // static

@@ -25,6 +25,7 @@ class WaylandScreen;
 class WaylandWindow;
 class WaylandInputMethodEventFilter;
 class InputMethod;
+class WaylandDispatcher;
 
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
@@ -48,26 +49,12 @@ class WaylandDisplay {
 
   wl_shm* shm() const { return shm_; }
 
-  // Ensures display is flushed when
-  // FlushTasks is called. This is only for
-  // convenience.
-  void addPendingTask() { handle_flush_ = true; }
-
-  // Send all buffered data on client side to server.
-  void Flush();
-
-  // Handle all pending events in queue.
-  // Forces a round trip to server.
-  int SyncDisplay();
-
   void SetSerial(uint32_t serial) { serial_ = serial; }
 
   uint32_t GetSerial() const { return serial_; }
 
   wl_compositor* GetCompositor() { return compositor_; }
-
-  // callback.
-  static void SyncCallback(void *data, struct wl_callback *callback, uint32_t serial);
+  WaylandDispatcher* Dispatcher() const { return dispatcher_; }
 
  private:
   WaylandDisplay(char* name);
@@ -91,14 +78,13 @@ class WaylandDisplay {
   wl_compositor* compositor_;
   wl_shell* shell_;
   wl_shm* shm_;
-  struct wl_event_queue* queue_;
   WaylandScreen* primary_screen_;
+  WaylandDispatcher* dispatcher_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
 
   uint32_t serial_;
-  bool handle_flush_ :1;
 
   friend class SurfaceFactoryWayland;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
