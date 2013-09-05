@@ -56,11 +56,12 @@ void WaylandSurface::deleteFrameCallBack()
 
 int WaylandSurface::ensureFrameCallBackDone()
 {
-  int ret = 0;
+  // TODO(kalyan): Add support for synchronization.
+  /*int ret = 0;
   while (frameCallBack_ && ret != -1)
-    ret = WaylandDisplay::GetDisplay()->SyncDisplay();
+    ret = WaylandDisplay::GetDisplay()->SyncDisplay();*/
 
-  return ret;
+  return 0;
 }
 
 void WaylandSurface::surfaceFrameCallback(void* data, struct wl_callback* callback, uint32_t)
