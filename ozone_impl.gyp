@@ -38,6 +38,7 @@
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
         '../ui/compositor/compositor.gyp:compositor',
+        '../ui/gl/gl.gyp:gl',
         '../ui/ui.gyp:ui',
         '../ui/ui.gyp:ui_resources',
       ],
@@ -63,6 +64,8 @@
         "wayland/kbd_conversion.h",
         "wayland/keyboard.cc",
         "wayland/keyboard.h",
+        "wayland/egl/loader.h",
+        "wayland/egl/loader.cc",
         "wayland/pointer.cc",
         "wayland/pointer.h",
         'wayland/screen.cc',
@@ -80,7 +83,6 @@
       'type': 'static_library',
       'dependencies': [
         '<(DEPTH)/ui/ui.gyp:ui',
-        '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/skia/skia.gyp:skia',
         'wayland_toolkit'
       ],
