@@ -13,6 +13,7 @@ namespace ui {
 
 class Event;
 class WaylandCursor;
+class WaylandDispatcher;
 
 class WaylandPointer {
  public:
@@ -23,9 +24,6 @@ class WaylandPointer {
   WaylandCursor* Cursor() { return cursor_; }
 
  private:
-  static void DispatchEventHelper(scoped_ptr<ui::Event> key);
-  static void DispatchEvent(scoped_ptr<ui::Event> event);
-
   static void OnMotionNotify(
       void* data,
       wl_pointer* input_pointer,
@@ -63,6 +61,7 @@ class WaylandPointer {
       wl_surface* surface);
 
   WaylandCursor* cursor_;
+  WaylandDispatcher* dispatcher_;
   // Keeps track of the last position for the motion event. We want to
   // dispatch this with events such as wheel or button which don't have a
   // position associated on Wayland.

@@ -7,6 +7,7 @@
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/dispatcher.h"
 
 namespace ui {
 
@@ -45,7 +46,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
-  WaylandDisplay::GetDisplay()->Flush();
+  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
@@ -73,12 +74,15 @@ void EventFactoryWayland::DidProcessTask(
       "PostSwapBuffersComplete") != 0)
     return;
 
-  WaylandDisplay::GetDisplay()->Flush();
+  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
 }
 
 void EventFactoryWayland::WillDestroyCurrentMessageLoop()
 {
   DCHECK(base::MessageLoop::current());
+  if (WaylandDisplay::GetDisplay() && WaylandDisplay::GetDisplay()->Dispatcher())
+    WaylandDisplay::GetDisplay()->Dispatcher()->MessageLoopDestroyed();
+
   watcher_.StopWatchingFileDescriptor();
   base::MessageLoop::current()->RemoveDestructionObserver(this);
   base::MessageLoop::current()->RemoveTaskObserver(this);

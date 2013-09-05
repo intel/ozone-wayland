@@ -24,7 +24,6 @@ WaylandSurface::WaylandSurface()
 
   bufferHandleId++;
   id_ = bufferHandleId;
-  display->addPendingTask();
 }
 
 WaylandSurface::~WaylandSurface()
@@ -36,8 +35,6 @@ WaylandSurface::~WaylandSurface()
     wl_surface_destroy(surface_);
     surface_ = 0;
   }
-
-  WaylandDisplay::GetDisplay()->addPendingTask();
 }
 
 void WaylandSurface::addFrameCallBack()
@@ -47,7 +44,6 @@ void WaylandSurface::addFrameCallBack()
 
   frameCallBack_ = wl_surface_frame(surface_);
   wl_callback_add_listener(frameCallBack_, &frameListener, this);
-  WaylandDisplay::GetDisplay()->addPendingTask();
 }
 
 void WaylandSurface::deleteFrameCallBack()
@@ -60,11 +56,12 @@ void WaylandSurface::deleteFrameCallBack()
 
 int WaylandSurface::ensureFrameCallBackDone()
 {
-  int ret = 0;
+  // TODO(kalyan): Add support for synchronization.
+  /*int ret = 0;
   while (frameCallBack_ && ret != -1)
-    ret = WaylandDisplay::GetDisplay()->SyncDisplay();
+    ret = WaylandDisplay::GetDisplay()->SyncDisplay();*/
 
-  return ret;
+  return 0;
 }
 
 void WaylandSurface::surfaceFrameCallback(void* data, struct wl_callback* callback, uint32_t)

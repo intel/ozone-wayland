@@ -12,6 +12,7 @@
 namespace ui {
 
 class Event;
+class WaylandDispatcher;
 
 class WaylandKeyboard {
  public:
@@ -21,9 +22,6 @@ class WaylandKeyboard {
   void OnSeatCapabilities(wl_seat *seat, uint32_t caps);
 
  private:
-  static void DispatchEventHelper(scoped_ptr<ui::Event> key);
-  static void DispatchEvent(scoped_ptr<ui::Event> event);
-
   static void OnKeyNotify(
       void* data,
       wl_keyboard* input_keyboard,
@@ -62,6 +60,7 @@ class WaylandKeyboard {
       uint32_t group);
 
   wl_keyboard* input_keyboard_;
+  WaylandDispatcher* dispatcher_;
 
   // Keeps track of the currently active keyboard modifiers. We keep this
   // since we want to advertise keyboard modifiers with mouse events.
