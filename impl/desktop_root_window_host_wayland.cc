@@ -21,7 +21,6 @@
 #include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/cursor_manager.h"
 #include "ui/views/corewm/focus_controller.h"
-#include "ui/views/widget/desktop_aura/desktop_activation_client.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
 #include "ui/views/widget/desktop_aura/desktop_focus_rules.h"
 #include "ui/views/widget/desktop_aura/desktop_layout_manager.h"
@@ -52,10 +51,8 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
   root_window_->ClearProperty(kHostForRootWindow);
-  if (corewm::UseFocusControllerOnDesktop()) {
-    aura::client::SetFocusClient(root_window_, NULL);
-    aura::client::SetActivationClient(root_window_, NULL);
-  }
+  aura::client::SetFocusClient(root_window_, NULL);
+  aura::client::SetActivationClient(root_window_, NULL);
 }
 
 // static
@@ -121,18 +118,12 @@ aura::RootWindow* DesktopRootWindowHostWayland::InitRootWindow(
 
   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
 
-  if (corewm::UseFocusControllerOnDesktop()) {
-    corewm::FocusController* focus_controller =
-        new corewm::FocusController(new DesktopFocusRules);
-    focus_client_.reset(focus_controller);
-    aura::client::SetFocusClient(root_window_, focus_controller);
-    aura::client::SetActivationClient(root_window_, focus_controller);
-    root_window_->AddPreTargetHandler(focus_controller);
-  } else {
-    focus_client_.reset(new aura::FocusManager);
-    aura::client::SetFocusClient(root_window_, focus_client_.get());
-    activation_client_.reset(new DesktopActivationClient(root_window_));
-  }
+  corewm::FocusController* focus_controller =
+      new corewm::FocusController(new DesktopFocusRules);
+  focus_client_.reset(focus_controller);
+  aura::client::SetFocusClient(root_window_, focus_controller);
+  aura::client::SetActivationClient(root_window_, focus_controller);
+  root_window_->AddPreTargetHandler(focus_controller);
 
   dispatcher_client_.reset(new DesktopDispatcherClient);
   aura::client::SetDispatcherClient(root_window_,
