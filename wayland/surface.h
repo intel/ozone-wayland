@@ -9,7 +9,6 @@
 #include <wayland-server.h>
 
 namespace ui {
-typedef uint WaylandSurfaceId;
 
 class WaylandDisplay;
 
@@ -18,7 +17,6 @@ public:
   WaylandSurface();
   virtual ~WaylandSurface();
   struct wl_surface* wlSurface() const { return surface_; }
-  WaylandSurfaceId handle() const { return id_; }
 
   // FrameCallBack.
   // Example usage to swap buffers
@@ -44,10 +42,9 @@ private:
   void destroyFrameCallBack();
   struct wl_surface* surface_;
   struct wl_callback* frameCallBack_;
-  WaylandSurfaceId id_;
+  struct wl_event_queue* m_queue;
 };
 
 }  // namespace ui
 
 #endif  // OZONE_WAYLAND_DISPLAY_H_
-

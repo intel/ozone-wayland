@@ -5,55 +5,24 @@
 
 #include "ozone/wayland/display.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-#include "base/message_loop/message_loop.h"
-#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/cursor.h"
 
 namespace ui {
+WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
-WaylandDisplay* g_display = NULL;
-
-WaylandDisplay* WaylandDisplay::GetDisplay()
-{
-  return g_display;
-}
-
-void WaylandDisplay::DestroyDisplay()
-{
-  if (g_display)
-    delete g_display;
-
-  g_display = NULL;
-}
-
-// static
-WaylandDisplay* WaylandDisplay::Connect(char* name)
-{
-  if (g_display)
-    return g_display;
-
-  g_display = new WaylandDisplay(name);
-
-  return g_display;
-}
-
-WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
-    compositor_(NULL),
+WaylandDisplay::WaylandDisplay() :compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
-    primary_screen_(NULL),
-    dispatcher_(NULL)
+    primary_screen_(NULL)
 {
-  display_ = wl_display_connect(name);
+  display_ = wl_display_connect(NULL);
   if (!display_)
       return;
 
+  instance_ = this;
   static const struct wl_registry_listener registry_listener = {
     WaylandDisplay::DisplayHandleGlobal
   };
@@ -61,12 +30,8 @@ WaylandDisplay::WaylandDisplay(char* name) : display_(NULL),
   registry_ = wl_display_get_registry(display_);
   wl_registry_add_listener(registry_, &registry_listener, this);
 
-  if (wl_display_roundtrip(display_) < 0) {
+  if (wl_display_roundtrip(display_) < 0)
     terminate();
-    return;
-  }
-
-  dispatcher_ = new WaylandDispatcher();
 }
 
 WaylandDisplay::~WaylandDisplay()
@@ -101,17 +66,15 @@ void WaylandDisplay::terminate()
     wl_shm_destroy(shm_);
 
   if (registry_)
-      wl_registry_destroy(registry_);
-
-  if (dispatcher_) {
-    delete dispatcher_;
-    dispatcher_ = NULL;
-  }
+    wl_registry_destroy(registry_);
 
   if (display_) {
     wl_display_flush(display_);
     wl_display_disconnect(display_);
+    display_ = NULL;
   }
+
+  instance_ = NULL;
 }
 
 std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {

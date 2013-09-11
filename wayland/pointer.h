@@ -5,13 +5,10 @@
 #ifndef OZONE_WAYLAND_POINTER_H_
 #define OZONE_WAYLAND_POINTER_H_
 
-#include <wayland-client.h>
-#include "base/memory/scoped_ptr.h"
 #include "ui/gfx/point.h"
 
 namespace ui {
 
-class Event;
 class WaylandCursor;
 class WaylandDispatcher;
 

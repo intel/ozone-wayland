@@ -11,11 +11,10 @@
 
 namespace ui {
 
-class WaylandDisplay;
+class WaylandDispatcher;
 
 class EventFactoryWayland : public base::MessageLoop::TaskObserver,
-                            public base::MessagePumpLibevent::Watcher,
-                            public base::MessageLoop::DestructionObserver {
+                            public base::MessagePumpLibevent::Watcher {
  public:
   EventFactoryWayland();
   virtual ~EventFactoryWayland();
@@ -26,13 +25,12 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
   // Sets the implementation delegate.
   UI_EXPORT static void SetInstance(EventFactoryWayland* impl);
 
+  void WillDestroyCurrentMessageLoop();
+
  private:
   // base::MessagePump:Libevent::Watcher implementation.
   virtual void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
   virtual void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE;
-
-  // MessageLoop::DestructionObserver overrides.
-  virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
 
   // Implements MessageLoop::TaskObserver.
   virtual void WillProcessTask(const base::PendingTask& pending_task) OVERRIDE;
@@ -40,6 +38,7 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
 
   int fd_;
   base::MessagePumpLibevent::FileDescriptorWatcher watcher_;
+  WaylandDispatcher* dispatcher_;
 };
 
 }  // namespace ui

@@ -5,8 +5,6 @@
 #include "ozone/wayland/keyboard.h"
 
 #include "ozone/wayland/dispatcher.h"
-#include "ozone/wayland/kbd_conversion.h"
-#include "ui/base/events/event.h"
 #include <sys/mman.h>
 
 namespace ui {
@@ -57,7 +55,8 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
     WaylandKeyboard::OnKeyModifiers,
   };
 
-  dispatcher_ = WaylandDisplay::GetDisplay()->Dispatcher();
+  dispatcher_ = WaylandDispatcher::GetInstance();
+
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
     InitXKB();
     input_keyboard_ = wl_seat_get_keyboard(seat);
@@ -83,11 +82,11 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   xkb_keysym_t sym;
   xkb_mod_mask_t mask;
 
-  EventType type;
+  unsigned currentState = 0;
   if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
-    type = ET_KEY_PRESSED;
+    currentState = 1;
   else
-    type = ET_KEY_RELEASED;
+    currentState = 0;
 
   code = key + 8;
   num_syms = xkb_key_get_syms(device->xkb_.state, code, &syms);
@@ -106,13 +105,8 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   if (mask & device->xkb_.shift_mask)
     device->keyboard_modifiers_ |= EF_SHIFT_DOWN;
 
-  scoped_ptr<KeyEvent> keyev(new KeyEvent(
-      type,
-      ui::KeyboardCodeFromXKeysym(sym),
-      device->keyboard_modifiers_,
-      true));
-
-  device->dispatcher_->DispatchEvent(keyev.PassAs<ui::Event>());
+  device->dispatcher_->KeyNotify(currentState, sym,
+                                 device->keyboard_modifiers_);
 }
 
 void WaylandKeyboard::OnKeyModifiers(void *data, wl_keyboard *keyboard,

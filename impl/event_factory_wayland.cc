@@ -4,10 +4,11 @@
 
 #include "ozone/impl/event_factory_wayland.h"
 
+#include "ozone/wayland/dispatcher.h"
+#include "ozone/wayland/display.h"
+
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
-#include "ozone/wayland/display.h"
-#include "ozone/wayland/dispatcher.h"
 
 namespace ui {
 
@@ -18,9 +19,7 @@ static base::LazyInstance<scoped_ptr<EventFactoryWayland> > impl_ =
 EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
-  WaylandDisplay* dis = WaylandDisplay::GetDisplay();
-  fd_ = wl_display_get_fd(dis->display());
-
+  fd_ = wl_display_get_fd(WaylandDisplay::GetInstance()->display());
   CHECK_GE(fd_, 0);
   bool success = base::MessagePumpOzone::Current()->WatchFileDescriptor(
                             fd_,
@@ -28,10 +27,11 @@ EventFactoryWayland::EventFactoryWayland()
                             base::MessagePumpLibevent::WATCH_READ,
                             &watcher_,
                             this);
+
   CHECK(success);
   DCHECK(base::MessageLoop::current());
-  base::MessageLoop::current()->AddDestructionObserver(this);
   base::MessageLoop::current()->AddTaskObserver(this);
+  dispatcher_ = ui::WaylandDispatcher::GetInstance();
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
@@ -46,7 +46,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
-  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
+  dispatcher_->PostTask();
 }
 
 void EventFactoryWayland::OnFileCanWriteWithoutBlocking(int fd) {
@@ -74,17 +74,12 @@ void EventFactoryWayland::DidProcessTask(
       "PostSwapBuffersComplete") != 0)
     return;
 
-  WaylandDisplay::GetDisplay()->Dispatcher()->PostTask();
+  dispatcher_->PostTask();
 }
 
 void EventFactoryWayland::WillDestroyCurrentMessageLoop()
 {
-  DCHECK(base::MessageLoop::current());
-  if (WaylandDisplay::GetDisplay() && WaylandDisplay::GetDisplay()->Dispatcher())
-    WaylandDisplay::GetDisplay()->Dispatcher()->MessageLoopDestroyed();
-
   watcher_.StopWatchingFileDescriptor();
-  base::MessageLoop::current()->RemoveDestructionObserver(this);
   base::MessageLoop::current()->RemoveTaskObserver(this);
 }
 

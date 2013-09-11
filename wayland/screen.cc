@@ -4,8 +4,11 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland/screen.h"
-#include <wayland-client.h>
+
+#include "ozone/impl/ozone_display.h"
 #include "ozone/wayland/display.h"
+
+#include <wayland-client.h>
 
 namespace ui {
 
@@ -56,6 +59,9 @@ void WaylandScreen::OutputHandleMode(void* data,
       screen->rect_.set_width(width);
       screen->rect_.set_height(height);
       screen->refresh_ = refresh;
+      OzoneWayland::OzoneDisplay::GetInstance()->OnOutputSizeChanged(screen,
+                                                                     width,
+                                                                     height);
   }
 }
 

@@ -4,6 +4,7 @@
 
 #include "ozone/wayland/egl/egl_window.h"
 
+#include "ozone/wayland/display.h"
 #include "ozone/wayland/surface.h"
 #include <wayland-egl.h>
 
@@ -12,9 +13,7 @@ namespace ui {
 EGLWindow::EGLWindow(struct wl_surface* surface, int32_t width, int32_t height)
     : window_(NULL)
 {
-  allocation_ = gfx::Rect(0, 0, width, height);
-  window_ = wl_egl_window_create(surface, allocation_.width(),
-                                 allocation_.height());
+  window_ = wl_egl_window_create(surface, width, height);
 }
 
 EGLWindow::~EGLWindow() {
@@ -22,15 +21,24 @@ EGLWindow::~EGLWindow() {
     wl_egl_window_destroy(window_);
 }
 
-void EGLWindow::Resize(int32_t width, int32_t height)
+bool EGLWindow::Resize(WaylandSurface* surface, int32_t width, int32_t height)
 {
-  allocation_ = gfx::Rect(0, 0, width, height);
-  if (!window_)
-    return;
+  surface->ensureFrameCallBackDone();
 
-  wl_egl_window_resize(window_, allocation_.x(), allocation_.y(),
-                       allocation_.width(), allocation_.height());
-  //TODO(kalyan): handle window resize.
+  int current_width, current_height;
+  wl_egl_window_get_attached_size(window_, &current_width, &current_height);
+  if (current_width == 0 && current_height == 0) {
+    //TODO(kalyan): handle window resize. surface is not attached yet, re-create
+    // a new one as resizing the surface in this case makes weston hang
+    wl_egl_window_destroy(window_);
+    window_ = wl_egl_window_create(surface->wlSurface(), width,
+                                   height);
+    wl_display_roundtrip(WaylandDisplay::GetInstance()->display());
+    return false;
+  } else
+    wl_egl_window_resize(window_,0, 0, width, height);
+
+    return true;
 }
 
 }  // namespace ui

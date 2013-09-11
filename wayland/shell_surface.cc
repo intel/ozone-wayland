@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland/shell_surface.h"
+
+#include "ozone/wayland/display.h"
 #include "ozone/wayland/surface.h"
 
 #include "base/logging.h"
@@ -13,7 +15,7 @@ WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
     : surface_(NULL),
     shell_surface_(NULL)
 {
-  WaylandDisplay* display = WaylandDisplay::GetDisplay();
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
   if (!display)
       return;
 
