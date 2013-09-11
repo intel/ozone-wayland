@@ -95,8 +95,6 @@
         'impl/desktop_screen_wayland.h',
         'impl/event_factory_wayland.cc',
         'impl/event_factory_wayland.h',
-        'impl/surface_factory_wayland.cc',
-        'impl/surface_factory_wayland.h',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
         'impl/ipc/child_process_observer.h',
