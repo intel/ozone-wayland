@@ -9,6 +9,8 @@
 #include "ui/gfx/rect.h"
 #include "ozone/wayland/display.h"
 
+#include <stdint.h>
+
 namespace ui {
 
 class WaylandShellSurface;
@@ -38,12 +40,13 @@ class WaylandWindow {
   ShellType Type() const { return type_; }
   WaylandWindowId Handle() const { return id_; }
   void RealizeAcceleratedWidget();
+  void HandleSwapBuffers();
 
   // Returns pointer to egl window associated with the window.
   // The WaylandWindow object owns the pointer.
   wl_egl_window* egl_window() const;
 
-  void SetBounds(const gfx::Rect& new_bounds);
+  bool SetBounds(const gfx::Rect& new_bounds);
   gfx::Rect GetBounds() const { return allocation_; }
 
  private:

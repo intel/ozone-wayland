@@ -67,23 +67,28 @@ void WaylandWindow::SetShellType(ShellType type)
   }
 }
 
-void WaylandWindow::SetBounds(const gfx::Rect& new_bounds)
+bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds)
 {
   int width = new_bounds.width();
   int height = new_bounds.height();
   allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);
-  if (!window_) {
-    RealizeAcceleratedWidget();
-    return;
-  }
+  if (!shell_surface_ || !window_)
+      return false;
 
-  window_->Resize(width, height);
+  return window_->Resize(shell_surface_->Surface(), width, height);
 }
 
 void WaylandWindow::RealizeAcceleratedWidget()
 {
   if (!window_)
-    window_ = new EGLWindow(shell_surface_->Surface()->wlSurface(), allocation_.width(), allocation_.height());
+    window_ = new EGLWindow(shell_surface_->Surface()->wlSurface(),
+                            allocation_.width(), allocation_.height());
+}
+
+void WaylandWindow::HandleSwapBuffers()
+{
+  shell_surface_->Surface()->ensureFrameCallBackDone();
+  shell_surface_->Surface()->addFrameCallBack();
 }
 
 }  // namespace ui
