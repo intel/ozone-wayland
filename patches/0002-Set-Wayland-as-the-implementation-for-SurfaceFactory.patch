@@ -1,8 +1,7 @@
-From 048bacc5fbb4c22b9238ad146380cc390c2b286e Mon Sep 17 00:00:00 2001
-From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Mon, 1 Jul 2013 19:10:53 -0300
-Subject: [PATCH 2/4] Set Wayland as the implementation for
- SurfaceFactoryOzone
+From 8069782184289973570ff69dd61dc1f6384db5f7 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Wed, 11 Sep 2013 19:58:53 +0300
+Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
 
 The fundamental problem to be solved here is to find a way to set downstream
 Ozone implementations (e.g. Wayland) in the upstream code, without changing any
@@ -22,7 +21,7 @@ This is patch is a hack and in principle shouldn't be extended much.
  4 files changed, 35 insertions(+)
 
 diff --git a/build/common.gypi b/build/common.gypi
-index 08b56cd..b161e2b 100644
+index f04e4a9..673dfbc 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -143,6 +143,12 @@
@@ -39,7 +38,7 @@ index 08b56cd..b161e2b 100644
            ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
              'desktop_linux%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index 8e60a32..d69ca7a 100644
+index 8e60a32..754e867 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -24,6 +24,9 @@
@@ -47,7 +46,7 @@ index 8e60a32..d69ca7a 100644
  #include "ui/gl/gl_switches.h"
  
 +#include "ozone/impl/desktop_factory_wayland.h"
-+#include "ozone/impl/surface_factory_wayland.h"
++#include "ozone/impl/ozone_display.h"
 +
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
@@ -71,7 +70,7 @@ index 8e60a32..d69ca7a 100644
    InitializeResourceBundle();
 +
 +  /* TODO: Implementation specific. Has to go away */
-+  ui::SurfaceFactoryOzone *o_factory = new ui::SurfaceFactoryWayland ();
++  ui::SurfaceFactoryOzone *o_factory = new OzoneWayland::OzoneDisplay();
 +  ui::SurfaceFactoryOzone::SetInstance(o_factory);
 +  views::DesktopFactoryOzone *d_factory = new views::DesktopFactoryWayland();
 +  views::DesktopFactoryOzone::SetInstance(d_factory);
@@ -95,14 +94,14 @@ index a4fe861..760ff82 100644
      },
      {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
-index b2fd97e..856e1aa 100644
+index b2fd97e..b38cf15 100644
 --- a/ui/aura/demo/demo_main.cc
 +++ b/ui/aura/demo/demo_main.cc
 @@ -23,6 +23,8 @@
  #include "ui/gfx/canvas.h"
  #include "ui/gfx/rect.h"
  
-+#include "ozone/impl/surface_factory_wayland.h"
++#include "ozone/impl/ozone_display.h"
 +
  #if defined(USE_X11)
  #include "base/message_loop/message_pump_x11.h"
@@ -112,7 +111,7 @@ index b2fd97e..856e1aa 100644
  
  int DemoMain() {
 +  /* TODO: Implementation specific. Has to go away */
-+  ui::SurfaceFactoryOzone *o_factory = new ui::SurfaceFactoryWayland ();
++  ui::SurfaceFactoryOzone *o_factory = new OzoneWayland::OzoneDisplay();
 +  ui::SurfaceFactoryOzone::SetInstance(o_factory);
 +
    // Create the message-loop here before creating the root window.

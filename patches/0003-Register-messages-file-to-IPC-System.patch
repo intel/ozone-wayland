@@ -1,0 +1,26 @@
+From deceb17e98d01b0bf860fd241c23a2cadf55ebd0 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Tue, 10 Sep 2013 02:03:01 +0300
+Subject: [PATCH] Register messages file to IPC System.
+
+This patch adds WaylandMsgStart to IPCMessageStart enum in ipc_message_start.h.
+The XXXMsgStart value is an enumeration that ensures uniqueness for each different
+message file.
+---
+ ipc/ipc_message_start.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/ipc/ipc_message_start.h b/ipc/ipc_message_start.h
+index f583301..f16943a5 100644
+--- a/ipc/ipc_message_start.h
++++ b/ipc/ipc_message_start.h
+@@ -88,6 +88,7 @@ enum IPCMessageStart {
+   WebRTCIdentityMsgStart,
+   LocalDiscoveryMsgStart,
+   PowerMonitorMsgStart,
++  WaylandMsgStart,
+   LastIPCMsgStart      // Must come last.
+ };
+
+--
+1.7.9.5
