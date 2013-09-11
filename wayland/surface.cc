@@ -13,22 +13,13 @@ static const struct wl_callback_listener frameListener = {
 WaylandSurface::WaylandSurface()
     : surface_(0)
     , frameCallBack_(0)
-    , id_(0)
 {
-  static WaylandSurfaceId bufferHandleId = 0;
   WaylandDisplay* display = WaylandDisplay::GetDisplay();
   surface_ = wl_compositor_create_surface(display->GetCompositor());
-
-  if (!surface_)
-    return;
-
-  bufferHandleId++;
-  id_ = bufferHandleId;
 }
 
 WaylandSurface::~WaylandSurface()
 {
-  id_ = 0;
   deleteFrameCallBack();
 
   if (surface_) {

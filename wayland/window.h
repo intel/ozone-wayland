@@ -15,6 +15,8 @@ class WaylandShellSurface;
 class EGLWindow;
 struct wl_egl_window;
 
+typedef unsigned WaylandWindowId;
+
 class WaylandWindow {
  public:
   enum Shell {
@@ -34,6 +36,7 @@ class WaylandWindow {
 
   void SetShellType(ShellType type);
   ShellType Type() const { return type_; }
+  WaylandWindowId Handle() const { return id_; }
   void RealizeAcceleratedWidget();
 
   // Returns pointer to egl window associated with the window.
@@ -48,6 +51,7 @@ class WaylandWindow {
   EGLWindow* window_;
 
   gfx::Rect allocation_;
+  WaylandWindowId id_;
   ShellType type_;
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };

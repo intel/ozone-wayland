@@ -18,7 +18,6 @@ public:
   WaylandSurface();
   virtual ~WaylandSurface();
   struct wl_surface* wlSurface() const { return surface_; }
-  WaylandSurfaceId handle() const { return id_; }
 
   // FrameCallBack.
   // Example usage to swap buffers
