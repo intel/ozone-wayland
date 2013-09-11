@@ -97,6 +97,8 @@
         'impl/event_factory_wayland.h',
         'impl/surface_factory_wayland.cc',
         'impl/surface_factory_wayland.h',
+        'impl/ozone_display.cc',
+        'impl/ozone_display.h',
       ],
     },
   ]
