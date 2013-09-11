@@ -101,6 +101,9 @@
         'impl/ozone_display.h',
         'impl/ipc/child_process_observer.h',
         'impl/ipc/child_process_observer.cc',
+        'impl/ipc/messages.h',
+        'impl/ipc/message_generator.h',
+        'impl/ipc/message_generator.cc',
       ],
     },
   ]
