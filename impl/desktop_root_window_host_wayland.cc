@@ -15,12 +15,12 @@
 #include "ui/base/events/event_utils.h"
 #include "ui/base/ozone/surface_factory_ozone.h"
 #include "ui/gfx/insets.h"
-#include "ui/linux_ui/linux_ui.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/compound_event_filter.h"
 #include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/cursor_manager.h"
 #include "ui/views/corewm/focus_controller.h"
+#include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
 #include "ui/views/widget/desktop_aura/desktop_focus_rules.h"
 #include "ui/views/widget/desktop_aura/desktop_layout_manager.h"
@@ -57,7 +57,7 @@ DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
 
 // static
 ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
-  const ui::LinuxUI* linux_ui = ui::LinuxUI::instance();
+  const views::LinuxUI* linux_ui = views::LinuxUI::instance();
   if (linux_ui) {
     ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
     if (native_theme)
@@ -429,6 +429,10 @@ void DesktopRootWindowHostWayland::FlashFrame(bool flash_frame) {
 
 void DesktopRootWindowHostWayland::SetInactiveRenderingDisabled(
     bool disable_inactive) {
+}
+
+void DesktopRootWindowHostWayland::OnRootViewLayout() const {
+  NOTIMPLEMENTED();
 }
 
 void DesktopRootWindowHostWayland::OnNativeWidgetFocus() {
