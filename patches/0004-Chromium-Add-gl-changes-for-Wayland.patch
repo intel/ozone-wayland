@@ -1,17 +1,17 @@
-From 6c56714cc0c2b441da30c0498b31d72fa0068615 Mon Sep 17 00:00:00 2001
+From c274d0f2b2fbdb8d17d6de479aac001666a2ae30 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Sat, 31 Aug 2013 01:47:46 +0300
-Subject: [PATCH] Most of our changes in glsurfaceegl are obsolete after [1]
- recent changes to surface factory api. Changes still
- present are in return type of EGLDisplay and EGLConfig.
+Date: Tue, 10 Sep 2013 19:33:45 +0300
+Subject: [PATCH] Chromium-Add-gl-changes-for-Wayland.
 
-[1] https://chromiumcodereview.appspot.com/23438002
+This patch adds basic support needed in NativeViewGLSurfaceEGL to resize  window
+and ensure we don't swap before the last swap has been handled. Changes related
+to resizing needs more testing before trying to upstream the patch.
 ---
- ui/gl/gl_surface_egl.cc |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ ui/gl/gl_surface_egl.cc |   23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
 diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
-index 5f4edf4..4414d17 100644
+index 5f4edf4..37c68f8 100644
 --- a/ui/gl/gl_surface_egl.cc
 +++ b/ui/gl/gl_surface_egl.cc
 @@ -115,8 +115,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
@@ -33,6 +33,45 @@ index 5f4edf4..4414d17 100644
      EGL_NONE
    };
  
+@@ -368,6 +367,12 @@ bool NativeViewGLSurfaceEGL::SwapBuffers() {
+     return false;
+   }
+
++#if defined(USE_OZONE)
++  ui::SurfaceFactoryOzone* surface_factory =
++    ui::SurfaceFactoryOzone::GetInstance();
++  surface_factory->SchedulePageFlip(window_);
++#endif
++
+   return true;
+ }
+
+@@ -392,6 +397,7 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
+   GLContext* current_context = GLContext::GetCurrent();
+   bool was_current =
+       current_context && current_context->IsCurrent(this);
++
+   if (was_current) {
+     scoped_make_current.reset(
+         new ui::ScopedMakeCurrent(current_context, this));
+@@ -400,6 +406,17 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
+
+   Destroy();
+
++#if defined(USE_OZONE)
++  ui::SurfaceFactoryOzone* surface_factory =
++    ui::SurfaceFactoryOzone::GetInstance();
++
++  surface_factory->AttemptToResizeAcceleratedWidget(window_,
++                                                    gfx::Rect(0, 0, size.width(),
++                                                              size.height()));
++  window_ = ui::SurfaceFactoryOzone::GetInstance()->RealizeAcceleratedWidget(
++      window_);
++#endif
++
+   if (!Initialize()) {
+     LOG(ERROR) << "Failed to resize window.";
+     return false;
 -- 
 1.7.9.5
 

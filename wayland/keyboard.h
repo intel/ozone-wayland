@@ -7,11 +7,9 @@
 
 #include <xkbcommon/xkbcommon.h>
 #include "ozone/wayland/display.h"
-#include "base/memory/scoped_ptr.h"
 
 namespace ui {
 
-class Event;
 class WaylandDispatcher;
 
 class WaylandKeyboard {

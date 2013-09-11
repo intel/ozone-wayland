@@ -10,33 +10,27 @@
 #define __STDC_FORMAT_MACROS
 #endif
 
+#include "base/basictypes.h"
+
 #include <list>
-#include <stdint.h>
 #include <wayland-client.h>
 
-#include "ui/gfx/point.h"
-#include "ui/gfx/rect.h"
+namespace OzoneWayland {
+class OzoneDisplay;
+}
 
 namespace ui {
 
-class SurfaceFactoryWayland;
 class WaylandInputDevice;
 class WaylandScreen;
-class WaylandWindow;
-class WaylandInputMethodEventFilter;
-class InputMethod;
-class WaylandDispatcher;
 
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay {
  public:
-  virtual ~WaylandDisplay();
-
-  static WaylandDisplay* GetDisplay();
-
-  // Returns a pointer to the wl_display.
+  static WaylandDisplay* GetInstance() { return instance_; }
+  // Returns a pointer to wl_display.
   wl_display* display() const { return display_; }
 
   wl_registry* registry() const { return registry_; }
@@ -48,21 +42,12 @@ class WaylandDisplay {
   wl_shell* shell() const { return shell_; }
 
   wl_shm* shm() const { return shm_; }
-
-  void SetSerial(uint32_t serial) { serial_ = serial; }
-
-  uint32_t GetSerial() const { return serial_; }
-
   wl_compositor* GetCompositor() { return compositor_; }
-  WaylandDispatcher* Dispatcher() const { return dispatcher_; }
 
  private:
-  WaylandDisplay(char* name);
+  WaylandDisplay();
+  virtual ~WaylandDisplay();
   void terminate();
-  // Attempt to create a connection to the display. If it fails this returns
-  // NULL
-  static WaylandDisplay* Connect(char* name = NULL);
-  static void DestroyDisplay();
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
@@ -79,14 +64,12 @@ class WaylandDisplay {
   wl_shell* shell_;
   wl_shm* shm_;
   WaylandScreen* primary_screen_;
-  WaylandDispatcher* dispatcher_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
+  static WaylandDisplay* instance_;
 
-  uint32_t serial_;
-
-  friend class SurfaceFactoryWayland;
+  friend class OzoneWayland::OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };
 

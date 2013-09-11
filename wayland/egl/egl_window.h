@@ -12,18 +12,17 @@ struct wl_egl_window;
 
 namespace ui {
 
+class WaylandSurface;
 class EGLWindow {
  public:
   EGLWindow(struct wl_surface* surface, int32_t width, int32_t height);
   ~EGLWindow();
 
   wl_egl_window* egl_window() const { return window_; }
-  void Resize(int32_t width, int32_t height);
+  bool Resize(WaylandSurface* surface, int32_t width, int32_t height);
 
  private:
   wl_egl_window* window_;
-
-  gfx::Rect allocation_;
   DISALLOW_COPY_AND_ASSIGN(EGLWindow);
 };
 
