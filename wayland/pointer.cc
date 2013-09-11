@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "ozone/wayland/display.h"
 #include "ozone/wayland/pointer.h"
-
 #include "ozone/wayland/cursor.h"
 #include "ozone/wayland/dispatcher.h"
-#include "ozone/wayland/global.h"
 
 #include "ui/base/events/event.h"
 #include "ui/base/hit_test.h"
@@ -40,9 +39,9 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
   };
 
   if (!cursor_)
-   cursor_ = new WaylandCursor(WaylandDisplay::GetDisplay()->shm());
+   cursor_ = new WaylandCursor(WaylandDisplay::GetInstance()->shm());
 
-  dispatcher_ = WaylandDisplay::GetDisplay()->Dispatcher();
+  dispatcher_ = WaylandDispatcher::GetInstance();
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !cursor_->GetInputPointer()) {
     wl_pointer* input_pointer = wl_seat_get_pointer(seat);
@@ -66,14 +65,7 @@ void WaylandPointer::OnMotionNotify(void* data,
   float sy = wl_fixed_to_double(sy_w);
 
   device->pointer_position_.SetPoint(sx, sy);
-
-  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
-      ui::ET_MOUSE_MOVED,
-      gfx::Point(sx, sy),
-      gfx::Point(sx, sy),
-      /* flags */ 0));
-
-  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->MotionNotify(sx, sy);
 }
 
 void WaylandPointer::OnAxisNotify(void* data,
@@ -95,18 +87,9 @@ void WaylandPointer::OnAxisNotify(void* data,
     break;
   }
 
-  MouseEvent mouseev(
-      ui::ET_MOUSEWHEEL,
-      device->pointer_position_,
-      device->pointer_position_,
-      /* flags */ 0);
-
-  scoped_ptr<MouseWheelEvent> wheelev(new MouseWheelEvent(
-      mouseev,
-      x_offset,
-      y_offset));
-
-  device->dispatcher_->DispatchEvent(wheelev.PassAs<ui::Event>());
+  device->dispatcher_->AxisNotify(device->pointer_position_.x(),
+                                  device->pointer_position_.y(), x_offset,
+                                  y_offset);
 }
 
 void WaylandPointer::OnButtonNotify(void* data,
@@ -117,12 +100,11 @@ void WaylandPointer::OnButtonNotify(void* data,
     uint32_t state)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
-  EventType type;
+  int currentState;
   if (state == WL_POINTER_BUTTON_STATE_PRESSED)
-    type = ui::ET_MOUSE_PRESSED;
+    currentState = 1;
   else
-    type = ui::ET_MOUSE_RELEASED;
-
+    currentState = 0;
   // TODO(vignatti): simultaneous clicks fail
   int flags = 0;
   if (button == BTN_LEFT)
@@ -132,13 +114,9 @@ void WaylandPointer::OnButtonNotify(void* data,
   else if (button == BTN_MIDDLE)
     flags = ui::EF_MIDDLE_MOUSE_BUTTON;
 
-  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
-      type,
-      device->pointer_position_,
-      device->pointer_position_,
-      flags));
-
-  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->ButtonNotify(currentState, flags,
+                                    device->pointer_position_.x(),
+                                    device->pointer_position_.y());
 }
 
 void WaylandPointer::OnPointerEnter(void* data,
@@ -153,13 +131,8 @@ void WaylandPointer::OnPointerEnter(void* data,
   // and other cursors.
 
   device->cursor_->Update(WaylandCursor::CURSOR_LEFT_PTR, serial);
-  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
-      ui::ET_MOUSE_ENTERED,
-      device->pointer_position_,
-      device->pointer_position_,
-      /* flags */ 0));
-
-  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->PointerEnter(device->pointer_position_.x(),
+                                    device->pointer_position_.y());
 }
 
 void WaylandPointer::OnPointerLeave(void* data,
@@ -168,13 +141,8 @@ void WaylandPointer::OnPointerLeave(void* data,
     wl_surface* surface)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
-  scoped_ptr<MouseEvent> mouseev(new MouseEvent(
-      ui::ET_MOUSE_EXITED,
-      device->pointer_position_,
-      device->pointer_position_,
-      /* flags */ 0));
-
-  device->dispatcher_->DispatchEvent(mouseev.PassAs<ui::Event>());
+  device->dispatcher_->PointerLeave(device->pointer_position_.x(),
+                                    device->pointer_position_.y());
 }
 
 }  // namespace ui
