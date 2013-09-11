@@ -99,6 +99,8 @@
         'impl/surface_factory_wayland.h',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
+        'impl/ipc/child_process_observer.h',
+        'impl/ipc/child_process_observer.cc',
       ],
     },
   ]
