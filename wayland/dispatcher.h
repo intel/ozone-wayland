@@ -5,6 +5,7 @@
 #ifndef OZONE_WAYLAND_DISPATCHER_H_
 #define OZONE_WAYLAND_DISPATCHER_H_
 
+#include "ozone/impl/ipc/messages.h"
 #include "base/threading/thread.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/base/events/event.h"
@@ -41,6 +42,13 @@ class WaylandDispatcher : public base::Thread {
   };
 
   static WaylandDispatcher* GetInstance() { return instance_; }
+  void MotionNotify(float x, float y);
+  void ButtonNotify(int state, int flags, float x, float y);
+  void AxisNotify(float x, float y, float xoffset, float yoffset);
+  void PointerEnter(float x, float y);
+  void PointerLeave(float x, float y);
+  void KeyNotify(unsigned type, unsigned code, unsigned modifiers);
+  void OutputSizeChanged(unsigned width, unsigned height);
 
   // Posts task to worker thread.
   void PostTask(Task type = Flush);
@@ -56,6 +64,13 @@ class WaylandDispatcher : public base::Thread {
   static void HandleFlush();
   static void DisplayRun(WaylandDispatcher* data);
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
+  static void SendMotionNotify(float x, float y);
+  static void SendButtonNotify(int state, int flags, float x, float y);
+  static void SendAxisNotify(float x, float y, float xoffset, float yoffset);
+  static void SendPointerEnter(float x, float y);
+  static void SendPointerLeave(float x, float y);
+  static void SendKeyNotify(unsigned type, unsigned code, unsigned modifiers);
+  static void SendOutputSizeChanged(unsigned width, unsigned height);
   void MessageLoopDestroyed();
   base::MessageLoop* loop_;
   bool ignore_task_ :1;

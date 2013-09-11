@@ -225,4 +225,174 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data)
   }
 }
 
+void WaylandDispatcher::SendMotionNotify(float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_MotionNotify(x, y));
+}
+
+void WaylandDispatcher::SendButtonNotify(int state, int flags, float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_ButtonNotify(state, flags, x, y));
+}
+
+void WaylandDispatcher::SendAxisNotify(float x, float y, float xoffset,
+                                       float yoffset)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
+}
+
+void WaylandDispatcher::SendPointerEnter(float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_PointerEnter(x, y));
+}
+
+void WaylandDispatcher::SendPointerLeave(float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_PointerLeave(x, y));
+}
+
+void WaylandDispatcher::SendKeyNotify(unsigned type, unsigned code,
+                                      unsigned modifiers)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_KeyNotify(type, code, modifiers));
+}
+
+void WaylandDispatcher::SendOutputSizeChanged(unsigned width, unsigned height)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_OutputSize(width, height));
+}
+
+void WaylandDispatcher::MotionNotify(float x, float y)
+{
+  if (epoll_fd_) {
+    if (!running)
+      return;
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::SendMotionNotify, x, y));
+  } else {
+    scoped_ptr<MouseEvent> mouseev(new MouseEvent(ui::ET_MOUSE_MOVED,
+                                                  gfx::Point(x, y),
+                                                  gfx::Point(x, y), 0));
+
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
+                                              mouseev.PassAs<ui::Event>())));
+  }
+}
+
+void WaylandDispatcher::ButtonNotify(int state, int flags, float x, float y)
+{
+  if (epoll_fd_) {
+    if (!running)
+      return;
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendButtonNotify,
+                                             state, flags, x, y));
+  } else {
+    EventType type;
+    if (state == 1)
+      type = ui::ET_MOUSE_PRESSED;
+    else
+      type = ui::ET_MOUSE_RELEASED;
+
+    scoped_ptr<MouseEvent> mouseev(new MouseEvent(type, gfx::Point(x, y),
+                                                  gfx::Point(x, y), flags));
+
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
+                                              mouseev.PassAs<ui::Event>())));
+  }
+}
+
+void WaylandDispatcher::AxisNotify(float x, float y, float xoffset, float yoffset)
+{
+  if (epoll_fd_) {
+    if (!running)
+      return;
+
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendAxisNotify,
+                                             x, y, xoffset, yoffset));
+  } else {
+    MouseEvent mouseev(ui::ET_MOUSEWHEEL, gfx::Point(x,y), gfx::Point(x,y), 0);
+    scoped_ptr<MouseWheelEvent> wheelev(new MouseWheelEvent(mouseev, xoffset,
+                                                            yoffset));
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
+                                              wheelev.PassAs<ui::Event>())));
+  }
+}
+
+void WaylandDispatcher::PointerEnter(float x, float y)
+{
+  if (epoll_fd_) {
+    if (!running)
+      return;
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendPointerEnter,
+                                             x, y));
+  } else {
+    scoped_ptr<MouseEvent> mouseev(new MouseEvent(ui::ET_MOUSE_ENTERED,
+                                                  gfx::Point(x, y),
+                                                  gfx::Point(x, y), 0));
+
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
+                                              mouseev.PassAs<ui::Event>())));
+  }
+}
+
+void WaylandDispatcher::PointerLeave(float x, float y)
+{
+  if (epoll_fd_) {
+    if (!running)
+      return;
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendPointerLeave,
+                                             x, y));
+  } else {
+    scoped_ptr<MouseEvent> mouseev(new MouseEvent(ui::ET_MOUSE_EXITED,
+                                                  gfx::Point(x, y),
+                                                  gfx::Point(x, y),0));
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
+                                              mouseev.PassAs<ui::Event>())));
+  }
+}
+
+void WaylandDispatcher::KeyNotify(unsigned state, unsigned code,
+                                  unsigned modifiers)
+{
+  if (epoll_fd_) {
+    if (!running)
+      return;
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendKeyNotify,
+                                             state, code, modifiers));
+  } else {
+    EventType type;
+    if (state)
+      type = ET_KEY_PRESSED;
+    else
+      type = ET_KEY_RELEASED;
+
+    scoped_ptr<KeyEvent> keyev(new KeyEvent(type, ui::KeyboardCodeFromXKeysym(code),
+                                            modifiers, true));
+    PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
+                                              keyev.PassAs<ui::Event>())));
+  }
+}
+
+void WaylandDispatcher::OutputSizeChanged(unsigned width, unsigned height)
+{
+  if (!running || !epoll_fd_)
+    return;
+
+  PostTaskOnMainLoop(FROM_HERE, base::Bind(
+                      &WaylandDispatcher::SendOutputSizeChanged, width, height));
+}
+
 }  // namespace ui
