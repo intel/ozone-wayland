@@ -8,7 +8,7 @@
 #include "ozone/wayland/dispatcher.h"
 #include "ipc/ipc_listener.h"
 
-namespace OzoneWayland {
+namespace ozonewayland {
 
 // OzoneDisplayChannel is responsible for listening to any messages sent by it's
 // host counterpart in BrowserProcess. There will be always only one

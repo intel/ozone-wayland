@@ -15,14 +15,11 @@
 #include <list>
 #include <wayland-client.h>
 
-namespace OzoneWayland {
-class OzoneDisplay;
-}
-
-namespace ui {
+namespace ozonewayland {
 
 class WaylandInputDevice;
 class WaylandScreen;
+class OzoneDisplay;
 
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
@@ -69,10 +66,10 @@ class WaylandDisplay {
   std::list<WaylandInputDevice*> input_list_;
   static WaylandDisplay* instance_;
 
-  friend class OzoneWayland::OzoneDisplay;
+  friend class OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_DISPLAY_H_

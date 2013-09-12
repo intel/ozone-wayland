@@ -5,7 +5,7 @@
 #ifndef OZONE_WAYLAND_GLOBAL_H_
 #define OZONE_WAYLAND_GLOBAL_H_
 
-namespace ui {
+namespace ozonewayland {
 
 #define MOD_SHIFT_MASK		0x01
 #define MOD_ALT_MASK		0x02
@@ -35,7 +35,7 @@ enum BoundsChangeType
   kBoundsChange_Resizes,
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_DISPLAY_H_
 

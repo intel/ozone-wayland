@@ -12,7 +12,9 @@
 
 namespace ui {
 class InputMethod;
+}
 
+namespace ozonewayland {
 // An event filter that forwards a KeyEvent to a system IME, and dispatches a
 // TranslatedKeyEvent to the root window as needed.
 class WaylandInputMethodEventFilter
@@ -21,7 +23,7 @@ class WaylandInputMethodEventFilter
   WaylandInputMethodEventFilter();
   virtual ~WaylandInputMethodEventFilter();
 
-  InputMethod* GetInputMethod() const { return input_method_.get(); }
+  ui::InputMethod* GetInputMethod() const { return input_method_.get(); }
 
  private:
   // Overridden from ui::internal::InputMethodDelegate.
@@ -35,6 +37,6 @@ class WaylandInputMethodEventFilter
   DISALLOW_COPY_AND_ASSIGN(WaylandInputMethodEventFilter);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_INPUT_METHOD_EVENT_FILTER_

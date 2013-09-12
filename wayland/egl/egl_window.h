@@ -10,7 +10,7 @@
 
 struct wl_egl_window;
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandSurface;
 class EGLWindow {
@@ -26,6 +26,6 @@ class EGLWindow {
   DISALLOW_COPY_AND_ASSIGN(EGLWindow);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_EGL_WINDOW_H_

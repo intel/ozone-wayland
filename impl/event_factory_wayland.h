@@ -9,7 +9,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_libevent.h"
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandDispatcher;
 
@@ -41,6 +41,6 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
   WaylandDispatcher* dispatcher_;
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_EVENT_FACTORY_H_

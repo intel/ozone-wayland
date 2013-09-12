@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 
-namespace gfx {
+namespace ozonewayland {
 
 bool InitializeGLBindings();
 

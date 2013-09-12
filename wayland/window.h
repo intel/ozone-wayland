@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandShellSurface;
 class EGLWindow;
@@ -59,6 +59,6 @@ class WaylandWindow {
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_WINDOW_H_
