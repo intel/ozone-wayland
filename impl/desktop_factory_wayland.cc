@@ -5,7 +5,7 @@
 #include "ozone/impl/desktop_factory_wayland.h"
 #include "ozone/impl/desktop_root_window_host_wayland.h"
 
-namespace views {
+namespace ozonewayland {
 
 DesktopFactoryWayland::DesktopFactoryWayland()
 {
@@ -16,13 +16,13 @@ DesktopFactoryWayland::~DesktopFactoryWayland()
 {
 }
 
-DesktopRootWindowHost* DesktopFactoryWayland::CreateRootWindowHost(
-    internal::NativeWidgetDelegate* native_widget_delegate,
-    DesktopNativeWidgetAura* desktop_native_widget_aura,
+views::DesktopRootWindowHost* DesktopFactoryWayland::CreateRootWindowHost(
+    views::internal::NativeWidgetDelegate* native_widget_delegate,
+    views::DesktopNativeWidgetAura* desktop_native_widget_aura,
     const gfx::Rect& bounds) {
   return new DesktopRootWindowHostWayland(native_widget_delegate,
                                           desktop_native_widget_aura,
                                           bounds);
 }
 
-}  // namespace views
+}  // namespace ozonewayland

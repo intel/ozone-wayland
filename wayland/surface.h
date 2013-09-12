@@ -8,7 +8,7 @@
 #include <wayland-client.h>
 #include <wayland-server.h>
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandDisplay;
 
@@ -45,6 +45,6 @@ private:
   struct wl_event_queue* m_queue;
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_DISPLAY_H_

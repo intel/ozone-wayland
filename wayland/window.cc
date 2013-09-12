@@ -11,7 +11,7 @@
 
 #include "base/logging.h"
 
-namespace ui {
+namespace ozonewayland {
 
 WaylandWindow::WaylandWindow(ShellType type)
     : shell_surface_(NULL),
@@ -91,4 +91,4 @@ void WaylandWindow::HandleSwapBuffers()
   shell_surface_->Surface()->addFrameCallBack();
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

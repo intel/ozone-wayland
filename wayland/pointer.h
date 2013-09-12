@@ -7,7 +7,7 @@
 
 #include "ui/gfx/point.h"
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandCursor;
 class WaylandDispatcher;
@@ -67,6 +67,6 @@ class WaylandPointer {
   DISALLOW_COPY_AND_ASSIGN(WaylandPointer);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_POINTER_H_

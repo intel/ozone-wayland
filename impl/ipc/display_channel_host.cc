@@ -7,14 +7,14 @@
 #include "ozone/impl/ozone_display.h"
 #include "base/bind.h"
 
-namespace OzoneWayland {
+namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : process_id_(0),
       host_id_(0),
       router_id_(0)
 {
-  dispatcher_ = ui::WaylandDispatcher::GetInstance();
+  dispatcher_ = WaylandDispatcher::GetInstance();
 }
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost()
@@ -122,4 +122,4 @@ void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
   OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
 }
 
-}  // namespace OzoneWayland
+}  // namespace ozonewayland

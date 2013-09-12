@@ -8,20 +8,20 @@
 #include "base/compiler_specific.h"
 #include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
 
-namespace views {
+namespace ozonewayland {
 
-class DesktopFactoryWayland : public DesktopFactoryOzone {
+class DesktopFactoryWayland : public views::DesktopFactoryOzone {
  public:
   DesktopFactoryWayland();
   virtual ~DesktopFactoryWayland();
 
   // views::DesktopFactoryOzone
-  virtual DesktopRootWindowHost* CreateRootWindowHost(
-      internal::NativeWidgetDelegate* native_widget_delegate,
-      DesktopNativeWidgetAura* desktop_native_widget_aura,
+  virtual views::DesktopRootWindowHost* CreateRootWindowHost(
+      views::internal::NativeWidgetDelegate* native_widget_delegate,
+      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
       const gfx::Rect& bounds) OVERRIDE;
 };
 
-} // namespace views
+}  // namespace ozonewayland
 
 #endif // OZONE_DESKTOP_FACTORY_WAYLAND_H_

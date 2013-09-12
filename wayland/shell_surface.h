@@ -8,7 +8,7 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/window.h"
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandSurface;
 class WaylandWindow;
@@ -32,6 +32,6 @@ class WaylandShellSurface {
   DISALLOW_COPY_AND_ASSIGN(WaylandShellSurface);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_SHELL_SURFACE_H_

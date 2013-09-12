@@ -10,7 +10,7 @@
 
 #include <wayland-client.h>
 
-namespace ui {
+namespace ozonewayland {
 
 WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
     : output_(NULL)
@@ -59,10 +59,8 @@ void WaylandScreen::OutputHandleMode(void* data,
       screen->rect_.set_width(width);
       screen->rect_.set_height(height);
       screen->refresh_ = refresh;
-      OzoneWayland::OzoneDisplay::GetInstance()->OnOutputSizeChanged(screen,
-                                                                     width,
-                                                                     height);
+      OzoneDisplay::GetInstance()->OnOutputSizeChanged(screen, width, height);
   }
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

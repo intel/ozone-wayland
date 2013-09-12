@@ -9,19 +9,16 @@
 #include "base/message_loop/message_loop.h"
 #include "ui/base/ozone/surface_factory_ozone.h"
 
-namespace ui {
+namespace ozonewayland {
+
 class EventFactoryWayland;
+class OzoneProcessObserver;
+class OzoneDisplayChannel;
+class OzoneDisplayChannelHost;
 class WaylandDisplay;
 class WaylandWindow;
 class WaylandDispatcher;
 class WaylandScreen;
-}
-
-namespace OzoneWayland {
-
-class OzoneProcessObserver;
-class OzoneDisplayChannel;
-class OzoneDisplayChannelHost;
 
 class OzoneDisplay : public ui::SurfaceFactoryOzone,
                      public base::MessageLoop::DestructionObserver {
@@ -82,7 +79,7 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
   void OnChannelEstablished(unsigned id);
   void OnChannelClosed(unsigned id);
   void OnChannelHostDestroyed();
-  void OnOutputSizeChanged(ui::WaylandScreen* screen, int width, int height);
+  void OnOutputSizeChanged(WaylandScreen* screen, int width, int height);
   void OnOutputSizeChanged(unsigned width, unsigned height);
 
   void Terminate();
@@ -94,23 +91,23 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
   ui::SurfaceFactoryOzone::HardwareState initialized_state_;
   bool initialized_ :1;
 
-  ui::WaylandDispatcher* dispatcher_;
-  ui::WaylandDisplay* display_;
-  ui::WaylandWindow* root_window_;
+  WaylandDispatcher* dispatcher_;
+  WaylandDisplay* display_;
+  WaylandWindow* root_window_;
   OzoneProcessObserver* child_process_observer_;
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;
-  ui::EventFactoryWayland* e_factory_;
+  EventFactoryWayland* e_factory_;
   char* spec_;
   static OzoneDisplay* instance_;
 
   friend class OzoneProcessObserver;
   friend class OzoneDisplayChannelHost;
   friend class OzoneDisplayChannel;
-  friend class ui::WaylandScreen;
+  friend class WaylandScreen;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
 
-}  // namespace OzoneWayland
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_OZONE_DISPLAY_H_
