@@ -38,10 +38,15 @@ gfx::Rect WaylandScreen::Geometry() const
 
 // static
 void WaylandScreen::OutputHandleGeometry(void *data,
-    wl_output *output, int32_t x, int32_t y,
-    int32_t physical_width, int32_t physical_height,
-    int32_t subpixel, const char* make,
-    const char* model, int32_t output_transform)
+                                         wl_output *output,
+                                         int32_t x,
+                                         int32_t y,
+                                         int32_t physical_width,
+                                         int32_t physical_height,
+                                         int32_t subpixel,
+                                         const char* make,
+                                         const char* model,
+                                         int32_t output_transform)
 {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
   gfx::Point point = gfx::Point(x, y);
@@ -50,9 +55,11 @@ void WaylandScreen::OutputHandleGeometry(void *data,
 
 // static
 void WaylandScreen::OutputHandleMode(void* data,
-    wl_output* wl_output, uint32_t flags,
-    int32_t width, int32_t height,
-    int32_t refresh)
+                                     wl_output* wl_output,
+                                     uint32_t flags,
+                                     int32_t width,
+                                     int32_t height,
+                                     int32_t refresh)
 {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
   if (flags & WL_OUTPUT_MODE_CURRENT) {

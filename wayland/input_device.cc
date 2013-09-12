@@ -42,7 +42,9 @@ WaylandInputDevice::~WaylandInputDevice()
     delete input_method_filter_;
 }
 
-void WaylandInputDevice::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t caps)
+void WaylandInputDevice::OnSeatCapabilities(void *data,
+                                            wl_seat *seat,
+                                            uint32_t caps)
 {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !device->input_keyboard_) {

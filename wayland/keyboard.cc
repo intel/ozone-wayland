@@ -71,11 +71,11 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
 }
 
 void WaylandKeyboard::OnKeyNotify(void* data,
-    wl_keyboard* input_keyboard,
-    uint32_t serial,
-    uint32_t time,
-    uint32_t key,
-    uint32_t state)
+                                  wl_keyboard* input_keyboard,
+                                  uint32_t serial,
+                                  uint32_t time,
+                                  uint32_t key,
+                                  uint32_t state)
 {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
   uint32_t code, num_syms;
@@ -110,9 +110,13 @@ void WaylandKeyboard::OnKeyNotify(void* data,
                                  device->keyboard_modifiers_);
 }
 
-void WaylandKeyboard::OnKeyModifiers(void *data, wl_keyboard *keyboard,
-    uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched,
-    uint32_t mods_locked, uint32_t group)
+void WaylandKeyboard::OnKeyModifiers(void *data,
+                                     wl_keyboard *keyboard,
+                                     uint32_t serial,
+                                     uint32_t mods_depressed,
+                                     uint32_t mods_latched,
+                                     uint32_t mods_locked,
+                                     uint32_t group)
 {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
 
@@ -121,8 +125,10 @@ void WaylandKeyboard::OnKeyModifiers(void *data, wl_keyboard *keyboard,
 }
 
 void WaylandKeyboard::OnKeyboardKeymap(void *data,
-    struct wl_keyboard *keyboard,
-    uint32_t format, int fd, uint32_t size)
+                                       struct wl_keyboard *keyboard,
+                                       uint32_t format,
+                                       int fd,
+                                       uint32_t size)
 {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
   char *map_str;
@@ -167,17 +173,17 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
 }
 
 void WaylandKeyboard::OnKeyboardEnter(void* data,
-    wl_keyboard* input_keyboard,
-    uint32_t serial,
-    wl_surface* surface,
-    wl_array* keys)
+                                      wl_keyboard* input_keyboard,
+                                      uint32_t serial,
+                                      wl_surface* surface,
+                                      wl_array* keys)
 {
 }
 
 void WaylandKeyboard::OnKeyboardLeave(void* data,
-    wl_keyboard* input_keyboard,
-    uint32_t serial,
-    wl_surface* surface)
+                                      wl_keyboard* input_keyboard,
+                                      uint32_t serial,
+                                      wl_surface* surface)
 {
 }
 
