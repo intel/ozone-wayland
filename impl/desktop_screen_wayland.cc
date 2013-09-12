@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "ui/base/ozone/surface_factory_ozone.h"
 
+namespace ozonewayland {
+
 namespace {
 
 gfx::Size GetPrimaryDisplaySize() {
@@ -79,4 +81,6 @@ void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
 }
 
 void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
+}
+
 }

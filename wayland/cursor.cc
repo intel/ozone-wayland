@@ -5,7 +5,7 @@
 #include "ozone/wayland/cursor.h"
 #include "ozone/wayland/surface.h"
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandCursorData {
 public:
@@ -138,5 +138,5 @@ void WaylandCursor::Clear()
   WaylandCursorData::GetInstance()->Clear();
 }
 
-}  // namespace ui
+}  // namespace ozonewayland
 

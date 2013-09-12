@@ -1,6 +1,6 @@
-From 8069782184289973570ff69dd61dc1f6384db5f7 Mon Sep 17 00:00:00 2001
+From b3a32216e6f44f5b1ae4523cf8d471ae516b52a0 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Wed, 11 Sep 2013 19:58:53 +0300
+Date: Thu, 12 Sep 2013 12:11:23 +0300
 Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
 
 The fundamental problem to be solved here is to find a way to set downstream
@@ -38,7 +38,7 @@ index f04e4a9..673dfbc 100644
            ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
              'desktop_linux%': 1,
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index 8e60a32..754e867 100644
+index 8e60a32..5d9799a 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -24,6 +24,9 @@
@@ -70,9 +70,9 @@ index 8e60a32..754e867 100644
    InitializeResourceBundle();
 +
 +  /* TODO: Implementation specific. Has to go away */
-+  ui::SurfaceFactoryOzone *o_factory = new OzoneWayland::OzoneDisplay();
++  ui::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
 +  ui::SurfaceFactoryOzone::SetInstance(o_factory);
-+  views::DesktopFactoryOzone *d_factory = new views::DesktopFactoryWayland();
++  views::DesktopFactoryOzone *d_factory = new ozonewayland::DesktopFactoryWayland();
 +  views::DesktopFactoryOzone::SetInstance(d_factory);
  }
  
@@ -111,7 +111,7 @@ index b2fd97e..b38cf15 100644
  
  int DemoMain() {
 +  /* TODO: Implementation specific. Has to go away */
-+  ui::SurfaceFactoryOzone *o_factory = new OzoneWayland::OzoneDisplay();
++  ui::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
 +  ui::SurfaceFactoryOzone::SetInstance(o_factory);
 +
    // Create the message-loop here before creating the root window.

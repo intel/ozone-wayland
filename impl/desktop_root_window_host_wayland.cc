@@ -29,6 +29,23 @@
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
 
 namespace views {
+// static
+ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
+  const views::LinuxUI* linux_ui = views::LinuxUI::instance();
+  if (linux_ui) {
+    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
+    if (native_theme)
+      return native_theme;
+  }
+
+  return ui::NativeTheme::instance();
+}
+
+}
+
+namespace ozonewayland {
+
+using namespace views;
 
 DesktopRootWindowHostWayland* DesktopRootWindowHostWayland::g_current_capture =
     NULL;
@@ -53,18 +70,6 @@ DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
   root_window_->ClearProperty(kHostForRootWindow);
   aura::client::SetFocusClient(root_window_, NULL);
   aura::client::SetActivationClient(root_window_, NULL);
-}
-
-// static
-ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
-  const views::LinuxUI* linux_ui = views::LinuxUI::instance();
-  if (linux_ui) {
-    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
-    if (native_theme)
-      return native_theme;
-  }
-
-  return ui::NativeTheme::instance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -640,4 +645,4 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
   return true;
 }
 
-}  // namespace views
+}  // namespace ozonewayland

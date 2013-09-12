@@ -20,7 +20,7 @@
 #include "base/command_line.h"
 #include "content/public/common/content_switches.h"
 
-namespace OzoneWayland {
+namespace ozonewayland {
 
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
 
@@ -60,22 +60,22 @@ ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
  bool browserProcess = (launch_type_ & MultiProcess) && (process_type_ & Browser);
 
  if (singleProcess || gpuProcess) {
-   display_ = new ui::WaylandDisplay();
+   display_ = new WaylandDisplay();
    initialized_state_ = display_->display() ? ui::SurfaceFactoryOzone::INITIALIZED
                                             : ui::SurfaceFactoryOzone::FAILED;
  }
 
  if (singleProcess || browserProcess)
-   dispatcher_ = new ui::WaylandDispatcher();
+   dispatcher_ = new WaylandDispatcher();
 
  if (singleProcess) {
-   e_factory_ = new ui::EventFactoryWayland();
-   ui::EventFactoryWayland::SetInstance(e_factory_);
+   e_factory_ = new EventFactoryWayland();
+   EventFactoryWayland::SetInstance(e_factory_);
  } else if (gpuProcess) {
    int fd = wl_display_get_fd(display_->display());
-   dispatcher_ = new ui::WaylandDispatcher(fd);
+   dispatcher_ = new WaylandDispatcher(fd);
    channel_ = new OzoneDisplayChannel(fd);
-   dispatcher_->PostTask(ui::WaylandDispatcher::Poll);
+   dispatcher_->PostTask(WaylandDispatcher::Poll);
  } else if (browserProcess) {
    child_process_observer_ = new OzoneProcessObserver(this);
    initialized_state_ = ui::SurfaceFactoryOzone::INITIALIZED;
@@ -151,8 +151,8 @@ intptr_t OzoneDisplay::GetNativeDisplay()
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 {
   if (!root_window_)
-    root_window_ = new ui::WaylandWindow(display_ ? ui::WaylandWindow::TOPLEVEL
-                                                  : ui::WaylandWindow::None);
+    root_window_ = new WaylandWindow(display_ ? WaylandWindow::TOPLEVEL
+                                              : WaylandWindow::None);
 
   return (gfx::AcceleratedWidget)root_window_->Handle();
 }
@@ -161,7 +161,7 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
   // TODO(kalyan): Map w to window.
   if (!root_window_)
-    root_window_ = new ui::WaylandWindow();
+    root_window_ = new WaylandWindow();
 
   root_window_->RealizeAcceleratedWidget();
 
@@ -211,7 +211,7 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
 }
 
 bool OzoneDisplay::LoadEGLGLES2Bindings() {
-  return gfx::InitializeGLBindings();
+  return InitializeGLBindings();
 }
 
 void OzoneDisplay::EstablishChannel(unsigned id)
@@ -246,7 +246,7 @@ void OzoneDisplay::OnChannelHostDestroyed()
   host_ = NULL;
 }
 
-void OzoneDisplay::OnOutputSizeChanged(ui::WaylandScreen* screen, int width,
+void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen, int width,
                                        int height)
 {
   if (screen == display_->PrimaryScreen()) {
@@ -312,4 +312,4 @@ void OzoneDisplay::ValidateLaunchType()
   }
 }
 
-}  // namespace OzoneWayland
+}  // namespace ozonewayland

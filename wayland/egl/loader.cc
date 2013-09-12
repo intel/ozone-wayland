@@ -10,7 +10,7 @@
 #include "ui/gl/gl_implementation.h"
 #include "ui/gl/gl_switches.h"
 
-namespace gfx {
+namespace ozonewayland {
 
 namespace {
 
@@ -42,8 +42,8 @@ bool InitializeGLBindings() {
     return false;
   }
 
-  GLGetProcAddressProc get_proc_address =
-      reinterpret_cast<GLGetProcAddressProc>(
+  gfx::GLGetProcAddressProc get_proc_address =
+      reinterpret_cast<gfx::GLGetProcAddressProc>(
           base::GetFunctionPointerFromNativeLibrary(
               egl_library, "eglGetProcAddress"));
   if (!get_proc_address) {
@@ -53,11 +53,11 @@ bool InitializeGLBindings() {
     return false;
   }
 
-  SetGLGetProcAddressProc(get_proc_address);
-  AddGLNativeLibrary(egl_library);
-  AddGLNativeLibrary(gles_library);
+  gfx::SetGLGetProcAddressProc(get_proc_address);
+  gfx::AddGLNativeLibrary(egl_library);
+  gfx::AddGLNativeLibrary(gles_library);
 
   return true;
 }
 
-}  // namespace gfx
+}  // namespace ozonewayland

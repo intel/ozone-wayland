@@ -7,7 +7,7 @@
 #include "ui/base/ime/input_method.h"
 #include "ui/base/ime/input_method_factory.h"
 
-namespace ui {
+namespace ozonewayland {
 
 ////////////////////////////////////////////////////////////////////////////////
 // InputMethodEventFilter, public:
@@ -38,4 +38,4 @@ bool WaylandInputMethodEventFilter::DispatchFabricatedKeyEventPostIME(
 {
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

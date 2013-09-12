@@ -12,7 +12,7 @@
 
 #include <linux/input.h>
 
-namespace ui {
+namespace ozonewayland {
 
 WaylandPointer::WaylandPointer()
   : cursor_(NULL),
@@ -145,4 +145,4 @@ void WaylandPointer::OnPointerLeave(void* data,
                                     device->pointer_position_.y());
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

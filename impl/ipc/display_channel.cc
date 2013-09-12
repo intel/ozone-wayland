@@ -4,7 +4,7 @@
 
 #include "ozone/impl/ipc/display_channel.h"
 
-#include "ozone/wayland/dispatcher.cc"
+#include "ozone/wayland/dispatcher.h"
 
 #include "ozone/impl/ozone_display.h"
 
@@ -13,12 +13,15 @@
 #include "ipc/ipc_sync_channel.h"
 #include "ipc/ipc_channel_handle.h"
 
-namespace OzoneWayland {
+namespace ozonewayland {
 
-content::ChildThread* GetProcessMainThread()
-{
+namespace {
+
+content::ChildThread* GetProcessMainThread() {
   content::ChildProcess* process = content::ChildProcess::current();
   return process ? process->main_thread() : NULL;
+}
+
 }
 
 OzoneDisplayChannel::OzoneDisplayChannel(unsigned fd)
@@ -74,4 +77,4 @@ void OzoneDisplayChannel::Register()
   }
 }
 
-} // namespace OzoneWayland
+}  // namespace ozonewayland

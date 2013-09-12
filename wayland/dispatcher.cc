@@ -18,7 +18,19 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-namespace ui {
+namespace {
+
+content::ChildThread* GetProcessMainThread()
+{
+  content::ChildProcess* process = content::ChildProcess::current();
+  DCHECK(process);
+  DCHECK(process->main_thread());
+  return process ? process->main_thread() : NULL;
+}
+
+}
+
+namespace ozonewayland {
 WaylandDispatcher* WaylandDispatcher::instance_ = NULL;
 
 // os-compatibility
@@ -63,15 +75,6 @@ int osEpollCreateCloExec(void)
 }
 
 } // os-compatibility
-
-
-content::ChildThread* GetProcessMainThread()
-{
-  content::ChildProcess* process = content::ChildProcess::current();
-  DCHECK(process);
-  DCHECK(process->main_thread());
-  return process ? process->main_thread() : NULL;
-}
 
 WaylandDispatcher::WaylandDispatcher(int fd)
     : Thread("WaylandDispatcher"),
@@ -277,9 +280,11 @@ void WaylandDispatcher::MotionNotify(float x, float y)
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::SendMotionNotify, x, y));
   } else {
-    scoped_ptr<MouseEvent> mouseev(new MouseEvent(ui::ET_MOUSE_MOVED,
-                                                  gfx::Point(x, y),
-                                                  gfx::Point(x, y), 0));
+    scoped_ptr<ui::MouseEvent> mouseev(
+        new ui::MouseEvent(ui::ET_MOUSE_MOVED,
+                           gfx::Point(x, y),
+                           gfx::Point(x, y),
+                           0));
 
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::DispatchEventHelper, base::Passed(
@@ -295,14 +300,17 @@ void WaylandDispatcher::ButtonNotify(int state, int flags, float x, float y)
     PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendButtonNotify,
                                              state, flags, x, y));
   } else {
-    EventType type;
+    ui::EventType type;
     if (state == 1)
       type = ui::ET_MOUSE_PRESSED;
     else
       type = ui::ET_MOUSE_RELEASED;
 
-    scoped_ptr<MouseEvent> mouseev(new MouseEvent(type, gfx::Point(x, y),
-                                                  gfx::Point(x, y), flags));
+    scoped_ptr<ui::MouseEvent> mouseev(
+        new ui::MouseEvent(type,
+                           gfx::Point(x, y),
+                           gfx::Point(x, y),
+                           flags));
 
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::DispatchEventHelper, base::Passed(
@@ -319,9 +327,17 @@ void WaylandDispatcher::AxisNotify(float x, float y, float xoffset, float yoffse
     PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendAxisNotify,
                                              x, y, xoffset, yoffset));
   } else {
-    MouseEvent mouseev(ui::ET_MOUSEWHEEL, gfx::Point(x,y), gfx::Point(x,y), 0);
-    scoped_ptr<MouseWheelEvent> wheelev(new MouseWheelEvent(mouseev, xoffset,
-                                                            yoffset));
+    ui::MouseEvent mouseev(
+        ui::ET_MOUSEWHEEL,
+        gfx::Point(x,y),
+        gfx::Point(x,y),
+        0);
+
+    scoped_ptr<ui::MouseWheelEvent> wheelev(
+        new ui::MouseWheelEvent(mouseev,
+                                xoffset,
+                                yoffset));
+
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::DispatchEventHelper, base::Passed(
                                               wheelev.PassAs<ui::Event>())));
@@ -336,9 +352,11 @@ void WaylandDispatcher::PointerEnter(float x, float y)
     PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendPointerEnter,
                                              x, y));
   } else {
-    scoped_ptr<MouseEvent> mouseev(new MouseEvent(ui::ET_MOUSE_ENTERED,
-                                                  gfx::Point(x, y),
-                                                  gfx::Point(x, y), 0));
+    scoped_ptr<ui::MouseEvent> mouseev(
+        new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
+                           gfx::Point(x, y),
+                           gfx::Point(x, y),
+                           0));
 
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::DispatchEventHelper, base::Passed(
@@ -354,9 +372,12 @@ void WaylandDispatcher::PointerLeave(float x, float y)
     PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendPointerLeave,
                                              x, y));
   } else {
-    scoped_ptr<MouseEvent> mouseev(new MouseEvent(ui::ET_MOUSE_EXITED,
-                                                  gfx::Point(x, y),
-                                                  gfx::Point(x, y),0));
+    scoped_ptr<ui::MouseEvent> mouseev(
+        new ui::MouseEvent(ui::ET_MOUSE_EXITED,
+                           gfx::Point(x, y),
+                           gfx::Point(x, y),
+                           0));
+
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::DispatchEventHelper, base::Passed(
                                               mouseev.PassAs<ui::Event>())));
@@ -372,14 +393,18 @@ void WaylandDispatcher::KeyNotify(unsigned state, unsigned code,
     PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendKeyNotify,
                                              state, code, modifiers));
   } else {
-    EventType type;
+    ui::EventType type;
     if (state)
-      type = ET_KEY_PRESSED;
+      type = ui::ET_KEY_PRESSED;
     else
-      type = ET_KEY_RELEASED;
+      type = ui::ET_KEY_RELEASED;
 
-    scoped_ptr<KeyEvent> keyev(new KeyEvent(type, ui::KeyboardCodeFromXKeysym(code),
-                                            modifiers, true));
+    scoped_ptr<ui::KeyEvent> keyev(
+        new ui::KeyEvent(type,
+                         KeyboardCodeFromXKeysym(code),
+                         0,
+                         true));
+
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::DispatchEventHelper, base::Passed(
                                               keyev.PassAs<ui::Event>())));
@@ -395,4 +420,4 @@ void WaylandDispatcher::OutputSizeChanged(unsigned width, unsigned height)
                       &WaylandDispatcher::SendOutputSizeChanged, width, height));
 }
 
-}  // namespace ui
+}  // namespace ozonewayland
