@@ -4,14 +4,9 @@
 
 #include "ozone/impl/ipc/display_channel.h"
 
-#include "ozone/wayland/dispatcher.h"
-
 #include "ozone/impl/ozone_display.h"
-
 #include "content/child/child_thread.h"
 #include "content/child/child_process.h"
-#include "ipc/ipc_sync_channel.h"
-#include "ipc/ipc_channel_handle.h"
 
 namespace ozonewayland {
 

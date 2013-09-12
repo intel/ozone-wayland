@@ -7,11 +7,7 @@
 #define DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 
 #include "base/basictypes.h"
-#include "base/memory/weak_ptr.h"
-#include "ui/aura/client/cursor_client.h"
 #include "ui/aura/root_window_host.h"
-#include "ui/gfx/rect.h"
-#include "ui/views/views_export.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
 
 namespace aura {

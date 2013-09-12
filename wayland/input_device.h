@@ -5,7 +5,8 @@
 #ifndef OZONE_WAYLAND_INPUT_DEVICE_H_
 #define OZONE_WAYLAND_INPUT_DEVICE_H_
 
-#include "ozone/wayland/display.h"
+#include "base/basictypes.h"
+#include <wayland-client.h>
 
 namespace ozonewayland {
 
@@ -14,6 +15,7 @@ class WaylandKeyboard;
 class WaylandPointer;
 class InputMethod;
 class WaylandInputMethodEventFilter;
+class WaylandDisplay;
 
 class WaylandInputDevice {
  public:

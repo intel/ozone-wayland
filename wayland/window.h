@@ -7,9 +7,8 @@
 #define OZONE_WAYLAND_WINDOW_H_
 
 #include "ui/gfx/rect.h"
-#include "ozone/wayland/display.h"
 
-#include <stdint.h>
+#include <wayland-client.h>
 
 namespace ozonewayland {
 
