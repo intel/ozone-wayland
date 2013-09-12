@@ -6,9 +6,7 @@
 
 #include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/display.h"
-
 #include "base/lazy_instance.h"
-#include "base/memory/scoped_ptr.h"
 
 namespace ozonewayland {
 

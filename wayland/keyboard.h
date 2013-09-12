@@ -5,8 +5,9 @@
 #ifndef OZONE_WAYLAND_KEYBOARD_H_
 #define OZONE_WAYLAND_KEYBOARD_H_
 
-#include <xkbcommon/xkbcommon.h>
 #include "ozone/wayland/display.h"
+
+#include <xkbcommon/xkbcommon.h>
 
 namespace ozonewayland {
 

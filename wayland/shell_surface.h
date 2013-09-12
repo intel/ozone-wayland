@@ -5,8 +5,10 @@
 #ifndef OZONE_WAYLAND_SHELL_SURFACE_H_
 #define OZONE_WAYLAND_SHELL_SURFACE_H_
 
-#include "ozone/wayland/display.h"
+#include "base/basictypes.h"
 #include "ozone/wayland/window.h"
+
+#include <wayland-client.h>
 
 namespace ozonewayland {
 

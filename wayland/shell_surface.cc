@@ -6,7 +6,6 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/surface.h"
-
 #include "base/logging.h"
 
 namespace ozonewayland {

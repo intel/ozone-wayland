@@ -5,7 +5,6 @@
 #ifndef OZONE_WAYLAND_EGL_WINDOW_H_
 #define OZONE_WAYLAND_EGL_WINDOW_H_
 
-#include "ui/gfx/rect.h"
 #include "ozone/wayland/display.h"
 
 struct wl_egl_window;

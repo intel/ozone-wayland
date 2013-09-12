@@ -4,6 +4,7 @@
 
 #include "ozone/wayland/input_device.h"
 
+#include "ozone/wayland/display.h"
 #include "ozone/wayland/input_method_event_filter.h"
 #include "ozone/wayland/keyboard.h"
 #include "ozone/wayland/pointer.h"

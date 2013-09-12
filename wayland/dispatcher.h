@@ -9,7 +9,6 @@
 #include "base/threading/thread.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/base/events/event.h"
-#include "ozone/wayland/display.h"
 
 namespace ozonewayland {
 class EventFactoryWayland;
