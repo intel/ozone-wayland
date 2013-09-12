@@ -12,9 +12,9 @@
 namespace ozonewayland {
 
 WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
-  :input_keyboard_(NULL),
-   input_pointer_(NULL),
-   input_method_filter_(NULL)
+    : input_keyboard_(NULL),
+      input_pointer_(NULL),
+      input_method_filter_(NULL)
 
 {
   static const struct wl_seat_listener kInputSeatListener = {

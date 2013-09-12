@@ -85,12 +85,11 @@ void WaylandCursorData::Clear()
  }
 }
 
-WaylandCursor::WaylandCursor(wl_shm* shm) :
-  input_pointer_(NULL),
-  buffer_(NULL),
-  width_(0),
-  height_(0),
-  type_(CURSOR_UNSET)
+WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
+    buffer_(NULL),
+    width_(0),
+    height_(0),
+    type_(CURSOR_UNSET)
 {
   pointer_surface_ = new WaylandSurface();
   WaylandCursorData::Initialize(shm);

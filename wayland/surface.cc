@@ -11,8 +11,7 @@ static const struct wl_callback_listener frameListener = {
     WaylandSurface::surfaceFrameCallback
 };
 
-WaylandSurface::WaylandSurface()
-    : surface_(NULL),
+WaylandSurface::WaylandSurface() : surface_(NULL),
     frameCallBack_(NULL),
     m_queue(NULL)
 {

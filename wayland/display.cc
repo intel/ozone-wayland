@@ -13,7 +13,7 @@
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
-WaylandDisplay::WaylandDisplay() :compositor_(NULL),
+WaylandDisplay::WaylandDisplay() : compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
     primary_screen_(NULL)

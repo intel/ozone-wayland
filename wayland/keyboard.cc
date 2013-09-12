@@ -10,8 +10,7 @@
 
 namespace ozonewayland {
 
-WaylandKeyboard::WaylandKeyboard()
-  : input_keyboard_(NULL),
+WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
     keyboard_modifiers_(0),
     dispatcher_(NULL)
 {

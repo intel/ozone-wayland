@@ -12,7 +12,7 @@ namespace ozonewayland {
 
 WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
     : surface_(NULL),
-    shell_surface_(NULL)
+      shell_surface_(NULL)
 {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   if (!display)
