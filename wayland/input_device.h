@@ -7,7 +7,7 @@
 
 #include "ozone/wayland/display.h"
 
-namespace ui {
+namespace ozonewayland {
 
 class Event;
 class WaylandKeyboard;
@@ -39,6 +39,6 @@ class WaylandInputDevice {
   DISALLOW_COPY_AND_ASSIGN(WaylandInputDevice);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_INPUT_DEVICE_H_

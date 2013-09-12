@@ -8,7 +8,7 @@
 #include "content/public/browser/browser_child_process_observer.h"
 #include "content/public/browser/child_process_data.h"
 
-namespace OzoneWayland {
+namespace ozonewayland {
 
 class OzoneDisplay;
 
@@ -37,6 +37,6 @@ class OzoneProcessObserver : public content::BrowserChildProcessObserver {
   DISALLOW_COPY_AND_ASSIGN(OzoneProcessObserver);
 };
 
-}  // namespace OzoneWayland
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_CHILD_PROCESS_OBSERVER

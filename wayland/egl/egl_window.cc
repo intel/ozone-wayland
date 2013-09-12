@@ -8,7 +8,7 @@
 #include "ozone/wayland/surface.h"
 #include <wayland-egl.h>
 
-namespace ui {
+namespace ozonewayland {
 
 EGLWindow::EGLWindow(struct wl_surface* surface, int32_t width, int32_t height)
     : window_(NULL)
@@ -41,4 +41,4 @@ bool EGLWindow::Resize(WaylandSurface* surface, int32_t width, int32_t height)
     return true;
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

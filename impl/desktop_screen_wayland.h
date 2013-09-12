@@ -7,6 +7,8 @@
 
 #include "ui/gfx/screen.h"
 
+namespace ozonewayland {
+
 class DesktopScreenWayland : public gfx::Screen {
  public:
   DesktopScreenWayland();
@@ -33,5 +35,7 @@ class DesktopScreenWayland : public gfx::Screen {
 
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
+
+}
 
 #endif  // DESKTOP_SCREEN_WAYLAND_H__
