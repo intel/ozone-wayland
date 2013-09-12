@@ -6,7 +6,6 @@
 #define OZONE_WAYLAND_SURFACE_H_
 
 #include <wayland-client.h>
-#include <wayland-server.h>
 
 namespace ozonewayland {
 

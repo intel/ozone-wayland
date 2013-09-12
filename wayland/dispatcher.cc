@@ -4,8 +4,8 @@
 
 #include "ozone/wayland/dispatcher.h"
 
+#include "ozone/wayland/display.h"
 #include "ozone/wayland/kbd_conversion.h"
-
 #include "base/bind.h"
 #include "base/message_loop/message_pump_ozone.h"
 #include "content/child/child_thread.h"
@@ -17,6 +17,7 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <wayland-client.h>
 
 namespace {
 

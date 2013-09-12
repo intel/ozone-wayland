@@ -5,6 +5,7 @@
 #ifndef OZONE_WAYLAND_POINTER_H_
 #define OZONE_WAYLAND_POINTER_H_
 
+#include "ozone/wayland/display.h"
 #include "ui/gfx/point.h"
 
 namespace ozonewayland {

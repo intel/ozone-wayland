@@ -5,11 +5,10 @@
 
 #include "ozone/wayland/kbd_conversion.h"
 
-#include <xkbcommon/xkbcommon.h>
-
-#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
+
+#include <xkbcommon/xkbcommon.h>
 
 namespace ozonewayland {
 

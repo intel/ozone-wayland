@@ -5,7 +5,8 @@
 #ifndef OZONE_WAYLAND_CURSOR_H_
 #define OZONE_WAYLAND_CURSOR_H_
 
-#include "ozone/wayland/input_device.h"
+#include "base/basictypes.h"
+#include <wayland-client.h>
 #include <wayland-cursor.h>
 
 namespace ozonewayland {

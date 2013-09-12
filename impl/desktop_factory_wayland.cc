@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "ozone/impl/desktop_factory_wayland.h"
+
 #include "ozone/impl/desktop_root_window_host_wayland.h"
 
 namespace ozonewayland {

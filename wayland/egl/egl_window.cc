@@ -4,8 +4,8 @@
 
 #include "ozone/wayland/egl/egl_window.h"
 
-#include "ozone/wayland/display.h"
 #include "ozone/wayland/surface.h"
+
 #include <wayland-egl.h>
 
 namespace ozonewayland {
