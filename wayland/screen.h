@@ -16,7 +16,7 @@
 
 struct wl_output;
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandDisplay;
 
@@ -57,6 +57,6 @@ class WaylandScreen {
   DISALLOW_COPY_AND_ASSIGN(WaylandScreen);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_SCREEN_H_

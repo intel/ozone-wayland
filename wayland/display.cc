@@ -10,7 +10,7 @@
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/cursor.h"
 
-namespace ui {
+namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
 WaylandDisplay::WaylandDisplay() :compositor_(NULL),
@@ -111,4 +111,4 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   }
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

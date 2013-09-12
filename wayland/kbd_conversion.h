@@ -10,10 +10,10 @@
 #include "ui/base/keycodes/keyboard_codes_posix.h"
 #include "ui/base/ui_export.h"
 
-namespace ui {
+namespace ozonewayland {
 
-UI_EXPORT KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym);
+UI_EXPORT ui::KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym);
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_KBD_CONVERSION_H_

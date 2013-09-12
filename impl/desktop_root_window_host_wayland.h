@@ -26,19 +26,21 @@ class DesktopDragDropClientAuraOzone;
 class DesktopDispatcherClient;
 class OzoneDesktopWindowMoveClient;
 class OzoneWindowEventFilter;
-
 namespace corewm {
 class CursorManager;
 }
+}
+
+namespace ozonewayland {
 
 class VIEWS_EXPORT DesktopRootWindowHostWayland :
-    public DesktopRootWindowHost,
+    public views::DesktopRootWindowHost,
     public aura::RootWindowHost,
     public base::MessageLoop::Dispatcher {
  public:
   DesktopRootWindowHostWayland(
-      internal::NativeWidgetDelegate* native_widget_delegate,
-      DesktopNativeWidgetAura* desktop_native_widget_aura,
+      views::internal::NativeWidgetDelegate* native_widget_delegate,
+      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
       const gfx::Rect& bounds);
   virtual ~DesktopRootWindowHostWayland();
 
@@ -49,11 +51,11 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
  private:
   // Initializes our Ozone surface to draw on. This method performs all
   // initialization related to talking to the Ozone server.
-  void InitWaylandWindow(const Widget::InitParams& params);
+  void InitWaylandWindow(const views::Widget::InitParams& params);
 
   // Creates an aura::RootWindow to contain the |content_window|, along with
   // all aura client objects that direct behavior.
-  aura::RootWindow* InitRootWindow(const Widget::InitParams& params);
+  aura::RootWindow* InitRootWindow(const views::Widget::InitParams& params);
 
   // Returns true if there's an X window manager present... in most cases.  Some
   // window managers (notably, ion3) don't implement enough of ICCCM for us to
@@ -71,7 +73,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
 
   // Overridden from DesktopRootWindowHost:
   virtual aura::RootWindow* Init(aura::Window* content_window,
-                                 const Widget::InitParams& params) OVERRIDE;
+                                 const views::Widget::InitParams& params) OVERRIDE;
   virtual void InitFocus(aura::Window* window) OVERRIDE;
   virtual void Close() OVERRIDE;
   virtual void CloseNow() OVERRIDE;
@@ -102,14 +104,14 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void SetAlwaysOnTop(bool always_on_top) OVERRIDE;
   virtual void SetWindowTitle(const string16& title) OVERRIDE;
   virtual void ClearNativeFocus() OVERRIDE;
-  virtual Widget::MoveLoopResult RunMoveLoop(
+  virtual views::Widget::MoveLoopResult RunMoveLoop(
       const gfx::Vector2d& drag_offset,
-      Widget::MoveLoopSource source) OVERRIDE;
+      views::Widget::MoveLoopSource source) OVERRIDE;
   virtual void EndMoveLoop() OVERRIDE;
   virtual void SetVisibilityChangedAnimationsEnabled(bool value) OVERRIDE;
   virtual bool ShouldUseNativeFrame() OVERRIDE;
   virtual void FrameTypeChanged() OVERRIDE;
-  virtual NonClientFrameView* CreateNonClientFrameView() OVERRIDE;
+  virtual views::NonClientFrameView* CreateNonClientFrameView() OVERRIDE;
   virtual void SetFullscreen(bool fullscreen) OVERRIDE;
   virtual bool IsFullscreen() const OVERRIDE;
   virtual void SetOpacity(unsigned char opacity) OVERRIDE;
@@ -165,11 +167,11 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   // aura:: objects that we own.
   scoped_ptr<aura::client::FocusClient> focus_client_;
   scoped_ptr<views::corewm::CursorManager> cursor_client_;
-  scoped_ptr<DesktopDispatcherClient> dispatcher_client_;
+  scoped_ptr<views::DesktopDispatcherClient> dispatcher_client_;
   scoped_ptr<aura::client::ScreenPositionClient> position_client_;
 
   gfx::AcceleratedWidget window_;
-  internal::NativeWidgetDelegate* native_widget_delegate_;
+  views::internal::NativeWidgetDelegate* native_widget_delegate_;
 
   // Is the window mapped to the screen?
   bool window_mapped_;
@@ -179,7 +181,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   aura::RootWindowHostDelegate* root_window_host_delegate_;
   aura::Window* content_window_;
 
-  DesktopNativeWidgetAura* desktop_native_widget_aura_;
+  views::DesktopNativeWidgetAura* desktop_native_widget_aura_;
 
   // The current root window host that has capture. While X11 has something
   // like Windows SetCapture()/ReleaseCapture(), it is entirely implicit and
@@ -191,6 +193,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostWayland);
 };
 
-}  // namespace views
+}  // namespace ozonewayland
 
 #endif  // DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_

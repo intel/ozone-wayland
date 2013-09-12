@@ -6,7 +6,7 @@
 #include "ozone/impl/ozone_display.h"
 #include "content/public/common/process_type.h"
 
-namespace OzoneWayland {
+namespace ozonewayland {
 
 OzoneProcessObserver::OzoneProcessObserver(OzoneDisplay* observer)
     : observer_(observer)
@@ -42,4 +42,4 @@ void OzoneProcessObserver::WillDestroyCurrentMessageLoop()
   BrowserChildProcessObserver::Remove(this);
 }
 
-}  // namespace content
+}  // namespace ozonewayland

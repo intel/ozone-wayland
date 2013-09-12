@@ -8,7 +8,7 @@
 #include "ozone/wayland/keyboard.h"
 #include "ozone/wayland/pointer.h"
 
-namespace ui {
+namespace ozonewayland {
 
 WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
   :input_keyboard_(NULL),
@@ -73,4 +73,4 @@ InputMethod* WaylandInputDevice::GetInputMethod() const
   input_method_filter_->GetInputMethod();
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

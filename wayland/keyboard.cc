@@ -7,7 +7,7 @@
 #include "ozone/wayland/dispatcher.h"
 #include <sys/mman.h>
 
-namespace ui {
+namespace ozonewayland {
 
 WaylandKeyboard::WaylandKeyboard()
   : input_keyboard_(NULL),
@@ -99,11 +99,11 @@ void WaylandKeyboard::OnKeyNotify(void* data,
       (xkb_state_component)(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED));
   device->keyboard_modifiers_ = 0;
   if (mask & device->xkb_.control_mask)
-    device->keyboard_modifiers_ |= EF_CONTROL_DOWN;
+    device->keyboard_modifiers_ |= ui::EF_CONTROL_DOWN;
   if (mask & device->xkb_.alt_mask)
-    device->keyboard_modifiers_ |= EF_ALT_DOWN;
+    device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
   if (mask & device->xkb_.shift_mask)
-    device->keyboard_modifiers_ |= EF_SHIFT_DOWN;
+    device->keyboard_modifiers_ |= ui::EF_SHIFT_DOWN;
 
   device->dispatcher_->KeyNotify(currentState, sym,
                                  device->keyboard_modifiers_);
@@ -180,4 +180,4 @@ void WaylandKeyboard::OnKeyboardLeave(void* data,
 {
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

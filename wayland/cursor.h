@@ -8,7 +8,7 @@
 #include "ozone/wayland/input_device.h"
 #include <wayland-cursor.h>
 
-namespace ui {
+namespace ozonewayland {
 class WaylandCursorData;
 class WaylandSurface;
 class WaylandDisplay;
@@ -52,6 +52,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_DISPLAY_H_

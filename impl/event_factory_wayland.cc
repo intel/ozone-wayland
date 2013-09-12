@@ -10,7 +10,7 @@
 #include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
 
-namespace ui {
+namespace ozonewayland {
 
 // Implementation.
 static base::LazyInstance<scoped_ptr<EventFactoryWayland> > impl_ =
@@ -31,7 +31,7 @@ EventFactoryWayland::EventFactoryWayland()
   CHECK(success);
   DCHECK(base::MessageLoop::current());
   base::MessageLoop::current()->AddTaskObserver(this);
-  dispatcher_ = ui::WaylandDispatcher::GetInstance();
+  dispatcher_ = WaylandDispatcher::GetInstance();
 }
 
 EventFactoryWayland::~EventFactoryWayland() {
@@ -83,4 +83,4 @@ void EventFactoryWayland::WillDestroyCurrentMessageLoop()
   base::MessageLoop::current()->RemoveTaskObserver(this);
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

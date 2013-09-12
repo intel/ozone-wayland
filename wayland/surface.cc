@@ -6,7 +6,7 @@
 #include "ozone/wayland/surface.h"
 #include "ozone/wayland/display.h"
 
-namespace ui {
+namespace ozonewayland {
 static const struct wl_callback_listener frameListener = {
     WaylandSurface::surfaceFrameCallback
 };

@@ -9,7 +9,7 @@
 
 #include "base/logging.h"
 
-namespace ui {
+namespace ozonewayland {
 
 WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
     : surface_(NULL),
@@ -85,4 +85,4 @@ void WaylandShellSurface::HandlePing(void *data, struct wl_shell_surface *shell_
   wl_shell_surface_pong(shell_surface, serial);
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

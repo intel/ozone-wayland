@@ -8,7 +8,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include "ozone/wayland/display.h"
 
-namespace ui {
+namespace ozonewayland {
 
 class WaylandDispatcher;
 
@@ -83,6 +83,6 @@ class WaylandKeyboard {
   DISALLOW_COPY_AND_ASSIGN(WaylandKeyboard);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_KEYBOARD_H_
