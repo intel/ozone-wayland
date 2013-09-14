@@ -10,7 +10,6 @@
 #include <wayland-cursor.h>
 
 namespace ozonewayland {
-class WaylandCursorData;
 class WaylandSurface;
 class WaylandDisplay;
 
