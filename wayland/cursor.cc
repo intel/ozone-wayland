@@ -85,12 +85,11 @@ void WaylandCursorData::Clear()
  }
 }
 
-WaylandCursor::WaylandCursor(wl_shm* shm) :
-  input_pointer_(NULL),
-  buffer_(NULL),
-  width_(0),
-  height_(0),
-  type_(CURSOR_UNSET)
+WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
+    buffer_(NULL),
+    width_(0),
+    height_(0),
+    type_(CURSOR_UNSET)
 {
   pointer_surface_ = new WaylandSurface();
   WaylandCursorData::Initialize(shm);
@@ -114,11 +113,16 @@ void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial)
   if (type_ == type)
     return;
 
-  struct wl_cursor_image* image = WaylandCursorData::GetInstance()->GetCursorImage(type - 1);
+  struct wl_cursor_image* image = WaylandCursorData::GetInstance()->
+      GetCursorImage(type - 1);
   buffer_ = wl_cursor_image_get_buffer(image);
   width_ = image->width;
   height_ = image->height;
-  wl_pointer_set_cursor(input_pointer_, serial, pointer_surface_->wlSurface(), image->hotspot_x, image->hotspot_y);
+  wl_pointer_set_cursor(input_pointer_,
+                        serial,
+                        pointer_surface_->wlSurface(),
+                        image->hotspot_x,
+                        image->hotspot_y);
 }
 
 void WaylandCursor::Update(CursorType type, uint32_t serial)

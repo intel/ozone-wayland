@@ -11,9 +11,8 @@ static const struct wl_callback_listener frameListener = {
     WaylandSurface::surfaceFrameCallback
 };
 
-WaylandSurface::WaylandSurface()
-    : surface_(0),
-    frameCallBack_(0),
+WaylandSurface::WaylandSurface() : surface_(NULL),
+    frameCallBack_(NULL),
     m_queue(NULL)
 {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
@@ -82,7 +81,7 @@ void WaylandSurface::surfaceFrameCallback(void* data, struct wl_callback* callba
 
 void WaylandSurface::destroyFrameCallBack()
 {
-  frameCallBack_ = 0;
+  frameCallBack_ = NULL;
 }
 
 }  // namespace ui

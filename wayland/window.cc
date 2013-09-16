@@ -14,8 +14,7 @@
 
 namespace ozonewayland {
 
-WaylandWindow::WaylandWindow(ShellType type)
-    : shell_surface_(NULL),
+WaylandWindow::WaylandWindow(ShellType type) : shell_surface_(NULL),
     window_(NULL),
     type_(type),
     allocation_(gfx::Rect(0, 0, 1, 1)),

@@ -28,10 +28,9 @@ class WaylandInputDevice {
   WaylandPointer* GetPointer() const { return input_pointer_; }
 
  private:
-  static void OnSeatCapabilities(
-      void *data,
-      wl_seat *seat,
-      uint32_t caps);
+  static void OnSeatCapabilities(void *data,
+                                 wl_seat *seat,
+                                 uint32_t caps);
 
   wl_seat* input_seat_;
   WaylandKeyboard* input_keyboard_;

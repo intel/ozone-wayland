@@ -12,7 +12,7 @@ namespace ozonewayland {
 
 WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
     : surface_(NULL),
-    shell_surface_(NULL)
+      shell_surface_(NULL)
 {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   if (!display)
@@ -20,7 +20,9 @@ WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
 
   surface_ = new WaylandSurface();
   if (display->shell()) {
-    shell_surface_ = wl_shell_get_shell_surface(display->shell(), surface_->wlSurface());
+    shell_surface_ = wl_shell_get_shell_surface(
+        display->shell(),
+        surface_->wlSurface());
     UpdateShellSurface(window->Type());
   }
 
@@ -68,18 +70,24 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type) cons
   }
 }
 
-void WaylandShellSurface::HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
-    uint32_t edges, int32_t width, int32_t height)
+void WaylandShellSurface::HandleConfigure(void *data,
+                                          struct wl_shell_surface *shell_surface,
+                                          uint32_t edges,
+                                          int32_t width,
+                                          int32_t height)
 {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
   window->SetBounds(gfx::Rect(0, 0, width, height));
 }
 
-void WaylandShellSurface::HandlePopupDone(void *data, struct wl_shell_surface *shell_surface)
+void WaylandShellSurface::HandlePopupDone(void *data,
+                                          struct wl_shell_surface *shell_surface)
 {
 }
 
-void WaylandShellSurface::HandlePing(void *data, struct wl_shell_surface *shell_surface, uint32_t serial)
+void WaylandShellSurface::HandlePing(void *data,
+                                     struct wl_shell_surface *shell_surface,
+                                     uint32_t serial)
 {
   wl_shell_surface_pong(shell_surface, serial);
 }
