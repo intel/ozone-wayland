@@ -19,6 +19,7 @@ class OzoneDisplay;
 class OzoneProcessObserver : public content::BrowserChildProcessObserver {
  public:
   OzoneProcessObserver(OzoneDisplay* observer);
+  virtual ~OzoneProcessObserver();
   // Implement |BrowserChildProcessObserver|.
   virtual void BrowserChildProcessHostDisconnected(
     const content::ChildProcessData& data) OVERRIDE;
@@ -31,7 +32,6 @@ class OzoneProcessObserver : public content::BrowserChildProcessObserver {
 
   void WillDestroyCurrentMessageLoop();
 
-  virtual ~OzoneProcessObserver();
  private:
   OzoneDisplay* observer_;
   DISALLOW_COPY_AND_ASSIGN(OzoneProcessObserver);

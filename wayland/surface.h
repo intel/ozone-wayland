@@ -23,22 +23,22 @@ public:
   //    return;
   // m_surface->addFrameCallBack();
   // Swap buffers.
-  void addFrameCallBack();
+  void AddFrameCallBack();
   // Ensure deleteFrameCallBack(in case a framecallback is requested)
   // is called before destroying any EGL resources associated with the
   // surface. Example usage:
   // deleteFrameCallBack();
   // destroy egl window etc
   // m_surface = nullptr; i.e destroy WaylandSurface.
-  void deleteFrameCallBack();
+  void DeleteFrameCallBack();
   // see addFrameCallBack.
-  int ensureFrameCallBackDone();
+  int EnsureFrameCallBackDone();
 
   // callback
-  static void surfaceFrameCallback(void*, struct wl_callback*, uint32_t);
+  static void SurfaceFrameCallback(void*, struct wl_callback*, uint32_t);
 
 private:
-  void destroyFrameCallBack();
+  void DestroyFrameCallBack();
   struct wl_surface* surface_;
   struct wl_callback* frameCallBack_;
   struct wl_event_queue* m_queue;

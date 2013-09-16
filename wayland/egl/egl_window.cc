@@ -23,7 +23,7 @@ EGLWindow::~EGLWindow() {
 
 bool EGLWindow::Resize(WaylandSurface* surface, int32_t width, int32_t height)
 {
-  surface->ensureFrameCallBackDone();
+  surface->EnsureFrameCallBackDone();
 
   int current_width, current_height;
   wl_egl_window_get_attached_size(window_, &current_width, &current_height);

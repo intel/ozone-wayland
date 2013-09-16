@@ -33,7 +33,7 @@ class WaylandDisplay {
   wl_registry* registry() const { return registry_; }
 
   // Returns a list of the registered screens.
-  std::list<WaylandScreen*> GetScreenList() const;
+  std::list<WaylandScreen*> GetScreenList() const { return screen_list_; }
   WaylandScreen* PrimaryScreen() const { return primary_screen_ ; }
 
   wl_shell* shell() const { return shell_; }

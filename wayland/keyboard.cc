@@ -26,25 +26,6 @@ WaylandKeyboard::~WaylandKeyboard()
   }
 }
 
-void WaylandKeyboard::InitXKB()
-{
-  if (xkb_.context) {
-    return;
-  }
-
-  xkb_.context = xkb_context_new((xkb_context_flags)0);
-}
-
-void WaylandKeyboard::FiniXKB()
-{
-  if (xkb_.state)
-    xkb_state_unref(xkb_.state);
-  if (xkb_.keymap)
-    xkb_map_unref(xkb_.keymap);
-  if (xkb_.context)
-    xkb_context_unref(xkb_.context);
-}
-
 void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
 {
   static const struct wl_keyboard_listener kInputKeyboardListener = {
@@ -109,20 +90,6 @@ void WaylandKeyboard::OnKeyNotify(void* data,
                                  device->keyboard_modifiers_);
 }
 
-void WaylandKeyboard::OnKeyModifiers(void *data,
-                                     wl_keyboard *keyboard,
-                                     uint32_t serial,
-                                     uint32_t mods_depressed,
-                                     uint32_t mods_latched,
-                                     uint32_t mods_locked,
-                                     uint32_t group)
-{
-  WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-
-  xkb_state_update_mask(device->xkb_.state, mods_depressed, mods_latched,
-      mods_locked, 0, 0, group);
-}
-
 void WaylandKeyboard::OnKeyboardKeymap(void *data,
                                        struct wl_keyboard *keyboard,
                                        uint32_t format,
@@ -184,6 +151,39 @@ void WaylandKeyboard::OnKeyboardLeave(void* data,
                                       uint32_t serial,
                                       wl_surface* surface)
 {
+}
+
+void WaylandKeyboard::OnKeyModifiers(void *data,
+                                     wl_keyboard *keyboard,
+                                     uint32_t serial,
+                                     uint32_t mods_depressed,
+                                     uint32_t mods_latched,
+                                     uint32_t mods_locked,
+                                     uint32_t group)
+{
+  WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
+
+  xkb_state_update_mask(device->xkb_.state, mods_depressed, mods_latched,
+      mods_locked, 0, 0, group);
+}
+
+void WaylandKeyboard::InitXKB()
+{
+  if (xkb_.context) {
+    return;
+  }
+
+  xkb_.context = xkb_context_new((xkb_context_flags)0);
+}
+
+void WaylandKeyboard::FiniXKB()
+{
+  if (xkb_.state)
+    xkb_state_unref(xkb_.state);
+  if (xkb_.keymap)
+    xkb_map_unref(xkb_.keymap);
+  if (xkb_.context)
+    xkb_context_unref(xkb_.context);
 }
 
 }  // namespace ozonewayland

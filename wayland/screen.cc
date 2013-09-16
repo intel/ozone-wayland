@@ -31,11 +31,6 @@ WaylandScreen::~WaylandScreen()
     wl_output_destroy(output_);
 }
 
-gfx::Rect WaylandScreen::Geometry() const
-{
-  return rect_;
-}
-
 // static
 void WaylandScreen::OutputHandleGeometry(void *data,
                                          wl_output *output,

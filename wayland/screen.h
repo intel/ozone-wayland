@@ -26,7 +26,7 @@ class WaylandScreen {
   ~WaylandScreen();
 
   // Returns the active allocation of the screen.
-  gfx::Rect Geometry() const;
+  gfx::Rect Geometry() const { return rect_; }
 
  private:
   // Callback functions that allows the display to initialize the screen's

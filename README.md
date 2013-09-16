@@ -47,11 +47,13 @@ It may take a considerable time for downloading the trees, but once that is done
   $ export GYP_DEFINES='component=static_library use_ash=0 use_aura=1 chromeos=0 use_ozone=1'
   $ ./build/gyp_chromium
   ```
+
 TIP: If you are not interested in Webkit Debug symbols, make sure GYP_DEFINES includes remove_webcore_debug_symbols=1.
 i.e export GYP_DEFINES='component=static_library use_ash=0 use_aura=1 chromeos=0 use_ozone=1 remove_webcore_debug_symbols=1'.
 This speeds up debug builds.
 
 Note that in Chromium, gyp uses pkg-config for checking where are Wayland libraries on the system, so double check that you are not mixing some that was already there with latest that you just got and compiled from git.
+
 TIP: Set a default `PKG_CONFIG_PATH` for `$HOME/install` path and put it in .bashrc.
 
 Now we can conclude compiling Content Shell target.
@@ -66,11 +68,11 @@ That's all. At this point you should be able to connect content_shell on Weston 
   $ ./out/Debug/content_shell --no-sandbox
   ```
 
-##contributing
+## Contributing
 
 Instructions can be found here: https://github.com/otcshare/ozone-wayland/wiki
 
-##license
+## License
 
 Ozone-wayland's code uses the BSD license, see our LICENSE file.
 
