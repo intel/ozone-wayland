@@ -4,44 +4,75 @@
 # found in the LICENSE file.
 
 {
+  'variables': {
+    'conditions': [
+      ['sysroot!=""', {
+        'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
+      }, {
+        'pkg-config': 'pkg-config'
+      }],
+    ],
+  },
+
   'targets': [
     {
-      'target_name': 'wayland',
+      'target_name': 'wayland_toolkit',
       'type': 'static_library',
+      'cflags': [
+        '<!@(<(pkg-config) --cflags wayland-client wayland-cursor wayland-egl xkbcommon)',
+      ],
+      'direct_dependent_settings': {
+        'cflags': [
+          '<!@(<(pkg-config) --cflags wayland-client wayland-cursor wayland-egl xkbcommon)',
+        ],
+      },
+      'link_settings': {
+        'ldflags': [
+          '<!@(<(pkg-config) --libs-only-L --libs-only-other wayland-client wayland-cursor wayland-egl xkbcommon)',
+        ],
+        'libraries': [
+          '<!@(<(pkg-config) --libs-only-l wayland-client wayland-cursor wayland-egl xkbcommon)',
+        ],
+      },
       'dependencies': [
-        '../../build/linux/system.gyp:wayland',
-        '../../base/base.gyp:base',
-        '../../base/base.gyp:base_i18n',
-        '../../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
-        '../../skia/skia.gyp:skia',
-        '../compositor/compositor.gyp:compositor',
-        '../ui.gyp:ui',
-        '../ui.gyp:ui_resources',
+        '../base/base.gyp:base',
+        '../ui/gl/gl.gyp:gl',
       ],
       'include_dirs': [
         '.',
         '../..',
       ],
       'sources': [
-        'wayland_cursor.cc',
-        'wayland_cursor.h',
-        'wayland_display.cc',
-        'wayland_display.h',
-        'wayland_global.h',
-        'wayland_surface.h',
-        'wayland_surface.cc',
-        'wayland_task.cc',
-        'wayland_task.h',
-        'wayland_input_device.cc',
-        'wayland_input_device.h',
-        'wayland_input_method_event_filter.cc',
-        'wayland_input_method_event_filter.h',
-        'wayland_screen.cc',
-        'wayland_screen.h',
-        'wayland_delegate.h',
-        'wayland_window.cc',
-        'wayland_window.h',
+        'wayland/egl/egl_window.cc',
+        'wayland/egl/egl_window.h',
+        'wayland/cursor.cc',
+        'wayland/cursor.h',
+        'wayland/display.cc',
+        'wayland/display.h',
+        'wayland/dispatcher.cc',
+        'wayland/dispatcher.h',
+        'wayland/global.h',
+        'wayland/input_device.cc',
+        'wayland/input_device.h',
+        'wayland/input_method_event_filter.cc',
+        'wayland/input_method_event_filter.h',
+        "wayland/kbd_conversion.cc",
+        "wayland/kbd_conversion.h",
+        "wayland/keyboard.cc",
+        "wayland/keyboard.h",
+        "wayland/egl/loader.h",
+        "wayland/egl/loader.cc",
+        "wayland/pointer.cc",
+        "wayland/pointer.h",
+        'wayland/screen.cc',
+        'wayland/screen.h',
+        'wayland/surface.h',
+        'wayland/surface.cc',
+        'wayland/shell_surface.h',
+        'wayland/shell_surface.cc',
+        'wayland/window.cc',
+        'wayland/window.h',
       ],
     },
-  ],
+  ]
 }
