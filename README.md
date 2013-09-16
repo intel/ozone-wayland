@@ -1,4 +1,4 @@
-# Ozone-Wayland
+# Introduction
 
 Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland graphics system. Different projects based on Chromium/Blink like the Chrome browser, ChromeOS, among others can be enabled now using Wayland.
 
@@ -10,21 +10,23 @@ Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland g
   - [Howto](#howto) - set up the system environment, build and run
     - [.gclient file](#gclient-file)
   - [Contributing](#contributing) - help develop and send patches
+  - [License](#license)
 
 
 ## Design
 
-Ozone is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling. 
+Ozone is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling.
 
 http://www.chromium.org/developers/design-documents/ozone
 
-Before when using Aura on Linux, all the native windowing system code (X11) was spread throughout Chromium tree. Now the idea is that Ozone will abstract the native code and, because it's a set of class factories, it will switch for whoever is the window system. The biggest advantage of this API is that it allows to implement the needed window system bits externally from the Chromium tree, which is great because it is where the loaded work situates.
+Before when using Aura on Linux, all the native windowing system code (X11) was spread throughout Chromium tree. Now the idea is that Ozone will abstract the native code and because it's a set of class factories, it will switch for whoever is the window system. The biggest advantage of this API is that it allows to implement the needed window system bits externally from the Chromium tree, which is great because it is where the loaded work situates.
 
 Worth to mention also that when Aura is used, there's no need for graphics toolkits, such as GTK+, EFL etc.
 
 ## Howto
 
-My system is a Core i7 running Ubuntu 12.04 LTS (Precise Pangolin), 64-bit. I'm using a kernel from Raring though, which you can install pretty easily just `sudo apt-get install linux-generic-lts-raring` (I need this version cause I'm using Mesa master, 9.2.0-devel, for Weston).
+Team uses Ubuntu 12.04 LTS (Precise Pangolin), 32/64-bit but a kernel from Raring though. One can install it pretty easily just
+`sudo apt-get install linux-generic-lts-raring` (This version is needed for using Mesa master 9.2.0-devel, for Weston).
 
 Firstly you'd need to set up the Wayland libraries, and the Weston reference compositor that you will be running Chromium onto. The information on Wayland's web page should be enough for doing so:
 
@@ -32,7 +34,7 @@ http://wayland.freedesktop.org/building.html
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
-Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use an special `.gclient` configuration that clones both of the trees (see next section). Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium toplevel directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
+Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use a special `.gclient` configuration that clones both of the trees (see next section). Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium top-level directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
 
   ```
   $ gclient sync
@@ -45,22 +47,32 @@ It may take a considerable time for downloading the trees, but once that is done
   $ export GYP_DEFINES='component=static_library use_ash=0 use_aura=1 chromeos=0 use_ozone=1'
   $ ./build/gyp_chromium
   ```
+TIP: If you are not interested in Webkit Debug symbols, make sure GYP_DEFINES includes remove_webcore_debug_symbols=1.
+i.e export GYP_DEFINES='component=static_library use_ash=0 use_aura=1 chromeos=0 use_ozone=1 remove_webcore_debug_symbols=1'.
+This speeds up debug builds.
 
-Note that in Chromium, gyp uses pkg-config for checking where are Wayland libraries on the system, so double check that you are not mixing some that was already there with the latest that you just got and compiled from git. I have myself set a default `PKG_CONFIG_PATH` for the `$HOME/install` path and put it in .bashrc.
+Note that in Chromium, gyp uses pkg-config for checking where are Wayland libraries on the system, so double check that you are not mixing some that was already there with latest that you just got and compiled from git.
+TIP: Set a default `PKG_CONFIG_PATH` for `$HOME/install` path and put it in .bashrc.
 
-Now we can conclude compiling the aura_demo and Content Shell targets, which are the main targets I'm using for testing at the moment -- Content Shell takes ~20 minutes on my machine:
+Now we can conclude compiling Content Shell target.
 
   ```
-  $ ninja -C out/Debug -j16 aura_demo
   $ ninja -C out/Debug -j16 content_shell
   ```
-
 That's all. At this point you should be able to connect content_shell on Weston using:
 
   ```
   $ ~/git/weston/src/weston &
   $ ./out/Debug/content_shell --no-sandbox
   ```
+
+##contributing
+
+Instructions can be found here: https://github.com/otcshare/ozone-wayland/wiki
+
+##license
+
+Ozone-wayland's code uses the BSD license, see our LICENSE file.
 
 ### .gclient file
 
@@ -103,17 +115,3 @@ hooks = [
   }
 ]
 ```
-
-## Contributing
-
-**users or developers**:
-  1. start a [new issue](https://github.com/otcshare/ozone-wayland/issues).
-  2. [find an OWNER](http://dev.chromium.org/developers/owners-files) and discuss whether the issue is valid.
-  3. branch the repository and work with a solution.
-  4. send a pull request.
-  5. get review from an OWNER, meaning an explicit LGTM and wait the owners manage the merge.
-
-**owners**:
-  1. unless critical fix, nothing should go into master branch without the review from **one** other OWNER.
-  2. merge pull request from developers.
-  3. guarantee the integrity of the whole project together with other owners.
