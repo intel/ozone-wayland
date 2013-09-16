@@ -42,6 +42,14 @@ WaylandInputDevice::~WaylandInputDevice()
     delete input_method_filter_;
 }
 
+InputMethod* WaylandInputDevice::GetInputMethod() const
+{
+  if (!input_method_filter_)
+    input_method_filter_ = new WaylandInputMethodEventFilter;
+
+  input_method_filter_->GetInputMethod();
+}
+
 void WaylandInputDevice::OnSeatCapabilities(void *data,
                                             wl_seat *seat,
                                             uint32_t caps)
@@ -66,14 +74,6 @@ void WaylandInputDevice::OnSeatCapabilities(void *data,
 
   if (device->input_pointer_)
     device->input_pointer_->OnSeatCapabilities(seat, caps);
-}
-
-InputMethod* WaylandInputDevice::GetInputMethod() const
-{
-  if (!input_method_filter_)
-    input_method_filter_ = new WaylandInputMethodEventFilter;
-
-  input_method_filter_->GetInputMethod();
 }
 
 }  // namespace ozonewayland

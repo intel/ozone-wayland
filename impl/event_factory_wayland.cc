@@ -43,6 +43,12 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
   impl_.Get().reset(impl);
 }
 
+void EventFactoryWayland::WillDestroyCurrentMessageLoop()
+{
+  watcher_.StopWatchingFileDescriptor();
+  base::MessageLoop::current()->RemoveTaskObserver(this);
+}
+
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {
   dispatcher_->PostTask();
 }
@@ -73,12 +79,6 @@ void EventFactoryWayland::DidProcessTask(
     return;
 
   dispatcher_->PostTask();
-}
-
-void EventFactoryWayland::WillDestroyCurrentMessageLoop()
-{
-  watcher_.StopWatchingFileDescriptor();
-  base::MessageLoop::current()->RemoveTaskObserver(this);
 }
 
 }  // namespace ozonewayland

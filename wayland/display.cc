@@ -77,10 +77,6 @@ void WaylandDisplay::terminate()
   instance_ = NULL;
 }
 
-std::list<WaylandScreen*> WaylandDisplay::GetScreenList() const {
-  return screen_list_;
-}
-
 // static
 void WaylandDisplay::DisplayHandleGlobal(void *data,
     struct wl_registry *registry,

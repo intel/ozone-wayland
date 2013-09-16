@@ -67,30 +67,6 @@ void WaylandPointer::OnMotionNotify(void* data,
   device->dispatcher_->MotionNotify(sx, sy);
 }
 
-void WaylandPointer::OnAxisNotify(void* data,
-                                  wl_pointer* input_pointer,
-                                  uint32_t time,
-                                  uint32_t axis,
-                                  int32_t value)
-{
-  int x_offset = 0, y_offset = 0;
-  WaylandPointer* device = static_cast<WaylandPointer*>(data);
-  const int delta = ui::MouseWheelEvent::kWheelDelta;
-
-  switch (axis) {
-  case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
-    x_offset = value > 0 ? -delta : delta;
-    break;
-  case WL_POINTER_AXIS_VERTICAL_SCROLL:
-    y_offset = value > 0 ? -delta : delta;
-    break;
-  }
-
-  device->dispatcher_->AxisNotify(device->pointer_position_.x(),
-                                  device->pointer_position_.y(), x_offset,
-                                  y_offset);
-}
-
 void WaylandPointer::OnButtonNotify(void* data,
                                     wl_pointer* input_pointer,
                                     uint32_t serial,
@@ -116,6 +92,30 @@ void WaylandPointer::OnButtonNotify(void* data,
   device->dispatcher_->ButtonNotify(currentState, flags,
                                     device->pointer_position_.x(),
                                     device->pointer_position_.y());
+}
+
+void WaylandPointer::OnAxisNotify(void* data,
+                                  wl_pointer* input_pointer,
+                                  uint32_t time,
+                                  uint32_t axis,
+                                  int32_t value)
+{
+  int x_offset = 0, y_offset = 0;
+  WaylandPointer* device = static_cast<WaylandPointer*>(data);
+  const int delta = ui::MouseWheelEvent::kWheelDelta;
+
+  switch (axis) {
+  case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
+    x_offset = value > 0 ? -delta : delta;
+    break;
+  case WL_POINTER_AXIS_VERTICAL_SCROLL:
+    y_offset = value > 0 ? -delta : delta;
+    break;
+  }
+
+  device->dispatcher_->AxisNotify(device->pointer_position_.x(),
+                                  device->pointer_position_.y(), x_offset,
+                                  y_offset);
 }
 
 void WaylandPointer::OnPointerEnter(void* data,
