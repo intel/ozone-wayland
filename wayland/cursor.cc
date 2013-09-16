@@ -103,6 +103,18 @@ WaylandCursor::~WaylandCursor()
   }
 }
 
+void WaylandCursor::Update(CursorType type, uint32_t serial)
+{
+  if (!input_pointer_)
+    return;
+
+  ValidateBuffer(type, serial);
+  struct wl_surface* surface = pointer_surface_->wlSurface();
+  wl_surface_attach(surface, buffer_, 0, 0);
+  wl_surface_damage(surface, 0, 0, width_, height_);
+  wl_surface_commit(surface);
+}
+
 void WaylandCursor::SetInputPointer(wl_pointer* pointer)
 {
   input_pointer_ = pointer;
@@ -123,18 +135,6 @@ void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial)
                         pointer_surface_->wlSurface(),
                         image->hotspot_x,
                         image->hotspot_y);
-}
-
-void WaylandCursor::Update(CursorType type, uint32_t serial)
-{
-  if (!input_pointer_)
-    return;
-
-  ValidateBuffer(type, serial);
-  struct wl_surface* surface = pointer_surface_->wlSurface();
-  wl_surface_attach(surface, buffer_, 0, 0);
-  wl_surface_damage(surface, 0, 0, width_, height_);
-  wl_surface_commit(surface);
 }
 
 void WaylandCursor::Clear()

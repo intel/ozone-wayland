@@ -36,19 +36,6 @@ void OzoneDisplayChannelHost::EstablishChannel(unsigned process_id)
     UpdateConnection(host_id_);
 }
 
-bool OzoneDisplayChannelHost::UpdateConnection(int process_id)
-{
-  content::GpuProcessHost* host = content::GpuProcessHost::FromID(process_id);
-  if (!host)
-    host = content::GpuProcessHost::Get(
-          content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
-          content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
-  if (host) {
-    host->AddFilter(this);
-    host_id_ = host->host_id();
-  }
-}
-
 void OzoneDisplayChannelHost::ChannelClosed(unsigned process_id)
 {
   if (process_id_ != process_id)
@@ -64,9 +51,52 @@ void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
   Send(new WaylandMsg_DisplayChannelEstablished(route_id, router_id_));
 }
 
-bool OzoneDisplayChannelHost::OnMessageReceived(
-    const IPC::Message& message,
-    bool* message_was_ok) {
+void OzoneDisplayChannelHost::OnMotionNotify(float x, float y)
+{
+  dispatcher_->MotionNotify(x, y);
+}
+
+void OzoneDisplayChannelHost::OnButtonNotify(int state,
+                                             int flags,
+                                             float x,
+                                             float y)
+{
+  dispatcher_->ButtonNotify(state, flags, x, y);
+}
+
+void OzoneDisplayChannelHost::OnAxisNotify(float x,
+                                           float y,
+                                           float xoffset,
+                                           float yoffset)
+{
+  dispatcher_->AxisNotify(x, y, xoffset, yoffset);
+}
+
+void OzoneDisplayChannelHost::OnPointerEnter(float x, float y)
+{
+  dispatcher_->PointerEnter(x, y);
+}
+
+void OzoneDisplayChannelHost::OnPointerLeave(float x, float y)
+{
+  dispatcher_->PointerLeave(x, y);
+}
+
+void OzoneDisplayChannelHost::OnKeyNotify(unsigned type,
+                                          unsigned code,
+                                          unsigned modifiers)
+{
+  dispatcher_->KeyNotify(type, code, modifiers);
+}
+
+void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
+                                                  unsigned height)
+{
+  OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
+}
+
+bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message,
+                                                bool* message_was_ok) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP_EX(OzoneDisplayChannelHost, message, *message_was_ok)
   IPC_MESSAGE_HANDLER(WaylandMsg_EstablishDisplayChannel, OnChannelEstablished)
@@ -83,43 +113,17 @@ bool OzoneDisplayChannelHost::OnMessageReceived(
   return handled;
 }
 
-void OzoneDisplayChannelHost::OnMotionNotify(float x, float y)
+bool OzoneDisplayChannelHost::UpdateConnection(int process_id)
 {
-  dispatcher_->MotionNotify(x, y);
-}
-
-void OzoneDisplayChannelHost::OnButtonNotify(int state, int flags, float x,
-                                             float y)
-{
-  dispatcher_->ButtonNotify(state, flags, x, y);
-}
-
-void OzoneDisplayChannelHost::OnAxisNotify(float x, float y, float xoffset,
-                                           float yoffset)
-{
-  dispatcher_->AxisNotify(x, y, xoffset, yoffset);
-}
-
-void OzoneDisplayChannelHost::OnPointerEnter(float x, float y)
-{
-  dispatcher_->PointerEnter(x, y);
-}
-
-void OzoneDisplayChannelHost::OnPointerLeave(float x, float y)
-{
-  dispatcher_->PointerLeave(x, y);
-}
-
-void OzoneDisplayChannelHost::OnKeyNotify(unsigned type, unsigned code,
-                                          unsigned modifiers)
-{
-  dispatcher_->KeyNotify(type, code, modifiers);
-}
-
-void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
-                                                  unsigned height)
-{
-  OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
+  content::GpuProcessHost* host = content::GpuProcessHost::FromID(process_id);
+  if (!host)
+    host = content::GpuProcessHost::Get(
+          content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
+          content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
+  if (host) {
+    host->AddFilter(this);
+    host_id_ = host->host_id();
+  }
 }
 
 }  // namespace ozonewayland

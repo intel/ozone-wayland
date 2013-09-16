@@ -77,202 +77,6 @@ int osEpollCreateCloExec(void)
 
 } // os-compatibility
 
-WaylandDispatcher::WaylandDispatcher(int fd)
-    : Thread("WaylandDispatcher"),
-      ignore_task_(false),
-      running(false),
-      epoll_fd_(0),
-      display_fd_(fd)
-{
-  instance_ = this;
-  if (display_fd_) {
-    epoll_fd_ = osEpollCreateCloExec();
-    struct epoll_event ep;
-    ep.events = EPOLLIN | EPOLLOUT;
-    ep.data.ptr = 0;
-    epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
-  }
-
-  loop_ = base::MessageLoop::current();
-  Options options;
-  options.message_loop_type = base::MessageLoop::TYPE_IO;
-  StartWithOptions(options);
-  SetPriority(base::kThreadPriority_Background);
-}
-
-WaylandDispatcher::~WaylandDispatcher()
-{
-  ignore_task_ = true;
-  loop_ = NULL;
-  running = false;
-  Stop();
-
-  if (epoll_fd_) {
-    close(epoll_fd_);
-    epoll_fd_ = 0;
-  }
-
-  instance_ = NULL;
-}
-
-void WaylandDispatcher::PostTask(Task type)
-{
-  if (!IsRunning() || ignore_task_)
-    return;
-
-  switch (type) {
-    case (Flush):
-      message_loop_proxy()->PostTask(
-                  FROM_HERE, base::Bind(&WaylandDispatcher::HandleFlush));
-      break;
-    case (Poll):
-      if (epoll_fd_) {
-        loop_ = base::MessageLoop::current();
-        if (!running)
-          message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
-                                          &WaylandDispatcher::DisplayRun, this));
-      }
-  default:
-    break;
-  }
-}
-
-void WaylandDispatcher::MessageLoopDestroyed()
-{
-  if (!IsRunning())
-    return;
-
-  ignore_task_ = true;
-  loop_ = NULL;
-  running = false;
-  Stop();
-}
-
-void WaylandDispatcher::PostTaskOnMainLoop(
-        const tracked_objects::Location& from_here, const base::Closure& task)
-{
-  if (ignore_task_ || !IsRunning() || !loop_)
-    return;
-
-  loop_->message_loop_proxy()->PostTask(from_here, task);
-}
-
-void WaylandDispatcher::DispatchEvent(scoped_ptr<ui::Event> event) {
-  PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::DispatchEventHelper,
-                                           base::Passed(&event)));
-}
-
-void WaylandDispatcher::DispatchEventHelper(scoped_ptr<ui::Event> key) {
-  base::MessagePumpOzone::Current()->Dispatch(key.get());
-}
-
-void WaylandDispatcher::HandleFlush()
-{
-  wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
-
-  while (wl_display_prepare_read(waylandDisp) != 0)
-    wl_display_dispatch_pending(waylandDisp);
-
-  wl_display_flush(waylandDisp);
-  wl_display_read_events(waylandDisp);
-  wl_display_dispatch_pending(waylandDisp);
-}
-
-void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data)
-{
-  struct epoll_event ep[16];
-  int i, count, ret;
-
-  data->running = 1;
-  // Adopted from:
-  // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
-  while (1) {
-    wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
-    wl_display_dispatch_pending(waylandDisp);
-
-    if (!data->running)
-      break;
-
-    ret = wl_display_flush(waylandDisp);
-    if (ret < 0 && errno == EAGAIN) {
-      ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
-      epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &ep[0]);
-    } else if (ret < 0) {
-      break;
-    }
-
-    count = epoll_wait(data->epoll_fd_, ep, 16, -1);
-    for (i = 0; i < count; i++) {
-      struct epoll_event eps;
-      int ret;
-      uint32_t event = ep[i].events;
-
-      if (event & EPOLLERR || event & EPOLLHUP)
-        return;
-
-      if (event & EPOLLIN) {
-        ret = wl_display_dispatch(waylandDisp);
-        if (ret == -1)
-          return;
-      }
-
-      if (event & EPOLLOUT) {
-        ret = wl_display_flush(waylandDisp);
-        if (ret == 0) {
-          eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-          epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &eps);
-        } else if (ret == -1 && errno != EAGAIN) {
-          return;
-        }
-      }
-    }
-  }
-}
-
-void WaylandDispatcher::SendMotionNotify(float x, float y)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_MotionNotify(x, y));
-}
-
-void WaylandDispatcher::SendButtonNotify(int state, int flags, float x, float y)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_ButtonNotify(state, flags, x, y));
-}
-
-void WaylandDispatcher::SendAxisNotify(float x, float y, float xoffset,
-                                       float yoffset)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
-}
-
-void WaylandDispatcher::SendPointerEnter(float x, float y)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_PointerEnter(x, y));
-}
-
-void WaylandDispatcher::SendPointerLeave(float x, float y)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_PointerLeave(x, y));
-}
-
-void WaylandDispatcher::SendKeyNotify(unsigned type, unsigned code,
-                                      unsigned modifiers)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_KeyNotify(type, code, modifiers));
-}
-
-void WaylandDispatcher::SendOutputSizeChanged(unsigned width, unsigned height)
-{
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_OutputSize(width, height));
-}
-
 void WaylandDispatcher::MotionNotify(float x, float y)
 {
   if (epoll_fd_) {
@@ -419,6 +223,202 @@ void WaylandDispatcher::OutputSizeChanged(unsigned width, unsigned height)
 
   PostTaskOnMainLoop(FROM_HERE, base::Bind(
                       &WaylandDispatcher::SendOutputSizeChanged, width, height));
+}
+
+void WaylandDispatcher::PostTask(Task type)
+{
+  if (!IsRunning() || ignore_task_)
+    return;
+
+  switch (type) {
+    case (Flush):
+      message_loop_proxy()->PostTask(
+                  FROM_HERE, base::Bind(&WaylandDispatcher::HandleFlush));
+      break;
+    case (Poll):
+      if (epoll_fd_) {
+        loop_ = base::MessageLoop::current();
+        if (!running)
+          message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
+                                          &WaylandDispatcher::DisplayRun, this));
+      }
+  default:
+    break;
+  }
+}
+
+void WaylandDispatcher::DispatchEvent(scoped_ptr<ui::Event> event) {
+  PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::DispatchEventHelper,
+                                           base::Passed(&event)));
+}
+
+void WaylandDispatcher::PostTaskOnMainLoop(
+        const tracked_objects::Location& from_here, const base::Closure& task)
+{
+  if (ignore_task_ || !IsRunning() || !loop_)
+    return;
+
+  loop_->message_loop_proxy()->PostTask(from_here, task);
+}
+
+WaylandDispatcher::WaylandDispatcher(int fd)
+    : Thread("WaylandDispatcher"),
+      ignore_task_(false),
+      running(false),
+      epoll_fd_(0),
+      display_fd_(fd)
+{
+  instance_ = this;
+  if (display_fd_) {
+    epoll_fd_ = osEpollCreateCloExec();
+    struct epoll_event ep;
+    ep.events = EPOLLIN | EPOLLOUT;
+    ep.data.ptr = 0;
+    epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
+  }
+
+  loop_ = base::MessageLoop::current();
+  Options options;
+  options.message_loop_type = base::MessageLoop::TYPE_IO;
+  StartWithOptions(options);
+  SetPriority(base::kThreadPriority_Background);
+}
+
+WaylandDispatcher::~WaylandDispatcher()
+{
+  ignore_task_ = true;
+  loop_ = NULL;
+  running = false;
+  Stop();
+
+  if (epoll_fd_) {
+    close(epoll_fd_);
+    epoll_fd_ = 0;
+  }
+
+  instance_ = NULL;
+}
+
+void WaylandDispatcher::HandleFlush()
+{
+  wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
+
+  while (wl_display_prepare_read(waylandDisp) != 0)
+    wl_display_dispatch_pending(waylandDisp);
+
+  wl_display_flush(waylandDisp);
+  wl_display_read_events(waylandDisp);
+  wl_display_dispatch_pending(waylandDisp);
+}
+
+void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data)
+{
+  struct epoll_event ep[16];
+  int i, count, ret;
+
+  data->running = 1;
+  // Adopted from:
+  // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
+  while (1) {
+    wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
+    wl_display_dispatch_pending(waylandDisp);
+
+    if (!data->running)
+      break;
+
+    ret = wl_display_flush(waylandDisp);
+    if (ret < 0 && errno == EAGAIN) {
+      ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
+      epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &ep[0]);
+    } else if (ret < 0) {
+      break;
+    }
+
+    count = epoll_wait(data->epoll_fd_, ep, 16, -1);
+    for (i = 0; i < count; i++) {
+      struct epoll_event eps;
+      int ret;
+      uint32_t event = ep[i].events;
+
+      if (event & EPOLLERR || event & EPOLLHUP)
+        return;
+
+      if (event & EPOLLIN) {
+        ret = wl_display_dispatch(waylandDisp);
+        if (ret == -1)
+          return;
+      }
+
+      if (event & EPOLLOUT) {
+        ret = wl_display_flush(waylandDisp);
+        if (ret == 0) {
+          eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
+          epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &eps);
+        } else if (ret == -1 && errno != EAGAIN) {
+          return;
+        }
+      }
+    }
+  }
+}
+
+void WaylandDispatcher::DispatchEventHelper(scoped_ptr<ui::Event> key) {
+  base::MessagePumpOzone::Current()->Dispatch(key.get());
+}
+
+void WaylandDispatcher::SendMotionNotify(float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_MotionNotify(x, y));
+}
+
+void WaylandDispatcher::SendButtonNotify(int state, int flags, float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_ButtonNotify(state, flags, x, y));
+}
+
+void WaylandDispatcher::SendAxisNotify(float x, float y, float xoffset,
+                                       float yoffset)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
+}
+
+void WaylandDispatcher::SendPointerEnter(float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_PointerEnter(x, y));
+}
+
+void WaylandDispatcher::SendPointerLeave(float x, float y)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_PointerLeave(x, y));
+}
+
+void WaylandDispatcher::SendKeyNotify(unsigned type, unsigned code,
+                                      unsigned modifiers)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_KeyNotify(type, code, modifiers));
+}
+
+void WaylandDispatcher::SendOutputSizeChanged(unsigned width, unsigned height)
+{
+  content::ChildThread* thread = GetProcessMainThread();
+  thread->Send(new WaylandInput_OutputSize(width, height));
+}
+
+void WaylandDispatcher::MessageLoopDestroyed()
+{
+  if (!IsRunning())
+    return;
+
+  ignore_task_ = true;
+  loop_ = NULL;
+  running = false;
+  Stop();
 }
 
 }  // namespace ozonewayland

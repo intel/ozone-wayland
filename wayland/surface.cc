@@ -8,7 +8,7 @@
 
 namespace ozonewayland {
 static const struct wl_callback_listener frameListener = {
-    WaylandSurface::surfaceFrameCallback
+    WaylandSurface::SurfaceFrameCallback
 };
 
 WaylandSurface::WaylandSurface() : surface_(NULL),
@@ -27,7 +27,7 @@ WaylandSurface::WaylandSurface() : surface_(NULL),
 
 WaylandSurface::~WaylandSurface()
 {
-  deleteFrameCallBack();
+  DeleteFrameCallBack();
 
   if (surface_) {
     wl_surface_destroy(surface_);
@@ -35,7 +35,7 @@ WaylandSurface::~WaylandSurface()
   }
 }
 
-void WaylandSurface::addFrameCallBack()
+void WaylandSurface::AddFrameCallBack()
 {
   if (frameCallBack_)
     return;
@@ -45,7 +45,7 @@ void WaylandSurface::addFrameCallBack()
   wl_proxy_set_queue((struct wl_proxy *)frameCallBack_, m_queue);
 }
 
-void WaylandSurface::deleteFrameCallBack()
+void WaylandSurface::DeleteFrameCallBack()
 {
   if (frameCallBack_) {
     wl_callback_destroy(frameCallBack_);
@@ -53,7 +53,7 @@ void WaylandSurface::deleteFrameCallBack()
   }
 }
 
-int WaylandSurface::ensureFrameCallBackDone()
+int WaylandSurface::EnsureFrameCallBackDone()
 {
   if (!m_queue)
     return -1;
@@ -71,15 +71,16 @@ int WaylandSurface::ensureFrameCallBackDone()
   return ret;
 }
 
-void WaylandSurface::surfaceFrameCallback(void* data, struct wl_callback* callback,
+void WaylandSurface::SurfaceFrameCallback(void* data,
+                                          struct wl_callback* callback,
                                           uint32_t)
 {
   WaylandSurface* surface = static_cast<WaylandSurface *>(data);
   wl_callback_destroy(callback);
-  surface->destroyFrameCallBack();
+  surface->DestroyFrameCallBack();
 }
 
-void WaylandSurface::destroyFrameCallBack()
+void WaylandSurface::DestroyFrameCallBack()
 {
   frameCallBack_ = NULL;
 }

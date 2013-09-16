@@ -45,107 +45,77 @@ OzoneDisplay::OzoneDisplay() : launch_type_(None),
   instance_ = this;
 }
 
-ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
-{
- if (state_ & Initialized)
-   return initialized_state_;
-
- DCHECK(base::MessageLoop::current());
- base::MessageLoop::current()->AddDestructionObserver(this);
-
- state_ |= Initialized;
- ValidateLaunchType();
- bool gpuProcess = (launch_type_ & MultiProcess) && (process_type_ & Gpu);
- bool singleProcess = launch_type_ & SingleProcess;
- bool browserProcess = (launch_type_ & MultiProcess) && (process_type_ & Browser);
-
- if (singleProcess || gpuProcess) {
-   display_ = new WaylandDisplay();
-   initialized_state_ = display_->display() ? ui::SurfaceFactoryOzone::INITIALIZED
-                                            : ui::SurfaceFactoryOzone::FAILED;
- }
-
- if (singleProcess || browserProcess)
-   dispatcher_ = new WaylandDispatcher();
-
- if (singleProcess) {
-   e_factory_ = new EventFactoryWayland();
-   EventFactoryWayland::SetInstance(e_factory_);
- } else if (gpuProcess) {
-   int fd = wl_display_get_fd(display_->display());
-   dispatcher_ = new WaylandDispatcher(fd);
-   channel_ = new OzoneDisplayChannel(fd);
-   dispatcher_->PostTask(WaylandDispatcher::Poll);
- } else if (browserProcess) {
-   child_process_observer_ = new OzoneProcessObserver(this);
-   initialized_state_ = ui::SurfaceFactoryOzone::INITIALIZED;
- }
-
- // TODO(kalyan): Find a better way to set a default preferred size.
- gfx::Rect scrn = gfx::Rect(0, 0, 1,1);
- int size = 2 * sizeof scrn.width();
- spec_ = new char[size];
- base::snprintf(spec_, size, "%dx%d", scrn.width(), scrn.height());
- state_ |= PendingOutPut;
-
- if (initialized_state_ != ui::SurfaceFactoryOzone::INITIALIZED)
-   LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
-
- return initialized_state_;
-
-}
-
-void OzoneDisplay::ShutdownHardware()
-{
-  Terminate();
-}
-
 OzoneDisplay::~OzoneDisplay()
 {
   Terminate();
   instance_ = NULL;
 }
 
-void OzoneDisplay::Terminate()
+const char* OzoneDisplay::DefaultDisplaySpec() {
+  return spec_;
+}
+
+gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
+  return new DesktopScreenWayland;
+}
+
+ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 {
-  if (!(state_ & Initialized))
-    return;
+  if (state_ & Initialized)
+    return initialized_state_;
 
-  state_ &= ~Initialized;
-  if (spec_) {
-    delete[] spec_;
-    spec_ = NULL;
+  DCHECK(base::MessageLoop::current());
+  base::MessageLoop::current()->AddDestructionObserver(this);
+
+  state_ |= Initialized;
+  ValidateLaunchType();
+  bool gpuProcess = (launch_type_ & MultiProcess) && (process_type_ & Gpu);
+  bool singleProcess = launch_type_ & SingleProcess;
+  bool browserProcess = (launch_type_ & MultiProcess) && (process_type_ & Browser);
+
+  if (singleProcess || gpuProcess) {
+    display_ = new WaylandDisplay();
+    initialized_state_ = display_->display() ? ui::SurfaceFactoryOzone::INITIALIZED
+                                             : ui::SurfaceFactoryOzone::FAILED;
   }
 
-  if (root_window_) {
-    delete root_window_;
-    root_window_ =NULL;
+  if (singleProcess || browserProcess)
+    dispatcher_ = new WaylandDispatcher();
+
+  if (singleProcess) {
+    e_factory_ = new EventFactoryWayland();
+    EventFactoryWayland::SetInstance(e_factory_);
+  } else if (gpuProcess) {
+    int fd = wl_display_get_fd(display_->display());
+    dispatcher_ = new WaylandDispatcher(fd);
+    channel_ = new OzoneDisplayChannel(fd);
+    dispatcher_->PostTask(WaylandDispatcher::Poll);
+  } else if (browserProcess) {
+    child_process_observer_ = new OzoneProcessObserver(this);
+    initialized_state_ = ui::SurfaceFactoryOzone::INITIALIZED;
   }
 
-  if (channel_) {
-    delete channel_;
-    channel_ = NULL;
-  }
+  // TODO(kalyan): Find a better way to set a default preferred size.
+  gfx::Rect scrn = gfx::Rect(0, 0, 1,1);
+  int size = 2 * sizeof scrn.width();
+  spec_ = new char[size];
+  base::snprintf(spec_, size, "%dx%d", scrn.width(), scrn.height());
+  state_ |= PendingOutPut;
 
-  if (child_process_observer_) {
-    delete child_process_observer_;
-    child_process_observer_ = NULL;
-  }
+  if (initialized_state_ != ui::SurfaceFactoryOzone::INITIALIZED)
+    LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
 
-  if (dispatcher_) {
-    delete dispatcher_;
-    dispatcher_ = NULL;
-  }
-
-  if (display_) {
-    delete display_;
-    display_ = NULL;
-  }
+  return initialized_state_;
 }
 
 intptr_t OzoneDisplay::GetNativeDisplay()
 {
   return (intptr_t)display_->display();
+}
+
+void OzoneDisplay::ShutdownHardware()
+{
+  Terminate();
 }
 
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
@@ -168,8 +138,8 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   return (gfx::AcceleratedWidget)root_window_->egl_window();
 }
 
-const char* OzoneDisplay::DefaultDisplaySpec() {
-  return spec_;
+bool OzoneDisplay::LoadEGLGLES2Bindings() {
+  return InitializeGLBindings();
 }
 
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
@@ -204,12 +174,18 @@ bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
   return true;
 }
 
-gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
-  return new DesktopScreenWayland;
-}
+void OzoneDisplay::WillDestroyCurrentMessageLoop()
+{
+  DCHECK(base::MessageLoop::current());
+  dispatcher_->MessageLoopDestroyed();
 
-bool OzoneDisplay::LoadEGLGLES2Bindings() {
-  return InitializeGLBindings();
+  if (child_process_observer_)
+    child_process_observer_->WillDestroyCurrentMessageLoop();
+
+  if (e_factory_)
+    e_factory_->WillDestroyCurrentMessageLoop();
+
+  base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
 
 void OzoneDisplay::EstablishChannel(unsigned id)
@@ -266,18 +242,41 @@ void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
   }
 }
 
-void OzoneDisplay::WillDestroyCurrentMessageLoop()
+void OzoneDisplay::Terminate()
 {
-  DCHECK(base::MessageLoop::current());
-  dispatcher_->MessageLoopDestroyed();
+  if (!(state_ & Initialized))
+    return;
 
-  if (child_process_observer_)
-    child_process_observer_->WillDestroyCurrentMessageLoop();
+  state_ &= ~Initialized;
+  if (spec_) {
+    delete[] spec_;
+    spec_ = NULL;
+  }
 
-  if (e_factory_)
-    e_factory_->WillDestroyCurrentMessageLoop();
+  if (root_window_) {
+    delete root_window_;
+    root_window_ =NULL;
+  }
 
-  base::MessageLoop::current()->RemoveDestructionObserver(this);
+  if (channel_) {
+    delete channel_;
+    channel_ = NULL;
+  }
+
+  if (child_process_observer_) {
+    delete child_process_observer_;
+    child_process_observer_ = NULL;
+  }
+
+  if (dispatcher_) {
+    delete dispatcher_;
+    dispatcher_ = NULL;
+  }
+
+  if (display_) {
+    delete display_;
+    display_ = NULL;
+  }
 }
 
 void OzoneDisplay::ValidateLaunchType()

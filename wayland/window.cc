@@ -41,11 +41,6 @@ WaylandWindow::~WaylandWindow() {
   }
 }
 
-wl_egl_window* WaylandWindow::egl_window() const
-{
-  return window_ ? window_->egl_window() : 0;
-}
-
 void WaylandWindow::SetShellType(ShellType type)
 {
   if (!shell_surface_ || (type_ == type))
@@ -67,17 +62,6 @@ void WaylandWindow::SetShellType(ShellType type)
   }
 }
 
-bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds)
-{
-  int width = new_bounds.width();
-  int height = new_bounds.height();
-  allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);
-  if (!shell_surface_ || !window_)
-      return false;
-
-  return window_->Resize(shell_surface_->Surface(), width, height);
-}
-
 void WaylandWindow::RealizeAcceleratedWidget()
 {
   if (!window_)
@@ -87,8 +71,24 @@ void WaylandWindow::RealizeAcceleratedWidget()
 
 void WaylandWindow::HandleSwapBuffers()
 {
-  shell_surface_->Surface()->ensureFrameCallBackDone();
-  shell_surface_->Surface()->addFrameCallBack();
+  shell_surface_->Surface()->EnsureFrameCallBackDone();
+  shell_surface_->Surface()->AddFrameCallBack();
+}
+
+wl_egl_window* WaylandWindow::egl_window() const
+{
+  return window_ ? window_->egl_window() : 0;
+}
+
+bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds)
+{
+  int width = new_bounds.width();
+  int height = new_bounds.height();
+  allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);
+  if (!shell_surface_ || !window_)
+      return false;
+
+  return window_->Resize(shell_surface_->Surface(), width, height);
 }
 
 }  // namespace ozonewayland
