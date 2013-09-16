@@ -21,42 +21,37 @@ class WaylandKeyboard {
   void OnSeatCapabilities(wl_seat *seat, uint32_t caps);
 
  private:
-  static void OnKeyNotify(
-      void* data,
-      wl_keyboard* input_keyboard,
-      uint32_t serial,
-      uint32_t time,
-      uint32_t key,
-      uint32_t state);
+  static void OnKeyNotify(void* data,
+                          wl_keyboard* input_keyboard,
+                          uint32_t serial,
+                          uint32_t time,
+                          uint32_t key,
+                          uint32_t state);
 
-  static void OnKeyboardKeymap(
-      void *data,
-      struct wl_keyboard *keyboard,
-      uint32_t format,
-      int fd,
-      uint32_t size);
+  static void OnKeyboardKeymap(void *data,
+                               struct wl_keyboard *keyboard,
+                               uint32_t format,
+                               int fd,
+                               uint32_t size);
 
-  static void OnKeyboardEnter(
-      void* data,
-      wl_keyboard* input_keyboard,
-      uint32_t serial,
-      wl_surface* surface,
-      wl_array* keys);
+  static void OnKeyboardEnter(void* data,
+                              wl_keyboard* input_keyboard,
+                              uint32_t serial,
+                              wl_surface* surface,
+                              wl_array* keys);
 
-  static void OnKeyboardLeave(
-      void* data,
-      wl_keyboard* input_keyboard,
-      uint32_t serial,
-      wl_surface* surface);
+  static void OnKeyboardLeave(void* data,
+                              wl_keyboard* input_keyboard,
+                              uint32_t serial,
+                              wl_surface* surface);
 
-  static void OnKeyModifiers(
-      void *data,
-      wl_keyboard *keyboard,
-      uint32_t serial,
-      uint32_t mods_depressed,
-      uint32_t mods_latched,
-      uint32_t mods_locked,
-      uint32_t group);
+  static void OnKeyModifiers(void *data,
+                             wl_keyboard *keyboard,
+                             uint32_t serial,
+                             uint32_t mods_depressed,
+                             uint32_t mods_latched,
+                             uint32_t mods_locked,
+                             uint32_t group);
 
   wl_keyboard* input_keyboard_;
   WaylandDispatcher* dispatcher_;

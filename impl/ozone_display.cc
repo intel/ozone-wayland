@@ -172,9 +172,8 @@ const char* OzoneDisplay::DefaultDisplaySpec() {
   return spec_;
 }
 
-bool OzoneDisplay::AttemptToResizeAcceleratedWidget(
-    gfx::AcceleratedWidget w,
-    const gfx::Rect& bounds) {
+bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
+                                                    const gfx::Rect& bounds) {
   // TODO(kalyan): Map w to window.
   if (!(state_ &ChannelConnected) && channel_)
     channel_->Register();
@@ -194,8 +193,7 @@ bool OzoneDisplay::AttemptToResizeAcceleratedWidget(
   return root_window_->SetBounds(bounds);
 }
 
-gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(
-    gfx::AcceleratedWidget w) {
+gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(gfx::AcceleratedWidget w) {
   return 0;
 }
 
@@ -246,7 +244,8 @@ void OzoneDisplay::OnChannelHostDestroyed()
   host_ = NULL;
 }
 
-void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen, int width,
+void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
+                                       int width,
                                        int height)
 {
   if (screen == display_->PrimaryScreen()) {

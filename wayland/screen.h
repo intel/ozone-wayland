@@ -32,15 +32,22 @@ class WaylandScreen {
   // Callback functions that allows the display to initialize the screen's
   // position and available modes.
   static void OutputHandleGeometry(void* data,
-      wl_output* output, int32_t x, int32_t y,
-      int32_t physical_width, int32_t physical_height,
-      int32_t subpixel, const char* make,
-      const char* model, int32_t output_transform);
+                                   wl_output* output,
+                                   int32_t x,
+                                   int32_t y,
+                                   int32_t physical_width,
+                                   int32_t physical_height,
+                                   int32_t subpixel,
+                                   const char* make,
+                                   const char* model,
+                                   int32_t output_transform);
 
   static void OutputHandleMode(void* data,
-      wl_output* wl_output, uint32_t flags,
-      int32_t width, int32_t height,
-      int32_t refresh);
+                               wl_output* wl_output,
+                               uint32_t flags,
+                               int32_t width,
+                               int32_t height,
+                               int32_t refresh);
 
   // The Wayland output this object wraps
   wl_output* output_;

@@ -23,10 +23,16 @@ class WaylandShellSurface {
   void UpdateShellSurface(WaylandWindow::ShellType type) const;
   WaylandSurface* Surface() const { return surface_; }
 
-  static void HandleConfigure(void *data, struct wl_shell_surface *shell_surface,
-      uint32_t edges, int32_t width, int32_t height);
-  static void HandlePopupDone(void *data, struct wl_shell_surface *shell_surface);
-  static void HandlePing(void *data, struct wl_shell_surface *shell_surface, uint32_t serial);
+  static void HandleConfigure(void *data,
+                              struct wl_shell_surface *shell_surface,
+                              uint32_t edges,
+                              int32_t width,
+                              int32_t height);
+  static void HandlePopupDone(void *data,
+                              struct wl_shell_surface *shell_surface);
+  static void HandlePing(void *data,
+                         struct wl_shell_surface *shell_surface,
+                         uint32_t serial);
 
  private:
   WaylandSurface* surface_;

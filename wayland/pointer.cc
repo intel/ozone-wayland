@@ -54,10 +54,10 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
 }
 
 void WaylandPointer::OnMotionNotify(void* data,
-    wl_pointer* input_pointer,
-    uint32_t time,
-    wl_fixed_t sx_w,
-    wl_fixed_t sy_w)
+                                    wl_pointer* input_pointer,
+                                    uint32_t time,
+                                    wl_fixed_t sx_w,
+                                    wl_fixed_t sy_w)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   float sx = wl_fixed_to_double(sx_w);
@@ -68,10 +68,10 @@ void WaylandPointer::OnMotionNotify(void* data,
 }
 
 void WaylandPointer::OnAxisNotify(void* data,
-    wl_pointer* input_pointer,
-    uint32_t time,
-    uint32_t axis,
-    int32_t value)
+                                  wl_pointer* input_pointer,
+                                  uint32_t time,
+                                  uint32_t axis,
+                                  int32_t value)
 {
   int x_offset = 0, y_offset = 0;
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
@@ -92,11 +92,11 @@ void WaylandPointer::OnAxisNotify(void* data,
 }
 
 void WaylandPointer::OnButtonNotify(void* data,
-    wl_pointer* input_pointer,
-    uint32_t serial,
-    uint32_t time,
-    uint32_t button,
-    uint32_t state)
+                                    wl_pointer* input_pointer,
+                                    uint32_t serial,
+                                    uint32_t time,
+                                    uint32_t button,
+                                    uint32_t state)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   int currentState;
@@ -119,11 +119,11 @@ void WaylandPointer::OnButtonNotify(void* data,
 }
 
 void WaylandPointer::OnPointerEnter(void* data,
-    wl_pointer* input_pointer,
-    uint32_t serial,
-    wl_surface* surface,
-    wl_fixed_t sx_w,
-    wl_fixed_t sy_w)
+                                    wl_pointer* input_pointer,
+                                    uint32_t serial,
+                                    wl_surface* surface,
+                                    wl_fixed_t sx_w,
+                                    wl_fixed_t sy_w)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   // TODO(vignatti): sx and sy have to be used for setting different resizing
@@ -135,9 +135,9 @@ void WaylandPointer::OnPointerEnter(void* data,
 }
 
 void WaylandPointer::OnPointerLeave(void* data,
-    wl_pointer* input_pointer,
-    uint32_t serial,
-    wl_surface* surface)
+                                    wl_pointer* input_pointer,
+                                    uint32_t serial,
+                                    wl_surface* surface)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   device->dispatcher_->PointerLeave(device->pointer_position_.x(),

@@ -11,9 +11,7 @@
 #include "ui/base/events/event.h"
 
 namespace ozonewayland {
-class EventFactoryWayland;
 class OzoneDisplay;
-class OzoneDisplayChannel;
 
 // WaylandDispatcher class is used by OzoneDisplay for reading pending events
 // coming from Wayland compositor and flush requests back. WaylandDispatcher is
@@ -74,9 +72,7 @@ class WaylandDispatcher : public base::Thread {
   int epoll_fd_;
   int display_fd_;
   static WaylandDispatcher* instance_;
-  friend class EventFactoryWayland;
   friend class OzoneDisplay;
-  friend class OzoneDisplayChannel;
   DISALLOW_COPY_AND_ASSIGN(WaylandDispatcher);
 };
 
