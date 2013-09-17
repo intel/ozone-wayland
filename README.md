@@ -25,7 +25,7 @@ Worth to mention also that when Aura is used, there's no need for graphics toolk
 
 ## Howto
 
-Team uses Ubuntu 12.04 LTS (Precise Pangolin), 32/64-bit but a kernel from Raring though. One can install it pretty easily just
+We use Ubuntu 12.04 LTS (Precise Pangolin), 32/64-bit but a kernel from Raring though. One can install it pretty easily just
 `sudo apt-get install linux-generic-lts-raring` (This version is needed for using Mesa master 9.2.0-devel, for Weston).
 
 Firstly you'd need to set up the Wayland libraries, and the Weston reference compositor that you will be running Chromium onto. The information on Wayland's web page should be enough for doing so:
@@ -48,13 +48,11 @@ It may take a considerable time for downloading the trees, but once that is done
   $ ./build/gyp_chromium
   ```
 
-TIP: If you are not interested in Webkit Debug symbols, make sure GYP_DEFINES includes remove_webcore_debug_symbols=1.
-i.e export GYP_DEFINES='component=static_library use_ash=0 use_aura=1 chromeos=0 use_ozone=1 remove_webcore_debug_symbols=1'.
-This speeds up debug builds.
+TIP: to speed up debug builds you can disable Blink debugging symbols by setting remove_webcore_debug_symbols=1 in GYP_DEFINES.
 
 Note that in Chromium, gyp uses pkg-config for checking where are Wayland libraries on the system, so double check that you are not mixing some that was already there with latest that you just got and compiled from git.
 
-TIP: Set a default `PKG_CONFIG_PATH` for `$HOME/install` path and put it in .bashrc.
+TIP: if you followed Wayland's web page instructions, then you probably want to set the `PKG_CONFIG_PATH` variable as `$HOME/install` and add it in your .bashrc to be as default.
 
 Now we can conclude compiling Content Shell target.
 
@@ -68,13 +66,6 @@ That's all. At this point you should be able to connect content_shell on Weston 
   $ ./out/Debug/content_shell --no-sandbox
   ```
 
-## Contributing
-
-Instructions can be found here: https://github.com/otcshare/ozone-wayland/wiki
-
-## License
-
-Ozone-wayland's code uses the BSD license, see our LICENSE file.
 
 ### .gclient file
 
@@ -117,3 +108,11 @@ hooks = [
   }
 ]
 ```
+
+## Contributing
+
+Instructions can be found here: https://github.com/otcshare/ozone-wayland/wiki
+
+## License
+
+Ozone-Wayland's code uses the BSD license (check the LICENSE file in the project).
