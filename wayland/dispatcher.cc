@@ -5,7 +5,7 @@
 #include "ozone/wayland/dispatcher.h"
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/kbd_conversion.h"
+#include "ozone/wayland/inputs/kbd_conversion.h"
 #include "base/bind.h"
 #include "base/message_loop/message_pump_ozone.h"
 #include "content/child/child_thread.h"

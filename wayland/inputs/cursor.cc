@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/cursor.h"
+#include "ozone/wayland/inputs/cursor.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -143,4 +143,3 @@ void WaylandCursor::Clear()
 }
 
 }  // namespace ozonewayland
-

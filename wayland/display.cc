@@ -5,7 +5,7 @@
 
 #include "ozone/wayland/display.h"
 
-#include "ozone/wayland/cursor.h"
+#include "ozone/wayland/inputs/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"

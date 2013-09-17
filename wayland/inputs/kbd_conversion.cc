@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/kbd_conversion.h"
+#include "ozone/wayland/inputs/kbd_conversion.h"
 
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
@@ -327,4 +327,3 @@ ui::KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
 }
 
 }  // namespace ozonewayland
-
