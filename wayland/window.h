@@ -36,6 +36,11 @@ class WaylandWindow {
   ~WaylandWindow();
 
   void SetShellType(ShellType type);
+  void Maximize();
+  void Minimize();
+  void Restore();
+  void SetFullscreen();
+
   ShellType Type() const { return type_; }
   WaylandWindowId Handle() const { return id_; }
   void RealizeAcceleratedWidget();

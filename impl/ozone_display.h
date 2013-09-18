@@ -23,6 +23,19 @@ class WaylandScreen;
 class OzoneDisplay : public ui::SurfaceFactoryOzone,
                      public base::MessageLoop::DestructionObserver {
  public:
+  enum WidgetState {
+    Show = 1, // Widget is visible.
+    Hide = 2, // Widget is hidden.
+    FullScreen = 3,  // Widget is in fullscreen mode.
+    Maximized = 4, // Widget is maximized,
+    Minimized = 5, // Widget is minimized.
+    Restore = 6, // Restore Widget.
+    Active = 7, // Widget is Activated.
+    InActive = 8 // Widget is DeActivated.
+  };
+
+  typedef unsigned WidgetState;
+
   static OzoneDisplay* GetInstance();
 
   OzoneDisplay();
@@ -50,6 +63,9 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
 
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
+
+  void SetWidgetState(gfx::AcceleratedWidget w, WidgetState state);
+  void OnWidgetStateChanged(gfx::AcceleratedWidget w, WidgetState state);
 
  private:
   enum Launch {

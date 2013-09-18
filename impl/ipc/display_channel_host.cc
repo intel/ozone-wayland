@@ -45,6 +45,11 @@ void OzoneDisplayChannelHost::ChannelClosed(unsigned process_id)
   process_id_ = 0;
 }
 
+void OzoneDisplayChannelHost::SendWidgetState(unsigned w, unsigned state)
+{
+  Send(new WaylandWindow_State(router_id_, w, state));
+}
+
 void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
 {
   router_id_ = host_id_ + process_id_ + route_id;

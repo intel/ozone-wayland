@@ -39,3 +39,6 @@ IPC_MESSAGE_CONTROL1(WaylandMsg_EstablishDisplayChannel, unsigned /* client id *
 // request.
 IPC_MESSAGE_ROUTED1(WaylandMsg_DisplayChannelEstablished,
                     unsigned /* channel_handle */)
+
+IPC_MESSAGE_ROUTED2(WaylandWindow_State,
+                    unsigned /* window_handle */, unsigned /*state*/)
