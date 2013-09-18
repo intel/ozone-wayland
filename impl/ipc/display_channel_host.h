@@ -24,6 +24,8 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
   void EstablishChannel(unsigned process_id);
   void ChannelClosed(unsigned process_id);
 
+  void SendWidgetState(unsigned w, unsigned state);
+
   void OnChannelEstablished(unsigned router_id);
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(int state, int flags, float x, float y);

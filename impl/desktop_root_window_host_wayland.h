@@ -45,6 +45,17 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   void HandleNativeWidgetActivationChanged(bool active);
 
  private:
+  enum RootWindowState {
+    Uninitialized = 0x00,
+    Visible = 0x01, // Window is Visible.
+    FullScreen = 0x02,  // Window is in fullscreen mode.
+    Maximized = 0x04, // Window is maximized,
+    Minimized = 0x08, // Window is minimized.
+    Normal = 0x10, // Window is in Normal Mode.
+    Active = 0x20, // Window is Active.
+  };
+
+  typedef unsigned RootWindowState;
   // Initializes our Ozone surface to draw on. This method performs all
   // initialization related to talking to the Ozone server.
   void InitWaylandWindow(const views::Widget::InitParams& params);
@@ -169,8 +180,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   gfx::AcceleratedWidget window_;
   views::internal::NativeWidgetDelegate* native_widget_delegate_;
 
-  // Is the window mapped to the screen?
-  bool window_mapped_;
+  RootWindowState state_;
 
   gfx::Rect bounds_;
 

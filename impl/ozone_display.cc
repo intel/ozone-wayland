@@ -188,6 +188,50 @@ void OzoneDisplay::WillDestroyCurrentMessageLoop()
   base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
 
+void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
+                                  WidgetState state)
+{
+  // TODO(Kalyan): Map w to window.
+  if (host_)
+    host_->SendWidgetState(w, state);
+  else
+    OnWidgetStateChanged(w, state);
+}
+
+void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
+                                       WidgetState state)
+{
+  // TODO(Kalyan): Map w to window.
+  switch (state) {
+    case FullScreen:
+      NOTIMPLEMENTED();
+      break;
+    case Maximized:
+      root_window_->Maximize();
+      break;
+    case Minimized:
+      root_window_->Minimize();
+      break;
+    case Restore:
+      root_window_->Restore();
+      break;
+    case Active:
+      NOTIMPLEMENTED();
+      break;
+    case InActive:
+      NOTIMPLEMENTED();
+      break;
+    case Show:
+      NOTIMPLEMENTED();
+      break;
+    case Hide:
+      NOTIMPLEMENTED();
+      break;
+    default:
+      break;
+  }
+}
+
 void OzoneDisplay::EstablishChannel(unsigned id)
 {
   if (!host_)

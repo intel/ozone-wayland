@@ -40,6 +40,7 @@ bool OzoneDisplayChannel::OnMessageReceived(
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannel, message)
   IPC_MESSAGE_HANDLER(WaylandMsg_DisplayChannelEstablished, OnEstablishChannel)
+  IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -70,6 +71,11 @@ void OzoneDisplayChannel::Register()
     thread->Send(new WaylandMsg_EstablishDisplayChannel(display_fd_));
     thread->AddRoute(display_fd_, this);
   }
+}
+
+void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid, unsigned state)
+{
+  OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid, state);
 }
 
 }  // namespace ozonewayland

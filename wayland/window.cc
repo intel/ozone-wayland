@@ -62,6 +62,26 @@ void WaylandWindow::SetShellType(ShellType type)
   }
 }
 
+void WaylandWindow::Maximize()
+{
+  NOTIMPLEMENTED();
+}
+
+void WaylandWindow::Minimize()
+{
+  NOTIMPLEMENTED();
+}
+
+void WaylandWindow::Restore()
+{
+  NOTIMPLEMENTED();
+}
+
+void WaylandWindow::SetFullscreen()
+{
+  NOTIMPLEMENTED();
+}
+
 void WaylandWindow::RealizeAcceleratedWidget()
 {
   if (!window_)

@@ -5,6 +5,8 @@
 
 #include "ozone/impl/desktop_root_window_host_wayland.h"
 
+#include "ozone/impl/ozone_display.h"
+
 #include "base/bind.h"
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
@@ -57,8 +59,8 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     const gfx::Rect& bounds)
     : close_widget_factory_(this),
       native_widget_delegate_(native_widget_delegate),
-      window_mapped_(false),
-      desktop_native_widget_aura_(desktop_native_widget_aura) {
+      desktop_native_widget_aura_(desktop_native_widget_aura),
+      state_(Uninitialized) {
 }
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
@@ -221,7 +223,7 @@ void DesktopRootWindowHostWayland::ShowMaximizedWithBounds(
 }
 
 bool DesktopRootWindowHostWayland::IsVisible() const {
-  return window_mapped_;
+  return state_ & Visible;
 }
 
 void DesktopRootWindowHostWayland::SetSize(const gfx::Size& size) {
@@ -298,35 +300,61 @@ void DesktopRootWindowHostWayland::SetShape(gfx::NativeRegion native_region) {
 }
 
 void DesktopRootWindowHostWayland::Activate() {
-  NOTIMPLEMENTED();
+  if (state_ & Active)
+    return;
+
+  state_ |= Active;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Active);
 }
 
 void DesktopRootWindowHostWayland::Deactivate() {
-  NOTIMPLEMENTED();
+  if (!(state_ & Active))
+    return;
+
+  state_ &= ~Active;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::InActive);
 }
 
 bool DesktopRootWindowHostWayland::IsActive() const {
-  return false;
+  return state_ & Active;
 }
 
 void DesktopRootWindowHostWayland::Maximize() {
-  NOTIMPLEMENTED();
+  if (state_ & Maximized)
+    return;
+
+  state_ |= Maximized;
+  state_ &= ~Minimized;
+  state_ &= ~Normal;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Maximized);
 }
 
 void DesktopRootWindowHostWayland::Minimize() {
-  NOTIMPLEMENTED();
+  if (state_ & Minimized)
+    return;
+
+  state_ &= ~Maximized;
+  state_ |= Minimized;
+  state_ &= ~Normal;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Minimized);
 }
 
 void DesktopRootWindowHostWayland::Restore() {
-  NOTIMPLEMENTED();
+  if (state_ & Normal)
+    return;
+
+  state_ &= ~Maximized;
+  state_ &= ~Minimized;
+  state_ |= Normal;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Restore);
 }
 
 bool DesktopRootWindowHostWayland::IsMaximized() const {
-  return true;
+  return state_ & Maximized;
 }
 
 bool DesktopRootWindowHostWayland::IsMinimized() const {
-  return false;
+  return state_ & Minimized;
 }
 
 void DesktopRootWindowHostWayland::OnCaptureReleased() {
@@ -398,12 +426,19 @@ NonClientFrameView* DesktopRootWindowHostWayland::CreateNonClientFrameView() {
 }
 
 void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
-  NOTIMPLEMENTED();
+  if ((state_ & FullScreen) == fullscreen)
+    return;
+
+  if (fullscreen)
+    state_ |= FullScreen;
+  else
+    state_ &= ~FullScreen;
+
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::FullScreen);
 }
 
 bool DesktopRootWindowHostWayland::IsFullscreen() const {
-  NOTIMPLEMENTED();
-  return false;
+  return state_ & FullScreen;
 }
 
 void DesktopRootWindowHostWayland::SetOpacity(unsigned char opacity) {
@@ -460,19 +495,17 @@ gfx::AcceleratedWidget DesktopRootWindowHostWayland::GetAcceleratedWidget() {
 }
 
 void DesktopRootWindowHostWayland::Show() {
-  NOTIMPLEMENTED();
-
-  window_mapped_ = true;
+  state_ |= Visible;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Show);
 }
 
 void DesktopRootWindowHostWayland::Hide() {
-  NOTIMPLEMENTED();
-
-  window_mapped_ = false;
+  state_ &= ~Visible;
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Hide);
 }
 
 void DesktopRootWindowHostWayland::ToggleFullScreen() {
-  NOTIMPLEMENTED();
+  SetFullscreen(!(state_ & FullScreen));
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetBounds() const {

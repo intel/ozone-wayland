@@ -25,6 +25,7 @@ class OzoneDisplayChannel : public IPC::Listener
 
   void OnEstablishChannel(unsigned route_id);
   void Register();
+  void OnWidgetStateChanged(unsigned handleid, unsigned state);
 
  private:
   unsigned display_fd_;
