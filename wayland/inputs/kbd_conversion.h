@@ -6,7 +6,7 @@
 #ifndef OZONE_WAYLAND_KBD_CONVERSION_H_
 #define OZONE_WAYLAND_KBD_CONVERSION_H_
 
-#include "ui/base/keycodes/keyboard_codes_posix.h"
+#include "ui/events/keycodes/keyboard_codes_posix.h"
 #include "ui/base/ui_export.h"
 
 namespace ozonewayland {
