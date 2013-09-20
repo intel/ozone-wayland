@@ -10,7 +10,6 @@
 #include "base/message_loop/message_pump_ozone.h"
 #include "content/child/child_thread.h"
 #include "content/child/child_process.h"
-#include "ui/base/events/event.h"
 
 #include <errno.h>
 #include <fcntl.h>

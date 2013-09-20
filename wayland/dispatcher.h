@@ -8,7 +8,7 @@
 #include "ozone/impl/ipc/messages.h"
 #include "base/threading/thread.h"
 #include "base/memory/scoped_ptr.h"
-#include "ui/base/events/event.h"
+#include "ui/events/event.h"
 
 namespace ozonewayland {
 class OzoneDisplay;
