@@ -15,9 +15,9 @@ index f583301..f16943a5 100644
 --- a/ipc/ipc_message_start.h
 +++ b/ipc/ipc_message_start.h
 @@ -88,6 +88,7 @@ enum IPCMessageStart {
-   WebRTCIdentityMsgStart,
    LocalDiscoveryMsgStart,
    PowerMonitorMsgStart,
+   EncryptedMediaMsgStart,
 +  WaylandMsgStart,
    LastIPCMsgStart      // Must come last.
  };

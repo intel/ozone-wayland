@@ -89,7 +89,7 @@ solutions = [
     # note that if you try another method for cloning below (like using https
     # instead ssh), then you will want to change it also in gclient/DEPS
     "name"  : "src-ozone",
-    "url"   : "ssh://git@github.com/otcshare/ozone-wayland.git",
+    "url"   : "ssh://git@github.com/01org/ozone-wayland.git",
     "deps_file": "gclient/DEPS"
   }
 ]
