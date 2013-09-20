@@ -45,7 +45,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   void HandleNativeWidgetActivationChanged(bool active);
 
  private:
-  enum RootWindowState {
+  enum {
     Uninitialized = 0x00,
     Visible = 0x01, // Window is Visible.
     FullScreen = 0x02,  // Window is in fullscreen mode.
