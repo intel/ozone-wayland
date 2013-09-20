@@ -10,7 +10,7 @@
 #include "base/bind.h"
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
-#include "ui/base/events/event_utils.h"
+#include "ui/events/event_utils.h"
 #include "ui/base/ozone/surface_factory_ozone.h"
 #include "ui/gfx/insets.h"
 #include "ui/native_theme/native_theme.h"
