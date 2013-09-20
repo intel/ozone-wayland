@@ -6,7 +6,7 @@
 
 #include "ozone/wayland/inputs/cursor.h"
 #include "ozone/wayland/dispatcher.h"
-#include "ui/base/events/event.h"
+#include "ui/events/event.h"
 #include "ui/base/hit_test.h"
 
 #include <linux/input.h>
