@@ -23,7 +23,7 @@ class WaylandScreen;
 class OzoneDisplay : public ui::SurfaceFactoryOzone,
                      public base::MessageLoop::DestructionObserver {
  public:
-  enum WidgetState {
+  enum {
     Show = 1, // Widget is visible.
     Hide = 2, // Widget is hidden.
     FullScreen = 3,  // Widget is in fullscreen mode.
