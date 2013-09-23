@@ -93,6 +93,7 @@ ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   } else if (browserProcess) {
     child_process_observer_ = new OzoneProcessObserver(this);
     initialized_state_ = ui::SurfaceFactoryOzone::INITIALIZED;
+    host_ = new OzoneDisplayChannelHost();
   }
 
   // TODO(kalyan): Find a better way to set a default preferred size.
@@ -235,7 +236,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
 void OzoneDisplay::EstablishChannel(unsigned id)
 {
   if (!host_)
-    host_ = new OzoneDisplayChannelHost();
+    return;
 
   host_->EstablishChannel(id);
 }

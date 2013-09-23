@@ -18,6 +18,7 @@ namespace ozonewayland {
 
 class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
  public:
+  typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
   ~OzoneDisplayChannelHost();
 
@@ -42,6 +43,9 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
 
  private:
   WaylandDispatcher* dispatcher_;
+  // Messages are not sent by host until connection is established. Host queues
+  // all these messages to send after connection is established.
+  DeferredMessages deferred_messages_;
   unsigned process_id_;
   unsigned host_id_;
   unsigned router_id_;

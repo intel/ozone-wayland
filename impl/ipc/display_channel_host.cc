@@ -20,6 +20,10 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost()
 {
   OzoneDisplay::GetInstance()->OnChannelHostDestroyed();
+  while (!deferred_messages_.empty()) {
+    delete deferred_messages_.front();
+    deferred_messages_.pop();
+  }
 }
 
 void OzoneDisplayChannelHost::EstablishChannel(unsigned process_id)
@@ -47,13 +51,23 @@ void OzoneDisplayChannelHost::ChannelClosed(unsigned process_id)
 
 void OzoneDisplayChannelHost::SendWidgetState(unsigned w, unsigned state)
 {
-  Send(new WaylandWindow_State(router_id_, w, state));
+  if (router_id_)
+    Send(new WaylandWindow_State(router_id_, w, state));
+  else
+    deferred_messages_.push(new WaylandWindow_State(router_id_,
+                                                    w,
+                                                    state));
 }
 
 void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
 {
   router_id_ = host_id_ + process_id_ + route_id;
   Send(new WaylandMsg_DisplayChannelEstablished(route_id, router_id_));
+  while (!deferred_messages_.empty()) {
+    deferred_messages_.front()->set_routing_id(router_id_);
+    Send(deferred_messages_.front());
+    deferred_messages_.pop();
+  }
 }
 
 void OzoneDisplayChannelHost::OnMotionNotify(float x, float y)
