@@ -495,11 +495,17 @@ gfx::AcceleratedWidget DesktopRootWindowHostWayland::GetAcceleratedWidget() {
 }
 
 void DesktopRootWindowHostWayland::Show() {
+  if (state_ & Visible)
+    return;
+
   state_ |= Visible;
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Show);
 }
 
 void DesktopRootWindowHostWayland::Hide() {
+  if (!(state_ & Visible))
+    return;
+
   state_ &= ~Visible;
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Hide);
 }
@@ -520,9 +526,13 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
 
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
-  if (size_changed)
+  if (size_changed) {
     root_window_host_delegate_->OnHostResized(bounds.size());
-  else
+    OzoneDisplay::GetInstance()->SetWidgetState(window_,
+                                                OzoneDisplay::Resize,
+                                                bounds.width(),
+                                                bounds.height());
+  } else
     root_window_host_delegate_->OnHostPaint(gfx::Rect(bounds.size()));
 }
 

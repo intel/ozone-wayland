@@ -31,7 +31,8 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
     Minimized = 5, // Widget is minimized.
     Restore = 6, // Restore Widget.
     Active = 7, // Widget is Activated.
-    InActive = 8 // Widget is DeActivated.
+    InActive = 8, // Widget is DeActivated.
+    Resize = 9 // Widget is Resized.
   };
 
   typedef unsigned WidgetState;
@@ -64,8 +65,14 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
 
-  void SetWidgetState(gfx::AcceleratedWidget w, WidgetState state);
-  void OnWidgetStateChanged(gfx::AcceleratedWidget w, WidgetState state);
+  void SetWidgetState(gfx::AcceleratedWidget w,
+                      WidgetState state,
+                      unsigned width = 0,
+                      unsigned height = 0);
+  void OnWidgetStateChanged(gfx::AcceleratedWidget w,
+                            WidgetState state,
+                            unsigned width,
+                            unsigned height);
 
  private:
   enum Launch {

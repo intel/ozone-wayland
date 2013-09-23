@@ -73,9 +73,12 @@ void OzoneDisplayChannel::Register()
   }
 }
 
-void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid, unsigned state)
+void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
+                                               unsigned state,
+                                               unsigned width,
+                                               unsigned height)
 {
-  OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid, state);
+  OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid, state, width, height);
 }
 
 }  // namespace ozonewayland

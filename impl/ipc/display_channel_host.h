@@ -5,6 +5,8 @@
 #ifndef OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
 #define OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
 
+#include <queue>
+
 #include "ozone/wayland/dispatcher.h"
 #include "content/public/browser/browser_message_filter.h"
 #include "content/browser/gpu/gpu_process_host.h"
@@ -18,13 +20,17 @@ namespace ozonewayland {
 
 class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
  public:
+  typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
   ~OzoneDisplayChannelHost();
 
   void EstablishChannel(unsigned process_id);
   void ChannelClosed(unsigned process_id);
 
-  void SendWidgetState(unsigned w, unsigned state);
+  void SendWidgetState(unsigned w,
+                       unsigned state,
+                       unsigned width,
+                       unsigned height);
 
   void OnChannelEstablished(unsigned router_id);
   void OnMotionNotify(float x, float y);
@@ -42,6 +48,9 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
 
  private:
   WaylandDispatcher* dispatcher_;
+  // Messages are not sent by host until connection is established. Host queues
+  // all these messages to send after connection is established.
+  DeferredMessages deferred_messages_;
   unsigned process_id_;
   unsigned host_id_;
   unsigned router_id_;

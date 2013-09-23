@@ -93,6 +93,7 @@ ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   } else if (browserProcess) {
     child_process_observer_ = new OzoneProcessObserver(this);
     initialized_state_ = ui::SurfaceFactoryOzone::INITIALIZED;
+    host_ = new OzoneDisplayChannelHost();
   }
 
   // TODO(kalyan): Find a better way to set a default preferred size.
@@ -129,6 +130,13 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
+  // TODO(kalyan) The channel connection should be established as soon as
+  // GPU thread is initialized.
+  if (!(state_ & ChannelConnected) && channel_) {
+    channel_->Register();
+    return gfx::kNullAcceleratedWidget;
+  }
+
   // TODO(kalyan): Map w to window.
   if (!root_window_)
     root_window_ = new WaylandWindow();
@@ -145,9 +153,6 @@ bool OzoneDisplay::LoadEGLGLES2Bindings() {
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
   // TODO(kalyan): Map w to window.
-  if (!(state_ &ChannelConnected) && channel_)
-    channel_->Register();
-
   if (state_ & PendingOutPut) {
     // TODO(kalyan): AttemptToResizeAcceleratedWidget can be called during
     // pre-initialization phase and hence wayland events might not have been
@@ -189,17 +194,21 @@ void OzoneDisplay::WillDestroyCurrentMessageLoop()
 }
 
 void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
-                                  WidgetState state)
+                                  WidgetState state,
+                                  unsigned width,
+                                  unsigned height)
 {
   // TODO(Kalyan): Map w to window.
   if (host_)
-    host_->SendWidgetState(w, state);
+    host_->SendWidgetState(w, state, width, height);
   else
-    OnWidgetStateChanged(w, state);
+    OnWidgetStateChanged(w, state, width, height);
 }
 
 void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
-                                       WidgetState state)
+                                       WidgetState state,
+                                       unsigned width,
+                                       unsigned height)
 {
   // TODO(Kalyan): Map w to window.
   switch (state) {
@@ -227,6 +236,12 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
     case Hide:
       NOTIMPLEMENTED();
       break;
+    case Resize:
+      if (!root_window_)
+        root_window_ = new WaylandWindow();
+
+      root_window_->SetBounds(gfx::Rect(0,0,width, height));
+      break;
     default:
       break;
   }
@@ -235,7 +250,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
 void OzoneDisplay::EstablishChannel(unsigned id)
 {
   if (!host_)
-    host_ = new OzoneDisplayChannelHost();
+    return;
 
   host_->EstablishChannel(id);
 }
