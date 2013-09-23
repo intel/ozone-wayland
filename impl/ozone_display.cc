@@ -232,6 +232,12 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
     case Hide:
       NOTIMPLEMENTED();
       break;
+    case Resize:
+      if (!root_window_)
+        root_window_ = new WaylandWindow();
+
+      root_window_->SetBounds(gfx::Rect(0,0,width, height));
+      break;
     default:
       break;
   }

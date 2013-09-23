@@ -31,7 +31,8 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
     Minimized = 5, // Widget is minimized.
     Restore = 6, // Restore Widget.
     Active = 7, // Widget is Activated.
-    InActive = 8 // Widget is DeActivated.
+    InActive = 8, // Widget is DeActivated.
+    Resize = 9 // Widget is Resized.
   };
 
   typedef unsigned WidgetState;
