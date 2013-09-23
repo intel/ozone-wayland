@@ -42,7 +42,6 @@ class WaylandWindow {
   void SetFullscreen();
 
   ShellType Type() const { return type_; }
-  WaylandWindowId Handle() const { return id_; }
   void RealizeAcceleratedWidget();
   void HandleSwapBuffers();
 
@@ -58,7 +57,6 @@ class WaylandWindow {
   EGLWindow* window_;
 
   gfx::Rect allocation_;
-  WaylandWindowId id_;
   ShellType type_;
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
