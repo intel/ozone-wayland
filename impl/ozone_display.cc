@@ -18,6 +18,7 @@
 #include "ozone/impl/ipc/display_channel_host.h"
 
 #include "base/command_line.h"
+#include "base/stl_util.h"
 #include "content/public/common/content_switches.h"
 
 namespace ozonewayland {
@@ -35,7 +36,6 @@ OzoneDisplay::OzoneDisplay() : launch_type_(None),
     state_(UnInitialized),
     dispatcher_(NULL),
     display_(NULL),
-    root_window_(NULL),
     child_process_observer_(NULL),
     channel_(NULL),
     host_(NULL),
@@ -121,11 +121,11 @@ void OzoneDisplay::ShutdownHardware()
 
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 {
-  if (!root_window_)
-    root_window_ = new WaylandWindow(display_ ? WaylandWindow::TOPLEVEL
-                                              : WaylandWindow::None);
+  static int opaque_handle = 0;
+  opaque_handle++;
+  CreateWidget(opaque_handle);
 
-  return (gfx::AcceleratedWidget)root_window_->Handle();
+  return (gfx::AcceleratedWidget)opaque_handle;
 }
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
@@ -137,13 +137,10 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     return gfx::kNullAcceleratedWidget;
   }
 
-  // TODO(kalyan): Map w to window.
-  if (!root_window_)
-    root_window_ = new WaylandWindow();
-
-  root_window_->RealizeAcceleratedWidget();
-
-  return (gfx::AcceleratedWidget)root_window_->egl_window();
+  WaylandWindow* widget = GetWidget(w);
+  DCHECK(widget);
+  widget->RealizeAcceleratedWidget();
+  return (gfx::AcceleratedWidget)widget->egl_window();
 }
 
 bool OzoneDisplay::LoadEGLGLES2Bindings() {
@@ -152,7 +149,6 @@ bool OzoneDisplay::LoadEGLGLES2Bindings() {
 
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
-  // TODO(kalyan): Map w to window.
   if (state_ & PendingOutPut) {
     // TODO(kalyan): AttemptToResizeAcceleratedWidget can be called during
     // pre-initialization phase and hence wayland events might not have been
@@ -165,7 +161,27 @@ bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
     base::snprintf(spec_, size, "%dx%d", bounds.width(), bounds.height());
   }
 
-  return root_window_->SetBounds(bounds);
+  if (host_) {
+    host_->SendWidgetState(w, Resize, bounds.width(), bounds.height());
+    return true;
+  }
+
+  WaylandWindow* window = GetWidget(w);
+  // TODO(kalyan): Handle may be a opaque handle or a realized widget.
+  // Fix this properly once resizing support is added.
+  if (!window) {
+    std::map<unsigned, WaylandWindow*>::const_iterator it;
+    for (it = widget_map_.begin(); it != widget_map_.end(); ++it) {
+      if (w == (gfx::AcceleratedWidget)it->second->egl_window()) {
+        window = it->second;
+        break;
+      }
+    }
+  }
+
+  DCHECK(window);
+
+  return window->SetBounds(bounds);
 }
 
 gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(gfx::AcceleratedWidget w) {
@@ -173,9 +189,6 @@ gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(gfx::AcceleratedWidget w) {
 }
 
 bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
-  // TODO(Kalyan): Map w to window.
-  root_window_->HandleSwapBuffers();
-
   return true;
 }
 
@@ -198,7 +211,6 @@ void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
                                   unsigned width,
                                   unsigned height)
 {
-  // TODO(Kalyan): Map w to window.
   if (host_)
     host_->SendWidgetState(w, state, width, height);
   else
@@ -210,20 +222,30 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
                                        unsigned width,
                                        unsigned height)
 {
-  // TODO(Kalyan): Map w to window.
   switch (state) {
+    case Create:
+      CreateWidget(w);
     case FullScreen:
       NOTIMPLEMENTED();
       break;
     case Maximized:
-      root_window_->Maximize();
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Maximize();
       break;
+    }
     case Minimized:
-      root_window_->Minimize();
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Minimize();
       break;
+    }
     case Restore:
-      root_window_->Restore();
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Restore();
       break;
+    }
     case Active:
       NOTIMPLEMENTED();
       break;
@@ -237,10 +259,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       NOTIMPLEMENTED();
       break;
     case Resize:
-      if (!root_window_)
-        root_window_ = new WaylandWindow();
-
-      root_window_->SetBounds(gfx::Rect(0,0,width, height));
+      AttemptToResizeAcceleratedWidget(w, gfx::Rect(0,0,width, height));
       break;
     default:
       break;
@@ -301,6 +320,25 @@ void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
   }
 }
 
+WaylandWindow* OzoneDisplay::CreateWidget(unsigned w)
+{
+  WaylandWindow* window = NULL;
+  if (!host_) {
+    window = new WaylandWindow(display_ ? WaylandWindow::TOPLEVEL
+                                        : WaylandWindow::None);
+    widget_map_[w] = window;
+  } else
+    host_->SendWidgetState(w, Create, 0, 0);
+
+  return window;
+}
+
+WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w)
+{
+  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
+  return it == widget_map_.end() ? NULL : it->second;
+}
+
 void OzoneDisplay::Terminate()
 {
   if (!(state_ & Initialized))
@@ -312,9 +350,9 @@ void OzoneDisplay::Terminate()
     spec_ = NULL;
   }
 
-  if (root_window_) {
-    delete root_window_;
-    root_window_ =NULL;
+  if (widget_map_.size()) {
+    STLDeleteValues(&widget_map_);
+    widget_map_.clear();
   }
 
   if (channel_) {
