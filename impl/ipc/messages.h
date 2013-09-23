@@ -33,12 +33,14 @@ IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize, unsigned /*width*/,
 
 // DisplayChannel in GpuProcess sends the message when it is ready to make a
 // connection with DisplayChannelHost in BrowserProcess.
-IPC_MESSAGE_CONTROL1(WaylandMsg_EstablishDisplayChannel, unsigned /* client id */)
+IPC_MESSAGE_CONTROL1(WaylandMsg_EstablishDisplayChannel, unsigned /*route id*/)
 
 // Response from DisplayChannelHost to DisplayChannel as an ack to connection
 // request.
-IPC_MESSAGE_ROUTED1(WaylandMsg_DisplayChannelEstablished,
-                    unsigned /* channel_handle */)
+IPC_MESSAGE_ROUTED1(WaylandMsg_DisplayChannelEstablished, unsigned /*route id*/)
 
-IPC_MESSAGE_ROUTED2(WaylandWindow_State,
-                    unsigned /* window_handle */, unsigned /*state*/)
+IPC_MESSAGE_ROUTED4(WaylandWindow_State,
+                    unsigned /* window handle */,
+                    unsigned /*state*/,
+                    unsigned /*width*/,
+                    unsigned /*height*/)

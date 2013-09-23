@@ -1,20 +1,19 @@
-From c274d0f2b2fbdb8d17d6de479aac001666a2ae30 Mon Sep 17 00:00:00 2001
+From d8f1a0ad303450e47a153f797476bd3d0fc9f4ec Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Tue, 10 Sep 2013 19:33:45 +0300
+Date: Sun, 22 Sep 2013 01:14:28 +0300
 Subject: [PATCH] Chromium-Add-gl-changes-for-Wayland.
 
-This patch adds basic support needed in NativeViewGLSurfaceEGL to resize  window
-and ensure we don't swap before the last swap has been handled. Changes related
-to resizing needs more testing before trying to upstream the patch.
+This patch adds basic support needed in NativeViewGLSurfaceEGL to resize window.
+Changes related to resizing needs more testing before trying to upstream the patch.
 ---
- ui/gl/gl_surface_egl.cc |   23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ ui/gl/gl_surface_egl.cc |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
-index 5f4edf4..37c68f8 100644
+index af9bcce..4d4ab45 100644
 --- a/ui/gl/gl_surface_egl.cc
 +++ b/ui/gl/gl_surface_egl.cc
-@@ -115,8 +115,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+@@ -116,8 +116,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
      LOG(ERROR) << "OZONE failed to initialize hardware";
      return false;
    }
@@ -24,7 +23,7 @@ index 5f4edf4..37c68f8 100644
  #else
    g_native_display = EGL_DEFAULT_DISPLAY;
  #endif
-@@ -140,7 +139,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+@@ -141,7 +140,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
      EGL_GREEN_SIZE, 8,
      EGL_RED_SIZE, 8,
      EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -33,20 +32,7 @@ index 5f4edf4..37c68f8 100644
      EGL_NONE
    };
  
-@@ -368,6 +367,12 @@ bool NativeViewGLSurfaceEGL::SwapBuffers() {
-     return false;
-   }
-
-+#if defined(USE_OZONE)
-+  ui::SurfaceFactoryOzone* surface_factory =
-+    ui::SurfaceFactoryOzone::GetInstance();
-+  surface_factory->SchedulePageFlip(window_);
-+#endif
-+
-   return true;
- }
-
-@@ -392,6 +397,7 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
+@@ -393,6 +392,7 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
    GLContext* current_context = GLContext::GetCurrent();
    bool was_current =
        current_context && current_context->IsCurrent(this);
@@ -54,7 +40,7 @@ index 5f4edf4..37c68f8 100644
    if (was_current) {
      scoped_make_current.reset(
          new ui::ScopedMakeCurrent(current_context, this));
-@@ -400,6 +406,17 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
+@@ -401,6 +401,15 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
 
    Destroy();
 
@@ -65,8 +51,6 @@ index 5f4edf4..37c68f8 100644
 +  surface_factory->AttemptToResizeAcceleratedWidget(window_,
 +                                                    gfx::Rect(0, 0, size.width(),
 +                                                              size.height()));
-+  window_ = ui::SurfaceFactoryOzone::GetInstance()->RealizeAcceleratedWidget(
-+      window_);
 +#endif
 +
    if (!Initialize()) {
