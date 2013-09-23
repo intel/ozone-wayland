@@ -130,6 +130,13 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
+  // TODO(kalyan) The channel connection should be established as soon as
+  // GPU thread is initialized.
+  if (!(state_ & ChannelConnected) && channel_) {
+    channel_->Register();
+    return gfx::kNullAcceleratedWidget;
+  }
+
   // TODO(kalyan): Map w to window.
   if (!root_window_)
     root_window_ = new WaylandWindow();
@@ -146,9 +153,6 @@ bool OzoneDisplay::LoadEGLGLES2Bindings() {
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
   // TODO(kalyan): Map w to window.
-  if (!(state_ &ChannelConnected) && channel_)
-    channel_->Register();
-
   if (state_ & PendingOutPut) {
     // TODO(kalyan): AttemptToResizeAcceleratedWidget can be called during
     // pre-initialization phase and hence wayland events might not have been
