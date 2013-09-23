@@ -49,14 +49,19 @@ void OzoneDisplayChannelHost::ChannelClosed(unsigned process_id)
   process_id_ = 0;
 }
 
-void OzoneDisplayChannelHost::SendWidgetState(unsigned w, unsigned state)
+void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
+                                              unsigned state,
+                                              unsigned width,
+                                              unsigned height)
 {
   if (router_id_)
-    Send(new WaylandWindow_State(router_id_, w, state));
+    Send(new WaylandWindow_State(router_id_, w, state, width, height));
   else
     deferred_messages_.push(new WaylandWindow_State(router_id_,
                                                     w,
-                                                    state));
+                                                    state,
+                                                    width,
+                                                    height));
 }
 
 void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)

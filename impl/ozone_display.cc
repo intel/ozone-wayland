@@ -190,17 +190,21 @@ void OzoneDisplay::WillDestroyCurrentMessageLoop()
 }
 
 void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
-                                  WidgetState state)
+                                  WidgetState state,
+                                  unsigned width,
+                                  unsigned height)
 {
   // TODO(Kalyan): Map w to window.
   if (host_)
-    host_->SendWidgetState(w, state);
+    host_->SendWidgetState(w, state, width, height);
   else
-    OnWidgetStateChanged(w, state);
+    OnWidgetStateChanged(w, state, width, height);
 }
 
 void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
-                                       WidgetState state)
+                                       WidgetState state,
+                                       unsigned width,
+                                       unsigned height)
 {
   // TODO(Kalyan): Map w to window.
   switch (state) {

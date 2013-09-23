@@ -5,6 +5,8 @@
 #ifndef OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
 #define OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
 
+#include <queue>
+
 #include "ozone/wayland/dispatcher.h"
 #include "content/public/browser/browser_message_filter.h"
 #include "content/browser/gpu/gpu_process_host.h"
@@ -25,7 +27,10 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
   void EstablishChannel(unsigned process_id);
   void ChannelClosed(unsigned process_id);
 
-  void SendWidgetState(unsigned w, unsigned state);
+  void SendWidgetState(unsigned w,
+                       unsigned state,
+                       unsigned width,
+                       unsigned height);
 
   void OnChannelEstablished(unsigned router_id);
   void OnMotionNotify(float x, float y);
