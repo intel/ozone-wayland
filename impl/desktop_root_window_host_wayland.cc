@@ -495,11 +495,17 @@ gfx::AcceleratedWidget DesktopRootWindowHostWayland::GetAcceleratedWidget() {
 }
 
 void DesktopRootWindowHostWayland::Show() {
+  if (state_ & Visible)
+    return;
+
   state_ |= Visible;
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Show);
 }
 
 void DesktopRootWindowHostWayland::Hide() {
+  if (!(state_ & Visible))
+    return;
+
   state_ &= ~Visible;
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Hide);
 }
