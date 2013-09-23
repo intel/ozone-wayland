@@ -17,13 +17,8 @@ namespace ozonewayland {
 WaylandWindow::WaylandWindow(ShellType type) : shell_surface_(NULL),
     window_(NULL),
     type_(type),
-    allocation_(gfx::Rect(0, 0, 1, 1)),
-    id_(0)
+    allocation_(gfx::Rect(0, 0, 1, 1))
 {
-  static WaylandWindowId bufferHandleId = 0;
-  bufferHandleId++;
-  id_ = bufferHandleId;
-
   if (type_ != None)
     shell_surface_ = new WaylandShellSurface(this);
 }
