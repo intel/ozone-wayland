@@ -1,6 +1,6 @@
-From 8aaab68b39d5a7daa9d21b6e1481d5707973b8d6 Mon Sep 17 00:00:00 2001
+From f6a4384b29254becc56f597033b947a2c53f5ecd Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Fri, 20 Sep 2013 19:08:02 +0300
+Date: Tue, 24 Sep 2013 14:35:45 -0300
 Subject: [PATCH] Register messages file to IPC System.
 
 This patch adds WaylandMsgStart to IPCMessageStart enum in ipc_message_start.h.
@@ -11,15 +11,15 @@ message file.
  1 file changed, 1 insertion(+)
 
 diff --git a/ipc/ipc_message_start.h b/ipc/ipc_message_start.h
-index dc9be23..a269a15 100644
+index a8cca53..bad88da 100644
 --- a/ipc/ipc_message_start.h
 +++ b/ipc/ipc_message_start.h
-@@ -89,6 +89,7 @@ enum IPCMessageStart {
-   LocalDiscoveryMsgStart,
+@@ -90,6 +90,7 @@ enum IPCMessageStart {
    PowerMonitorMsgStart,
    EncryptedMediaMsgStart,
+   ServiceWorkerMsgStart,
 +  WaylandMsgStart,
-   LastIPCMsgStart      // Must come last.
+   LastIPCMsgStart  // Must come last.
  };
  
 -- 

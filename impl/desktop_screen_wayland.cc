@@ -4,7 +4,7 @@
 
 #include "ozone/impl/desktop_screen_wayland.h"
 
-#include "ui/base/ozone/surface_factory_ozone.h"
+#include "ui/gfx/ozone/surface_factory_ozone.h"
 
 #include <stdio.h>
 
@@ -15,7 +15,7 @@ namespace {
 gfx::Size GetPrimaryDisplaySize() {
   int width, height;
   const char* display =
-      ui::SurfaceFactoryOzone::GetInstance()->DefaultDisplaySpec();
+      gfx::SurfaceFactoryOzone::GetInstance()->DefaultDisplaySpec();
 
   int sc = sscanf(display, "%dx%d", &width, &height);
   if (sc != 2) {

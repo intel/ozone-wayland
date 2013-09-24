@@ -11,7 +11,7 @@
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
 #include "ui/events/event_utils.h"
-#include "ui/base/ozone/surface_factory_ozone.h"
+#include "ui/gfx/ozone/surface_factory_ozone.h"
 #include "ui/gfx/insets.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/corewm_switches.h"
@@ -75,8 +75,8 @@ DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
 void DesktopRootWindowHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
 
-  ui::SurfaceFactoryOzone* surface_factory =
-          ui::SurfaceFactoryOzone::GetInstance();
+  gfx::SurfaceFactoryOzone* surface_factory =
+          gfx::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();
   surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
 }
@@ -114,7 +114,7 @@ aura::RootWindow* DesktopRootWindowHostWayland::InitRootWindow(
   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
 
   corewm::FocusController* focus_controller =
-      new corewm::FocusController(new DesktopFocusRules);
+      new corewm::FocusController(new DesktopFocusRules(content_window_));
   focus_client_.reset(focus_controller);
   aura::client::SetFocusClient(root_window_, focus_controller);
   aura::client::SetActivationClient(root_window_, focus_controller);
