@@ -34,7 +34,7 @@ http://wayland.freedesktop.org/building.html
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
-Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use a special `.gclient` configuration that clones both of the trees (see next section). Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium top-level directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
+Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use a special `.gclient` configuration that clones both of the trees (see next section); but first you need to download [depot_tools](http://dev.chromium.org/developers/how-tos/install-depot-tools) and configure it. Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium top-level directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
 
   ```
   $ gclient sync
