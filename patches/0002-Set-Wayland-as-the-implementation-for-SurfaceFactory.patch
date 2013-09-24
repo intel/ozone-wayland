@@ -1,6 +1,6 @@
-From 1ef456f28d78d02c24900134f8ca6dbf181c8091 Mon Sep 17 00:00:00 2001
+From 195d499d7845802690f26cbd9b0bc9a8c548b04c Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Sun, 15 Sep 2013 17:30:13 +0300
+Date: Mon, 23 Sep 2013 20:40:42 +0300
 Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
 
 The fundamental problem to be solved here is to find a way to set downstream
@@ -14,14 +14,39 @@ start investigating this problem, we should contact rjkroege for any advice.
 
 This is patch is a hack and in principle shouldn't be extended much.
 ---
- build/common.gypi                        |    6 ++++++
- content/shell/app/shell_main_delegate.cc |   15 +++++++++++++++
- ui/aura/aura.gyp                         |    5 +++++
- ui/aura/demo/demo_main.cc                |    9 +++++++++
- 4 files changed, 35 insertions(+)
+ ash/shell/content_client/shell_main_delegate.cc |    5 +++++
+ build/common.gypi                               |    6 ++++++
+ chrome/app/chrome_main_delegate.cc              |    9 +++++++++
+ content/shell/app/shell_main_delegate.cc        |   15 +++++++++++++++
+ ui/aura/aura.gyp                                |    5 +++++
+ ui/aura/demo/demo_main.cc                       |    9 +++++++++
+ 6 files changed, 49 insertions(+)
+
+diff --git a/ash/shell/content_client/shell_main_delegate.cc b/ash/shell/content_client/shell_main_delegate.cc
+index 014fae1..c749aed 100644
+--- a/ash/shell/content_client/shell_main_delegate.cc
++++ b/ash/shell/content_client/shell_main_delegate.cc
+@@ -9,6 +9,8 @@
+ #include "content/public/common/content_switches.h"
+ #include "ui/base/resource/resource_bundle.h"
+
++#include "ozone/impl/ozone_display.h"
++
+ namespace ash {
+ namespace shell {
+
+@@ -29,6 +31,9 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+ }
+
+ void ShellMainDelegate::PreSandboxStartup() {
++  /* TODO: Implementation specific. Has to go away */
++  ui::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
++  ui::SurfaceFactoryOzone::SetInstance(o_factory);
+   InitializeResourceBundle();
+ }
 
 diff --git a/build/common.gypi b/build/common.gypi
-index 768f3c3..d894bba 100644
+index 360f81a..ce708ea 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -143,6 +143,12 @@
@@ -37,6 +62,33 @@ index 768f3c3..d894bba 100644
            # Whether we're a traditional desktop unix.
            ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
              'desktop_linux%': 1,
+diff --git a/chrome/app/chrome_main_delegate.cc b/chrome/app/chrome_main_delegate.cc
+index 08b9e43..c178799 100644
+--- a/chrome/app/chrome_main_delegate.cc
++++ b/chrome/app/chrome_main_delegate.cc
+@@ -100,6 +100,9 @@
+ #include "chrome/app/breakpad_linux.h"
+ #endif
+
++#include "ozone/impl/ozone_display.h"
++#include "ozone/impl/desktop_factory_wayland.h"
++
+ #if !defined(CHROME_MULTIPLE_DLL_CHILD)
+ base::LazyInstance<chrome::ChromeContentBrowserClient>
+     g_chrome_content_browser_client = LAZY_INSTANCE_INITIALIZER;
+@@ -589,6 +592,12 @@ void ChromeMainDelegate::PreSandboxStartup() {
+   std::string process_type =
+       command_line.GetSwitchValueASCII(switches::kProcessType);
+
++  /* TODO: Implementation specific. Has to go away */
++  ui::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
++  ui::SurfaceFactoryOzone::SetInstance(o_factory);
++  views::DesktopFactoryOzone *d_factory = new ozonewayland::DesktopFactoryWayland();
++  views::DesktopFactoryOzone::SetInstance(d_factory);
++
+ #if defined(OS_POSIX)
+   breakpad::SetBreakpadClient(g_chrome_breakpad_client.Pointer());
+ #endif
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
 index b5fbb8e..3da824f 100644
 --- a/content/shell/app/shell_main_delegate.cc
@@ -78,10 +130,10 @@ index b5fbb8e..3da824f 100644
  
  int ShellMainDelegate::RunProcess(
 diff --git a/ui/aura/aura.gyp b/ui/aura/aura.gyp
-index a4fe861..760ff82 100644
+index c2983e9..92eb27e 100644
 --- a/ui/aura/aura.gyp
 +++ b/ui/aura/aura.gyp
-@@ -128,6 +128,11 @@
+@@ -116,6 +116,11 @@
              '../../ipc/ipc.gyp:ipc',
            ],
          }],
@@ -94,7 +146,7 @@ index a4fe861..760ff82 100644
      },
      {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
-index fb23684..585fe92 100644
+index dbf1c80..89184d7 100644
 --- a/ui/aura/demo/demo_main.cc
 +++ b/ui/aura/demo/demo_main.cc
 @@ -24,6 +24,8 @@
