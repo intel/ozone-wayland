@@ -59,7 +59,7 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   return new DesktopScreenWayland;
 }
 
-ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
+gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 {
   if (state_ & Initialized)
     return initialized_state_;
@@ -75,8 +75,8 @@ ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 
   if (singleProcess || gpuProcess) {
     display_ = new WaylandDisplay();
-    initialized_state_ = display_->display() ? ui::SurfaceFactoryOzone::INITIALIZED
-                                             : ui::SurfaceFactoryOzone::FAILED;
+    initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
+                                             : gfx::SurfaceFactoryOzone::FAILED;
   }
 
   if (singleProcess || browserProcess)
@@ -92,7 +92,7 @@ ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     dispatcher_->PostTask(WaylandDispatcher::Poll);
   } else if (browserProcess) {
     child_process_observer_ = new OzoneProcessObserver(this);
-    initialized_state_ = ui::SurfaceFactoryOzone::INITIALIZED;
+    initialized_state_ = gfx::SurfaceFactoryOzone::INITIALIZED;
     host_ = new OzoneDisplayChannelHost();
   }
 
@@ -103,7 +103,7 @@ ui::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   base::snprintf(spec_, size, "%dx%d", scrn.width(), scrn.height());
   state_ |= PendingOutPut;
 
-  if (initialized_state_ != ui::SurfaceFactoryOzone::INITIALIZED)
+  if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
 
   return initialized_state_;

@@ -9,7 +9,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop.h"
-#include "ui/base/ozone/surface_factory_ozone.h"
+#include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
 
@@ -22,7 +22,7 @@ class WaylandWindow;
 class WaylandDispatcher;
 class WaylandScreen;
 
-class OzoneDisplay : public ui::SurfaceFactoryOzone,
+class OzoneDisplay : public gfx::SurfaceFactoryOzone,
                      public base::MessageLoop::DestructionObserver {
  public:
   enum {
@@ -116,7 +116,7 @@ class OzoneDisplay : public ui::SurfaceFactoryOzone,
   LaunchType launch_type_;
   ProcessType process_type_;
   CurrentState state_;
-  ui::SurfaceFactoryOzone::HardwareState initialized_state_;
+  gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   bool initialized_ :1;
 
   WaylandDispatcher* dispatcher_;
