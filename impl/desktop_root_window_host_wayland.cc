@@ -77,13 +77,6 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
 
   ui::SurfaceFactoryOzone* surface_factory =
           ui::SurfaceFactoryOzone::GetInstance();
-  ui::SurfaceFactoryOzone::HardwareState displayInitialization =
-          surface_factory->InitializeHardware();
-  if (displayInitialization != ui::SurfaceFactoryOzone::INITIALIZED) {
-    LOG(ERROR) << "DesktopRootWindowHostWayland failed to initialize hardware";
-    return;
-  }
-
   window_ = surface_factory->GetAcceleratedWidget();
   surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
 }

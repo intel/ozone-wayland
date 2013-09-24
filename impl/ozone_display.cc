@@ -122,6 +122,8 @@ void OzoneDisplay::ShutdownHardware()
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 {
   static int opaque_handle = 0;
+  // Ensure display is initialized.
+  InitializeHardware();
   opaque_handle++;
   CreateWidget(opaque_handle);
 
