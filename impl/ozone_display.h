@@ -93,8 +93,7 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   enum State {
    UnInitialized = 0x00,
    Initialized = 0x01,
-   PendingOutPut = 0x02,
-   ChannelConnected = 0x04
+   ChannelConnected = 0x02
   };
 
   typedef unsigned LaunchType;
@@ -118,6 +117,7 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   CurrentState state_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   bool initialized_ :1;
+  const int kMaxDisplaySize_;
 
   WaylandDispatcher* dispatcher_;
   WaylandDisplay* display_;
