@@ -40,9 +40,13 @@ OzoneDisplay::OzoneDisplay() : launch_type_(None),
     channel_(NULL),
     host_(NULL),
     e_factory_(NULL),
-    spec_(NULL)
+    spec_(NULL),
+    kMaxDisplaySize_(20)
 {
   instance_ = this;
+
+  spec_ = new char[kMaxDisplaySize_];
+  spec_[0] = '\0';
 }
 
 OzoneDisplay::~OzoneDisplay()
@@ -52,6 +56,9 @@ OzoneDisplay::~OzoneDisplay()
 }
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
+  if (spec_[0] == '\0')
+    NOTREACHED() << "Need OutputHandleMode come from Wayland compositor first";
+
   return spec_;
 }
 
@@ -95,13 +102,6 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     initialized_state_ = gfx::SurfaceFactoryOzone::INITIALIZED;
     host_ = new OzoneDisplayChannelHost();
   }
-
-  // TODO(kalyan): Find a better way to set a default preferred size.
-  gfx::Rect scrn = gfx::Rect(0, 0, 1,1);
-  int size = 2 * sizeof scrn.width();
-  spec_ = new char[size];
-  base::snprintf(spec_, size, "%dx%d", scrn.width(), scrn.height());
-  state_ |= PendingOutPut;
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
@@ -151,18 +151,6 @@ bool OzoneDisplay::LoadEGLGLES2Bindings() {
 
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
-  if (state_ & PendingOutPut) {
-    // TODO(kalyan): AttemptToResizeAcceleratedWidget can be called during
-    // pre-initialization phase and hence wayland events might not have been
-    // handled. Fix this properly after understanding how defaultspec effects
-    // layouting and if we can force OutputHandleMode to be handled immediately.
-
-    // We are yet to get output geometry, instead of having some dummy value
-    // assign size of root window to defaultspec.
-    int size = 2 * sizeof bounds.width();
-    base::snprintf(spec_, size, "%dx%d", bounds.width(), bounds.height());
-  }
-
   if (host_) {
     host_->SendWidgetState(w, Resize, bounds.width(), bounds.height());
     return true;
@@ -305,9 +293,7 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
                                        int height)
 {
   if (screen == display_->PrimaryScreen()) {
-    int size = 2 * sizeof width;
-    base::snprintf(spec_, size, "%dx%d", width, height);
-    state_ &= ~PendingOutPut;
+    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
     if (channel_ && (state_ & ChannelConnected))
       dispatcher_->OutputSizeChanged(width, height);
   }
@@ -315,11 +301,8 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
 {
-  if (host_) {
-    int size = 2 * sizeof width;
-    base::snprintf(spec_, size, "%dx%d", width, height);
-    state_ &= ~PendingOutPut;
-  }
+  if (host_)
+    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
 }
 
 WaylandWindow* OzoneDisplay::CreateWidget(unsigned w)
