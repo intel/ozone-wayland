@@ -113,7 +113,8 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void ClearNativeFocus() OVERRIDE;
   virtual views::Widget::MoveLoopResult RunMoveLoop(
       const gfx::Vector2d& drag_offset,
-      views::Widget::MoveLoopSource source) OVERRIDE;
+      views::Widget::MoveLoopSource source,
+      views::Widget::MoveLoopEscapeBehavior escape_behavior) OVERRIDE;
   virtual void EndMoveLoop() OVERRIDE;
   virtual void SetVisibilityChangedAnimationsEnabled(bool value) OVERRIDE;
   virtual bool ShouldUseNativeFrame() OVERRIDE;
