@@ -269,10 +269,6 @@ void OzoneDisplay::EstablishChannel(unsigned id)
 void OzoneDisplay::OnChannelEstablished(unsigned id)
 {
   state_ |= ChannelConnected;
-  if (channel_) {
-    gfx::Rect rect = display_->PrimaryScreen()->Geometry();
-    dispatcher_->OutputSizeChanged(rect.width(), rect.height());
-  }
 }
 
 void OzoneDisplay::OnChannelClosed(unsigned id)
