@@ -44,9 +44,6 @@ OzoneDisplay::OzoneDisplay() : launch_type_(None),
     kMaxDisplaySize_(20)
 {
   instance_ = this;
-
-  spec_ = new char[kMaxDisplaySize_];
-  spec_[0] = '\0';
 }
 
 OzoneDisplay::~OzoneDisplay()
@@ -88,8 +85,11 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
                                              : gfx::SurfaceFactoryOzone::FAILED;
   }
 
-  if (singleProcess || browserProcess)
+  if (singleProcess || browserProcess) {
     dispatcher_ = new WaylandDispatcher();
+    spec_ = new char[kMaxDisplaySize_];
+    spec_[0] = '\0';
+  }
 
   if (singleProcess) {
     e_factory_ = new EventFactoryWayland();
@@ -294,11 +294,15 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
                                        int width,
                                        int height)
 {
-  if (screen == display_->PrimaryScreen()) {
-    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
-    if (channel_ && (state_ & ChannelConnected))
-      dispatcher_->OutputSizeChanged(width, height);
+  if (screen != display_->PrimaryScreen()) {
+    NOTIMPLEMENTED () << "Multiple screens are not implemented";
+    return;
   }
+
+  if (launch_type_ & SingleProcess)
+    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
+  else if (channel_ && (state_ & ChannelConnected))
+    dispatcher_->OutputSizeChanged(width, height);
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
