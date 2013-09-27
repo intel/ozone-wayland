@@ -32,12 +32,9 @@ void OzoneDisplayChannelHost::EstablishChannel(unsigned process_id)
     return;
 
   process_id_ = process_id;
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-          base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::UpdateConnection),
-                     this, host_id_));
-  } else
-    UpdateConnection(host_id_);
+  content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+      base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::UpdateConnection),
+          this, host_id_));
 }
 
 void OzoneDisplayChannelHost::ChannelClosed(unsigned process_id)
@@ -142,12 +139,12 @@ bool OzoneDisplayChannelHost::UpdateConnection(int process_id)
   content::GpuProcessHost* host = content::GpuProcessHost::FromID(process_id);
   if (!host)
     host = content::GpuProcessHost::Get(
-          content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
-          content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
-  if (host) {
-    host->AddFilter(this);
-    host_id_ = host->host_id();
-  }
+        content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
+        content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
+
+  DCHECK(host);
+  host->AddFilter(this);
+  host_id_ = host->host_id();
 }
 
 }  // namespace ozonewayland
