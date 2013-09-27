@@ -100,9 +100,9 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   typedef unsigned ProcessType;
   typedef unsigned CurrentState;
 
-  void EstablishChannel(unsigned id);
+  void EstablishChannel();
   void OnChannelEstablished(unsigned id);
-  void OnChannelClosed(unsigned id);
+  void OnChannelClosed();
   void OnChannelHostDestroyed();
   void OnOutputSizeChanged(WaylandScreen* screen, int width, int height);
   void OnOutputSizeChanged(unsigned width, unsigned height);
