@@ -10,8 +10,7 @@
 namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : process_id_(0),
-      host_id_(0),
+    : host_id_(0),
       router_id_(0)
 {
   dispatcher_ = WaylandDispatcher::GetInstance();
@@ -26,24 +25,19 @@ OzoneDisplayChannelHost::~OzoneDisplayChannelHost()
   }
 }
 
-void OzoneDisplayChannelHost::EstablishChannel(unsigned process_id)
+void OzoneDisplayChannelHost::EstablishChannel()
 {
-  if (host_id_ && process_id_)
+  if (host_id_)
     return;
 
-  process_id_ = process_id;
   content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
       base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::UpdateConnection),
           this, host_id_));
 }
 
-void OzoneDisplayChannelHost::ChannelClosed(unsigned process_id)
+void OzoneDisplayChannelHost::ChannelClosed()
 {
-  if (process_id_ != process_id)
-    return;
-
   host_id_ = 0;
-  process_id_ = 0;
 }
 
 void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
@@ -63,7 +57,7 @@ void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
 
 void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
 {
-  router_id_ = host_id_ + process_id_ + route_id;
+  router_id_ = host_id_ + route_id;
   Send(new WaylandMsg_DisplayChannelEstablished(route_id, router_id_));
   while (!deferred_messages_.empty()) {
     deferred_messages_.front()->set_routing_id(router_id_);
@@ -134,9 +128,9 @@ bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message,
   return handled;
 }
 
-bool OzoneDisplayChannelHost::UpdateConnection(int process_id)
+bool OzoneDisplayChannelHost::UpdateConnection(int gpu_id)
 {
-  content::GpuProcessHost* host = content::GpuProcessHost::FromID(process_id);
+  content::GpuProcessHost* host = content::GpuProcessHost::FromID(gpu_id);
   if (!host)
     host = content::GpuProcessHost::Get(
         content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,

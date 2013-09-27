@@ -258,12 +258,12 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
   }
 }
 
-void OzoneDisplay::EstablishChannel(unsigned id)
+void OzoneDisplay::EstablishChannel()
 {
   if (!host_)
     return;
 
-  host_->EstablishChannel(id);
+  host_->EstablishChannel();
 }
 
 void OzoneDisplay::OnChannelEstablished(unsigned id)
@@ -271,13 +271,13 @@ void OzoneDisplay::OnChannelEstablished(unsigned id)
   state_ |= ChannelConnected;
 }
 
-void OzoneDisplay::OnChannelClosed(unsigned id)
+void OzoneDisplay::OnChannelClosed()
 {
   state_ &= ~ChannelConnected;
   if (!host_)
     return;
 
-  host_->ChannelClosed(id);
+  host_->ChannelClosed();
 }
 
 void OzoneDisplay::OnChannelHostDestroyed()
