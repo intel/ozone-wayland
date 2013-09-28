@@ -65,6 +65,14 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   return new DesktopScreenWayland;
 }
 
+//  TODO(vignatti): this is called far too late for GPU and browser processes
+//  because InitializeHardware runs at main loop on both cases. As an example
+//  why this is a problem, Chrome initiates browser frame creation
+//  (BrowserFrame::InitBrowserFrame), in which needs display properties
+//  information coming from the window system prior the main loop execution
+//  (PreMainMessageLoopRun). Therefore, we need to bring all the content of
+//  this function before that and implement a way to sync the channels
+//  connections, making sure they can come _at_ _any_ _order_.
 gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 {
   if (state_ & Initialized)
@@ -103,6 +111,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     child_process_observer_ = new OzoneProcessObserver(this);
     initialized_state_ = gfx::SurfaceFactoryOzone::INITIALIZED;
     host_ = new OzoneDisplayChannelHost();
+    host_->EstablishChannel();
   }
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
@@ -258,14 +267,6 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
   }
 }
 
-void OzoneDisplay::EstablishChannel()
-{
-  if (!host_)
-    return;
-
-  host_->EstablishChannel();
-}
-
 void OzoneDisplay::OnChannelEstablished(unsigned id)
 {
   state_ |= ChannelConnected;
@@ -295,8 +296,7 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
     return;
   }
 
-  if (channel_ && (state_ & ChannelConnected))
-    dispatcher_->OutputSizeChanged(width, height);
+  dispatcher_->OutputSizeChanged(width, height);
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)

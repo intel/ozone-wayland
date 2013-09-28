@@ -34,8 +34,6 @@ void OzoneProcessObserver::BrowserChildProcessCrashed(
 void OzoneProcessObserver::BrowserChildProcessHostConnected(
   const content::ChildProcessData& data)
 {
-  if (data.process_type == content::PROCESS_TYPE_GPU)
-    observer_->EstablishChannel();
 }
 
 void OzoneProcessObserver::WillDestroyCurrentMessageLoop()

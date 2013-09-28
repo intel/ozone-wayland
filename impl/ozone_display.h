@@ -100,7 +100,6 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   typedef unsigned ProcessType;
   typedef unsigned CurrentState;
 
-  void EstablishChannel();
   void OnChannelEstablished(unsigned id);
   void OnChannelClosed();
   void OnChannelHostDestroyed();
