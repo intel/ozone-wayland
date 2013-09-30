@@ -40,7 +40,8 @@ OzoneDisplay::OzoneDisplay() : launch_type_(None),
     channel_(NULL),
     host_(NULL),
     e_factory_(NULL),
-    spec_(NULL)
+    spec_(NULL),
+    kMaxDisplaySize_(20)
 {
   instance_ = this;
 }
@@ -52,6 +53,11 @@ OzoneDisplay::~OzoneDisplay()
 }
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+
+  if (spec_[0] == '\0')
+    NOTREACHED() << "Need OutputHandleMode come from Wayland compositor first";
+
   return spec_;
 }
 
@@ -59,6 +65,14 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   return new DesktopScreenWayland;
 }
 
+//  TODO(vignatti): this is called far too late for GPU and browser processes
+//  because InitializeHardware runs at main loop on both cases. As an example
+//  why this is a problem, Chrome initiates browser frame creation
+//  (BrowserFrame::InitBrowserFrame), in which needs display properties
+//  information coming from the window system prior the main loop execution
+//  (PreMainMessageLoopRun). Therefore, we need to bring all the content of
+//  this function before that and implement a way to sync the channels
+//  connections, making sure they can come _at_ _any_ _order_.
 gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 {
   if (state_ & Initialized)
@@ -79,8 +93,11 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
                                              : gfx::SurfaceFactoryOzone::FAILED;
   }
 
-  if (singleProcess || browserProcess)
+  if (singleProcess || browserProcess) {
     dispatcher_ = new WaylandDispatcher();
+    spec_ = new char[kMaxDisplaySize_];
+    spec_[0] = '\0';
+  }
 
   if (singleProcess) {
     e_factory_ = new EventFactoryWayland();
@@ -94,14 +111,8 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     child_process_observer_ = new OzoneProcessObserver(this);
     initialized_state_ = gfx::SurfaceFactoryOzone::INITIALIZED;
     host_ = new OzoneDisplayChannelHost();
+    host_->EstablishChannel();
   }
-
-  // TODO(kalyan): Find a better way to set a default preferred size.
-  gfx::Rect scrn = gfx::Rect(0, 0, 1,1);
-  int size = 2 * sizeof scrn.width();
-  spec_ = new char[size];
-  base::snprintf(spec_, size, "%dx%d", scrn.width(), scrn.height());
-  state_ |= PendingOutPut;
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
@@ -151,18 +162,6 @@ bool OzoneDisplay::LoadEGLGLES2Bindings() {
 
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
-  if (state_ & PendingOutPut) {
-    // TODO(kalyan): AttemptToResizeAcceleratedWidget can be called during
-    // pre-initialization phase and hence wayland events might not have been
-    // handled. Fix this properly after understanding how defaultspec effects
-    // layouting and if we can force OutputHandleMode to be handled immediately.
-
-    // We are yet to get output geometry, instead of having some dummy value
-    // assign size of root window to defaultspec.
-    int size = 2 * sizeof bounds.width();
-    base::snprintf(spec_, size, "%dx%d", bounds.width(), bounds.height());
-  }
-
   if (host_) {
     host_->SendWidgetState(w, Resize, bounds.width(), bounds.height());
     return true;
@@ -268,30 +267,18 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
   }
 }
 
-void OzoneDisplay::EstablishChannel(unsigned id)
-{
-  if (!host_)
-    return;
-
-  host_->EstablishChannel(id);
-}
-
 void OzoneDisplay::OnChannelEstablished(unsigned id)
 {
   state_ |= ChannelConnected;
-  if (channel_) {
-    gfx::Rect rect = display_->PrimaryScreen()->Geometry();
-    dispatcher_->OutputSizeChanged(rect.width(), rect.height());
-  }
 }
 
-void OzoneDisplay::OnChannelClosed(unsigned id)
+void OzoneDisplay::OnChannelClosed()
 {
   state_ &= ~ChannelConnected;
   if (!host_)
     return;
 
-  host_->ChannelClosed(id);
+  host_->ChannelClosed();
 }
 
 void OzoneDisplay::OnChannelHostDestroyed()
@@ -304,22 +291,18 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
                                        int width,
                                        int height)
 {
-  if (screen == display_->PrimaryScreen()) {
-    int size = 2 * sizeof width;
-    base::snprintf(spec_, size, "%dx%d", width, height);
-    state_ &= ~PendingOutPut;
-    if (channel_ && (state_ & ChannelConnected))
-      dispatcher_->OutputSizeChanged(width, height);
+  if (screen != display_->PrimaryScreen()) {
+    NOTIMPLEMENTED () << "Multiple screens are not implemented";
+    return;
   }
+
+  dispatcher_->OutputSizeChanged(width, height);
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
 {
-  if (host_) {
-    int size = 2 * sizeof width;
-    base::snprintf(spec_, size, "%dx%d", width, height);
-    state_ &= ~PendingOutPut;
-  }
+  if (host_)
+    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
 }
 
 WaylandWindow* OzoneDisplay::CreateWidget(unsigned w)
