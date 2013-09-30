@@ -22,20 +22,20 @@ OzoneProcessObserver::~OzoneProcessObserver()
 void OzoneProcessObserver::BrowserChildProcessHostDisconnected(
   const content::ChildProcessData& data)
 {
-  observer_->OnChannelClosed(data.id);
+  observer_->OnChannelClosed();
 }
 
 void OzoneProcessObserver::BrowserChildProcessCrashed(
   const content::ChildProcessData& data)
 {
-  observer_->OnChannelClosed(data.id);
+  observer_->OnChannelClosed();
 }
 
 void OzoneProcessObserver::BrowserChildProcessHostConnected(
   const content::ChildProcessData& data)
 {
   if (data.process_type == content::PROCESS_TYPE_GPU)
-    observer_->EstablishChannel(data.id);
+    observer_->EstablishChannel();
 }
 
 void OzoneProcessObserver::WillDestroyCurrentMessageLoop()

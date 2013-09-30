@@ -24,8 +24,8 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
   OzoneDisplayChannelHost();
   ~OzoneDisplayChannelHost();
 
-  void EstablishChannel(unsigned process_id);
-  void ChannelClosed(unsigned process_id);
+  void EstablishChannel();
+  void ChannelClosed();
 
   void SendWidgetState(unsigned w,
                        unsigned state,
@@ -44,14 +44,13 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
   // IPC::Listener implementation:
   virtual bool OnMessageReceived(const IPC::Message& message,
                                  bool* message_was_ok) OVERRIDE;
-  bool UpdateConnection(int process_id);
+  bool UpdateConnection(int gpu_id);
 
  private:
   WaylandDispatcher* dispatcher_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.
   DeferredMessages deferred_messages_;
-  unsigned process_id_;
   unsigned host_id_;
   unsigned router_id_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannelHost);
