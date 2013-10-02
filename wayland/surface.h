@@ -15,23 +15,23 @@ class WaylandSurface {
 public:
   WaylandSurface();
   virtual ~WaylandSurface();
-  struct wl_surface* wlSurface() const { return surface_; }
+  inline struct wl_surface* Surface() const { return surface_; }
 
   // FrameCallBack.
   // Example usage to swap buffers
-  // if (m_surface->ensureFrameCallBackDone() == -1)
+  // if (m_surface->EnsureFrameCallBackDone() == -1)
   //    return;
-  // m_surface->addFrameCallBack();
+  // m_surface->AddFrameCallBack();
   // Swap buffers.
   void AddFrameCallBack();
   // Ensure deleteFrameCallBack(in case a framecallback is requested)
   // is called before destroying any EGL resources associated with the
   // surface. Example usage:
-  // deleteFrameCallBack();
+  // DeleteFrameCallBack();
   // destroy egl window etc
   // m_surface = nullptr; i.e destroy WaylandSurface.
   void DeleteFrameCallBack();
-  // see addFrameCallBack.
+  // see AddFrameCallBack.
   int EnsureFrameCallBackDone();
 
   // callback
@@ -46,4 +46,4 @@ private:
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_DISPLAY_H_
+#endif  // OZONE_WAYLAND_SURFACE_H_

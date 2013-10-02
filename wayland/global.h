@@ -37,5 +37,5 @@ enum BoundsChangeType
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_DISPLAY_H_
+#endif  // OZONE_WAYLAND_GLOBAL_H_
 

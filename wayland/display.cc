@@ -24,22 +24,23 @@ WaylandDisplay::WaylandDisplay() : compositor_(NULL),
 
   instance_ = this;
   static const struct wl_registry_listener registry_listener = {
-    WaylandDisplay::DisplayHandleGlobal
+    .global = WaylandDisplay::DisplayHandleGlobal,
+    .global_remove = WaylandDisplay::DisplayHandleGlobalRemove,
   };
 
   registry_ = wl_display_get_registry(display_);
   wl_registry_add_listener(registry_, &registry_listener, this);
 
   if (wl_display_roundtrip(display_) < 0)
-    terminate();
+    Terminate();
 }
 
 WaylandDisplay::~WaylandDisplay()
 {
-  terminate();
+  Terminate();
 }
 
-void WaylandDisplay::terminate()
+void WaylandDisplay::Terminate()
 {
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
@@ -105,6 +106,12 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
   }
+}
+
+void WaylandDisplay::DisplayHandleGlobalRemove(void *data,
+    struct wl_registry *registry,
+    uint32_t name)
+{
 }
 
 }  // namespace ozonewayland

@@ -85,7 +85,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 
   if (singleProcess || gpuProcess) {
     display_ = new WaylandDisplay();
-    initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
+    initialized_state_ = display_->Display() ? gfx::SurfaceFactoryOzone::INITIALIZED
                                              : gfx::SurfaceFactoryOzone::FAILED;
   }
 
@@ -99,7 +99,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     e_factory_ = new EventFactoryWayland();
     EventFactoryWayland::SetInstance(e_factory_);
   } else if (gpuProcess) {
-    int fd = wl_display_get_fd(display_->display());
+    int fd = wl_display_get_fd(display_->Display());
     dispatcher_ = new WaylandDispatcher(fd);
     channel_ = new OzoneDisplayChannel(fd);
     dispatcher_->PostTask(WaylandDispatcher::Poll);
@@ -117,7 +117,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 
 intptr_t OzoneDisplay::GetNativeDisplay()
 {
-  return (intptr_t)display_->display();
+  return (intptr_t)display_->Display();
 }
 
 void OzoneDisplay::ShutdownHardware()

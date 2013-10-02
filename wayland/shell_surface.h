@@ -21,7 +21,7 @@ class WaylandShellSurface {
   ~WaylandShellSurface();
 
   void UpdateShellSurface(WaylandWindow::ShellType type) const;
-  WaylandSurface* Surface() const { return surface_; }
+  inline WaylandSurface* Surface() const { return surface_; }
 
   static void HandleConfigure(void *data,
                               struct wl_shell_surface *shell_surface,

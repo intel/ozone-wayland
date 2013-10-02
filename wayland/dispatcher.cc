@@ -300,7 +300,7 @@ WaylandDispatcher::~WaylandDispatcher()
 
 void WaylandDispatcher::HandleFlush()
 {
-  wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
+  wl_display* waylandDisp = WaylandDisplay::GetInstance()->Display();
 
   while (wl_display_prepare_read(waylandDisp) != 0)
     wl_display_dispatch_pending(waylandDisp);
@@ -319,7 +319,7 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data)
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
-    wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
+    wl_display* waylandDisp = WaylandDisplay::GetInstance()->Display();
     wl_display_dispatch_pending(waylandDisp);
 
     if (!data->running)

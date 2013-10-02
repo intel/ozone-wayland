@@ -26,25 +26,24 @@ class OzoneDisplay;
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay {
  public:
-  static WaylandDisplay* GetInstance() { return instance_; }
-  // Returns a pointer to wl_display.
-  wl_display* display() const { return display_; }
-
-  wl_registry* registry() const { return registry_; }
+  static inline WaylandDisplay* GetInstance() { return instance_; }
 
   // Returns a list of the registered screens.
-  std::list<WaylandScreen*> GetScreenList() const { return screen_list_; }
-  WaylandScreen* PrimaryScreen() const { return primary_screen_ ; }
+  inline std::list<WaylandScreen*> GetScreenList() const { return screen_list_; }
+  inline WaylandScreen* PrimaryScreen() const { return primary_screen_ ; }
 
-  wl_shell* shell() const { return shell_; }
-
-  wl_shm* shm() const { return shm_; }
-  wl_compositor* GetCompositor() { return compositor_; }
+  // Accessors
+  inline wl_display* Display() const { return display_; }
+  inline wl_compositor* Compositor() { return compositor_; }
+  inline wl_registry* Registry() const { return registry_; }
+  inline wl_shell* Shell() const { return shell_; }
+  inline wl_shm* Shm() const { return shm_; }
 
  private:
   WaylandDisplay();
   virtual ~WaylandDisplay();
-  void terminate();
+  void Terminate();
+
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
@@ -53,6 +52,11 @@ class WaylandDisplay {
       uint32_t name,
       const char *interface,
       uint32_t version);
+
+  static void DisplayHandleGlobalRemove(
+      void *data,
+      struct wl_registry *registry,
+      uint32_t name);
 
   // WaylandDisplay manages the memory of all these pointers.
   wl_display* display_;
