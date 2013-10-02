@@ -17,7 +17,7 @@ static base::LazyInstance<scoped_ptr<EventFactoryWayland> > impl_ =
 EventFactoryWayland::EventFactoryWayland()
     : fd_(-1) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
-  fd_ = wl_display_get_fd(WaylandDisplay::GetInstance()->display());
+  fd_ = wl_display_get_fd(WaylandDisplay::GetInstance()->Display());
   CHECK_GE(fd_, 0);
   bool success = base::MessagePumpOzone::Current()->WatchFileDescriptor(
                             fd_,

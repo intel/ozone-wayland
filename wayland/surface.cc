@@ -16,13 +16,13 @@ WaylandSurface::WaylandSurface() : surface_(NULL),
     m_queue(NULL)
 {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
-  surface_ = wl_compositor_create_surface(display->GetCompositor());
+  surface_ = wl_compositor_create_surface(display->Compositor());
 
   if (!surface_)
     return;
 
-  m_queue = wl_display_create_queue(display->display());
-  wl_proxy_set_queue((struct wl_proxy *)display->registry(), m_queue);
+  m_queue = wl_display_create_queue(display->Display());
+  wl_proxy_set_queue((struct wl_proxy *)display->Registry(), m_queue);
 }
 
 WaylandSurface::~WaylandSurface()
@@ -59,7 +59,7 @@ int WaylandSurface::EnsureFrameCallBackDone()
     return -1;
 
   int ret = 0;
-  wl_display* display = WaylandDisplay::GetInstance()->display();
+  wl_display* display = WaylandDisplay::GetInstance()->Display();
 
   if (frameCallBack_) {
     while (frameCallBack_ && ret != -1)

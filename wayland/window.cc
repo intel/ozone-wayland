@@ -80,7 +80,7 @@ void WaylandWindow::SetFullscreen()
 void WaylandWindow::RealizeAcceleratedWidget()
 {
   if (!window_)
-    window_ = new EGLWindow(shell_surface_->Surface()->wlSurface(),
+    window_ = new EGLWindow(shell_surface_->Surface()->Surface(),
                             allocation_.width(), allocation_.height());
 }
 

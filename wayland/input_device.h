@@ -8,12 +8,15 @@
 #include "base/basictypes.h"
 #include <wayland-client.h>
 
+namespace ui {
+class InputMethod;
+}
+
 namespace ozonewayland {
 
 class Event;
 class WaylandKeyboard;
 class WaylandPointer;
-class InputMethod;
 class WaylandInputMethodEventFilter;
 class WaylandDisplay;
 
@@ -22,10 +25,10 @@ class WaylandInputDevice {
   WaylandInputDevice(WaylandDisplay* display, uint32_t id);
   ~WaylandInputDevice();
 
-  wl_seat* GetInputSeat() { return input_seat_; }
-  InputMethod* GetInputMethod() const;
-  WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
-  WaylandPointer* GetPointer() const { return input_pointer_; }
+  inline wl_seat* InputSeat() { return input_seat_; }
+  inline ui::InputMethod* InputMethod() const;
+  inline WaylandKeyboard* Keyboard() const { return input_keyboard_; }
+  inline WaylandPointer* Pointer() const { return input_pointer_; }
 
  private:
   static void OnSeatCapabilities(void *data,

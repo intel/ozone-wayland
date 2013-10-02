@@ -23,7 +23,7 @@ class WaylandInputMethodEventFilter
   WaylandInputMethodEventFilter();
   virtual ~WaylandInputMethodEventFilter();
 
-  ui::InputMethod* GetInputMethod() const { return input_method_.get(); }
+  inline ui::InputMethod* InputMethod() const { return input_method_.get(); }
 
  private:
   // Overridden from ui::internal::InputMethodDelegate.

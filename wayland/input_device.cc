@@ -22,7 +22,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
   };
 
   input_seat_ = static_cast<wl_seat*>(
-      wl_registry_bind(display->registry(), id, &wl_seat_interface, 1));
+      wl_registry_bind(display->Registry(), id, &wl_seat_interface, 1));
   wl_seat_add_listener(input_seat_, &kInputSeatListener, this);
   wl_seat_set_user_data(input_seat_, this);
 }
@@ -42,12 +42,12 @@ WaylandInputDevice::~WaylandInputDevice()
     delete input_method_filter_;
 }
 
-InputMethod* WaylandInputDevice::GetInputMethod() const
+ui::InputMethod* WaylandInputDevice::InputMethod() const
 {
   if (!input_method_filter_)
     input_method_filter_ = new WaylandInputMethodEventFilter;
 
-  input_method_filter_->GetInputMethod();
+  return input_method_filter_->InputMethod();
 }
 
 void WaylandInputDevice::OnSeatCapabilities(void *data,

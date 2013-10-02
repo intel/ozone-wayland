@@ -41,7 +41,7 @@ class WaylandWindow {
   void Restore();
   void SetFullscreen();
 
-  ShellType Type() const { return type_; }
+  inline ShellType Type() const { return type_; }
   void RealizeAcceleratedWidget();
   void HandleSwapBuffers();
 
@@ -50,7 +50,7 @@ class WaylandWindow {
   wl_egl_window* egl_window() const;
 
   bool SetBounds(const gfx::Rect& new_bounds);
-  gfx::Rect GetBounds() const { return allocation_; }
+  inline gfx::Rect GetBounds() const { return allocation_; }
 
  private:
   WaylandShellSurface* shell_surface_;
