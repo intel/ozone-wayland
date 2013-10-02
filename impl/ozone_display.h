@@ -13,6 +13,7 @@
 
 namespace ozonewayland {
 
+class DesktopScreenWayland;
 class EventFactoryWayland;
 class OzoneProcessObserver;
 class OzoneDisplayChannel;
@@ -119,6 +120,7 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   bool initialized_ :1;
   const int kMaxDisplaySize_;
 
+  DesktopScreenWayland* desktop_screen_;
   WaylandDispatcher* dispatcher_;
   WaylandDisplay* display_;
   OzoneProcessObserver* child_process_observer_;

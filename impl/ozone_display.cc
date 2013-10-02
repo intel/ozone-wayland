@@ -34,6 +34,7 @@ OzoneDisplay::OzoneDisplay() : launch_type_(None),
     process_type_(PreLaunch),
     initialized_(false),
     state_(UnInitialized),
+    desktop_screen_(NULL),
     dispatcher_(NULL),
     display_(NULL),
     child_process_observer_(NULL),
@@ -62,7 +63,10 @@ const char* OzoneDisplay::DefaultDisplaySpec() {
 }
 
 gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
-  return new DesktopScreenWayland;
+  if (!desktop_screen_)
+    desktop_screen_ = new DesktopScreenWayland;
+
+  return desktop_screen_;
 }
 
 gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
@@ -359,6 +363,11 @@ void OzoneDisplay::Terminate()
   if (dispatcher_) {
     delete dispatcher_;
     dispatcher_ = NULL;
+  }
+
+  if (desktop_screen_) {
+    delete desktop_screen_;
+    desktop_screen_ = NULL;
   }
 
   if (display_) {
