@@ -6,11 +6,13 @@
 
 #include "ozone/impl/ozone_display.h"
 #include "base/bind.h"
+#include "content/public/browser/browser_thread.h"
 
 namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : host_id_(0),
+    : channel_(NULL),
+      host_id_(0),
       router_id_(0)
 {
   dispatcher_ = WaylandDispatcher::GetInstance();
@@ -110,10 +112,13 @@ void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
   OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
 }
 
-bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message,
-                                                bool* message_was_ok) {
+bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message)
+{
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) <<
+      "Must handle messages that were dispatched to another thread!";
+
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP_EX(OzoneDisplayChannelHost, message, *message_was_ok)
+  IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannelHost, message)
   IPC_MESSAGE_HANDLER(WaylandMsg_EstablishDisplayChannel, OnChannelEstablished)
   IPC_MESSAGE_HANDLER(WaylandInput_MotionNotify, OnMotionNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_ButtonNotify, OnButtonNotify)
@@ -123,9 +128,38 @@ bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message,
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, OnKeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
   IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP_EX()
+  IPC_END_MESSAGE_MAP()
 
   return handled;
+}
+
+void OzoneDisplayChannelHost::OnFilterAdded(IPC::Channel* channel)
+{
+  channel_ = channel;
+}
+
+void OzoneDisplayChannelHost::OnChannelClosing()
+{
+  channel_ = NULL;
+}
+
+bool OzoneDisplayChannelHost::Send(IPC::Message* message)
+{
+  if (channel_) {
+    if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+      content::BrowserThread::PostTask(
+          content::BrowserThread::IO,
+          FROM_HERE,
+          base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::Send), this,
+                     message));
+      return true;
+    }
+
+    return channel_->Send(message);
+  }
+
+  delete message;
+  return false;
 }
 
 bool OzoneDisplayChannelHost::UpdateConnection(int gpu_id)

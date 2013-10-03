@@ -8,8 +8,11 @@
 #include <queue>
 
 #include "ozone/wayland/dispatcher.h"
-#include "content/public/browser/browser_message_filter.h"
 #include "content/browser/gpu/gpu_process_host.h"
+
+namespace IPC {
+class Channel;
+}
 
 namespace ozonewayland {
 
@@ -18,7 +21,7 @@ namespace ozonewayland {
 // always be only one OzoneDisplayChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
+class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
@@ -41,13 +44,17 @@ class OzoneDisplayChannelHost : public content::BrowserMessageFilter {
   void OnKeyNotify(unsigned type, unsigned code, unsigned modifiers);
   void OnOutputSizeChanged(unsigned width, unsigned height);
 
-  // IPC::Listener implementation:
-  virtual bool OnMessageReceived(const IPC::Message& message,
-                                 bool* message_was_ok) OVERRIDE;
+  // IPC::ChannelProxy::MessageFilter implementation:
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  virtual void OnFilterAdded(IPC::Channel* channel) OVERRIDE;
+  virtual void OnChannelClosing() OVERRIDE;
+
+  bool Send(IPC::Message* message);
   bool UpdateConnection(int gpu_id);
 
  private:
   WaylandDispatcher* dispatcher_;
+  IPC::Channel* channel_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.
   DeferredMessages deferred_messages_;
