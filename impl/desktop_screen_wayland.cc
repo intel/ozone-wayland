@@ -44,20 +44,24 @@ std::vector<gfx::Display> DesktopScreenWayland::GetAllDisplays() const {
 
 gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
     gfx::NativeView window) const {
+  DCHECK(!rect_.IsEmpty());
   return gfx::Display(0, rect_);
 }
 
 gfx::Display DesktopScreenWayland::GetDisplayNearestPoint(
     const gfx::Point& point) const {
+  DCHECK(!rect_.IsEmpty());
   return gfx::Display(0, rect_);
 }
 
 gfx::Display DesktopScreenWayland::GetDisplayMatching(
     const gfx::Rect& match_rect) const {
+  DCHECK(!rect_.IsEmpty());
   return gfx::Display(0, rect_);
 }
 
 gfx::Display DesktopScreenWayland::GetPrimaryDisplay() const {
+  DCHECK(!rect_.IsEmpty());
   return gfx::Display(0, rect_);
 }
 
