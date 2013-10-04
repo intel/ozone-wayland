@@ -21,6 +21,8 @@
 #include "base/stl_util.h"
 #include "content/public/common/content_switches.h"
 
+#include <EGL/egl.h>
+
 namespace ozonewayland {
 
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
@@ -186,6 +188,22 @@ gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(gfx::AcceleratedWidget w) {
 
 bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
   return true;
+}
+
+const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list)
+{
+  static const EGLint kConfigAttribs[] = {
+    EGL_BUFFER_SIZE, 32,
+    EGL_ALPHA_SIZE, 8,
+    EGL_BLUE_SIZE, 8,
+    EGL_GREEN_SIZE, 8,
+    EGL_RED_SIZE, 8,
+    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+    EGL_NONE
+  };
+
+  return kConfigAttribs;
 }
 
 void OzoneDisplay::WillDestroyCurrentMessageLoop()
