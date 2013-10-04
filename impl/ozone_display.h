@@ -65,7 +65,7 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
                                                 const gfx::Rect& bounds) OVERRIDE;
   virtual gfx::VSyncProvider* GetVSyncProvider(gfx::AcceleratedWidget w) OVERRIDE;
   virtual bool SchedulePageFlip(gfx::AcceleratedWidget w) OVERRIDE;
-  const int32* GetEGLSurfaceProperties(const int32* desired_list) OVERRIDE;
+  virtual const int32* GetEGLSurfaceProperties(const int32* desired_list) OVERRIDE;
 
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
