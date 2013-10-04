@@ -322,15 +322,17 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
   }
 
   if (launch_type_ & SingleProcess)
-    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
+    OnOutputSizeChanged(width, height);
   else if (channel_ && (state_ & ChannelConnected))
     dispatcher_->OutputSizeChanged(width, height);
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
 {
-  if (host_)
+  if (spec_)
     base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
+  if (desktop_screen_)
+    desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
 
 WaylandWindow* OzoneDisplay::CreateWidget(unsigned w)
