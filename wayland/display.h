@@ -39,15 +39,30 @@ class WaylandDisplay {
   wl_shell* shell() const { return shell_; }
 
   wl_shm* shm() const { return shm_; }
-  wl_compositor* GetCompositor() { return compositor_; }
+  wl_compositor* GetCompositor() const { return compositor_; }
+  int GetDisplayFd() const { return wl_display_get_fd(display_); }
 
  private:
-  WaylandDisplay();
+  enum RegistrationType {
+    RegisterAsNeeded, // Handles all the required registrations.
+    RegisterOutputOnly // Only screen registration.
+  };
+
+  WaylandDisplay(RegistrationType type);
   virtual ~WaylandDisplay();
   void terminate();
+  void SyncDisplay();
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
+      void *data,
+      struct wl_registry *registry,
+      uint32_t name,
+      const char *interface,
+      uint32_t version);
+  // This handler resolves only screen registration. In general you don't want
+  // to use this but the one below.
+  static void DisplayHandleOutputOnly(
       void *data,
       struct wl_registry *registry,
       uint32_t name,

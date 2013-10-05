@@ -56,17 +56,17 @@ OzoneDisplay::~OzoneDisplay()
 }
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
-  // TODO(vignatti): once we fix properly the IPC channels handshake we need to
-  // change the NOTIMPLEMENTED by NOTREACHED.
   if (spec_[0] == '\0')
-    NOTIMPLEMENTED() << "OutputHandleMode should come from Wayland compositor first";
+    NOTREACHED() << "OutputHandleMode should come from Wayland compositor first";
 
   return spec_;
 }
 
 gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
-  if (!desktop_screen_)
+  if (!desktop_screen_) {
     desktop_screen_ = new DesktopScreenWayland;
+    LookAheadOutputGeometry();
+  }
 
   return desktop_screen_;
 }
@@ -86,7 +86,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   bool browserProcess = (launch_type_ & MultiProcess) && (process_type_ & Browser);
 
   if (singleProcess || gpuProcess) {
-    display_ = new WaylandDisplay();
+    display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
     initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
                                              : gfx::SurfaceFactoryOzone::FAILED;
   }
@@ -101,7 +101,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     e_factory_ = new EventFactoryWayland();
     EventFactoryWayland::SetInstance(e_factory_);
   } else if (gpuProcess) {
-    int fd = wl_display_get_fd(display_->display());
+    int fd = display_->GetDisplayFd();
     dispatcher_ = new WaylandDispatcher(fd);
     channel_ = new OzoneDisplayChannel(fd);
     dispatcher_->PostTask(WaylandDispatcher::Poll);
@@ -316,6 +316,9 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
                                        int width,
                                        int height)
 {
+  if (!(state_ & Initialized))
+    return;
+
   if (screen != display_->PrimaryScreen()) {
     NOTIMPLEMENTED () << "Multiple screens are not implemented";
     return;
@@ -425,6 +428,34 @@ void OzoneDisplay::ValidateLaunchType()
     launch_type_ = MultiProcess;
     process_type_ = Gpu;
   }
+}
+
+// TODO(vignatti): GPU process conceptually is the one that deals with hardware
+// details and therefore we assume that the window system connection should
+// happen in there only. There's a glitch with Chrome though, that creates its
+// frame contents requiring access to the window system, before the GPU process
+// even exists. In other words, Chrome runs
+// BrowserMainLoop::PreMainMessageLoopRun before GpuProcessHost::Get. If the
+// assumption of window system connection belongs to the GPU process is valid,
+// then I believe this Chrome behavior needs to be addressed upstream.
+//
+// For now, we create another window system connection to look ahead the needed
+// output properties that Chrome (among others) need and then close right after
+// that. I haven't measured how long it takes to open a Wayland connection,
+// listen all the interface the compositor sends and close it, but _for_ _sure_
+// it slows down the overall initialization time of Chromium targets.
+// Therefore, this is something that has to be solved in the future, moving all
+// Chrome tasks after GPU process is created.
+//
+void OzoneDisplay::LookAheadOutputGeometry() {
+  DCHECK(desktop_screen_);
+  WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
+  DCHECK(disp_.display());
+
+  while (disp_.PrimaryScreen()->Geometry().IsEmpty())
+    disp_.SyncDisplay();
+
+  desktop_screen_->SetGeometry(disp_.PrimaryScreen()->Geometry());
 }
 
 }  // namespace ozonewayland
