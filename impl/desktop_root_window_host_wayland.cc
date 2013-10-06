@@ -166,6 +166,9 @@ aura::RootWindow* DesktopRootWindowHostWayland::Init(
 void DesktopRootWindowHostWayland::InitFocus(aura::Window* window) {
 }
 
+scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
+}
+
 void DesktopRootWindowHostWayland::Close() {
   // TODO(erg): Might need to do additional hiding tasks here.
 
