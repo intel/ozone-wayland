@@ -113,6 +113,7 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
 
   void Terminate();
   void ValidateLaunchType();
+  void LookAheadOutputGeometry();
 
   LaunchType launch_type_;
   ProcessType process_type_;

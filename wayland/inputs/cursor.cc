@@ -8,27 +8,35 @@
 namespace ozonewayland {
 
 class WaylandCursorData {
-public:
-  static WaylandCursorData* Initialize(wl_shm* shm = 0)
-  {
-    static WaylandCursorData data(shm);
-    return &data;
+ public:
+  WaylandCursorData(wl_shm* shm);
+  virtual ~WaylandCursorData();
+
+  static WaylandCursorData* GetInstance() {
+    return impl_;
   }
 
-  static WaylandCursorData* GetInstance()
-  {
-    return Initialize();
+  static void InitializeCursorData(wl_shm* shm) {
+    if (!impl_)
+      impl_ = new WaylandCursorData(shm);
+  }
+
+  static void DestroyCursorData() {
+    if (impl_) {
+      delete impl_;
+      impl_ = NULL;
+    }
   }
 
   struct wl_cursor_image* GetCursorImage(int index);
-  void Clear();
-  virtual ~WaylandCursorData();
 
-private:
-  WaylandCursorData(wl_shm* shm);
+ private:
   wl_cursor_theme *cursor_theme_;
   wl_cursor **cursors_;
+  static WaylandCursorData* impl_;
 };
+
+WaylandCursorData* WaylandCursorData::impl_ = NULL;
 
 WaylandCursorData::WaylandCursorData(wl_shm* shm)
 {
@@ -68,10 +76,6 @@ struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index)
 
 WaylandCursorData::~WaylandCursorData()
 {
-}
-
-void WaylandCursorData::Clear()
-{
  if(cursor_theme_)
  {
    wl_cursor_theme_destroy(cursor_theme_);
@@ -92,7 +96,7 @@ WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
     type_(CURSOR_UNSET)
 {
   pointer_surface_ = new WaylandSurface();
-  WaylandCursorData::Initialize(shm);
+  WaylandCursorData::InitializeCursorData(shm);
 }
 
 WaylandCursor::~WaylandCursor()
@@ -139,8 +143,7 @@ void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial)
 
 void WaylandCursor::Clear()
 {
-  WaylandCursorData::GetInstance()->Clear();
+  WaylandCursorData::DestroyCursorData();
 }
 
 }  // namespace ozonewayland
-

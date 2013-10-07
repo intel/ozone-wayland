@@ -13,7 +13,7 @@
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
-WaylandDisplay::WaylandDisplay() : compositor_(NULL),
+WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
     primary_screen_(NULL)
@@ -23,12 +23,19 @@ WaylandDisplay::WaylandDisplay() : compositor_(NULL),
       return;
 
   instance_ = this;
-  static const struct wl_registry_listener registry_listener = {
+  static const struct wl_registry_listener registry_all = {
     WaylandDisplay::DisplayHandleGlobal
   };
 
+  static const struct wl_registry_listener registry_output = {
+    WaylandDisplay::DisplayHandleOutputOnly
+  };
+
   registry_ = wl_display_get_registry(display_);
-  wl_registry_add_listener(registry_, &registry_listener, this);
+  if (type == RegisterAsNeeded)
+    wl_registry_add_listener(registry_, &registry_all, this);
+  else
+    wl_registry_add_listener(registry_, &registry_output, this);
 
   if (wl_display_roundtrip(display_) < 0)
     terminate();
@@ -77,6 +84,11 @@ void WaylandDisplay::terminate()
   instance_ = NULL;
 }
 
+void WaylandDisplay::SyncDisplay()
+{
+  wl_display_roundtrip(display_);
+}
+
 // static
 void WaylandDisplay::DisplayHandleGlobal(void *data,
     struct wl_registry *registry,
@@ -104,6 +116,22 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
+  }
+}
+
+// static
+void WaylandDisplay::DisplayHandleOutputOnly(void *data,
+                                             struct wl_registry *registry,
+                                             uint32_t name,
+                                             const char *interface,
+                                             uint32_t version)
+{
+  WaylandDisplay* disp = static_cast<WaylandDisplay*>(data);
+
+  if (strcmp(interface, "wl_output") == 0) {
+    WaylandScreen* screen = new WaylandScreen(disp, name);
+    disp->screen_list_.push_back(screen);
+    disp->primary_screen_ = disp->screen_list_.front();
   }
 }
 

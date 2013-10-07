@@ -4,34 +4,17 @@
 
 #include "ozone/impl/desktop_screen_wayland.h"
 
-#include "ui/gfx/ozone/surface_factory_ozone.h"
-
-#include <stdio.h>
-
 namespace ozonewayland {
-
-namespace {
-
-gfx::Size GetPrimaryDisplaySize() {
-  int width, height;
-  const char* display =
-      gfx::SurfaceFactoryOzone::GetInstance()->DefaultDisplaySpec();
-
-  int sc = sscanf(display, "%dx%d", &width, &height);
-  if (sc != 2) {
-    LOG(WARNING) << "malformed display spec from "
-                 << "SurfaceFactoryOzone::DefaultDisplaySpec";
-    return gfx::Size();
-  }
-
-  return gfx::Size(width, height);
-}
-}  // namespace
 
 DesktopScreenWayland::DesktopScreenWayland() {
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {
+}
+
+void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry)
+{
+  rect_ = geometry;
 }
 
 bool DesktopScreenWayland::IsDIPEnabled() {
@@ -61,21 +44,25 @@ std::vector<gfx::Display> DesktopScreenWayland::GetAllDisplays() const {
 
 gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
     gfx::NativeView window) const {
-  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
+  DCHECK(!rect_.IsEmpty());
+  return gfx::Display(0, rect_);
 }
 
 gfx::Display DesktopScreenWayland::GetDisplayNearestPoint(
     const gfx::Point& point) const {
-  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
+  DCHECK(!rect_.IsEmpty());
+  return gfx::Display(0, rect_);
 }
 
 gfx::Display DesktopScreenWayland::GetDisplayMatching(
     const gfx::Rect& match_rect) const {
-  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
+  DCHECK(!rect_.IsEmpty());
+  return gfx::Display(0, rect_);
 }
 
 gfx::Display DesktopScreenWayland::GetPrimaryDisplay() const {
-  return gfx::Display(0, gfx::Rect(GetPrimaryDisplaySize()));
+  DCHECK(!rect_.IsEmpty());
+  return gfx::Display(0, rect_);
 }
 
 void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
