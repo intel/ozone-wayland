@@ -11,7 +11,7 @@
 #include "ipc/ipc_param_traits.h"
 #include "ipc/param_traits_macros.h"
 
-#define IPC_MESSAGE_START WaylandMsgStart
+#define IPC_MESSAGE_START LastIPCMsgStart
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify, float /*x*/, float /*y*/)
 
