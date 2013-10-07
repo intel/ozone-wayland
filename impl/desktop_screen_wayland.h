@@ -13,6 +13,7 @@ class DesktopScreenWayland : public gfx::Screen {
  public:
   DesktopScreenWayland();
   virtual ~DesktopScreenWayland();
+  void SetGeometry(const gfx::Rect& geometry);
 
  private:
   // Overridden from gfx::Screen:
@@ -33,6 +34,7 @@ class DesktopScreenWayland : public gfx::Screen {
   virtual void AddObserver(gfx::DisplayObserver* observer) OVERRIDE;
   virtual void RemoveObserver(gfx::DisplayObserver* observer) OVERRIDE;
 
+  gfx::Rect rect_;
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
 
