@@ -4,16 +4,6 @@
 # found in the LICENSE file.
 
 {
-  'variables': {
-    'conditions': [
-      ['sysroot!=""', {
-        'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
-      }, {
-        'pkg-config': 'pkg-config'
-      }],
-    ],
-  },
-
   'targets': [
     {
       'target_name': 'wayland',
