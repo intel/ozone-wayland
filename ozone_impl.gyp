@@ -11,7 +11,7 @@
       'dependencies': [
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/skia/skia.gyp:skia',
-        'wayland.gyp:wayland_toolkit'
+        'wayland/wayland.gyp:wayland_toolkit'
       ],
       'sources': [
         'impl/desktop_factory_wayland.cc',
