@@ -18,20 +18,30 @@
     {
       'target_name': 'wayland_toolkit',
       'type': 'static_library',
+      'variables': {
+        'WAYLAND_VERSION': '1.2.9',
+        'MESA_VERSION': '9.3',
+        'wayland_packages': [
+          'wayland-client >= <(WAYLAND_VERSION)',
+          'wayland-cursor >= <(WAYLAND_VERSION)',
+          'wayland-egl >= <(MESA_VERSION)',
+          'xkbcommon',
+        ],
+      },
       'cflags': [
-        '<!@(<(pkg-config) --cflags wayland-client wayland-cursor wayland-egl xkbcommon)',
+        '<!@(<(pkg-config) --cflags <(wayland_packages))',
       ],
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(<(pkg-config) --cflags wayland-client wayland-cursor wayland-egl xkbcommon)',
+          '<!@(<(pkg-config) --cflags <(wayland_packages))',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(<(pkg-config) --libs-only-L --libs-only-other wayland-client wayland-cursor wayland-egl xkbcommon)',
+          '<!@(<(pkg-config) --libs-only-L --libs-only-other <(wayland_packages))',
         ],
         'libraries': [
-          '<!@(<(pkg-config) --libs-only-l wayland-client wayland-cursor wayland-egl xkbcommon)',
+          '<!@(<(pkg-config) --libs-only-l <(wayland_packages))',
         ],
       },
       'dependencies': [
