@@ -26,9 +26,9 @@ Worth to mention also that when Aura is used, there's no need for graphics toolk
 ## Howto
 
 We use Ubuntu 12.04 LTS (Precise Pangolin), 32/64-bit but a kernel from Raring though. One can install it pretty easily just
-`sudo apt-get install linux-generic-lts-raring` (This version is needed for using Mesa master 9.2.0-devel, for Weston).
+`sudo apt-get install linux-generic-lts-raring`. This version is needed for using Mesa master 9.3.0-devel, a requirement for Weston.
 
-Firstly you'd need to set up the Wayland libraries, and the Weston reference compositor that you will be running Chromium onto. The information on Wayland's web page should be enough for doing so:
+Firstly you'd need to set up the Wayland libraries (version >= 1.2.9), and the Weston reference compositor that you will be running Chromium onto. The information on Wayland's web page should be enough for doing so:
 
 http://wayland.freedesktop.org/building.html
 
