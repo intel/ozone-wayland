@@ -446,7 +446,7 @@ void OzoneDisplay::ValidateLaunchType()
 void OzoneDisplay::LookAheadOutputGeometry() {
   DCHECK(desktop_screen_);
   WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
-  DCHECK(disp_.display());
+  CHECK(disp_.display()) << "Ozone: Wayland server connection not found.";
 
   while (disp_.PrimaryScreen()->Geometry().IsEmpty())
     disp_.SyncDisplay();
