@@ -108,7 +108,7 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   } else if (browserProcess) {
     child_process_observer_ = new OzoneProcessObserver(this);
     initialized_state_ = gfx::SurfaceFactoryOzone::INITIALIZED;
-    host_ = new OzoneDisplayChannelHost();
+    EstablishChannel();
   }
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
@@ -282,10 +282,14 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
 
 void OzoneDisplay::EstablishChannel()
 {
-  if (!host_)
+  if (state_ & ChannelConnected)
     return;
 
+  if (!host_)
+    host_ = new OzoneDisplayChannelHost();
+
   host_->EstablishChannel();
+  state_ |= ChannelConnected;
 }
 
 void OzoneDisplay::OnChannelEstablished(unsigned id)
