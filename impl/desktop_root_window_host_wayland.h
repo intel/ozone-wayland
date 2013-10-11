@@ -110,6 +110,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual bool IsMaximized() const OVERRIDE;
   virtual bool IsMinimized() const OVERRIDE;
   virtual bool HasCapture() const OVERRIDE;
+  virtual bool IsAlwaysOnTop() const OVERRIDE;
   virtual void SetAlwaysOnTop(bool always_on_top) OVERRIDE;
   virtual void SetWindowTitle(const string16& title) OVERRIDE;
   virtual void ClearNativeFocus() OVERRIDE;

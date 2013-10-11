@@ -375,6 +375,11 @@ bool DesktopRootWindowHostWayland::HasCapture() const {
   return g_current_capture == this;
 }
 
+bool DesktopRootWindowHostWayland::IsAlwaysOnTop() const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 void DesktopRootWindowHostWayland::SetAlwaysOnTop(bool always_on_top) {
   // TODO(erg):
   NOTIMPLEMENTED();
