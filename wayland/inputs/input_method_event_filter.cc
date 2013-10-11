@@ -13,7 +13,7 @@ namespace ozonewayland {
 // InputMethodEventFilter, public:
 
 WaylandInputMethodEventFilter::WaylandInputMethodEventFilter()
-    : input_method_(ui::CreateInputMethod(this, NULL)) {
+    : input_method_(ui::CreateInputMethod(this, 0)) {
   // TODO(yusukes): Check if the root window is currently focused and pass the
   // result to Init().
   input_method_->Init(true);
