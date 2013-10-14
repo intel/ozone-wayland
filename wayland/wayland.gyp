@@ -19,8 +19,8 @@
       'target_name': 'wayland_toolkit',
       'type': 'static_library',
       'variables': {
-        'WAYLAND_VERSION': '1.2.9',
-        'MESA_VERSION': '9.3',
+        'WAYLAND_VERSION': '1.2.0',
+        'MESA_VERSION': '9.1.3',
         'wayland_packages': [
           'wayland-client >= <(WAYLAND_VERSION)',
           'wayland-cursor >= <(WAYLAND_VERSION)',
