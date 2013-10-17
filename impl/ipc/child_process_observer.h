@@ -12,10 +12,10 @@ namespace ozonewayland {
 
 class OzoneDisplay;
 
-// OzoneProcessObserver extends BrowserChildProcessObserver. This class can be
-// used to observe when browserprocess forks child process i.e GPU and when child
-// process gets closed. This can be used to add an ipc filter and listen to any
-// relevant messages coming from GpuProcess side.
+// OzoneProcessObserver extends BrowserChildProcessObserver. This class is used
+// to observe GPU process being forked or re-spawned for various reasons. This
+// can be used to add an ipc filter and listen to any relevant messages coming
+// from GpuProcess side.
 class OzoneProcessObserver : public content::BrowserChildProcessObserver {
  public:
   OzoneProcessObserver(OzoneDisplay* observer);
