@@ -1,4 +1,4 @@
-From 3ca307db6e42c352a5c0817852c7a357339e9e96 Mon Sep 17 00:00:00 2001
+From dcd601753eac8514d615100b56058a66ed199bd9 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Mon, 23 Sep 2013 20:40:42 +0300
 Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
@@ -46,10 +46,10 @@ index 014fae1..d3b2705 100644
  }
  
 diff --git a/build/common.gypi b/build/common.gypi
-index 2cc0224..6e2987a 100644
+index 4a1c3d8..6b08b65 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
-@@ -146,6 +146,12 @@
+@@ -148,6 +148,12 @@
              'toolkit_uses_gtk%': 0,
            }],
  
@@ -63,11 +63,11 @@ index 2cc0224..6e2987a 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/chrome/app/chrome_main_delegate.cc b/chrome/app/chrome_main_delegate.cc
-index bcb1e34..4222ebe 100644
+index ae7cdaa..ce1cb9c 100644
 --- a/chrome/app/chrome_main_delegate.cc
 +++ b/chrome/app/chrome_main_delegate.cc
 @@ -101,6 +101,9 @@
- #include "chrome/app/breakpad_linux.h"
+ #include "components/breakpad/app/breakpad_linux.h"
  #endif
  
 +#include "ozone/impl/ozone_display.h"
@@ -130,10 +130,10 @@ index f7f6e14..4e5c4b6 100644
  
  int ShellMainDelegate::RunProcess(
 diff --git a/ui/aura/aura.gyp b/ui/aura/aura.gyp
-index 249f05e..8ab0891 100644
+index d793ac3..827f57b 100644
 --- a/ui/aura/aura.gyp
 +++ b/ui/aura/aura.gyp
-@@ -127,6 +127,11 @@
+@@ -125,6 +125,11 @@
              'input_state_lookup.cc',
            ],
          }],
@@ -146,7 +146,7 @@ index 249f05e..8ab0891 100644
      },
      {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
-index e56ab71..077489e 100644
+index abdd514..c4d6a63 100644
 --- a/ui/aura/demo/demo_main.cc
 +++ b/ui/aura/demo/demo_main.cc
 @@ -24,6 +24,8 @@
