@@ -164,9 +164,6 @@ aura::RootWindow* DesktopRootWindowHostWayland::Init(
   return InitRootWindow(sanitized_params);
 }
 
-void DesktopRootWindowHostWayland::InitFocus(aura::Window* window) {
-}
-
 scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
   return scoped_ptr<corewm::Tooltip>(
              new corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
@@ -479,6 +476,11 @@ void DesktopRootWindowHostWayland::OnNativeWidgetFocus() {
 
 void DesktopRootWindowHostWayland::OnNativeWidgetBlur() {
   NOTIMPLEMENTED();
+}
+
+bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
+  NOTIMPLEMENTED();
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
