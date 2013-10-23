@@ -12,6 +12,9 @@
         '<(DEPTH)/skia/skia.gyp:skia',
         'wayland/wayland.gyp:wayland_toolkit'
       ],
+      'include_dirs': [
+        '..',
+      ],
       'sources': [
         'impl/desktop_factory_wayland.cc',
         'impl/desktop_factory_wayland.h',
@@ -25,6 +28,8 @@
         'impl/event_factory_wayland.h',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
+        'impl/ozone_platform_wayland.cc',
+        'impl/ozone_platform_wayland.h',
         'impl/ipc/child_process_observer.h',
         'impl/ipc/child_process_observer.cc',
         'impl/ipc/display_channel.h',
