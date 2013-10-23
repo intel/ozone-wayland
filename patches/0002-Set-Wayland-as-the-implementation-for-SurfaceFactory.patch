@@ -1,4 +1,4 @@
-From dcd601753eac8514d615100b56058a66ed199bd9 Mon Sep 17 00:00:00 2001
+From 96fed9654a748cb09b19431732b420753b6ff21f Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Mon, 23 Sep 2013 20:40:42 +0300
 Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
@@ -46,7 +46,7 @@ index 014fae1..d3b2705 100644
  }
  
 diff --git a/build/common.gypi b/build/common.gypi
-index 4a1c3d8..6b08b65 100644
+index 17dac2a..38326d8 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -148,6 +148,12 @@
@@ -90,10 +90,10 @@ index ae7cdaa..ce1cb9c 100644
    breakpad::SetBreakpadClient(g_chrome_breakpad_client.Pointer());
  #endif
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index f7f6e14..4e5c4b6 100644
+index d0db696..d7c9d24 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
-@@ -26,6 +26,9 @@
+@@ -29,6 +29,9 @@
  #include "ui/gfx/switches.h"
  #include "ui/gl/gl_switches.h"
  
@@ -103,7 +103,7 @@ index f7f6e14..4e5c4b6 100644
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
  #if defined(IPC_MESSAGE_LOG_ENABLED)
-@@ -90,6 +93,12 @@ ShellMainDelegate::ShellMainDelegate() {
+@@ -96,6 +99,12 @@ ShellMainDelegate::ShellMainDelegate() {
  }
  
  ShellMainDelegate::~ShellMainDelegate() {
@@ -116,9 +116,9 @@ index f7f6e14..4e5c4b6 100644
  }
  
  bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
-@@ -175,6 +184,12 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
- 
- void ShellMainDelegate::PreSandboxStartup() {
+@@ -185,6 +194,12 @@ void ShellMainDelegate::PreSandboxStartup() {
+     breakpad::SetBreakpadClient(g_shell_breakpad_client.Pointer());
+   }
    InitializeResourceBundle();
 +
 +  /* TODO: Implementation specific. Has to go away */
@@ -130,12 +130,12 @@ index f7f6e14..4e5c4b6 100644
  
  int ShellMainDelegate::RunProcess(
 diff --git a/ui/aura/aura.gyp b/ui/aura/aura.gyp
-index d793ac3..827f57b 100644
+index 954d8de..63b8221 100644
 --- a/ui/aura/aura.gyp
 +++ b/ui/aura/aura.gyp
-@@ -125,6 +125,11 @@
-             'input_state_lookup.cc',
-           ],
+@@ -130,6 +130,11 @@
+             },
+           },
          }],
 +        ['use_ozone==1', {
 +          'dependencies': [
