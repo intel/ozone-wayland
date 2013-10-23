@@ -1,5 +1,5 @@
-From 96fed9654a748cb09b19431732b420753b6ff21f Mon Sep 17 00:00:00 2001
-From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+From 4fc6ff1a10f685537508581f0a49b6dc5ed3c049 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 23 Sep 2013 20:40:42 +0300
 Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
 
@@ -14,34 +14,38 @@ start investigating this problem, we should contact rjkroege for any advice.
 
 This is patch is a hack and in principle shouldn't be extended much.
 ---
- ash/shell/content_client/shell_main_delegate.cc |    5 +++++
+ ash/shell/content_client/shell_main_delegate.cc |    9 +++++++++
  build/common.gypi                               |    6 ++++++
- chrome/app/chrome_main_delegate.cc              |    9 +++++++++
- content/shell/app/shell_main_delegate.cc        |   15 +++++++++++++++
+ chrome/app/chrome_main_delegate.cc              |   13 +++++++++++++
+ content/shell/app/shell_main_delegate.cc        |   21 +++++++++++++++++++++
  ui/aura/aura.gyp                                |    5 +++++
- ui/aura/demo/demo_main.cc                       |    9 +++++++++
- 6 files changed, 49 insertions(+)
+ ui/aura/demo/demo_main.cc                       |   14 ++++++++++++++
+ 6 files changed, 68 insertions(+)
 
 diff --git a/ash/shell/content_client/shell_main_delegate.cc b/ash/shell/content_client/shell_main_delegate.cc
-index 014fae1..d3b2705 100644
+index 014fae1..85ac652 100644
 --- a/ash/shell/content_client/shell_main_delegate.cc
 +++ b/ash/shell/content_client/shell_main_delegate.cc
-@@ -9,6 +9,8 @@
+@@ -9,6 +9,10 @@
  #include "content/public/common/content_switches.h"
  #include "ui/base/resource/resource_bundle.h"
  
++#if defined(USE_OZONE)
 +#include "ozone/impl/ozone_display.h"
++#endif
 +
  namespace ash {
  namespace shell {
  
-@@ -29,6 +31,9 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+@@ -29,6 +33,11 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
  }
  
  void ShellMainDelegate::PreSandboxStartup() {
++#if defined(USE_OZONE)
 +  /* TODO: Implementation specific. Has to go away */
 +  gfx::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
 +  gfx::SurfaceFactoryOzone::SetInstance(o_factory);
++#endif
    InitializeResourceBundle();
  }
  
@@ -63,69 +67,79 @@ index 17dac2a..38326d8 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/chrome/app/chrome_main_delegate.cc b/chrome/app/chrome_main_delegate.cc
-index ae7cdaa..ce1cb9c 100644
+index ae7cdaa..013072c 100644
 --- a/chrome/app/chrome_main_delegate.cc
 +++ b/chrome/app/chrome_main_delegate.cc
-@@ -101,6 +101,9 @@
+@@ -101,6 +101,11 @@
  #include "components/breakpad/app/breakpad_linux.h"
  #endif
  
++#if defined(USE_OZONE)
 +#include "ozone/impl/ozone_display.h"
 +#include "ozone/impl/desktop_factory_wayland.h"
++#endif
 +
  #if !defined(CHROME_MULTIPLE_DLL_CHILD)
  base::LazyInstance<chrome::ChromeContentBrowserClient>
      g_chrome_content_browser_client = LAZY_INSTANCE_INITIALIZER;
-@@ -590,6 +593,12 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -590,6 +595,14 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
++#if defined(USE_OZONE)
 +  /* TODO: Implementation specific. Has to go away */
 +  gfx::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
 +  gfx::SurfaceFactoryOzone::SetInstance(o_factory);
 +  views::DesktopFactoryOzone *d_factory = new ozonewayland::DesktopFactoryWayland();
 +  views::DesktopFactoryOzone::SetInstance(d_factory);
++#endif
 +
  #if defined(OS_POSIX)
    breakpad::SetBreakpadClient(g_chrome_breakpad_client.Pointer());
  #endif
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index d0db696..d7c9d24 100644
+index d0db696..9112f6d 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
-@@ -29,6 +29,9 @@
+@@ -29,6 +29,11 @@
  #include "ui/gfx/switches.h"
  #include "ui/gl/gl_switches.h"
  
++#if defined(USE_OZONE)
 +#include "ozone/impl/desktop_factory_wayland.h"
 +#include "ozone/impl/ozone_display.h"
++#endif
 +
  #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
  
  #if defined(IPC_MESSAGE_LOG_ENABLED)
-@@ -96,6 +99,12 @@ ShellMainDelegate::ShellMainDelegate() {
+@@ -96,6 +101,14 @@ ShellMainDelegate::ShellMainDelegate() {
  }
  
  ShellMainDelegate::~ShellMainDelegate() {
++#if defined(USE_OZONE)
 +  gfx::SurfaceFactoryOzone* surface_factory = gfx::SurfaceFactoryOzone::GetInstance();
 +  if (surface_factory) {
 +    surface_factory->ShutdownHardware();
 +    gfx::SurfaceFactoryOzone::SetInstance(NULL);
 +    delete surface_factory;
 +  }
++#endif
  }
  
  bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
-@@ -185,6 +194,12 @@ void ShellMainDelegate::PreSandboxStartup() {
+@@ -185,6 +198,14 @@ void ShellMainDelegate::PreSandboxStartup() {
      breakpad::SetBreakpadClient(g_shell_breakpad_client.Pointer());
    }
    InitializeResourceBundle();
 +
++#if defined(USE_OZONE)
 +  /* TODO: Implementation specific. Has to go away */
 +  gfx::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
 +  gfx::SurfaceFactoryOzone::SetInstance(o_factory);
 +  views::DesktopFactoryOzone *d_factory = new ozonewayland::DesktopFactoryWayland();
 +  views::DesktopFactoryOzone::SetInstance(d_factory);
++#endif
  }
  
  int ShellMainDelegate::RunProcess(
@@ -146,36 +160,41 @@ index 954d8de..63b8221 100644
      },
      {
 diff --git a/ui/aura/demo/demo_main.cc b/ui/aura/demo/demo_main.cc
-index abdd514..c4d6a63 100644
+index abdd514..7641457 100644
 --- a/ui/aura/demo/demo_main.cc
 +++ b/ui/aura/demo/demo_main.cc
-@@ -24,6 +24,8 @@
+@@ -24,6 +24,10 @@
  #include "ui/gfx/canvas.h"
  #include "ui/gfx/rect.h"
  
++#if defined(USE_OZONE)
 +#include "ozone/impl/ozone_display.h"
++#endif
 +
  #if defined(USE_X11)
  #include "base/message_loop/message_pump_x11.h"
  #endif
-@@ -108,6 +110,10 @@ class DemoStackingClient : public aura::client::StackingClient {
+@@ -108,6 +112,12 @@ class DemoStackingClient : public aura::client::StackingClient {
  };
  
  int DemoMain() {
++#if defined(USE_OZONE)
 +  /* TODO: Implementation specific. Has to go away */
 +  gfx::SurfaceFactoryOzone *o_factory = new ozonewayland::OzoneDisplay();
 +  gfx::SurfaceFactoryOzone::SetInstance(o_factory);
++#endif
 +
    // Create the message-loop here before creating the root window.
    base::MessageLoop message_loop(base::MessageLoop::TYPE_UI);
  
-@@ -153,6 +159,9 @@ int DemoMain() {
+@@ -153,6 +163,10 @@ int DemoMain() {
    root_window->ShowRootWindow();
    base::MessageLoopForUI::current()->Run();
  
++#if defined(USE_OZONE)
 +  o_factory->ShutdownHardware();
 +  delete o_factory;
-+
++#endif
    return 0;
  }
  
