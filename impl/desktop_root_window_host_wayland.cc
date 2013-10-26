@@ -132,6 +132,9 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
   gfx::NativeView parent = params.parent;
   if (!params.child && params.parent)
     parent->AddTransientChild(content_window_);
+
+  // Add DesktopRootWindowHostWayland as dispatcher.
+  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
 }
 
 scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
