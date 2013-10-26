@@ -8,22 +8,23 @@
 #include "ozone/impl/ozone_display.h"
 
 #include "base/bind.h"
+#include "ui/aura/client/cursor_client.h"
+#include "ui/aura/client/focus_client.h"
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
+#include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
 #include "ui/events/event_utils.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 #include "ui/gfx/insets.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/corewm_switches.h"
-#include "ui/views/corewm/cursor_manager.h"
-#include "ui/views/corewm/focus_controller.h"
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
-#include "ui/views/widget/desktop_aura/desktop_focus_rules.h"
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
+#include "ozone/impl/desktop_drag_drop_client_wayland.h"
 
 namespace views {
 // static
@@ -55,9 +56,10 @@ DEFINE_WINDOW_PROPERTY_KEY(
 
 DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     internal::NativeWidgetDelegate* native_widget_delegate,
-    DesktopNativeWidgetAura* desktop_native_widget_aura,
-    const gfx::Rect& bounds)
+    views::DesktopNativeWidgetAura* desktop_native_widget_aura)
     : close_widget_factory_(this),
+      root_window_(NULL),
+      drag_drop_client_(NULL),
       native_widget_delegate_(native_widget_delegate),
       desktop_native_widget_aura_(desktop_native_widget_aura),
       state_(Uninitialized) {
@@ -65,8 +67,7 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
   root_window_->ClearProperty(kHostForRootWindow);
-  aura::client::SetFocusClient(root_window_, NULL);
-  aura::client::SetActivationClient(root_window_, NULL);
+  desktop_native_widget_aura_->OnDesktopRootWindowHostDestroyed(root_window_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,56 +88,6 @@ void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
 }
 
-aura::RootWindow* DesktopRootWindowHostWayland::InitRootWindow(
-    const Widget::InitParams& params) {
-  bounds_ = params.bounds;
-
-  aura::RootWindow::CreateParams rw_params(bounds_);
-  rw_params.host = this;
-  root_window_ = new aura::RootWindow(rw_params);
-  root_window_->Init();
-  root_window_->AddChild(content_window_);
-  root_window_->SetProperty(kViewsWindowForRootWindow, content_window_);
-  root_window_->SetProperty(kHostForRootWindow, this);
-  root_window_host_delegate_ = root_window_;
-
-  // If we're given a parent, we need to mark ourselves as transient to another
-  // window. Otherwise activation gets screwy.
-  gfx::NativeView parent = params.parent;
-  if (!params.child && params.parent)
-    parent->AddTransientChild(content_window_);
-
-  native_widget_delegate_->OnNativeWidgetCreated(true);
-
-  desktop_native_widget_aura_->CreateCaptureClient(root_window_);
-
-  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
-
-  corewm::FocusController* focus_controller =
-      new corewm::FocusController(new DesktopFocusRules(content_window_));
-  focus_client_.reset(focus_controller);
-  aura::client::SetFocusClient(root_window_, focus_controller);
-  aura::client::SetActivationClient(root_window_, focus_controller);
-  root_window_->AddPreTargetHandler(focus_controller);
-
-  dispatcher_client_.reset(new DesktopDispatcherClient);
-  aura::client::SetDispatcherClient(root_window_,
-                                    dispatcher_client_.get());
-
-  // TODO(vignatti): cursor_client_?
-
-  position_client_.reset(new DesktopScreenPositionClient);
-  aura::client::SetScreenPositionClient(root_window_,
-                                        position_client_.get());
-
-  desktop_native_widget_aura_->InstallInputMethodEventFilter(root_window_);
-
-  // TODO(vignatti): drag_drop_client?
-
-  focus_client_->FocusWindow(content_window_);
-  return root_window_;
-}
-
 bool DesktopRootWindowHostWayland::IsWindowManagerPresent() {
   return true;
 }
@@ -144,9 +95,10 @@ bool DesktopRootWindowHostWayland::IsWindowManagerPresent() {
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostWayland, DesktopRootWindowHost implementation:
 
-aura::RootWindow* DesktopRootWindowHostWayland::Init(
+void DesktopRootWindowHostWayland::Init(
     aura::Window* content_window,
-    const Widget::InitParams& params) {
+    const Widget::InitParams& params,
+    aura::RootWindow::CreateParams* rw_create_params) {
   content_window_ = content_window;
 
   // TODO(erg): Check whether we *should* be building a RootWindowHost here, or
@@ -161,12 +113,37 @@ aura::RootWindow* DesktopRootWindowHostWayland::Init(
     sanitized_params.bounds.set_height(100);
 
   InitWaylandWindow(sanitized_params);
-  return InitRootWindow(sanitized_params);
+
+  rw_create_params->initial_bounds = bounds_;
+  rw_create_params->host = this;
+}
+
+void DesktopRootWindowHostWayland::OnRootWindowCreated(
+    aura::RootWindow* root,
+    const Widget::InitParams& params) {
+  root_window_ = root;
+
+  root_window_->SetProperty(kViewsWindowForRootWindow, content_window_);
+  root_window_->SetProperty(kHostForRootWindow, this);
+  root_window_host_delegate_ = root_window_;
+
+  // If we're given a parent, we need to mark ourselves as transient to another
+  // window. Otherwise activation gets screwy.
+  gfx::NativeView parent = params.parent;
+  if (!params.child && params.parent)
+    parent->AddTransientChild(content_window_);
 }
 
 scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
   return scoped_ptr<corewm::Tooltip>(
              new corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
+}
+
+scoped_ptr<aura::client::DragDropClient>
+DesktopRootWindowHostWayland::CreateDragDropClient(
+    views::DesktopNativeCursorManager* cursor_manager) {
+  drag_drop_client_ = new DesktopDragDropClientWayland(root_window_);
+  return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
 }
 
 void DesktopRootWindowHostWayland::Close() {

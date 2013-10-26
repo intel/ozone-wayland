@@ -18,8 +18,7 @@ class DesktopFactoryWayland : public views::DesktopFactoryOzone {
   // views::DesktopFactoryOzone
   virtual views::DesktopRootWindowHost* CreateRootWindowHost(
       views::internal::NativeWidgetDelegate* native_widget_delegate,
-      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
-      const gfx::Rect& bounds) OVERRIDE;
+      views::DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
 };
 
 }  // namespace ozonewayland

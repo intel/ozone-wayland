@@ -10,25 +10,17 @@
 #include "ui/aura/root_window_host.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
 
-namespace aura {
-namespace client {
-class FocusClient;
-class ScreenPositionClient;
-}
-}
-
 namespace views {
-class DesktopDragDropClientAuraOzone;
 class DesktopDispatcherClient;
 class OzoneDesktopWindowMoveClient;
 class OzoneWindowEventFilter;
 namespace corewm {
-class CursorManager;
 class Tooltip;
 }
 }
 
 namespace ozonewayland {
+class DesktopDragDropClientWayland;
 
 class VIEWS_EXPORT DesktopRootWindowHostWayland :
     public views::DesktopRootWindowHost,
@@ -37,8 +29,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
  public:
   DesktopRootWindowHostWayland(
       views::internal::NativeWidgetDelegate* native_widget_delegate,
-      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
-      const gfx::Rect& bounds);
+      views::DesktopNativeWidgetAura* desktop_native_widget_aura);
   virtual ~DesktopRootWindowHostWayland();
 
   // Called by OzoneDesktopHandler to notify us that the native windowing system
@@ -80,9 +71,14 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   void DispatchMouseEvent(ui::MouseEvent* event);
 
   // Overridden from DesktopRootWindowHost:
-  virtual aura::RootWindow* Init(aura::Window* content_window,
-                                 const views::Widget::InitParams& params) OVERRIDE;
+  virtual void Init(aura::Window* content_window,
+                    const views::Widget::InitParams& params,
+                    aura::RootWindow::CreateParams* rw_create_params) OVERRIDE;
+  virtual void OnRootWindowCreated(aura::RootWindow* root,
+                                   const views::Widget::InitParams& params) OVERRIDE;
   virtual scoped_ptr<views::corewm::Tooltip> CreateTooltip() OVERRIDE;
+  virtual scoped_ptr<aura::client::DragDropClient>
+      CreateDragDropClient(views::DesktopNativeCursorManager* cursor_manager) OVERRIDE;
   virtual void Close() OVERRIDE;
   virtual void CloseNow() OVERRIDE;
   virtual aura::RootWindowHost* AsRootWindowHost() OVERRIDE;
@@ -175,11 +171,10 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   // We are owned by the RootWindow, but we have to have a back pointer to it.
   aura::RootWindow* root_window_;
 
-  // aura:: objects that we own.
-  scoped_ptr<aura::client::FocusClient> focus_client_;
-  scoped_ptr<views::corewm::CursorManager> cursor_client_;
+  // Owned by DesktopNativeWidgetAura.
+  DesktopDragDropClientWayland* drag_drop_client_;
+
   scoped_ptr<views::DesktopDispatcherClient> dispatcher_client_;
-  scoped_ptr<aura::client::ScreenPositionClient> position_client_;
 
   gfx::AcceleratedWidget window_;
   views::internal::NativeWidgetDelegate* native_widget_delegate_;

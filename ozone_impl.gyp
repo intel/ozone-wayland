@@ -18,6 +18,8 @@
         'impl/desktop_factory_wayland.h',
         'impl/desktop_root_window_host_wayland.cc',
         'impl/desktop_root_window_host_wayland.h',
+        'impl/desktop_drag_drop_client_wayland.cc',
+        'impl/desktop_drag_drop_client_wayland.h',
         'impl/desktop_screen_wayland.cc',
         'impl/desktop_screen_wayland.h',
         'impl/event_factory_wayland.cc',
