@@ -20,6 +20,7 @@ class EGLWindow {
   wl_egl_window* egl_window() const { return window_; }
   bool Resize(WaylandSurface* surface, int32_t width, int32_t height);
 
+  static const int32* GetEGLConfigAttribs();
  private:
   wl_egl_window* window_;
   DISALLOW_COPY_AND_ASSIGN(EGLWindow);

@@ -12,6 +12,7 @@
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/egl/loader.h"
+#include "ozone/wayland/egl/egl_window.h"
 
 #include "ozone/impl/ipc/child_process_observer.h"
 #include "ozone/impl/ipc/display_channel.h"
@@ -20,8 +21,6 @@
 #include "base/command_line.h"
 #include "base/stl_util.h"
 #include "content/public/common/content_switches.h"
-
-#include <EGL/egl.h>
 
 namespace ozonewayland {
 
@@ -192,18 +191,7 @@ bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
 
 const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list)
 {
-  static const EGLint kConfigAttribs[] = {
-    EGL_BUFFER_SIZE, 32,
-    EGL_ALPHA_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_RED_SIZE, 8,
-    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE
-  };
-
-  return kConfigAttribs;
+  return EGLWindow::GetEGLConfigAttribs();
 }
 
 void OzoneDisplay::WillDestroyCurrentMessageLoop()
