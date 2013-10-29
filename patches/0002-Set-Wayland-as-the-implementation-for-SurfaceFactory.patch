@@ -1,4 +1,4 @@
-From 66f65a5f97b183b796274b63bd389a56ba27b99f Mon Sep 17 00:00:00 2001
+From 9c2500f60529ddc3b3f52a3af68ade625661a9a2 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Mon, 23 Sep 2013 20:40:42 +0300
 Subject: [PATCH] Set Wayland as the implementation for SurfaceFactoryOzone
@@ -50,7 +50,7 @@ index 014fae1..85ac652 100644
  }
  
 diff --git a/build/common.gypi b/build/common.gypi
-index 17dac2a..38326d8 100644
+index de3605e..c8df365 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -148,6 +148,12 @@
@@ -67,7 +67,7 @@ index 17dac2a..38326d8 100644
            ['OS=="mac" or chromeos==1', {
              'enable_hidpi%': 1,
 diff --git a/chrome/app/chrome_main_delegate.cc b/chrome/app/chrome_main_delegate.cc
-index a1dbcfe..400f281 100644
+index e7ec598..f9aea8e 100644
 --- a/chrome/app/chrome_main_delegate.cc
 +++ b/chrome/app/chrome_main_delegate.cc
 @@ -101,6 +101,11 @@
@@ -82,7 +82,7 @@ index a1dbcfe..400f281 100644
  #if !defined(CHROME_MULTIPLE_DLL_CHILD)
  base::LazyInstance<chrome::ChromeContentBrowserClient>
      g_chrome_content_browser_client = LAZY_INSTANCE_INITIALIZER;
-@@ -590,6 +595,14 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -564,6 +569,14 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -98,7 +98,7 @@ index a1dbcfe..400f281 100644
    breakpad::SetBreakpadClient(g_chrome_breakpad_client.Pointer());
  #endif
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index c6d578a..33e688e 100644
+index 4b005e4..dd5d6a2 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -29,6 +29,11 @@
@@ -128,7 +128,7 @@ index c6d578a..33e688e 100644
  }
  
  bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
-@@ -216,6 +229,14 @@ void ShellMainDelegate::PreSandboxStartup() {
+@@ -221,6 +234,14 @@ void ShellMainDelegate::PreSandboxStartup() {
    }
  
    InitializeResourceBundle();
@@ -144,12 +144,12 @@ index c6d578a..33e688e 100644
  
  int ShellMainDelegate::RunProcess(
 diff --git a/ui/aura/aura.gyp b/ui/aura/aura.gyp
-index b062883..c83fcb5d 100644
+index 0352ec1..e93ac47 100644
 --- a/ui/aura/aura.gyp
 +++ b/ui/aura/aura.gyp
-@@ -130,6 +130,11 @@
-             },
-           },
+@@ -125,6 +125,11 @@
+             'input_state_lookup.cc',
+           ],
          }],
 +        ['use_ozone==1', {
 +          'dependencies': [
