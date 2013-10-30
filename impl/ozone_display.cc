@@ -11,7 +11,6 @@
 #include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
-#include "ozone/wayland/egl/loader.h"
 #include "ozone/wayland/egl/egl_window.h"
 
 #include "ozone/impl/ipc/child_process_observer.h"
@@ -19,6 +18,7 @@
 #include "ozone/impl/ipc/display_channel_host.h"
 
 #include "base/command_line.h"
+#include "base/native_library.h"
 #include "base/stl_util.h"
 #include "content/public/common/content_switches.h"
 
@@ -152,8 +152,43 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   return (gfx::AcceleratedWidget)widget->egl_window();
 }
 
-bool OzoneDisplay::LoadEGLGLES2Bindings() {
-  return InitializeGLBindings();
+bool OzoneDisplay::LoadEGLGLES2Bindings(
+      gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+      gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback set_proc_address) {
+  std::string error;
+  base::NativeLibrary gles_library = base::LoadNativeLibrary(
+    base::FilePath("libGLESv2.so.2"), &error);
+
+  if (!gles_library) {
+    LOG(WARNING) << "Failed to load GLES library: " << error;
+    return false;
+  }
+
+  base::NativeLibrary egl_library = base::LoadNativeLibrary(
+    base::FilePath("libEGL.so.1"), &error);
+
+  if (!egl_library) {
+    LOG(WARNING) << "Failed to load EGL library: " << error;
+    base::UnloadNativeLibrary(gles_library);
+    return false;
+  }
+
+  GLGetProcAddressProc get_proc_address =
+      reinterpret_cast<GLGetProcAddressProc>(
+          base::GetFunctionPointerFromNativeLibrary(
+              egl_library, "eglGetProcAddress"));
+
+  if (!get_proc_address) {
+    LOG(ERROR) << "eglGetProcAddress not found.";
+    base::UnloadNativeLibrary(egl_library);
+    base::UnloadNativeLibrary(gles_library);
+    return false;
+  }
+
+  set_proc_address.Run(get_proc_address);
+  add_gl_library.Run(egl_library);
+  add_gl_library.Run(gles_library);
+  return true;
 }
 
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,

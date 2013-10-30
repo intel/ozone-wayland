@@ -58,7 +58,9 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   // eglwindow assosicated with it.
   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) OVERRIDE;
-  virtual bool LoadEGLGLES2Bindings() OVERRIDE;
+  virtual bool LoadEGLGLES2Bindings(
+    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback proc_address) OVERRIDE;
   // Returns true if resizing of eglwindow associated with opaque handle was
   // successful else returns false.
   virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,

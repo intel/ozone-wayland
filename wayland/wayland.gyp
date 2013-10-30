@@ -46,7 +46,6 @@
       },
       'dependencies': [
         '../../base/base.gyp:base',
-        '../../ui/gl/gl.gyp:gl',
       ],
       'include_dirs': [
         '.',
@@ -70,8 +69,6 @@
         'window.h',
         'egl/egl_window.cc',
         'egl/egl_window.h',
-        'egl/loader.h',
-        'egl/loader.cc',
         'inputs/cursor.cc',
         'inputs/cursor.h',
         'inputs/input_method_event_filter.cc',

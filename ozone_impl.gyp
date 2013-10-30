@@ -9,7 +9,6 @@
       'target_name': 'wayland',
       'type': 'static_library',
       'dependencies': [
-        '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/skia/skia.gyp:skia',
         'wayland/wayland.gyp:wayland_toolkit'
       ],
