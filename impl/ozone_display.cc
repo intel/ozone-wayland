@@ -391,8 +391,7 @@ void OzoneDisplay::ValidateLaunchType()
 {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   bool singleProcess = command_line.HasSwitch(switches::kSingleProcess) ||
-      command_line.HasSwitch(switches::kInProcessGPU) ||
-      command_line.HasSwitch(switches::kTestCompositor);
+      command_line.HasSwitch(switches::kInProcessGPU);
 
   if (singleProcess) {
     launch_type_ = SingleProcess;
