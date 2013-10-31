@@ -10,6 +10,11 @@
 
 namespace ozonewayland {
 
+// Desktop support for wayland
+//
+// TODO(spang): Chromium needs to move desktop support into ui/base so we don't
+// reference views from ozone platform code. This module has an undeclared
+// dependency on views.
 class DesktopFactoryWayland : public views::DesktopFactoryOzone {
  public:
   DesktopFactoryWayland();

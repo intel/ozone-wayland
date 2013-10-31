@@ -11,10 +11,12 @@ namespace ozonewayland {
 DesktopFactoryWayland::DesktopFactoryWayland()
 {
   LOG(INFO) << "Ozone: DesktopFactoryWayland";
+  views::DesktopFactoryOzone::SetInstance(this);
 }
 
 DesktopFactoryWayland::~DesktopFactoryWayland()
 {
+  views::DesktopFactoryOzone::SetInstance(NULL);
 }
 
 views::DesktopRootWindowHost* DesktopFactoryWayland::CreateRootWindowHost(

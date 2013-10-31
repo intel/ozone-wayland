@@ -48,8 +48,7 @@
         '../../base/base.gyp:base',
       ],
       'include_dirs': [
-        '.',
-        '../../..',
+        '../..',
       ],
       'sources': [
         'display.cc',
