@@ -34,18 +34,26 @@ http://wayland.freedesktop.org/building.html
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
-Then on Chromium's side, we need to setup Chromium's tree together with the Ozone-Wayland implementation "aside" of it. For that you have to use a special `.gclient` configuration that clones both of the trees (see next section); but first you need to download [depot_tools](http://dev.chromium.org/developers/how-tos/install-depot-tools) and configure it. Say your depot_tools live in `~/git/chromium/depot_tools` and your chromium top-level directory is in `~/git/chromium/src`, you will need to jump to `~/git/chromium` and run:
+Then on Chromium's side, we need to setup Chromium's tree together with the
+Ozone-Wayland implementation. For that you need to use gclient to clone
+ozone-wayland; but first you need to download
+[depot\_tools](http://dev.chromium.org/developers/how-tos/install-depot-tools)
+and configure it. Say your depot_tools live in `~/git/chromium/depot_tools` and
+your chromium top-level directory will be in `~/git/chromium`, you will need to
+jump to `~/git/chromium` and run:
 
   ```
-  $ gclient sync
+  $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --git-deps
+  $ GYP_DEFINES='use_ash=0 use_aura=1 chromeos=0 use_ozone=1' gclient sync
   ```
 
-It may take a considerable time for downloading the trees, but once that is done, the `.gclient` will automatically switch the chromium repository to "master-ozone" branch and apply a few patches on top of it (not everything is upstream yet). If everything went fine, now we're able to generate the needed building files:
+It may take a considerable time for downloading the trees. If everything went
+fine, now we're able to build.
+
+For now, also apply some patches:
 
   ```
-  $ cd src/
-  $ export GYP_DEFINES='component=static_library use_ash=0 use_aura=1 chromeos=0 use_ozone=1'
-  $ ./build/gyp_chromium
+  ./src/ozone/patches/patch-chromium.sh
   ```
 
 TIP: to speed up debug builds you can disable Blink debugging symbols by setting remove_webcore_debug_symbols=1 in GYP_DEFINES.
@@ -57,6 +65,7 @@ TIP: if you followed Wayland's web page instructions, then you probably want to 
 Now we can conclude compiling Content Shell target.
 
   ```
+  $ cd src/
   $ ninja -C out/Debug -j16 content_shell
   ```
 That's all. At this point you should be able to connect content_shell on Weston using:
@@ -66,48 +75,13 @@ That's all. At this point you should be able to connect content_shell on Weston 
   $ ./out/Debug/content_shell --no-sandbox
   ```
 
+## Gardening
 
-### .gclient file
-
-```python
-solutions = [
-  {
-    u'managed': True,
-    "name": "src",
-    u'url': u'https://chromium.googlesource.com/chromium/src.git',
-    u'custom_deps': {},
-    u'deps_file': u'.DEPS.git',
-    u'safesync_url': u'',
-    u'custom_vars': {u'webkit_rev': u''},
-
-    # this suppresses the execution of the gyp action from src/DEPS by setting
-    # the action to nothing.
-    # TODO: rjkroege recommended but in fact I'm not sure this is needed.
-    "custom_hooks": [ {"name": "gyp"} ]
-  },
-  {
-    # note that if you try another method for cloning below (like using https
-    # instead ssh), then you will want to change it also in gclient/DEPS
-    "name"  : "src-ozone",
-    "url"   : "ssh://git@github.com/01org/ozone-wayland.git",
-    "deps_file": "gclient/DEPS"
-  }
-]
-
-hooks = [
-  {
-    # this will apply the needed patches in Chromium tree. It pretty much
-    # generates the Wayland dependencies on .gyp files there and also patch
-    # other small changes. Ideally this shouldn't exist and Ozone-Wayland would
-    # be just dynamically loaded within Ozone there.
-    "name": "gyp",
-    "pattern": ".",
-    "action": [
-        "bash", "src/ozone/patches/patch-chromium.sh"
-    ]
-  }
-]
-```
+We pin chromium to a particular revision in order to keep upstream changes from
+breaking our build. Updating that revision to a newer one and fixing any
+resulting breakage is called gardening. To sync a different version of chromium,
+update chromium_rev in .DEPS.git to a newer revision then run the gclient sync
+again. Fix any build errors, and commit both changes.
 
 ## Contributing
 
