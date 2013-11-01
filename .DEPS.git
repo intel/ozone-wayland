@@ -1,0 +1,10 @@
+vars = {
+  'chromium_url': 'https://chromium.googlesource.com/chromium/src.git',
+  'chromium_rev': '081f91cfe99b615aed0074079495f9104ceef879',
+}
+
+deps = {
+  "src": Var('chromium_url') + '@' + Var('chromium_rev'),
+}
+
+recursion = 2
