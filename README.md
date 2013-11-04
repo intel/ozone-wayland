@@ -8,7 +8,7 @@ Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland g
 
   - [Design](#design) - the architecture behind
   - [Howto](#howto) - set up the system environment, build and run
-    - [.gclient file](#gclient-file)
+  - [Gardening](#gardening) - updating to the latest Chromium codebase
   - [Contributing](#contributing) - help develop and send patches
   - [License](#license)
 
@@ -36,11 +36,18 @@ Make sure everything is alright now, setting up the environment variable `$XDG_R
 
 Then on Chromium's side, we need to setup Chromium's tree together with the
 Ozone-Wayland implementation. For that you need to use gclient to clone
-ozone-wayland; but first you need to download
+Ozone-Wayland; but first you need to download
 [depot\_tools](http://dev.chromium.org/developers/how-tos/install-depot-tools)
-and configure it. Say your depot_tools live in `~/git/chromium/depot_tools` and
-your chromium top-level directory will be in `~/git/chromium`, you will need to
-jump to `~/git/chromium` and run:
+and configure it. Say your Chromium top-level will be in `~git/chromium`, you will
+need:
+
+  ```
+  $ mkdir -p ~git/chromium
+  $ cd ~git/chromium
+  $ git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+  ```
+
+now we can clone Ozone-Wayland and fetch all the dependencies of it, including Chromium itself:
 
   ```
   $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --git-deps
