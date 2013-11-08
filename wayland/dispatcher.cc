@@ -335,7 +335,6 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data)
 
     count = epoll_wait(data->epoll_fd_, ep, 16, -1);
     for (i = 0; i < count; i++) {
-      struct epoll_event eps;
       int ret;
       uint32_t event = ep[i].events;
 
@@ -351,6 +350,9 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data)
       if (event & EPOLLOUT) {
         ret = wl_display_flush(waylandDisp);
         if (ret == 0) {
+          struct epoll_event eps;
+          memset(&eps, 0, sizeof(eps));
+
           eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
           epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &eps);
         } else if (ret == -1 && errno != EAGAIN) {
