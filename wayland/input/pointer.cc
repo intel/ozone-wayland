@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/inputs/pointer.h"
+#include "ozone/wayland/input/pointer.h"
 
-#include "ozone/wayland/inputs/cursor.h"
+#include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/dispatcher.h"
 #include "ui/events/event.h"
 #include "ui/base/hit_test.h"

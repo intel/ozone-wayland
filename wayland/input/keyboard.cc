@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/inputs/keyboard.h"
+#include "ozone/wayland/input/keyboard.h"
 
 #include "ozone/wayland/dispatcher.h"
 

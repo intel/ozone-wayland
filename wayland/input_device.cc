@@ -5,9 +5,9 @@
 #include "ozone/wayland/input_device.h"
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/inputs/input_method_event_filter.h"
-#include "ozone/wayland/inputs/keyboard.h"
-#include "ozone/wayland/inputs/pointer.h"
+#include "ozone/wayland/input/input_method_event_filter.h"
+#include "ozone/wayland/input/keyboard.h"
+#include "ozone/wayland/input/pointer.h"
 
 namespace ozonewayland {
 
