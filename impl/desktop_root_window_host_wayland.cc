@@ -75,11 +75,11 @@ DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
 
 void DesktopRootWindowHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
-
   gfx::SurfaceFactoryOzone* surface_factory =
           gfx::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();
   surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
+  bounds_ = params.bounds;
 }
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
