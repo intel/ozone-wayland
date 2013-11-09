@@ -82,26 +82,12 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
                             unsigned height);
 
  private:
-  enum Launch {
-   None = 0x00,
-   SingleProcess = 0x01,
-   MultiProcess = 0x02
-  };
-
-  enum Process {
-   PreLaunch = 0x00,
-   Browser = 0x01,
-   Gpu = 0x02
-  };
-
   enum State {
    UnInitialized = 0x00,
    Initialized = 0x01,
    ChannelConnected = 0x02
   };
 
-  typedef unsigned LaunchType;
-  typedef unsigned ProcessType;
   typedef unsigned CurrentState;
 
   void EstablishChannel();
@@ -114,11 +100,9 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
   void Terminate();
-  void ValidateLaunchType();
+  void InitializeDispatcher(int fd = 0);
   void LookAheadOutputGeometry();
 
-  LaunchType launch_type_;
-  ProcessType process_type_;
   CurrentState state_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   bool initialized_ :1;

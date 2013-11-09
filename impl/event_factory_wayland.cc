@@ -30,6 +30,7 @@ EventFactoryWayland::EventFactoryWayland()
   DCHECK(base::MessageLoop::current());
   base::MessageLoop::current()->AddTaskObserver(this);
   dispatcher_ = WaylandDispatcher::GetInstance();
+  EventFactoryWayland::SetInstance(this);
 }
 
 EventFactoryWayland::~EventFactoryWayland() {

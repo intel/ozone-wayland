@@ -17,10 +17,8 @@
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
 
-#include "base/command_line.h"
 #include "base/native_library.h"
 #include "base/stl_util.h"
-#include "content/public/common/content_switches.h"
 
 namespace ozonewayland {
 
@@ -31,9 +29,7 @@ OzoneDisplay* OzoneDisplay::GetInstance()
   return instance_;
 }
 
-OzoneDisplay::OzoneDisplay() : launch_type_(None),
-    process_type_(PreLaunch),
-    initialized_(false),
+OzoneDisplay::OzoneDisplay() : initialized_(false),
     state_(UnInitialized),
     desktop_screen_(NULL),
     dispatcher_(NULL),
@@ -79,36 +75,9 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   base::MessageLoop::current()->AddDestructionObserver(this);
 
   state_ |= Initialized;
-  ValidateLaunchType();
-  bool gpuProcess = (launch_type_ & MultiProcess) && (process_type_ & Gpu);
-  bool singleProcess = launch_type_ & SingleProcess;
-  bool browserProcess = (launch_type_ & MultiProcess) && (process_type_ & Browser);
-
-  if (singleProcess || gpuProcess) {
-    display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
-    initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
-                                             : gfx::SurfaceFactoryOzone::FAILED;
-  }
-
-  if (singleProcess || browserProcess) {
-    dispatcher_ = new WaylandDispatcher();
-    spec_ = new char[kMaxDisplaySize_];
-    spec_[0] = '\0';
-  }
-
-  if (singleProcess) {
-    e_factory_ = new EventFactoryWayland();
-    EventFactoryWayland::SetInstance(e_factory_);
-  } else if (gpuProcess) {
-    int fd = display_->GetDisplayFd();
-    dispatcher_ = new WaylandDispatcher(fd);
-    channel_ = new OzoneDisplayChannel(fd);
-    dispatcher_->PostTask(WaylandDispatcher::Poll);
-  } else if (browserProcess) {
-    child_process_observer_ = new OzoneProcessObserver(this);
-    initialized_state_ = gfx::SurfaceFactoryOzone::INITIALIZED;
-    EstablishChannel();
-  }
+  display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
+  initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
+                                           : gfx::SurfaceFactoryOzone::FAILED;
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
@@ -129,8 +98,10 @@ void OzoneDisplay::ShutdownHardware()
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 {
   static int opaque_handle = 0;
-  // Ensure display is initialized.
-  InitializeHardware();
+  // Ensure dispatcher is initialized.
+  if (!dispatcher_)
+    InitializeDispatcher();
+
   opaque_handle++;
   CreateWidget(opaque_handle);
 
@@ -139,6 +110,11 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
+  // Dispatcher should be already initialized unless we are in gpu process side.
+  // Initialize dispatcher and start polling for wayland events.
+  if (!dispatcher_)
+    InitializeDispatcher(display_->GetDisplayFd());
+
   // TODO(kalyan) The channel connection should be established as soon as
   // GPU thread is initialized.
   if (!(state_ & ChannelConnected) && channel_) {
@@ -347,10 +323,10 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
     return;
   }
 
-  if (launch_type_ & SingleProcess)
-    OnOutputSizeChanged(width, height);
-  else if (channel_ && (state_ & ChannelConnected))
+  if (channel_ && (state_ & ChannelConnected))
     dispatcher_->OutputSizeChanged(width, height);
+  else
+    OnOutputSizeChanged(width, height);
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
@@ -422,33 +398,23 @@ void OzoneDisplay::Terminate()
   }
 }
 
-void OzoneDisplay::ValidateLaunchType()
+void OzoneDisplay::InitializeDispatcher(int fd)
 {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  bool singleProcess = command_line.HasSwitch(switches::kSingleProcess) ||
-      command_line.HasSwitch(switches::kInProcessGPU);
+  dispatcher_ = new WaylandDispatcher(fd);
 
-  if (singleProcess) {
-    launch_type_ = SingleProcess;
-    process_type_ = Browser;
-    return;
-  }
+  if (fd) {
+    channel_ = new OzoneDisplayChannel(fd);
+    dispatcher_->PostTask(WaylandDispatcher::Poll);
+  } else {
+    spec_ = new char[kMaxDisplaySize_];
+    spec_[0] = '\0';
 
-  // We are not using single process mode, check if we are in browser process.
-  if (!command_line.HasSwitch(switches::kProcessType)) {
-    launch_type_ = MultiProcess;
-    process_type_ = Browser;
-    return;
-  }
-
-  bool gpuProcess = command_line.HasSwitch(switches::kProcessType) &&
-      (command_line.HasSwitch(switches::kGpuDeviceID) ||
-       command_line.HasSwitch(switches::kGpuDriverVendor) ||
-       command_line.HasSwitch(switches::kGpuDriverVersion));
-
-  if (gpuProcess) {
-    launch_type_ = MultiProcess;
-    process_type_ = Gpu;
+    if (display_)
+      e_factory_ = new EventFactoryWayland();
+    else {
+      child_process_observer_ = new OzoneProcessObserver(this);
+      EstablishChannel();
+    }
   }
 }
 
