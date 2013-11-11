@@ -70,17 +70,17 @@ Note that in Chromium, gyp uses pkg-config for checking where are Wayland librar
 
 TIP: if you followed Wayland's web page instructions, then you probably want to set the `PKG_CONFIG_PATH` variable as `$HOME/install` and add it in your .bashrc to be as default.
 
-Now we can conclude compiling Content Shell target.
+Now we can conclude compiling a few targets like Content Shell (content_shell) or the Chromium browser:
 
   ```
   $ cd src/
-  $ ninja -C out/Debug -j16 content_shell
+  $ ninja -C out/Debug -j16 chrome
   ```
-That's all. At this point you should be able to connect content_shell on Weston using:
+That's all. At this point you should be able to connect Chromium on Weston using:
 
   ```
   $ ~/git/weston/src/weston &
-  $ ./out/Debug/content_shell --no-sandbox
+  $ ./out/Debug/chrome --no-sandbox
   ```
 
 ## Gardening
