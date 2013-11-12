@@ -67,9 +67,12 @@ void WaylandWindow::Restore()
   NOTIMPLEMENTED();
 }
 
-void WaylandWindow::SetFullscreen()
+void WaylandWindow::ToggleFullscreen()
 {
-  NOTIMPLEMENTED();
+  if (type_ == FULLSCREEN)
+    SetShellType(TOPLEVEL);
+  else
+    SetShellType(FULLSCREEN);
 }
 
 void WaylandWindow::RealizeAcceleratedWidget()

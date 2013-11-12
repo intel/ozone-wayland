@@ -63,6 +63,11 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type) cons
     wl_shell_surface_set_toplevel(shell_surface_);
     break;
   case WaylandWindow::FULLSCREEN:
+    wl_shell_surface_set_fullscreen(shell_surface_,
+                                    WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
+                                    0,
+                                    NULL);
+    break;
   case WaylandWindow::TRANSIENT:
   case WaylandWindow::CUSTOM:
       NOTREACHED() << "UnSupported Shell Type.";

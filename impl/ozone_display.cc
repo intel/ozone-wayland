@@ -243,8 +243,11 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       break;
     }
     case FullScreen:
-      NOTIMPLEMENTED();
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->ToggleFullscreen();
       break;
+    }
     case Maximized:
     {
       WaylandWindow* widget = GetWidget(w);
