@@ -1,0 +1,23 @@
+# This file shows a very simple way to create a tarball (tar.gz) with a few
+# essential files including the Chromium binary, in which a regular user will
+# be able to play around with Chromium Wayland Browser.
+#
+# IMPORTANT: by no means this is a definitive solution for packaging Chromium
+# Wayland Browser in your distribution. Please refer to this link for more
+# information:
+#
+# https://github.com/01org/ozone-wayland/wiki/Packaging-and-Release-Process
+#
+# TODO(vignatti): build a python script and automate the instructions mentioned
+# below.
+
+first I've made sure everything inside src/out/Release/ concerns Chromium only,
+i.e. only chrome target was compiled and nothing else before.
+
+$ cd src/out/
+
+$ mkdir chromium-wayland/
+
+$ rsync -a -v --exclude=content_shell* --exclude=gen --exclude=obj Release/ chromium-wayland/
+
+$ tar czvf chromium-wayland.tar.gz chromium-wayland/
