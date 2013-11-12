@@ -29,8 +29,7 @@ OzoneDisplay* OzoneDisplay::GetInstance()
   return instance_;
 }
 
-OzoneDisplay::OzoneDisplay() : initialized_(false),
-    state_(UnInitialized),
+OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     desktop_screen_(NULL),
     dispatcher_(NULL),
     display_(NULL),

@@ -107,7 +107,6 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
 
   CurrentState state_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
-  bool initialized_ :1;
   const int kMaxDisplaySize_;
 
   DesktopScreenWayland* desktop_screen_;
