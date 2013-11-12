@@ -57,6 +57,10 @@ void WaylandWindow::SetShellType(ShellType type)
   }
 }
 
+void WaylandWindow::SetWindowTitle(const string16& title) {
+  shell_surface_->SetWindowTitle(title);
+}
+
 void WaylandWindow::Maximize()
 {
   NOTIMPLEMENTED();

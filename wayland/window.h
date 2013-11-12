@@ -7,6 +7,7 @@
 #define OZONE_WAYLAND_WINDOW_H_
 
 #include "ui/gfx/rect.h"
+#include "base/strings/string16.h"
 
 #include <wayland-client.h>
 
@@ -36,6 +37,7 @@ class WaylandWindow {
   ~WaylandWindow();
 
   void SetShellType(ShellType type);
+  void SetWindowTitle(const string16& title);
   void Maximize();
   void Minimize();
   void Restore();

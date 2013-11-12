@@ -34,7 +34,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
                        unsigned state,
                        unsigned width,
                        unsigned height);
-
+  void SendWidgetTitle(unsigned w, const string16& title);
   void OnChannelEstablished(unsigned router_id);
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(int state, int flags, float x, float y);

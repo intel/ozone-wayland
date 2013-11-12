@@ -363,7 +363,10 @@ void DesktopRootWindowHostWayland::SetAlwaysOnTop(bool always_on_top) {
 }
 
 void DesktopRootWindowHostWayland::SetWindowTitle(const string16& title) {
-  NOTIMPLEMENTED();
+  if (title.compare(title_)) {
+    OzoneDisplay::GetInstance()->SetWidgetTitle(window_, title);
+    title_ = title;
+  }
 }
 
 void DesktopRootWindowHostWayland::ClearNativeFocus() {

@@ -29,6 +29,7 @@ class OzoneDisplayChannel : public IPC::Listener
                             unsigned state,
                             unsigned width,
                             unsigned height);
+  void OnWidgetTitleChanged(unsigned widget, string16 title);
 
  private:
   unsigned display_fd_;

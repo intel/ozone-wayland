@@ -6,7 +6,9 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/surface.h"
+
 #include "base/logging.h"
+#include "base/strings/utf_string_conversions.h"
 
 namespace ozonewayland {
 
@@ -68,6 +70,10 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type) cons
     default:
       break;
   }
+}
+
+void WaylandShellSurface::SetWindowTitle(const string16& title) {
+  wl_shell_surface_set_title(shell_surface_, UTF16ToUTF8(title).c_str());
 }
 
 void WaylandShellSurface::HandleConfigure(void *data,

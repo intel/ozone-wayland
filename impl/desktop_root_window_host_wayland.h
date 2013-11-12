@@ -187,6 +187,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   aura::Window* content_window_;
 
   views::DesktopNativeWidgetAura* desktop_native_widget_aura_;
+  string16 title_;
 
   // The current root window host that has capture. While X11 has something
   // like Windows SetCapture()/ReleaseCapture(), it is entirely implicit and

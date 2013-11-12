@@ -80,6 +80,8 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
                             WidgetState state,
                             unsigned width,
                             unsigned height);
+  void SetWidgetTitle(gfx::AcceleratedWidget w, const string16& title);
+  void OnWidgetTitleChanged(gfx::AcceleratedWidget w, const string16& title);
 
  private:
   enum State {

@@ -6,6 +6,7 @@
 
 #include "ipc/ipc_message_macros.h"
 #include "base/basictypes.h"
+#include "base/strings/string16.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_utils.h"
 #include "ipc/ipc_param_traits.h"
@@ -44,3 +45,7 @@ IPC_MESSAGE_ROUTED4(WaylandWindow_State,
                     unsigned /*state*/,
                     unsigned /*width*/,
                     unsigned /*height*/)
+
+IPC_MESSAGE_ROUTED2(WaylandWindow_Title,
+                    unsigned /* window handle */,
+                    string16 /* window title */)

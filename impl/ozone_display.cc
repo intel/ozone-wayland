@@ -279,6 +279,21 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
   }
 }
 
+void OzoneDisplay::SetWidgetTitle(gfx::AcceleratedWidget w,
+                                  const string16& title) {
+  if (host_)
+    host_->SendWidgetTitle(w, title);
+  else
+    OnWidgetTitleChanged(w, title);
+}
+
+void OzoneDisplay::OnWidgetTitleChanged(gfx::AcceleratedWidget w,
+                                  const string16& title) {
+  WaylandWindow* widget = GetWidget(w);
+  DCHECK(w);
+  widget->SetWindowTitle(title);
+}
+
 void OzoneDisplay::EstablishChannel()
 {
   if (state_ & ChannelConnected)
@@ -412,6 +427,9 @@ void OzoneDisplay::InitializeDispatcher(int fd)
     if (display_)
       e_factory_ = new EventFactoryWayland();
     else {
+      // Create OzoneDisplayChannelHost here to make sure we queue any requests
+      // coming from DRWH before channel is established.
+      host_ = new OzoneDisplayChannelHost();
       child_process_observer_ = new OzoneProcessObserver(this);
       EstablishChannel();
     }

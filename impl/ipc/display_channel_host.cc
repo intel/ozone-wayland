@@ -57,6 +57,16 @@ void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
                                                     height));
 }
 
+void OzoneDisplayChannelHost::SendWidgetTitle(
+    unsigned w, const string16& title) {
+  if (router_id_)
+    Send(new WaylandWindow_Title(router_id_, w, title));
+  else
+    deferred_messages_.push(new WaylandWindow_Title(router_id_,
+                                                    w,
+                                                    title));
+}
+
 void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
 {
   router_id_ = host_id_ + route_id;

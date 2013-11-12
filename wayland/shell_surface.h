@@ -21,6 +21,7 @@ class WaylandShellSurface {
   ~WaylandShellSurface();
 
   void UpdateShellSurface(WaylandWindow::ShellType type) const;
+  void SetWindowTitle(const string16& title);
   WaylandSurface* Surface() const { return surface_; }
 
   static void HandleConfigure(void *data,
