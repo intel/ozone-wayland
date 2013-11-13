@@ -236,7 +236,10 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
 {
   switch (state) {
     case Create:
+    {
       CreateWidget(w);
+      break;
+    }
     case FullScreen:
       NOTIMPLEMENTED();
       break;
