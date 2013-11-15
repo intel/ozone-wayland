@@ -306,7 +306,7 @@ void OzoneDisplay::EstablishChannel()
   state_ |= ChannelConnected;
 }
 
-void OzoneDisplay::OnChannelEstablished(unsigned id)
+void OzoneDisplay::OnChannelEstablished()
 {
   state_ |= ChannelConnected;
 }
@@ -418,7 +418,7 @@ void OzoneDisplay::InitializeDispatcher(int fd)
   dispatcher_ = new WaylandDispatcher(fd);
 
   if (fd) {
-    channel_ = new OzoneDisplayChannel(fd);
+    channel_ = new OzoneDisplayChannel();
     dispatcher_->PostTask(WaylandDispatcher::Poll);
   } else {
     spec_ = new char[kMaxDisplaySize_];

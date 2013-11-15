@@ -50,7 +50,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   virtual void OnChannelClosing() OVERRIDE;
 
   bool Send(IPC::Message* message);
-  bool UpdateConnection(int gpu_id);
+  bool UpdateConnection();
 
  private:
   WaylandDispatcher* dispatcher_;
@@ -58,7 +58,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.
   DeferredMessages deferred_messages_;
-  unsigned host_id_;
   unsigned router_id_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannelHost);
 };

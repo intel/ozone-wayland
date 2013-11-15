@@ -17,13 +17,13 @@ namespace ozonewayland {
 class OzoneDisplayChannel : public IPC::Listener
 {
  public:
-  OzoneDisplayChannel(unsigned display_fd);
+  OzoneDisplayChannel();
   ~OzoneDisplayChannel();
 
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void OnEstablishChannel(unsigned route_id);
+  void OnEstablishChannel();
   void Register();
   void OnWidgetStateChanged(unsigned handleid,
                             unsigned state,
@@ -32,8 +32,6 @@ class OzoneDisplayChannel : public IPC::Listener
   void OnWidgetTitleChanged(unsigned widget, string16 title);
 
  private:
-  unsigned display_fd_;
-  unsigned route_id_;
   bool mapped_ :1;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
 };

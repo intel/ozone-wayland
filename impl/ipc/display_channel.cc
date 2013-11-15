@@ -9,6 +9,11 @@
 #include "content/child/child_process.h"
 
 namespace ozonewayland {
+// GpuChannelManager generates unique routeid for every new ImageTransportSurface.
+// In Ozone-Wayland, we register a routeid between DisplayChannel and ChannelHost.
+// Therefore, we hardcore our own routeid with a unique negitive value to avoid
+// any conflicts from the GpuChannelManager ones.
+#define WAYLAND_ROUTE_ID -0x1
 
 namespace {
 
@@ -19,10 +24,8 @@ content::ChildThread* GetProcessMainThread() {
 
 }
 
-OzoneDisplayChannel::OzoneDisplayChannel(unsigned fd)
-    : display_fd_(fd),
-      route_id_(0),
-      mapped_(false)
+OzoneDisplayChannel::OzoneDisplayChannel()
+    : mapped_(false)
 {
   Register();
 }
@@ -31,12 +34,11 @@ OzoneDisplayChannel::~OzoneDisplayChannel()
 {
   content::ChildThread* thread = GetProcessMainThread();
    if (thread)
-     thread->RemoveRoute(route_id_ ? route_id_ : display_fd_);
+     thread->RemoveRoute(WAYLAND_ROUTE_ID);
 }
 
 bool OzoneDisplayChannel::OnMessageReceived(
     const IPC::Message& message) {
-
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannel, message)
   IPC_MESSAGE_HANDLER(WaylandMsg_DisplayChannelEstablished, OnEstablishChannel)
@@ -48,29 +50,21 @@ bool OzoneDisplayChannel::OnMessageReceived(
   return handled;
 }
 
-void OzoneDisplayChannel::OnEstablishChannel(unsigned route_id)
+void OzoneDisplayChannel::OnEstablishChannel()
 {
-  route_id_ = route_id;
-  OzoneDisplay::GetInstance()->OnChannelEstablished(route_id_);
-
-  content::ChildThread* thread = GetProcessMainThread();
-  if (!thread)
-    return;
-
-  thread->RemoveRoute(display_fd_);
-  thread->AddRoute(route_id_, this);
+  OzoneDisplay::GetInstance()->OnChannelEstablished();
 }
 
 void OzoneDisplayChannel::Register()
 {
-  if (!display_fd_ || mapped_)
+  if (mapped_)
     return;
 
   content::ChildThread* thread = GetProcessMainThread();
   if (thread) {
     mapped_ = true;
-    thread->Send(new WaylandMsg_EstablishDisplayChannel(display_fd_));
-    thread->AddRoute(display_fd_, this);
+    thread->Send(new WaylandMsg_EstablishDisplayChannel(WAYLAND_ROUTE_ID));
+    thread->AddRoute(WAYLAND_ROUTE_ID, this);
   }
 }
 

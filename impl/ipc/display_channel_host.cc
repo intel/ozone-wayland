@@ -12,7 +12,6 @@ namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : channel_(NULL),
-      host_id_(0),
       router_id_(0)
 {
   dispatcher_ = WaylandDispatcher::GetInstance();
@@ -29,17 +28,17 @@ OzoneDisplayChannelHost::~OzoneDisplayChannelHost()
 
 void OzoneDisplayChannelHost::EstablishChannel()
 {
-  if (host_id_)
+  if (router_id_)
     return;
 
   content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
       base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::UpdateConnection),
-          this, host_id_));
+          this));
 }
 
 void OzoneDisplayChannelHost::ChannelClosed()
 {
-  host_id_ = 0;
+  router_id_ = 0;
 }
 
 void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
@@ -69,8 +68,8 @@ void OzoneDisplayChannelHost::SendWidgetTitle(
 
 void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
 {
-  router_id_ = host_id_ + route_id;
-  Send(new WaylandMsg_DisplayChannelEstablished(route_id, router_id_));
+  router_id_ = route_id;
+  Send(new WaylandMsg_DisplayChannelEstablished(route_id));
   while (!deferred_messages_.empty()) {
     deferred_messages_.front()->set_routing_id(router_id_);
     Send(deferred_messages_.front());
@@ -172,17 +171,14 @@ bool OzoneDisplayChannelHost::Send(IPC::Message* message)
   return false;
 }
 
-bool OzoneDisplayChannelHost::UpdateConnection(int gpu_id)
+bool OzoneDisplayChannelHost::UpdateConnection()
 {
-  content::GpuProcessHost* host = content::GpuProcessHost::FromID(gpu_id);
-  if (!host)
-    host = content::GpuProcessHost::Get(
-        content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
-        content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
+  content::GpuProcessHost* host = content::GpuProcessHost::Get(
+      content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
+      content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
 
   DCHECK(host);
   host->AddFilter(this);
-  host_id_ = host->host_id();
 }
 
 }  // namespace ozonewayland
