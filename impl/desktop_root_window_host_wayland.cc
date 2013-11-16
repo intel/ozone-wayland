@@ -135,6 +135,7 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
 
   // Add DesktopRootWindowHostWayland as dispatcher.
   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
+  native_widget_delegate_->OnNativeWidgetCreated(true);
 }
 
 scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
