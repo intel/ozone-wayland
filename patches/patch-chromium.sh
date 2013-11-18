@@ -14,7 +14,7 @@ if [ -n "$exists" ]; then
   git branch -D $HACKING_BRANCH
 fi
 
-git checkout -b $HACKING_BRANCH origin/master
+git checkout -b $HACKING_BRANCH master
 git am $PATCH_DIR/00*
 
 # jump now to mesa dir and apply the needed patches there
