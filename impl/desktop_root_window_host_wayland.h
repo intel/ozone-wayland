@@ -7,7 +7,7 @@
 #define DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 
 #include "base/basictypes.h"
-#include "ui/aura/root_window_host.h"
+#include "ui/aura/window_tree_host.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
 
 namespace views {
@@ -128,7 +128,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void SetInactiveRenderingDisabled(bool disable_inactive) OVERRIDE;
 
   // Overridden from aura::RootWindowHost:
-  virtual void SetDelegate(aura::RootWindowHostDelegate* delegate) OVERRIDE;
   virtual aura::RootWindow* GetRootWindow() OVERRIDE;
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual void Show() OVERRIDE;
@@ -147,7 +146,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void UnConfineCursor() OVERRIDE;
   virtual void OnCursorVisibilityChanged(bool show) OVERRIDE;
   virtual void MoveCursorTo(const gfx::Point& location) OVERRIDE;
-  virtual void SetFocusWhenShown(bool focus_when_shown) OVERRIDE;
   virtual bool GrabSnapshot(
       const gfx::Rect& snapshot_bounds,
       std::vector<unsigned char>* png_representation) OVERRIDE;
@@ -183,7 +181,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
 
   gfx::Rect bounds_;
 
-  aura::RootWindowHostDelegate* root_window_host_delegate_;
   aura::Window* content_window_;
 
   views::DesktopNativeWidgetAura* desktop_native_widget_aura_;

@@ -66,7 +66,7 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
 }
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
-  root_window_->ClearProperty(kHostForRootWindow);
+  root_window_->window()->ClearProperty(kHostForRootWindow);
   desktop_native_widget_aura_->OnDesktopRootWindowHostDestroyed(root_window_);
 }
 
@@ -123,9 +123,9 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
     const Widget::InitParams& params) {
   root_window_ = root;
 
-  root_window_->SetProperty(kViewsWindowForRootWindow, content_window_);
-  root_window_->SetProperty(kHostForRootWindow, this);
-  root_window_host_delegate_ = root_window_;
+  root_window_->window()->SetProperty(kViewsWindowForRootWindow, content_window_);
+  root_window_->window()->SetProperty(kHostForRootWindow, this);
+  delegate_ = root_window_;
 
   // If we're given a parent, we need to mark ourselves as transient to another
   // window. Otherwise activation gets screwy.
@@ -146,7 +146,7 @@ scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip()
 scoped_ptr<aura::client::DragDropClient>
 DesktopRootWindowHostWayland::CreateDragDropClient(
     views::DesktopNativeCursorManager* cursor_manager) {
-  drag_drop_client_ = new DesktopDragDropClientWayland(root_window_);
+  drag_drop_client_ = new DesktopDragDropClientWayland(root_window_->window());
   return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
 }
 
@@ -339,13 +339,13 @@ void DesktopRootWindowHostWayland::OnCaptureReleased() {
 
 void DesktopRootWindowHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
   if (!g_current_capture || g_current_capture == this) {
-    root_window_host_delegate_->OnHostMouseEvent(event);
+    delegate_->OnHostMouseEvent(event);
   } else {
     // Another DesktopRootWindowHostX11 has installed itself as
     // capture. Translate the event's location and dispatch to the other.
-    event->ConvertLocationToTarget(root_window_,
-                                   g_current_capture->root_window_);
-    g_current_capture->root_window_host_delegate_->OnHostMouseEvent(event);
+    event->ConvertLocationToTarget(root_window_->window(),
+                                   g_current_capture->root_window_->window());
+    g_current_capture->delegate_->OnHostMouseEvent(event);
   }
 }
 
@@ -470,11 +470,6 @@ bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostWayland, aura::RootWindowHost implementation:
 
-void DesktopRootWindowHostWayland::SetDelegate(
-    aura::RootWindowHostDelegate* delegate) {
-  root_window_host_delegate_ = delegate;
-}
-
 aura::RootWindow* DesktopRootWindowHostWayland::GetRootWindow() {
   return root_window_;
 }
@@ -516,13 +511,13 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   if (size_changed) {
-    root_window_host_delegate_->OnHostResized(bounds.size());
+    delegate_->OnHostResized(bounds.size());
     OzoneDisplay::GetInstance()->SetWidgetState(window_,
                                                 OzoneDisplay::Resize,
                                                 bounds.width(),
                                                 bounds.height());
   } else
-    root_window_host_delegate_->OnHostPaint(gfx::Rect(bounds.size()));
+    delegate_->OnHostPaint(gfx::Rect(bounds.size()));
 }
 
 gfx::Insets DesktopRootWindowHostWayland::GetInsets() const {
@@ -591,10 +586,6 @@ void DesktopRootWindowHostWayland::MoveCursorTo(const gfx::Point& location) {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::SetFocusWhenShown(bool focus_when_shown) {
-  NOTIMPLEMENTED();
-}
-
 bool DesktopRootWindowHostWayland::GrabSnapshot(
       const gfx::Rect& snapshot_bounds,
       std::vector<unsigned char>* png_representation) {
@@ -627,17 +618,17 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
     case ui::ET_TOUCH_CANCELLED:
     case ui::ET_TOUCH_RELEASED: {
       ui::TouchEvent touchev(event);
-      root_window_host_delegate_->OnHostTouchEvent(&touchev);
+      delegate_->OnHostTouchEvent(&touchev);
       break;
     }
     case ui::ET_KEY_PRESSED: {
       ui::KeyEvent keydown_event(event, false);
-      root_window_host_delegate_->OnHostKeyEvent(&keydown_event);
+      delegate_->OnHostKeyEvent(&keydown_event);
       break;
     }
     case ui::ET_KEY_RELEASED: {
       ui::KeyEvent keyup_event(event, false);
-      root_window_host_delegate_->OnHostKeyEvent(&keyup_event);
+      delegate_->OnHostKeyEvent(&keyup_event);
       break;
     }
     case ui::ET_MOUSEWHEEL: {
@@ -659,7 +650,7 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
     case ui::ET_SCROLL_FLING_CANCEL:
     case ui::ET_SCROLL: {
       ui::ScrollEvent scrollev(event);
-      root_window_host_delegate_->OnHostScrollEvent(&scrollev);
+      delegate_->OnHostScrollEvent(&scrollev);
       break;
     }
     case ui::ET_UMA_DATA:
