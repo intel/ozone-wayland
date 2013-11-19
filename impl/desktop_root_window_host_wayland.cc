@@ -446,10 +446,6 @@ void DesktopRootWindowHostWayland::FlashFrame(bool flash_frame) {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::SetInactiveRenderingDisabled(
-    bool disable_inactive) {
-}
-
 void DesktopRootWindowHostWayland::OnRootViewLayout() const {
   NOTIMPLEMENTED();
 }
@@ -584,13 +580,6 @@ void DesktopRootWindowHostWayland::OnCursorVisibilityChanged(bool show) {
 
 void DesktopRootWindowHostWayland::MoveCursorTo(const gfx::Point& location) {
   NOTIMPLEMENTED();
-}
-
-bool DesktopRootWindowHostWayland::GrabSnapshot(
-      const gfx::Rect& snapshot_bounds,
-      std::vector<unsigned char>* png_representation) {
-  NOTIMPLEMENTED();
-  return false;
 }
 
 void DesktopRootWindowHostWayland::PostNativeEvent(

@@ -125,7 +125,10 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
                               const gfx::ImageSkia& app_icon) OVERRIDE;
   virtual void InitModalType(ui::ModalType modal_type) OVERRIDE;
   virtual void FlashFrame(bool flash_frame) OVERRIDE;
-  virtual void SetInactiveRenderingDisabled(bool disable_inactive) OVERRIDE;
+  virtual void OnRootViewLayout() const OVERRIDE;
+  virtual void OnNativeWidgetFocus() OVERRIDE;
+  virtual void OnNativeWidgetBlur() OVERRIDE;
+  virtual bool IsAnimatingClosed() const OVERRIDE;
 
   // Overridden from aura::RootWindowHost:
   virtual aura::RootWindow* GetRootWindow() OVERRIDE;
@@ -146,16 +149,9 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void UnConfineCursor() OVERRIDE;
   virtual void OnCursorVisibilityChanged(bool show) OVERRIDE;
   virtual void MoveCursorTo(const gfx::Point& location) OVERRIDE;
-  virtual bool GrabSnapshot(
-      const gfx::Rect& snapshot_bounds,
-      std::vector<unsigned char>* png_representation) OVERRIDE;
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
   virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE;
   virtual void PrepareForShutdown() OVERRIDE;
-  virtual void OnRootViewLayout() const OVERRIDE;
-  virtual void OnNativeWidgetFocus() OVERRIDE;
-  virtual void OnNativeWidgetBlur() OVERRIDE;
-  virtual bool IsAnimatingClosed() const OVERRIDE;
 
   // Overridden from DesktopSelectionProviderAuraOzone:
   //virtual void SetDropHandler(
