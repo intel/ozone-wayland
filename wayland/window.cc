@@ -14,13 +14,13 @@
 
 namespace ozonewayland {
 
-WaylandWindow::WaylandWindow(ShellType type) : shell_surface_(NULL),
+WaylandWindow::WaylandWindow(unsigned handle) :
+    shell_surface_(NULL),
+    handle_(handle),
     window_(NULL),
-    type_(type),
+    type_(None),
     allocation_(gfx::Rect(0, 0, 1, 1))
 {
-  if (type_ != None)
-    shell_surface_ = new WaylandShellSurface(this);
 }
 
 WaylandWindow::~WaylandWindow() {
@@ -38,17 +38,22 @@ WaylandWindow::~WaylandWindow() {
 
 void WaylandWindow::SetShellType(ShellType type)
 {
-  if (!shell_surface_ || (type_ == type))
+  if (type_ == type)
     return;
+
+  if (!shell_surface_)
+    shell_surface_ = new WaylandShellSurface(this);
 
   type_ = type;
   switch (type_) {
     case TOPLEVEL:
       shell_surface_->UpdateShellSurface(TOPLEVEL);
       break;
+    case MENU:
+      shell_surface_->UpdateShellSurface(MENU);
+      break;
     case FULLSCREEN:
     case TRANSIENT:
-    case MENU:
     case CUSTOM:
       NOTREACHED() << "UnSupported Shell Type.";
       break;
@@ -97,6 +102,10 @@ void WaylandWindow::HandleSwapBuffers()
 wl_egl_window* WaylandWindow::egl_window() const
 {
   return window_ ? window_->egl_window() : 0;
+}
+
+struct wl_surface* WaylandWindow::GetSurface() const {
+  return shell_surface_ ? shell_surface_->Surface()->wlSurface() : 0;
 }
 
 bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds)

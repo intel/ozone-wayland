@@ -13,13 +13,17 @@
 #include "base/basictypes.h"
 
 #include <list>
+#include <map>
 #include <wayland-client.h>
 
 namespace ozonewayland {
 
 class WaylandInputDevice;
 class WaylandScreen;
+class WaylandWindow;
 class OzoneDisplay;
+
+typedef std::map<unsigned, WaylandWindow*> WindowMap;
 
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
@@ -41,6 +45,18 @@ class WaylandDisplay {
   wl_shm* shm() const { return shm_; }
   wl_compositor* GetCompositor() const { return compositor_; }
   int GetDisplayFd() const { return wl_display_get_fd(display_); }
+
+  const WindowMap& GetWindowList() const { return widget_map_; }
+
+  // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
+  // useful for callers to track a particular surface. By default the type of
+  // surface(i.e. toplevel, menu) is none. One needs to explicitly call
+  // SetShellType of WaylandWindow to set this. The ownership of WaylandWindow
+  // is not passed to the caller.
+  WaylandWindow* CreateAcceleratedSurface(unsigned w);
+
+  // Destroys WaylandWindow whose handle is w.
+  void DestroyWindow(unsigned w);
 
  private:
   enum RegistrationType {
@@ -79,6 +95,7 @@ class WaylandDisplay {
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
+  WindowMap widget_map_;
   static WaylandDisplay* instance_;
 
   friend class OzoneDisplay;

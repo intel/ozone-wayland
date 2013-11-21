@@ -5,8 +5,6 @@
 #ifndef OZONE_WAYLAND_OZONE_DISPLAY_H_
 #define OZONE_WAYLAND_OZONE_DISPLAY_H_
 
-#include <map>
-
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
@@ -40,6 +38,15 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   };
 
   typedef unsigned WidgetState;
+
+  enum {
+    Window = 1, // A decorated Window.
+    WindowFrameLess = 2, // An undecorated Window.
+    Menu = 3 // An undecorated Window, with transient properties
+             // specialized to menus.
+  };
+
+  typedef unsigned WidgetType;
 
   static OzoneDisplay* GetInstance();
 
@@ -83,6 +90,9 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   void SetWidgetTitle(gfx::AcceleratedWidget w, const string16& title);
   void OnWidgetTitleChanged(gfx::AcceleratedWidget w, const string16& title);
 
+  void SetWidgetType(gfx::AcceleratedWidget w, WidgetType type);
+  void OnWidgetTypeChanged(gfx::AcceleratedWidget w, WidgetType type);
+
  private:
   enum State {
    UnInitialized = 0x00,
@@ -117,7 +127,6 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   OzoneDisplayChannelHost* host_;
   EventFactoryWayland* e_factory_;
   char* spec_;
-  std::map<unsigned, WaylandWindow*> widget_map_;
   static OzoneDisplay* instance_;
 
   friend class OzoneProcessObserver;

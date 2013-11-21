@@ -32,8 +32,8 @@ class WaylandWindow {
 
   typedef unsigned ShellType;
 
-  // Creates a toplevel window.
-  WaylandWindow(ShellType type = TOPLEVEL);
+  // Creates a window and maps it to handle.
+  WaylandWindow(unsigned handle);
   ~WaylandWindow();
 
   void SetShellType(ShellType type);
@@ -44,12 +44,16 @@ class WaylandWindow {
   void SetFullscreen();
 
   ShellType Type() const { return type_; }
+  unsigned Handle() const { return handle_; }
+
   void RealizeAcceleratedWidget();
   void HandleSwapBuffers();
 
   // Returns pointer to egl window associated with the window.
   // The WaylandWindow object owns the pointer.
   wl_egl_window* egl_window() const;
+  // Returns pointer to Wayland Surface associated with the window.
+  struct wl_surface* GetSurface() const;
 
   bool SetBounds(const gfx::Rect& new_bounds);
   gfx::Rect GetBounds() const { return allocation_; }
@@ -60,6 +64,7 @@ class WaylandWindow {
 
   gfx::Rect allocation_;
   ShellType type_;
+  unsigned handle_;
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
 

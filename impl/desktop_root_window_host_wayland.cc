@@ -78,6 +78,22 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   gfx::SurfaceFactoryOzone* surface_factory =
           gfx::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();
+  switch (params.type) {
+    case Widget::InitParams::TYPE_MENU:
+      OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Menu);
+      break;
+    case Widget::InitParams::TYPE_WINDOW:
+      OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Window);
+      break;
+    case Widget::InitParams::TYPE_WINDOW_FRAMELESS:
+    case Widget::InitParams::TYPE_TOOLTIP:
+    case Widget::InitParams::TYPE_POPUP:
+      NOTIMPLEMENTED();
+      break;
+    default:
+      break;
+  }
+
   surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
   bounds_ = params.bounds;
 }

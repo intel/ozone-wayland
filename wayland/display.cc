@@ -10,8 +10,25 @@
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
 
+#include "base/stl_util.h"
+
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
+
+WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
+  WaylandWindow* window = new WaylandWindow(w);
+  widget_map_[w] = window;
+
+  return window;
+}
+
+void WaylandDisplay::DestroyWindow(unsigned w) {
+  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
+  WaylandWindow* widget = it == widget_map_.end() ? NULL : it->second;
+  DCHECK(widget);
+  delete widget;
+  widget_map_.erase(w);
+}
 
 WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
     shell_(NULL),
@@ -48,6 +65,11 @@ WaylandDisplay::~WaylandDisplay()
 
 void WaylandDisplay::terminate()
 {
+  if (widget_map_.size()) {
+    STLDeleteValues(&widget_map_);
+    widget_map_.clear();
+  }
+
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
       delete *i;

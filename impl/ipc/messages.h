@@ -46,6 +46,10 @@ IPC_MESSAGE_ROUTED4(WaylandWindow_State,
                     unsigned /*width*/,
                     unsigned /*height*/)
 
+IPC_MESSAGE_ROUTED2(WaylandWindow_Type,
+                    unsigned /* window handle */,
+                    unsigned /* window type */)
+
 IPC_MESSAGE_ROUTED2(WaylandWindow_Title,
                     unsigned /* window handle */,
                     string16 /* window title */)
