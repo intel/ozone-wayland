@@ -45,21 +45,7 @@ void WaylandWindow::SetShellType(ShellType type)
     shell_surface_ = new WaylandShellSurface(this);
 
   type_ = type;
-  switch (type_) {
-    case TOPLEVEL:
-      shell_surface_->UpdateShellSurface(TOPLEVEL);
-      break;
-    case MENU:
-      shell_surface_->UpdateShellSurface(MENU);
-      break;
-    case FULLSCREEN:
-    case TRANSIENT:
-    case CUSTOM:
-      NOTREACHED() << "UnSupported Shell Type.";
-      break;
-    default:
-      break;
-  }
+  shell_surface_->UpdateShellSurface(type_);
 }
 
 void WaylandWindow::SetWindowTitle(const string16& title) {
