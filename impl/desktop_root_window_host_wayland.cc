@@ -78,8 +78,7 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       native_widget_delegate_(native_widget_delegate),
       desktop_native_widget_aura_(desktop_native_widget_aura),
       state_(Uninitialized),
-      window_parent_(NULL),
-      popup_(NULL) {
+      window_parent_(NULL) {
 }
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
@@ -108,16 +107,12 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   }
 
   switch (params.type) {
+    // TODO(kalyan): For now treat all of them the same and set the shell type
+    // to menu. Fix this appropriately when handling the positioning of popups.
     case Widget::InitParams::TYPE_TOOLTIP:
     case Widget::InitParams::TYPE_POPUP:
-      if (window_parent_)
-        window_parent_->popup_ = this;
-      NOTIMPLEMENTED();
-      break;
     case Widget::InitParams::TYPE_MENU:
       OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Menu);
-      if (window_parent_)
-        window_parent_->popup_ = this;
       break;
     case Widget::InitParams::TYPE_WINDOW:
       OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Window);
@@ -257,12 +252,10 @@ void DesktopRootWindowHostWayland::CloseNow() {
   DCHECK(window_children_.empty());
 
   // If we have a parent, remove ourselves from its children list.
-  if (window_parent_) {
+  if (window_parent_)
     window_parent_->window_children_.erase(this);
-    if (window_parent_->popup_ == this)
-      window_parent_->popup_ = NULL;
-  } else
-      open_windows().remove(window_);
+  else
+    open_windows().remove(window_);
 
   // Remove event listeners we've installed.
   if (g_current_dispatcher_ == this) {
@@ -582,25 +575,16 @@ bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
 
 void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
   DCHECK(g_current_dispatcher_ && g_current_dispatcher_ == this);
+  // A new window should not steal focus in case the current window has a open
+  // popup.
+  if (g_current_capture)
+    return;
+
   // Ensure that the top level focussed window is activated.
   DesktopRootWindowHostWayland* window = NULL;
   if (handle)
     window = GetHostForAcceleratedWidget(handle);
   if (window && !window->window_parent_ && g_current_dispatcher_ != window) {
-    if (popup_) {
-      ReleaseCapture();
-      delegate_->OnHostLostWindowCapture();
-      delegate_->OnHostLostMouseGrab();
-      // In case a popup i.e.menu is open, don't handle the activation yet but
-      // post a task to the current loop and handle it in DelayedWindowFocused.
-      // This would ensure that popups of current window have proper shutdown.
-      // Moreover, MessageLoop should not have more than one dispatcher at a time.
-      base::MessageLoop::current()->message_loop_proxy()->PostTask(
-          FROM_HERE, base::Bind(
-            &DesktopRootWindowHostWayland::DelayedWindowFocused, this, handle));
-        return;
-    }
-
     // DeActivate any previous root window.
     HandleNativeWidgetActivationChanged(false);
     // Activate current root window.
@@ -612,10 +596,7 @@ void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
 }
 
 void DesktopRootWindowHostWayland::OnWindowEnter(unsigned handle) {
-  // A new window should not steal focus in case the current window has a open
-  // popup.
-  if (!popup_)
-    OnWindowFocused(handle);
+  OnWindowFocused(handle);
 }
 
 void DesktopRootWindowHostWayland::OnWindowLeave(unsigned handle) {
@@ -817,13 +798,6 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
       NOTIMPLEMENTED() << "DesktopRootWindowHostWayland: unknown event type.";
   }
   return true;
-}
-
-void DesktopRootWindowHostWayland::DelayedWindowFocused(
-    DesktopRootWindowHostWayland* window, unsigned handle)
-{
-  if (g_current_dispatcher_ == window)
-    window->OnWindowFocused(handle);
 }
 
 }  // namespace ozonewayland

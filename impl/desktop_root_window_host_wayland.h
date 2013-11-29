@@ -176,8 +176,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   std::list<gfx::AcceleratedWidget>& open_windows();
   void Register();
   void Reset();
-  static void DelayedWindowFocused(DesktopRootWindowHostWayland* wayland,
-                                   unsigned handle);
 
   base::WeakPtrFactory<DesktopRootWindowHostWayland> close_widget_factory_;
 
@@ -202,10 +200,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   // We can optionally have a parent which can order us to close, or own
   // children who we're responsible for closing when we CloseNow().
   DesktopRootWindowHostWayland* window_parent_;
-  // We can have popups, which would be focussed from time to time. This
-  // is to track the current focussed popup to which the dispatcher will
-  // forward it's events.
-  DesktopRootWindowHostWayland* popup_;
   std::set<DesktopRootWindowHostWayland*> window_children_;
 
   string16 title_;
