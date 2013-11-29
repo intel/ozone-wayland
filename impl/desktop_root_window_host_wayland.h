@@ -48,6 +48,12 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   };
 
   typedef unsigned RootWindowState;
+
+  // Accepts a opaque handle widget and returns associated
+  // DesktopRootWindowHostWayland.
+  static DesktopRootWindowHostWayland* GetHostForWindowId(
+      gfx::AcceleratedWidget widget);
+
   // Initializes our Ozone surface to draw on. This method performs all
   // initialization related to talking to the Ozone server.
   void InitWaylandWindow(const views::Widget::InitParams& params);
@@ -180,6 +186,11 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   aura::Window* content_window_;
 
   views::DesktopNativeWidgetAura* desktop_native_widget_aura_;
+  // We can optionally have a parent which can order us to close, or own
+  // children who we're responsible for closing when we CloseNow().
+  DesktopRootWindowHostWayland* window_parent_;
+  std::set<DesktopRootWindowHostWayland*> window_children_;
+
   string16 title_;
 
   // The current root window host that has capture. While X11 has something

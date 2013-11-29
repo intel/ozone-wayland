@@ -54,6 +54,14 @@ DEFINE_WINDOW_PROPERTY_KEY(
 DEFINE_WINDOW_PROPERTY_KEY(
     DesktopRootWindowHostWayland*, kHostForRootWindow, NULL);
 
+// static
+DesktopRootWindowHostWayland*
+DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
+    gfx::AcceleratedWidget widget) {
+  aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
+  return root ? root->window()->GetProperty(kHostForRootWindow) : NULL;
+}
+
 DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     internal::NativeWidgetDelegate* native_widget_delegate,
     views::DesktopNativeWidgetAura* desktop_native_widget_aura)
@@ -62,7 +70,8 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       drag_drop_client_(NULL),
       native_widget_delegate_(native_widget_delegate),
       desktop_native_widget_aura_(desktop_native_widget_aura),
-      state_(Uninitialized) {
+      state_(Uninitialized),
+      window_parent_(NULL) {
 }
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
@@ -78,6 +87,18 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   gfx::SurfaceFactoryOzone* surface_factory =
           gfx::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();
+  // Maintain parent child relation as done in X11 version.
+  // If we have a parent, record the parent/child relationship. We use this
+  // data during destruction to make sure that when we try to close a parent
+  // window, we also destroy all child windows.
+  if (params.parent && params.parent->GetDispatcher()) {
+    gfx::AcceleratedWidget windowId = params.parent->GetDispatcher()->host()->
+        GetAcceleratedWidget();
+    window_parent_ = GetHostForAcceleratedWidget(windowId);
+    DCHECK(window_parent_);
+    window_parent_->window_children_.insert(this);
+  }
+
   switch (params.type) {
     case Widget::InitParams::TYPE_MENU:
       OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Menu);
@@ -184,9 +205,25 @@ void DesktopRootWindowHostWayland::Close() {
 void DesktopRootWindowHostWayland::CloseNow() {
   native_widget_delegate_->OnNativeWidgetDestroying();
 
-  // TODO: Actually free our native resources.
+  // If we have children, close them. Use a copy for iteration because they'll
+  // remove themselves.
+  std::set<DesktopRootWindowHostWayland*> window_children_copy =
+      window_children_;
+  for (std::set<DesktopRootWindowHostWayland*>::iterator it =
+           window_children_copy.begin(); it != window_children_copy.end();
+       ++it) {
+    (*it)->CloseNow();
+  }
+  DCHECK(window_children_.empty());
 
+  // If we have a parent, remove ourselves from its children list.
+  if (window_parent_)
+    window_parent_->window_children_.erase(this);
+
+  window_parent_ = NULL;
   desktop_native_widget_aura_->OnHostClosed();
+  // Remove the event listeners we've installed.
+  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
 }
 
 aura::RootWindowHost* DesktopRootWindowHostWayland::AsRootWindowHost() {
