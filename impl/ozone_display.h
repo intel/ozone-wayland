@@ -20,6 +20,7 @@ class WaylandDisplay;
 class WaylandWindow;
 class WaylandDispatcher;
 class WaylandScreen;
+class WindowChangeObserver;
 
 class OzoneDisplay : public gfx::SurfaceFactoryOzone,
                      public base::MessageLoop::DestructionObserver {
@@ -93,6 +94,8 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
 
   void SetWidgetType(gfx::AcceleratedWidget w, WidgetType type);
   void OnWidgetTypeChanged(gfx::AcceleratedWidget w, WidgetType type);
+
+  void SetWindowChangeObserver(WindowChangeObserver* observer);
 
  private:
   enum State {

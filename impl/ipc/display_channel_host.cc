@@ -92,12 +92,13 @@ void OzoneDisplayChannelHost::OnMotionNotify(float x, float y)
   dispatcher_->MotionNotify(x, y);
 }
 
-void OzoneDisplayChannelHost::OnButtonNotify(int state,
+void OzoneDisplayChannelHost::OnButtonNotify(unsigned handle,
+                                             int state,
                                              int flags,
                                              float x,
                                              float y)
 {
-  dispatcher_->ButtonNotify(state, flags, x, y);
+  dispatcher_->ButtonNotify(handle, state, flags, x, y);
 }
 
 void OzoneDisplayChannelHost::OnAxisNotify(float x,
@@ -108,14 +109,14 @@ void OzoneDisplayChannelHost::OnAxisNotify(float x,
   dispatcher_->AxisNotify(x, y, xoffset, yoffset);
 }
 
-void OzoneDisplayChannelHost::OnPointerEnter(float x, float y)
+void OzoneDisplayChannelHost::OnPointerEnter(unsigned handle, float x, float y)
 {
-  dispatcher_->PointerEnter(x, y);
+  dispatcher_->PointerEnter(handle, x, y);
 }
 
-void OzoneDisplayChannelHost::OnPointerLeave(float x, float y)
+void OzoneDisplayChannelHost::OnPointerLeave(unsigned handle, float x, float y)
 {
-  dispatcher_->PointerLeave(x, y);
+  dispatcher_->PointerLeave(handle, x, y);
 }
 
 void OzoneDisplayChannelHost::OnKeyNotify(unsigned type,

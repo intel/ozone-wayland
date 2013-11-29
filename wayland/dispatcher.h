@@ -6,6 +6,7 @@
 #define OZONE_WAYLAND_DISPATCHER_H_
 
 #include "ozone/impl/ipc/messages.h"
+#include "ozone/wayland/window_change_observer.h"
 #include "base/threading/thread.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/events/event.h"
@@ -37,10 +38,10 @@ class WaylandDispatcher : public base::Thread {
 
   static WaylandDispatcher* GetInstance() { return instance_; }
   void MotionNotify(float x, float y);
-  void ButtonNotify(int state, int flags, float x, float y);
+  void ButtonNotify(unsigned handle, int state, int flags, float x, float y);
   void AxisNotify(float x, float y, float xoffset, float yoffset);
-  void PointerEnter(float x, float y);
-  void PointerLeave(float x, float y);
+  void PointerEnter(unsigned handle, float x, float y);
+  void PointerLeave(unsigned handle, float x, float y);
   void KeyNotify(unsigned type, unsigned code, unsigned modifiers);
   void OutputSizeChanged(unsigned width, unsigned height);
 
@@ -52,17 +53,29 @@ class WaylandDispatcher : public base::Thread {
   void PostTaskOnMainLoop(const tracked_objects::Location& from_here,
                           const base::Closure& task);
 
+  void SetWindowChangeObserver(WindowChangeObserver* observer) {
+    observer_ = observer;
+  }
+
  private:
+
   WaylandDispatcher(int fd = 0);
   virtual ~WaylandDispatcher();
   static void HandleFlush();
   static void DisplayRun(WaylandDispatcher* data);
+  static void NotifyPointerEnter(WaylandDispatcher* data, unsigned handle);
+  static void NotifyPointerLeave(WaylandDispatcher* data, unsigned handle);
+  static void NotifyButtonPress(WaylandDispatcher* data, unsigned handle);
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
   static void SendMotionNotify(float x, float y);
-  static void SendButtonNotify(int state, int flags, float x, float y);
+  static void SendButtonNotify(unsigned handle,
+                               int state,
+                               int flags,
+                               float x,
+                               float y);
   static void SendAxisNotify(float x, float y, float xoffset, float yoffset);
-  static void SendPointerEnter(float x, float y);
-  static void SendPointerLeave(float x, float y);
+  static void SendPointerEnter(unsigned handle, float x, float y);
+  static void SendPointerLeave(unsigned handle, float x, float y);
   static void SendKeyNotify(unsigned type, unsigned code, unsigned modifiers);
   static void SendOutputSizeChanged(unsigned width, unsigned height);
   void MessageLoopDestroyed();
@@ -71,6 +84,7 @@ class WaylandDispatcher : public base::Thread {
   bool running :1;
   int epoll_fd_;
   int display_fd_;
+  WindowChangeObserver* observer_;
   static WaylandDispatcher* instance_;
   friend class OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDispatcher);

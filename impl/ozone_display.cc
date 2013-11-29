@@ -330,6 +330,12 @@ void OzoneDisplay::OnWidgetTypeChanged(
   }
 }
 
+void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer)
+{
+  DCHECK(dispatcher_);
+  dispatcher_->SetWindowChangeObserver(observer);
+}
+
 void OzoneDisplay::EstablishChannel()
 {
   if (state_ & ChannelConnected)

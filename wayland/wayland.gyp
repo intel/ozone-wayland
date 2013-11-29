@@ -66,6 +66,7 @@
         'shell_surface.cc',
         'window.cc',
         'window.h',
+        'window_change_observer.h',
         'egl/egl_window.cc',
         'egl/egl_window.h',
         'input/cursor.cc',

@@ -38,10 +38,10 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   void SendWidgetType(unsigned w, unsigned type);
   void OnChannelEstablished(unsigned router_id);
   void OnMotionNotify(float x, float y);
-  void OnButtonNotify(int state, int flags, float x, float y);
+  void OnButtonNotify(unsigned handle, int state, int flags, float x, float y);
   void OnAxisNotify(float x, float y, float xoffset, float yoffset);
-  void OnPointerEnter(float x, float y);
-  void OnPointerLeave(float x, float y);
+  void OnPointerEnter(unsigned handle, float x, float y);
+  void OnPointerLeave(unsigned handle, float x, float y);
   void OnKeyNotify(unsigned type, unsigned code, unsigned modifiers);
   void OnOutputSizeChanged(unsigned width, unsigned height);
 

@@ -16,15 +16,25 @@
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify, float /*x*/, float /*y*/)
 
-IPC_MESSAGE_CONTROL4(WaylandInput_ButtonNotify, int /*state*/, int /*flags*/,
-                     float /*x*/, float /*y*/)
+IPC_MESSAGE_CONTROL5(WaylandInput_ButtonNotify,
+                     unsigned /*handle*/,
+                     int /*state*/,
+                     int /*flags*/,
+                     float /*x*/,
+                     float /*y*/)
 
 IPC_MESSAGE_CONTROL4(WaylandInput_AxisNotify, float /*x*/, float /*y*/,
                      float /*x_offset*/, float /*y_offset*/)
 
-IPC_MESSAGE_CONTROL2(WaylandInput_PointerEnter, float /*x*/, float /*y*/)
+IPC_MESSAGE_CONTROL3(WaylandInput_PointerEnter,
+                     unsigned /*handle*/,
+                     float /*x*/,
+                     float /*y*/)
 
-IPC_MESSAGE_CONTROL2(WaylandInput_PointerLeave, float /*x*/, float /*y*/)
+IPC_MESSAGE_CONTROL3(WaylandInput_PointerLeave,
+                     unsigned /*handle*/,
+                     float /*x*/,
+                     float /*y*/)
 
 IPC_MESSAGE_CONTROL3(WaylandInput_KeyNotify, unsigned /*type*/, unsigned /*code*/,
                      unsigned /*modifiers*/)

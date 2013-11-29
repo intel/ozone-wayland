@@ -6,6 +6,8 @@
 
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/dispatcher.h"
+#include "ozone/wayland/window.h"
+
 #include "ui/events/event.h"
 #include "ui/base/hit_test.h"
 
@@ -15,7 +17,8 @@ namespace ozonewayland {
 
 WaylandPointer::WaylandPointer()
   : cursor_(NULL),
-    dispatcher_(NULL)
+    dispatcher_(NULL),
+    focused_window_handle_(0)
 {
 }
 
@@ -80,6 +83,7 @@ void WaylandPointer::OnButtonNotify(void* data,
     currentState = 1;
   else
     currentState = 0;
+
   // TODO(vignatti): simultaneous clicks fail
   int flags = 0;
   if (button == BTN_LEFT)
@@ -89,7 +93,9 @@ void WaylandPointer::OnButtonNotify(void* data,
   else if (button == BTN_MIDDLE)
     flags = ui::EF_MIDDLE_MOUSE_BUTTON;
 
-  device->dispatcher_->ButtonNotify(currentState, flags,
+  device->dispatcher_->ButtonNotify(device->focused_window_handle_,
+                                    currentState,
+                                    flags,
                                     device->pointer_position_.x(),
                                     device->pointer_position_.y());
 }
@@ -128,10 +134,15 @@ void WaylandPointer::OnPointerEnter(void* data,
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   // TODO(vignatti): sx and sy have to be used for setting different resizing
   // and other cursors.
+  WaylandWindow* window = NULL;
+  if (surface)
+    window = static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
 
-  device->cursor_->Update(WaylandCursor::CURSOR_LEFT_PTR, serial);
-  device->dispatcher_->PointerEnter(device->pointer_position_.x(),
-                                    device->pointer_position_.y());
+    device->focused_window_handle_ = window ? window->Handle() : 0;
+    device->cursor_->Update(WaylandCursor::CURSOR_LEFT_PTR, serial);
+    device->dispatcher_->PointerEnter(device->focused_window_handle_,
+                                      device->pointer_position_.x(),
+                                      device->pointer_position_.y());
 }
 
 void WaylandPointer::OnPointerLeave(void* data,
@@ -140,8 +151,10 @@ void WaylandPointer::OnPointerLeave(void* data,
                                     wl_surface* surface)
 {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
-  device->dispatcher_->PointerLeave(device->pointer_position_.x(),
+  device->dispatcher_->PointerLeave(device->focused_window_handle_,
+                                    device->pointer_position_.x(),
                                     device->pointer_position_.y());
+  device->focused_window_handle_ = 0;
 }
 
 }  // namespace ozonewayland

@@ -48,6 +48,13 @@ using namespace views;
 DesktopRootWindowHostWayland* DesktopRootWindowHostWayland::g_current_capture =
     NULL;
 
+DesktopRootWindowHostWayland*
+    DesktopRootWindowHostWayland::g_current_dispatcher_ = NULL;
+
+std::list<gfx::AcceleratedWidget>* DesktopRootWindowHostWayland::open_windows_ =
+    NULL;
+
+
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
 
@@ -71,7 +78,8 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       native_widget_delegate_(native_widget_delegate),
       desktop_native_widget_aura_(desktop_native_widget_aura),
       state_(Uninitialized),
-      window_parent_(NULL) {
+      window_parent_(NULL),
+      popup_(NULL) {
 }
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
@@ -100,15 +108,21 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   }
 
   switch (params.type) {
+    case Widget::InitParams::TYPE_TOOLTIP:
+    case Widget::InitParams::TYPE_POPUP:
+      if (window_parent_)
+        window_parent_->popup_ = this;
+      NOTIMPLEMENTED();
+      break;
     case Widget::InitParams::TYPE_MENU:
       OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Menu);
+      if (window_parent_)
+        window_parent_->popup_ = this;
       break;
     case Widget::InitParams::TYPE_WINDOW:
       OzoneDisplay::GetInstance()->SetWidgetType(window_, OzoneDisplay::Window);
       break;
     case Widget::InitParams::TYPE_WINDOW_FRAMELESS:
-    case Widget::InitParams::TYPE_TOOLTIP:
-    case Widget::InitParams::TYPE_POPUP:
       NOTIMPLEMENTED();
       break;
     default:
@@ -121,7 +135,29 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
     bool active) {
-  native_widget_delegate_->OnNativeWidgetActivationChanged(active);
+  if (active) {
+    // TODO(kalyan): We might not need to do this once
+    // https://code.google.com/p/chromium/issues/detail?id=319986 is fixed.
+    Register();
+    // Make sure the stacking order is correct. The activated window should
+    // be first one in list of open windows.
+    std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    DCHECK(windows.size());
+    if (windows.front() != window_) {
+      windows.remove(window_);
+      windows.insert(open_windows().begin(), window_);
+    }
+  } else
+      Reset();
+
+  // We can skip the rest during initialization phase.
+  if (!state_)
+    return;
+
+  if (active)
+    delegate_->OnHostActivated();
+
+  desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
 }
 
@@ -137,10 +173,6 @@ void DesktopRootWindowHostWayland::Init(
     const Widget::InitParams& params,
     aura::RootWindow::CreateParams* rw_create_params) {
   content_window_ = content_window;
-
-  // TODO(erg): Check whether we *should* be building a RootWindowHost here, or
-  // whether we should be proxying requests to another DRWHL.
-
   // In some situations, views tries to make a zero sized window, and that
   // makes us crash. Make sure we have valid sizes.
   Widget::InitParams sanitized_params = params;
@@ -170,9 +202,17 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
   if (!params.child && params.parent)
     parent->AddTransientChild(content_window_);
 
-  // Add DesktopRootWindowHostWayland as dispatcher.
-  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
   native_widget_delegate_->OnNativeWidgetCreated(true);
+
+  // Add DesktopRootWindowHostWayland as dispatcher.
+  if (!window_parent_) {
+    open_windows().push_back(window_);
+
+    if (g_current_dispatcher_)
+      g_current_dispatcher_->Reset();
+
+    Register();
+  }
 }
 
 scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
@@ -188,8 +228,6 @@ DesktopRootWindowHostWayland::CreateDragDropClient(
 }
 
 void DesktopRootWindowHostWayland::Close() {
-  // TODO(erg): Might need to do additional hiding tasks here.
-
   if (!close_widget_factory_.HasWeakPtrs()) {
     // And we delay the close so that if we are called from an ATL callback,
     // we don't destroy the window before the callback returned (as the caller
@@ -203,6 +241,7 @@ void DesktopRootWindowHostWayland::Close() {
 }
 
 void DesktopRootWindowHostWayland::CloseNow() {
+  DCHECK(g_current_dispatcher_);
   int widgetId = window_;
   native_widget_delegate_->OnNativeWidgetDestroying();
 
@@ -218,13 +257,38 @@ void DesktopRootWindowHostWayland::CloseNow() {
   DCHECK(window_children_.empty());
 
   // If we have a parent, remove ourselves from its children list.
-  if (window_parent_)
+  if (window_parent_) {
     window_parent_->window_children_.erase(this);
+    if (window_parent_->popup_ == this)
+      window_parent_->popup_ = NULL;
+  } else
+      open_windows().remove(window_);
+
+  // Remove event listeners we've installed.
+  if (g_current_dispatcher_ == this) {
+    DCHECK(!window_parent_);
+    g_current_dispatcher_->HandleNativeWidgetActivationChanged(false);
+    // Set first top level window in the list of open windows as dispatcher.
+    // This is just a guess of the window which would eventually be focussed.
+    // We should set the correct root window as dispatcher in OnWindowFocused.
+    // This is needed to ensure we always have a dispatcher for RootWindow.
+    const std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    if (windows.size()) {
+      DesktopRootWindowHostWayland* rootWindow = GetHostForAcceleratedWidget(
+          windows.front());
+      rootWindow->Activate();
+      rootWindow->HandleNativeWidgetActivationChanged(true);
+    }
+  }
 
   window_parent_ = NULL;
+  if (open_windows_ && !open_windows_->size()) {
+    // We have no open windows, free open_windows_.
+    delete open_windows_;
+    open_windows_ = NULL;
+  }
+
   desktop_native_widget_aura_->OnHostClosed();
-  // Remove the event listeners we've installed.
-  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
   OzoneDisplay::GetInstance()->SetWidgetState(
       widgetId, OzoneDisplay::Destroyed);
 }
@@ -397,10 +461,7 @@ void DesktopRootWindowHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
   if (!g_current_capture || g_current_capture == this) {
     delegate_->OnHostMouseEvent(event);
   } else {
-    // Another DesktopRootWindowHostX11 has installed itself as
-    // capture. Translate the event's location and dispatch to the other.
-    event->ConvertLocationToTarget(root_window_->window(),
-                                   g_current_capture->root_window_->window());
+    // Another DesktopRootWindowHostWayland has installed itself as capture.
     g_current_capture->delegate_->OnHostMouseEvent(event);
   }
 }
@@ -519,6 +580,47 @@ bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
   return false;
 }
 
+void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
+  DCHECK(g_current_dispatcher_ && g_current_dispatcher_ == this);
+  // Ensure that the top level focussed window is activated.
+  DesktopRootWindowHostWayland* window = NULL;
+  if (handle)
+    window = GetHostForAcceleratedWidget(handle);
+  if (window && !window->window_parent_ && g_current_dispatcher_ != window) {
+    if (popup_) {
+      ReleaseCapture();
+      delegate_->OnHostLostWindowCapture();
+      delegate_->OnHostLostMouseGrab();
+      // In case a popup i.e.menu is open, don't handle the activation yet but
+      // post a task to the current loop and handle it in DelayedWindowFocused.
+      // This would ensure that popups of current window have proper shutdown.
+      // Moreover, MessageLoop should not have more than one dispatcher at a time.
+      base::MessageLoop::current()->message_loop_proxy()->PostTask(
+          FROM_HERE, base::Bind(
+            &DesktopRootWindowHostWayland::DelayedWindowFocused, this, handle));
+        return;
+    }
+
+    // DeActivate any previous root window.
+    HandleNativeWidgetActivationChanged(false);
+    // Activate current root window.
+    window->HandleNativeWidgetActivationChanged(true);
+  }
+
+  if (window)
+    window->Activate();
+}
+
+void DesktopRootWindowHostWayland::OnWindowEnter(unsigned handle) {
+  // A new window should not steal focus in case the current window has a open
+  // popup.
+  if (!popup_)
+    OnWindowFocused(handle);
+}
+
+void DesktopRootWindowHostWayland::OnWindowLeave(unsigned handle) {
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostWayland, aura::RootWindowHost implementation:
 
@@ -535,6 +637,8 @@ void DesktopRootWindowHostWayland::Show() {
     return;
 
   state_ |= Visible;
+  // Window is being shown, set the state as active to be able to handle events.
+  Activate();
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Show);
 }
 
@@ -584,25 +688,10 @@ gfx::Point DesktopRootWindowHostWayland::GetLocationOnNativeScreen() const {
 }
 
 void DesktopRootWindowHostWayland::SetCapture() {
-  // This is vaguely based on the old NativeWidgetGtk implementation.
-  //
-  // X11's XPointerGrab() shouldn't be used for everything; it doesn't map
-  // cleanly to Windows' SetCapture(). GTK only provides a separate concept of
-  // a grab that wasn't the X11 pointer grab, but was instead a manual
-  // redirection of the event. (You need to drop into GDK if you want to
-  // perform a raw X11 grab).
-
   if (g_current_capture)
     g_current_capture->OnCaptureReleased();
 
   g_current_capture = this;
-
-  // TODO(erg): In addition to the above, NativeWidgetGtk performs a full X
-  // pointer grab when our NativeWidget is of type Menu. However, things work
-  // without it. Clicking inside a chrome window causes a release capture, and
-  // clicking outside causes an activation change. Since previous attempts at
-  // using XPointerGrab() to implement this have locked my X server, I'm going
-  // to skip this for now.
 }
 
 void DesktopRootWindowHostWayland::ReleaseCapture() {
@@ -648,6 +737,28 @@ void DesktopRootWindowHostWayland::OnDeviceScaleFactorChanged(
 }
 
 void DesktopRootWindowHostWayland::PrepareForShutdown() {
+}
+
+std::list<gfx::AcceleratedWidget>&
+DesktopRootWindowHostWayland::open_windows() {
+  if (!open_windows_)
+    open_windows_ = new std::list<gfx::AcceleratedWidget>();
+
+  return *open_windows_;
+}
+
+void DesktopRootWindowHostWayland::Register() {
+  DCHECK(!g_current_dispatcher_);
+  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
+  OzoneDisplay::GetInstance()->SetWindowChangeObserver(this);
+  g_current_dispatcher_ = this;
+}
+
+void DesktopRootWindowHostWayland::Reset() {
+  DCHECK(g_current_dispatcher_);
+  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
+  OzoneDisplay::GetInstance()->SetWindowChangeObserver(NULL);
+  g_current_dispatcher_ = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -706,6 +817,13 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
       NOTIMPLEMENTED() << "DesktopRootWindowHostWayland: unknown event type.";
   }
   return true;
+}
+
+void DesktopRootWindowHostWayland::DelayedWindowFocused(
+    DesktopRootWindowHostWayland* window, unsigned handle)
+{
+  if (g_current_dispatcher_ == window)
+    window->OnWindowFocused(handle);
 }
 
 }  // namespace ozonewayland

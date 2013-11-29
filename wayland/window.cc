@@ -24,6 +24,7 @@ WaylandWindow::WaylandWindow(unsigned handle) :
 }
 
 WaylandWindow::~WaylandWindow() {
+  wl_surface_set_user_data(GetSurface(), 0);
   if (window_) {
     delete window_;
     window_ = NULL;
@@ -41,8 +42,10 @@ void WaylandWindow::SetShellType(ShellType type)
   if (type_ == type)
     return;
 
-  if (!shell_surface_)
+  if (!shell_surface_) {
     shell_surface_ = new WaylandShellSurface(this);
+    wl_surface_set_user_data(GetSurface(), this);
+  }
 
   type_ = type;
   shell_surface_->UpdateShellSurface(type_);
