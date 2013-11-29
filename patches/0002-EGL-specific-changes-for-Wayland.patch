@@ -1,0 +1,61 @@
+From 77877d89ea0f03816c9145dd804fce569c33e250 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Fri, 29 Nov 2013 21:37:28 +0200
+Subject: [PATCH] EGL specific changes for Wayland.
+
+This patch adds following three snips, respectively giving support:
+1)EGLNativeDisplayType adjustment and khronos header. More info:
+  https://code.google.com/p/chromium/issues/detail?id=266310
+2)Support needed in NativeViewGLSurfaceEGL to resize window.
+  Changes related to resizing needs more testing before
+  trying to upstream the patch.
+3)OffScreen-rendering support for use cases like WebGL and
+  Canvas2D. This should be enabled in upstream but needs some
+  cross platform support before it can be done.
+  More info: https://codereview.chromium.org/49533003/
+---
+ ui/gl/gl_surface_egl.cc |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
+index 3f8923a..92087af 100644
+--- a/ui/gl/gl_surface_egl.cc
++++ b/ui/gl/gl_surface_egl.cc
+@@ -118,8 +118,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+     LOG(ERROR) << "OZONE failed to initialize hardware";
+     return false;
+   }
+-  g_native_display = reinterpret_cast<EGLNativeDisplayType>(
+-      surface_factory->GetNativeDisplay());
++  g_native_display = surface_factory->GetNativeDisplay();
+ #else
+   g_native_display = EGL_DEFAULT_DISPLAY;
+ #endif
+@@ -432,6 +431,15 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
+ 
+   Destroy();
+ 
++#if defined(USE_OZONE)
++  gfx::SurfaceFactoryOzone* surface_factory =
++    gfx::SurfaceFactoryOzone::GetInstance();
++
++  surface_factory->AttemptToResizeAcceleratedWidget(window_,
++                                                    gfx::Rect(0, 0, size.width(),
++                                                              size.height()));
++#endif
++
+   if (!Initialize()) {
+     LOG(ERROR) << "Failed to resize window.";
+     return false;
+@@ -750,7 +758,7 @@ GLSurface::CreateOffscreenGLSurface(const gfx::Size& size) {
+     case kGLImplementationEGLGLES2: {
+       scoped_refptr<GLSurface> surface;
+       if (g_egl_surfaceless_context_supported &&
+-         (size.width() == 0 && size.height() == 0)) {
++         (size.width() == 1 && size.height() == 1)) {
+         surface = new SurfacelessEGL(size);
+       } else
+         surface = new PbufferGLSurfaceEGL(size);
+-- 
+1.7.9.5
+
