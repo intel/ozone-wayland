@@ -281,6 +281,9 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
     case Resize:
       AttemptToResizeAcceleratedWidget(w, gfx::Rect(0,0,width, height));
       break;
+    case Destroyed:
+      display_->DestroyWindow(w);
+      break;
     default:
       break;
   }

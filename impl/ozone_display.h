@@ -34,7 +34,8 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
     Restore = 7, // Restore Widget.
     Active = 8, // Widget is Activated.
     InActive = 9, // Widget is DeActivated.
-    Resize = 10 // Widget is Resized.
+    Resize = 10, // Widget is Resized.
+    Destroyed = 11 // Widget is Destroyed.
   };
 
   typedef unsigned WidgetState;

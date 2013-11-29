@@ -203,6 +203,7 @@ void DesktopRootWindowHostWayland::Close() {
 }
 
 void DesktopRootWindowHostWayland::CloseNow() {
+  int widgetId = window_;
   native_widget_delegate_->OnNativeWidgetDestroying();
 
   // If we have children, close them. Use a copy for iteration because they'll
@@ -224,6 +225,8 @@ void DesktopRootWindowHostWayland::CloseNow() {
   desktop_native_widget_aura_->OnHostClosed();
   // Remove the event listeners we've installed.
   base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
+  OzoneDisplay::GetInstance()->SetWidgetState(
+      widgetId, OzoneDisplay::Destroyed);
 }
 
 aura::RootWindowHost* DesktopRootWindowHostWayland::AsRootWindowHost() {
