@@ -28,8 +28,6 @@
         'impl/event_factory_wayland.h',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
-        'impl/ozone_platform_wayland.cc',
-        'impl/ozone_platform_wayland.h',
         'impl/ipc/child_process_observer.h',
         'impl/ipc/child_process_observer.cc',
         'impl/ipc/display_channel.h',
@@ -39,6 +37,8 @@
         'impl/ipc/messages.h',
         'impl/ipc/message_generator.h',
         'impl/ipc/message_generator.cc',
+        'platform/ozone_platform_wayland.cc',
+        'platform/ozone_platform_wayland.h',
       ],
     },
   ]
