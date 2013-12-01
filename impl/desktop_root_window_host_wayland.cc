@@ -25,10 +25,12 @@
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
 #include "ozone/impl/desktop_drag_drop_client_wayland.h"
+#include "ozone/platform/ozone_export_wayland.h"
 
 namespace views {
 // static
-ui::NativeTheme* DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
+OZONE_WAYLAND_EXPORT ui::NativeTheme*
+DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
   const views::LinuxUI* linux_ui = views::LinuxUI::instance();
   if (linux_ui) {
     ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();

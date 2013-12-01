@@ -9,6 +9,7 @@
 #include "ui/ozone/ozone_platform.h"
 #include "ozone/impl/desktop_factory_wayland.h"
 #include "ozone/impl/ozone_display.h"
+#include "ozone/platform/ozone_export_wayland.h"
 
 namespace ui {
 
@@ -37,7 +38,7 @@ class OzonePlatformWayland : public OzonePlatform {
 };
 
 // Constructor hook for use in ozone_platform_list.cc
-OzonePlatform* CreateOzonePlatformWayland();
+OZONE_WAYLAND_EXPORT OzonePlatform* CreateOzonePlatformWayland();
 
 }  // namespace ui
 
