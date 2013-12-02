@@ -37,7 +37,7 @@ WaylandWindow::~WaylandWindow() {
   }
 }
 
-void WaylandWindow::SetShellType(ShellType type)
+void WaylandWindow::SetShellAttributes(ShellType type)
 {
   if (type_ == type)
     return;
@@ -48,7 +48,23 @@ void WaylandWindow::SetShellType(ShellType type)
   }
 
   type_ = type;
-  shell_surface_->UpdateShellSurface(type_);
+  shell_surface_->UpdateShellSurface(type_, NULL, 0, 0);
+}
+
+void WaylandWindow::SetShellAttributes(ShellType type,
+                                       WaylandShellSurface* shell_parent,
+                                       unsigned x,
+                                       unsigned y)
+{
+  DCHECK(shell_parent && (type == TRANSIENT));
+
+  if (!shell_surface_) {
+    shell_surface_ = new WaylandShellSurface(this);
+    wl_surface_set_user_data(GetSurface(), this);
+  }
+
+  type_ = type;
+  shell_surface_->UpdateShellSurface(type_, shell_parent, x, y);
 }
 
 void WaylandWindow::SetWindowTitle(const string16& title) {
@@ -73,16 +89,16 @@ void WaylandWindow::Restore()
 void WaylandWindow::ToggleFullscreen()
 {
   if (type_ == FULLSCREEN)
-    SetShellType(TOPLEVEL);
+    SetShellAttributes(TOPLEVEL);
   else
-    SetShellType(FULLSCREEN);
+    SetShellAttributes(FULLSCREEN);
 }
 
 void WaylandWindow::RealizeAcceleratedWidget()
 {
   if (!shell_surface_) {
     LOG(ERROR) << "Shell type not set. Setting it to TopLevel";
-    SetShellType(TOPLEVEL);
+    SetShellAttributes(TOPLEVEL);
   }
 
   if (!window_)

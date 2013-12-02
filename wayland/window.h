@@ -36,7 +36,11 @@ class WaylandWindow {
   WaylandWindow(unsigned handle);
   ~WaylandWindow();
 
-  void SetShellType(ShellType type);
+  void SetShellAttributes(ShellType type);
+  void SetShellAttributes(ShellType type,
+                          WaylandShellSurface* shell_parent,
+                          unsigned x,
+                          unsigned y);
   void SetWindowTitle(const string16& title);
   void Maximize();
   void Minimize();
@@ -45,6 +49,7 @@ class WaylandWindow {
 
   ShellType Type() const { return type_; }
   unsigned Handle() const { return handle_; }
+  WaylandShellSurface *ShellSurface() const { return shell_surface_; }
 
   void RealizeAcceleratedWidget();
   void HandleSwapBuffers();

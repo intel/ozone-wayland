@@ -30,7 +30,11 @@ class OzoneDisplayChannel : public IPC::Listener
                             unsigned width,
                             unsigned height);
   void OnWidgetTitleChanged(unsigned widget, string16 title);
-  void OnWidgetTypeChanged(unsigned widget, unsigned type);
+  void OnWidgetAttributesChanged(unsigned widget,
+                                 unsigned parent,
+                                 unsigned x,
+                                 unsigned y,
+                                 unsigned type);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);

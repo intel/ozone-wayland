@@ -20,7 +20,10 @@ class WaylandShellSurface {
   WaylandShellSurface(WaylandWindow* window);
   ~WaylandShellSurface();
 
-  void UpdateShellSurface(WaylandWindow::ShellType type) const;
+  void UpdateShellSurface(WaylandWindow::ShellType type,
+                          WaylandShellSurface* shell_parent,
+                          unsigned x,
+                          unsigned y) const;
   void SetWindowTitle(const string16& title);
   WaylandSurface* Surface() const { return surface_; }
 
