@@ -81,12 +81,13 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
   else if (!content::ChildProcess::current()) {
-    // In the multi-processed mode, DisplayChannel(in Gpu process side) is in
-    // charge of pre-initializing the IPC channel with DisplayChannelHost. At
-    // this moment the GPU process is still initializing though, so it cannot
-    // actually start the IPC channel. Therefore the GPU process posts a task to
-    // itself so it will delay the initialization to later, right after it's
-    // ready for doing so.
+    // In the multi-process mode, DisplayChannel (in GPU process side) is in
+    // charge of establishing an IPC channel with DisplayChannelHost (in
+    // Browser Process side). At this moment the GPU process is still
+    // initializing though, so DisplayChannel cannot establish the connection
+    // and need to delay this to later. Therefore post a task to GpuChildThread
+    // and let DisplayChannel handle this right after the GPU process is
+    // initialized.
     base::MessageLoop::current()->message_loop_proxy()->PostTask(
         FROM_HERE, base::Bind(&OzoneDisplay::DelayedInitialization, this));
    }
