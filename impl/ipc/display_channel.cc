@@ -19,15 +19,14 @@ namespace {
 
 content::ChildThread* GetProcessMainThread() {
   content::ChildProcess* process = content::ChildProcess::current();
-  return process ? process->main_thread() : NULL;
+  DCHECK(process && process->main_thread());
+  return process->main_thread();
 }
 
 }
 
 OzoneDisplayChannel::OzoneDisplayChannel()
-    : mapped_(false)
 {
-  Register();
 }
 
 OzoneDisplayChannel::~OzoneDisplayChannel()
@@ -58,15 +57,8 @@ void OzoneDisplayChannel::OnEstablishChannel()
 
 void OzoneDisplayChannel::Register()
 {
-  if (mapped_)
-    return;
-
   content::ChildThread* thread = GetProcessMainThread();
-  if (thread) {
-    mapped_ = true;
-    thread->Send(new WaylandMsg_EstablishDisplayChannel(WAYLAND_ROUTE_ID));
-    thread->AddRoute(WAYLAND_ROUTE_ID, this);
-  }
+  thread->AddRoute(WAYLAND_ROUTE_ID, this);
 }
 
 void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,

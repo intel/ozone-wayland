@@ -33,7 +33,6 @@ class OzoneDisplayChannel : public IPC::Listener
   void OnWidgetTypeChanged(unsigned widget, unsigned type);
 
  private:
-  bool mapped_ :1;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
 };
 

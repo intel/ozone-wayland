@@ -119,6 +119,8 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   void InitializeDispatcher(int fd = 0);
   void LookAheadOutputGeometry();
 
+  static void DelayedInitialization(OzoneDisplay* display);
+
   CurrentState state_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   const int kMaxDisplaySize_;

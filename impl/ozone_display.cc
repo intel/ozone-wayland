@@ -18,6 +18,7 @@
 #include "ozone/impl/ipc/display_channel_host.h"
 
 #include "base/native_library.h"
+#include "content/child/child_process.h"
 
 namespace ozonewayland {
 
@@ -79,6 +80,16 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
+  else if (!content::ChildProcess::current()) {
+    // In the multi-processed mode, DisplayChannel(in Gpu process side) is in
+    // charge of pre-initializing the IPC channel with DisplayChannelHost. At
+    // this moment the GPU process is still initializing though, so it cannot
+    // actually start the IPC channel. Therefore the GPU process posts a task to
+    // itself so it will delay the initialization to later, right after it's
+    // ready for doing so.
+    base::MessageLoop::current()->message_loop_proxy()->PostTask(
+        FROM_HERE, base::Bind(&OzoneDisplay::DelayedInitialization, this));
+   }
 
   return initialized_state_;
 }
@@ -112,13 +123,6 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   // Initialize dispatcher and start polling for wayland events.
   if (!dispatcher_)
     InitializeDispatcher(display_->GetDisplayFd());
-
-  // TODO(kalyan) The channel connection should be established as soon as
-  // GPU thread is initialized.
-  if (!(state_ & ChannelConnected) && channel_) {
-    channel_->Register();
-    return gfx::kNullAcceleratedWidget;
-  }
 
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
@@ -336,6 +340,11 @@ void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer)
   dispatcher_->SetWindowChangeObserver(observer);
 }
 
+void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
+  display->channel_ = new OzoneDisplayChannel();
+  display->channel_->Register();
+}
+
 void OzoneDisplay::EstablishChannel()
 {
   if (state_ & ChannelConnected)
@@ -458,7 +467,6 @@ void OzoneDisplay::InitializeDispatcher(int fd)
   dispatcher_ = new WaylandDispatcher(fd);
 
   if (fd) {
-    channel_ = new OzoneDisplayChannel();
     dispatcher_->PostTask(WaylandDispatcher::Poll);
   } else {
     spec_ = new char[kMaxDisplaySize_];
@@ -467,9 +475,6 @@ void OzoneDisplay::InitializeDispatcher(int fd)
     if (display_)
       e_factory_ = new EventFactoryWayland();
     else {
-      // Create OzoneDisplayChannelHost here to make sure we queue any requests
-      // coming from DRWH before channel is established.
-      host_ = new OzoneDisplayChannelHost();
       child_process_observer_ = new OzoneProcessObserver(this);
       EstablishChannel();
     }
