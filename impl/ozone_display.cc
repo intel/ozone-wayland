@@ -335,9 +335,12 @@ void OzoneDisplay::OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
   case WindowFrameLess:
     NOTIMPLEMENTED();
     break;
-  case Menu:
-    NOTIMPLEMENTED();
-    window->SetShellAttributes(WaylandWindow::MENU);
+  case Transient:
+    DCHECK(parent_window);
+    window->SetShellAttributes(WaylandWindow::TRANSIENT,
+                               parent_window->ShellSurface(),
+                               x,
+                               y);
     break;
   default:
     break;

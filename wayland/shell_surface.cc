@@ -60,10 +60,14 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
 {
   switch (type) {
   case WaylandWindow::TOPLEVEL:
-  // TODO(kalyan): Temp workaround to get menus working. This should be fixed
-  // properly when handling the positioning of popups.
-  case WaylandWindow::MENU:
     wl_shell_surface_set_toplevel(shell_surface_);
+    break;
+  case WaylandWindow::TRANSIENT:
+    wl_shell_surface_set_transient(shell_surface_,
+                                   shell_parent->Surface()->wlSurface(),
+                                   x,
+                                   y,
+                                   WL_SHELL_SURFACE_TRANSIENT_INACTIVE);
     break;
   case WaylandWindow::FULLSCREEN:
     wl_shell_surface_set_fullscreen(shell_surface_,
@@ -71,9 +75,8 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                     0,
                                     NULL);
     break;
-  case WaylandWindow::TRANSIENT:
   case WaylandWindow::CUSTOM:
-      NOTREACHED() << "UnSupported Shell Type.";
+      NOTREACHED() << "Unsupported shell type: " << type;
     break;
     default:
       break;

@@ -44,8 +44,8 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   enum {
     Window = 1, // A decorated Window.
     WindowFrameLess = 2, // An undecorated Window.
-    Menu = 3 // An undecorated Window, with transient properties
-             // specialized to menus.
+    Transient = 3 // An undecorated Window, with transient properties
+                  // specialized to menus.
   };
 
   typedef unsigned WidgetType;

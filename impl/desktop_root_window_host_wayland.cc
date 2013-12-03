@@ -108,18 +108,25 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
     window_parent_->window_children_.insert(this);
   }
 
+  bounds_ = params.bounds;
   switch (params.type) {
-    // TODO(kalyan): For now treat all of them the same and set the shell type
-    // to menu. Fix this appropriately when handling the positioning of popups.
     case Widget::InitParams::TYPE_TOOLTIP:
     case Widget::InitParams::TYPE_POPUP:
-    case Widget::InitParams::TYPE_MENU:
+    case Widget::InitParams::TYPE_MENU: {
+      // Wayland surfaces don't know their position on the screen and transient
+      // surfaces always require a parent surface for relative placement. Here
+      // there's a catch because content_shell menus don't have parent and
+      // therefore we use root window to calculate their position.
+      DesktopRootWindowHostWayland* parent = window_parent_;
+      if (!parent)
+        parent = GetHostForAcceleratedWidget(open_windows().front());
+
       OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
-                                                       0,
-                                                       0,
-                                                       0,
-                                                       OzoneDisplay::Menu);
-      break;
+                                                       parent->window_,
+                                                       bounds_.x(),
+                                                       bounds_.y(),
+                                                       OzoneDisplay::Transient);
+    } break;
     case Widget::InitParams::TYPE_WINDOW:
       OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
                                                        0,
@@ -134,8 +141,7 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
       break;
   }
 
-  surface_factory->AttemptToResizeAcceleratedWidget(window_, params.bounds);
-  bounds_ = params.bounds;
+  surface_factory->AttemptToResizeAcceleratedWidget(window_, bounds_);
 }
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
