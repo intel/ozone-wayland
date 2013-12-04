@@ -126,7 +126,8 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
                                                        bounds_.x(),
                                                        bounds_.y(),
                                                        OzoneDisplay::Transient);
-    } break;
+      break;
+    }
     case Widget::InitParams::TYPE_WINDOW:
       OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
                                                        0,
