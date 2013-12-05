@@ -179,20 +179,6 @@ bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
 
   DCHECK(display_);
   WaylandWindow* window = GetWidget(w);
-  // TODO(kalyan): Handle may be a opaque handle or a realized widget.
-  // Fix this properly once resizing support is added.
-  if (!window) {
-    std::map<unsigned, WaylandWindow*>::const_iterator it;
-    const std::map<unsigned, WaylandWindow*> widget_map =
-        display_->GetWindowList();
-    for (it = widget_map.begin(); it != widget_map.end(); ++it) {
-      if (w == (gfx::AcceleratedWidget)it->second->egl_window()) {
-        window = it->second;
-        break;
-      }
-    }
-  }
-
   DCHECK(window);
 
   return window->SetBounds(bounds);

@@ -1,24 +1,21 @@
-From 77877d89ea0f03816c9145dd804fce569c33e250 Mon Sep 17 00:00:00 2001
+From ec489ba365e077237ca5f8c2f0cfab7f710b6232 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Fri, 29 Nov 2013 21:37:28 +0200
+Date: Thu, 5 Dec 2013 01:39:43 +0200
 Subject: [PATCH] EGL specific changes for Wayland.
 
-This patch adds following three snips, respectively giving support:
+This patch adds following two snips, respectively giving support:
 1)EGLNativeDisplayType adjustment and khronos header. More info:
   https://code.google.com/p/chromium/issues/detail?id=266310
-2)Support needed in NativeViewGLSurfaceEGL to resize window.
-  Changes related to resizing needs more testing before
-  trying to upstream the patch.
-3)OffScreen-rendering support for use cases like WebGL and
+2)OffScreen-rendering support for use cases like WebGL and
   Canvas2D. This should be enabled in upstream but needs some
   cross platform support before it can be done.
   More info: https://codereview.chromium.org/49533003/
 ---
- ui/gl/gl_surface_egl.cc |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ ui/gl/gl_surface_egl.cc |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
-index 3f8923a..92087af 100644
+index 3f8923a..7b1da0b8 100644
 --- a/ui/gl/gl_surface_egl.cc
 +++ b/ui/gl/gl_surface_egl.cc
 @@ -118,8 +118,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
@@ -31,23 +28,7 @@ index 3f8923a..92087af 100644
  #else
    g_native_display = EGL_DEFAULT_DISPLAY;
  #endif
-@@ -432,6 +431,15 @@ bool NativeViewGLSurfaceEGL::Resize(const gfx::Size& size) {
- 
-   Destroy();
- 
-+#if defined(USE_OZONE)
-+  gfx::SurfaceFactoryOzone* surface_factory =
-+    gfx::SurfaceFactoryOzone::GetInstance();
-+
-+  surface_factory->AttemptToResizeAcceleratedWidget(window_,
-+                                                    gfx::Rect(0, 0, size.width(),
-+                                                              size.height()));
-+#endif
-+
-   if (!Initialize()) {
-     LOG(ERROR) << "Failed to resize window.";
-     return false;
-@@ -750,7 +758,7 @@ GLSurface::CreateOffscreenGLSurface(const gfx::Size& size) {
+@@ -750,7 +749,7 @@ GLSurface::CreateOffscreenGLSurface(const gfx::Size& size) {
      case kGLImplementationEGLGLES2: {
        scoped_refptr<GLSurface> surface;
        if (g_egl_surfaceless_context_supported &&
