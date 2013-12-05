@@ -217,7 +217,7 @@ void WaylandDispatcher::KeyNotify(unsigned state, unsigned code,
     scoped_ptr<ui::KeyEvent> keyev(
         new ui::KeyEvent(type,
                          KeyboardCodeFromXKeysym(code),
-                         0,
+                         modifiers,
                          true));
 
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
