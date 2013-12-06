@@ -192,7 +192,10 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
 
   RootWindowState state_;
 
+  // Current bounds of DRWH.
   gfx::Rect bounds_;
+  // Original bounds of DRWH.
+  gfx::Rect previous_bounds_;
 
   aura::Window* content_window_;
 

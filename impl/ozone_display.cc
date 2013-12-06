@@ -211,6 +211,12 @@ void OzoneDisplay::WillDestroyCurrentMessageLoop()
   base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
 
+DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
+  // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
+  // after multi screen support is added.
+  return desktop_screen_;
+}
+
 void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
                                   WidgetState state,
                                   unsigned width,
@@ -237,6 +243,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
     {
       WaylandWindow* widget = GetWidget(w);
       widget->ToggleFullscreen();
+      widget->SetBounds(gfx::Rect(0, 0, width, height));
       break;
     }
     case Maximized:
@@ -270,7 +277,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       NOTIMPLEMENTED();
       break;
     case Resize:
-      AttemptToResizeAcceleratedWidget(w, gfx::Rect(0,0,width, height));
+      AttemptToResizeAcceleratedWidget(w, gfx::Rect(0, 0, width, height));
       break;
     case Destroyed:
       display_->DestroyWindow(w);

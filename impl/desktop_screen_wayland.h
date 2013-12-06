@@ -14,6 +14,7 @@ class DesktopScreenWayland : public gfx::Screen {
   DesktopScreenWayland();
   virtual ~DesktopScreenWayland();
   void SetGeometry(const gfx::Rect& geometry);
+  const gfx::Rect geometry() const { return rect_; }
 
  private:
   // Overridden from gfx::Screen:

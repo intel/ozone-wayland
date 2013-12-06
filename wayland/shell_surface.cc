@@ -93,8 +93,6 @@ void WaylandShellSurface::HandleConfigure(void *data,
                                           int32_t width,
                                           int32_t height)
 {
-  WaylandWindow *window = static_cast<WaylandWindow*>(data);
-  window->SetBounds(gfx::Rect(0, 0, width, height));
 }
 
 void WaylandShellSurface::HandlePopupDone(void *data,

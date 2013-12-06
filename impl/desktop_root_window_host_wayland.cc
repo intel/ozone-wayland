@@ -25,6 +25,7 @@
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
 #include "ozone/impl/desktop_drag_drop_client_wayland.h"
+#include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
 
 namespace views {
@@ -109,6 +110,7 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   }
 
   bounds_ = params.bounds;
+  previous_bounds_ = bounds_;
   switch (params.type) {
     case Widget::InitParams::TYPE_TOOLTIP:
     case Widget::InitParams::TYPE_POPUP:
@@ -545,7 +547,23 @@ void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
   else
     state_ &= ~FullScreen;
 
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::FullScreen);
+  gfx::Rect rect = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
+  if (!(state_ & FullScreen))
+    rect = previous_bounds_;
+
+  bounds_ = rect;
+  // We could use HandleConfigure in ShellSurface to set the correct bounds of
+  // egl window associated with this opaque handle. How ever, this would need to
+  // handle race conditions and ensure correct size is set for
+  // wl_egl_window_resize before eglsurface is resized. Passing window size
+  // attributes already here, ensures that wl_egl_window_resize is resized
+  // before eglsurface is resized. This doesn't add any extra overhead as the
+  // IPC call needs to be done.
+  OzoneDisplay::GetInstance()->SetWidgetState(window_,
+                                              OzoneDisplay::FullScreen,
+                                              rect.width(),
+                                              rect.height());
+  delegate_->OnHostResized(rect.size());
 }
 
 bool DesktopRootWindowHostWayland::IsFullscreen() const {
@@ -665,11 +683,11 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   if (size_changed) {
-    delegate_->OnHostResized(bounds.size());
     OzoneDisplay::GetInstance()->SetWidgetState(window_,
                                                 OzoneDisplay::Resize,
                                                 bounds.width(),
                                                 bounds.height());
+    delegate_->OnHostResized(bounds.size());
   } else
     delegate_->OnHostPaint(gfx::Rect(bounds.size()));
 }

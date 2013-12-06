@@ -81,6 +81,8 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
 
+  DesktopScreenWayland* GetPrimaryScreen() const;
+
   void SetWidgetState(gfx::AcceleratedWidget w,
                       WidgetState state,
                       unsigned width = 0,
