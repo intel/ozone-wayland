@@ -338,6 +338,9 @@ void DesktopRootWindowHostWayland::SetSize(const gfx::Size& size) {
   NOTIMPLEMENTED();
 }
 
+void DesktopRootWindowHostWayland::StackAtTop() {
+}
+
 void DesktopRootWindowHostWayland::CenterWindow(const gfx::Size& size) {
   gfx::Rect parent_bounds = GetWorkAreaBoundsInScreen();
 
@@ -492,11 +495,14 @@ void DesktopRootWindowHostWayland::SetAlwaysOnTop(bool always_on_top) {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::SetWindowTitle(const string16& title) {
+bool DesktopRootWindowHostWayland::SetWindowTitle(const string16& title) {
   if (title.compare(title_)) {
     OzoneDisplay::GetInstance()->SetWidgetTitle(window_, title);
     title_ = title;
+    return true;
   }
+
+  return false;
 }
 
 void DesktopRootWindowHostWayland::ClearNativeFocus() {
