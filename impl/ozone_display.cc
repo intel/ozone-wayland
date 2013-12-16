@@ -280,8 +280,19 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       AttemptToResizeAcceleratedWidget(w, gfx::Rect(0, 0, width, height));
       break;
     case Destroyed:
+    {
       display_->DestroyWindow(w);
+      const std::map<unsigned, WaylandWindow*> widget_map =
+        display_->GetWindowList();
+
+      if (!widget_map.size()) {
+        if (e_factory_)
+          WillDestroyCurrentMessageLoop();
+        else
+          dispatcher_->MessageLoopDestroyed();
+      }
       break;
+    }
     default:
       break;
   }
@@ -462,12 +473,14 @@ void OzoneDisplay::Terminate()
 void OzoneDisplay::InitializeDispatcher(int fd)
 {
   dispatcher_ = new WaylandDispatcher(fd);
+  DCHECK(base::MessageLoop::current());
 
   if (fd) {
     dispatcher_->PostTask(WaylandDispatcher::Poll);
   } else {
     spec_ = new char[kMaxDisplaySize_];
     spec_[0] = '\0';
+    base::MessageLoop::current()->AddDestructionObserver(this);
 
     if (display_)
       e_factory_ = new EventFactoryWayland();

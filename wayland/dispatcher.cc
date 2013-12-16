@@ -448,13 +448,9 @@ void WaylandDispatcher::SendOutputSizeChanged(unsigned width, unsigned height)
 
 void WaylandDispatcher::MessageLoopDestroyed()
 {
-  if (!IsRunning())
-    return;
-
   ignore_task_ = true;
   loop_ = NULL;
   running = false;
-  Stop();
 }
 
 }  // namespace ozonewayland
