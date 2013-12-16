@@ -10,11 +10,8 @@
 
 namespace ozonewayland {
 
-class Event;
 class WaylandKeyboard;
 class WaylandPointer;
-class InputMethod;
-class WaylandInputMethodEventFilter;
 class WaylandDisplay;
 
 class WaylandInputDevice {
@@ -23,7 +20,6 @@ class WaylandInputDevice {
   ~WaylandInputDevice();
 
   wl_seat* GetInputSeat() { return input_seat_; }
-  InputMethod* GetInputMethod() const;
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
   WaylandPointer* GetPointer() const { return input_pointer_; }
 
@@ -35,7 +31,6 @@ class WaylandInputDevice {
   wl_seat* input_seat_;
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
-  mutable WaylandInputMethodEventFilter* input_method_filter_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandInputDevice);
 };

@@ -71,8 +71,6 @@
         'egl/egl_window.h',
         'input/cursor.cc',
         'input/cursor.h',
-        'input/input_method_event_filter.cc',
-        'input/input_method_event_filter.h',
         'input/kbd_conversion.cc',
         'input/kbd_conversion.h',
         'input/keyboard.cc',

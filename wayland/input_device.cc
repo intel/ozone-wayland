@@ -5,7 +5,6 @@
 #include "ozone/wayland/input_device.h"
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/input/input_method_event_filter.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/input/pointer.h"
 
@@ -13,9 +12,7 @@ namespace ozonewayland {
 
 WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
     : input_keyboard_(NULL),
-      input_pointer_(NULL),
-      input_method_filter_(NULL)
-
+      input_pointer_(NULL)
 {
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
@@ -37,17 +34,6 @@ WaylandInputDevice::~WaylandInputDevice()
 
   if (input_seat_)
     wl_seat_destroy(input_seat_);
-
-  if (input_method_filter_)
-    delete input_method_filter_;
-}
-
-InputMethod* WaylandInputDevice::GetInputMethod() const
-{
-  if (!input_method_filter_)
-    input_method_filter_ = new WaylandInputMethodEventFilter;
-
-  input_method_filter_->GetInputMethod();
 }
 
 void WaylandInputDevice::OnSeatCapabilities(void *data,
