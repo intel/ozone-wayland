@@ -25,7 +25,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
-  ~OzoneDisplayChannelHost();
 
   void EstablishChannel();
   void ChannelClosed();
@@ -58,6 +57,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   bool UpdateConnection();
 
  private:
+  virtual ~OzoneDisplayChannelHost();
   WaylandDispatcher* dispatcher_;
   IPC::Channel* channel_;
   // Messages are not sent by host until connection is established. Host queues

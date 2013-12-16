@@ -18,7 +18,7 @@ class OzoneDisplayChannel : public IPC::Listener
 {
  public:
   OzoneDisplayChannel();
-  ~OzoneDisplayChannel();
+  virtual ~OzoneDisplayChannel();
 
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
