@@ -19,18 +19,6 @@ OzoneProcessObserver::~OzoneProcessObserver()
 {
 }
 
-void OzoneProcessObserver::BrowserChildProcessHostDisconnected(
-  const content::ChildProcessData& data)
-{
-  observer_->OnChannelClosed();
-}
-
-void OzoneProcessObserver::BrowserChildProcessCrashed(
-  const content::ChildProcessData& data)
-{
-  observer_->OnChannelClosed();
-}
-
 void OzoneProcessObserver::BrowserChildProcessHostConnected(
   const content::ChildProcessData& data)
 {

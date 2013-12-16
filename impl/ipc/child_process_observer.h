@@ -21,11 +21,6 @@ class OzoneProcessObserver : public content::BrowserChildProcessObserver {
   OzoneProcessObserver(OzoneDisplay* observer);
   virtual ~OzoneProcessObserver();
   // Implement |BrowserChildProcessObserver|.
-  virtual void BrowserChildProcessHostDisconnected(
-    const content::ChildProcessData& data) OVERRIDE;
-
-  virtual void BrowserChildProcessCrashed(
-    const content::ChildProcessData& data) OVERRIDE;
 
   virtual void BrowserChildProcessHostConnected(
     const content::ChildProcessData& data) OVERRIDE;

@@ -27,7 +27,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   OzoneDisplayChannelHost();
 
   void EstablishChannel();
-  void ChannelClosed();
 
   void SendWidgetState(unsigned w,
                        unsigned state,

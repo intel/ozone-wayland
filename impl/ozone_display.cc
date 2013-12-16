@@ -368,15 +368,6 @@ void OzoneDisplay::OnChannelEstablished()
   state_ |= ChannelConnected;
 }
 
-void OzoneDisplay::OnChannelClosed()
-{
-  state_ &= ~ChannelConnected;
-  if (!host_)
-    return;
-
-  host_->ChannelClosed();
-}
-
 void OzoneDisplay::OnChannelHostDestroyed()
 {
   state_ &= ~ChannelConnected;

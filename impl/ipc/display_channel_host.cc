@@ -39,12 +39,6 @@ void OzoneDisplayChannelHost::EstablishChannel()
           this));
 }
 
-void OzoneDisplayChannelHost::ChannelClosed()
-{
-  router_id_ = 0;
-  channel_ = NULL;
-}
-
 void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
                                               unsigned state,
                                               unsigned width,
