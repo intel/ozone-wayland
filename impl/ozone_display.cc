@@ -70,9 +70,6 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
   if (state_ & Initialized)
     return initialized_state_;
 
-  DCHECK(base::MessageLoop::current());
-  base::MessageLoop::current()->AddDestructionObserver(this);
-
   state_ |= Initialized;
   display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
   initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
