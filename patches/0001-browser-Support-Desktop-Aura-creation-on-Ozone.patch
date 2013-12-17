@@ -1,6 +1,6 @@
-From 711c9e6b0ad1c771db84ce14f2f3263722cfbac9 Mon Sep 17 00:00:00 2001
+From 0fd635681c6e7e3d2e1875f0c9e7f32547990ba1 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Mon, 28 Oct 2013 14:34:21 +0200
+Date: Tue, 17 Dec 2013 15:33:36 +0200
 Subject: [PATCH] browser: Support Desktop Aura creation on Ozone
 
 This CL creates BrowserDesktopRootWindowHostOzone and gives support for Aura
@@ -14,19 +14,19 @@ In particular, this CL brings back support for Chrome browser in Ozone-Wayland.
 
 BUG=295089
 ---
- .../browser_desktop_root_window_host_ozone.cc      |   70 ++++++++++++++++++++
- .../frame/browser_desktop_root_window_host_ozone.h |   49 ++++++++++++++
+ .../browser_desktop_root_window_host_ozone.cc      |   55 ++++++++++++++++++++
+ .../frame/browser_desktop_root_window_host_ozone.h |   42 +++++++++++++++
  chrome/chrome_browser_ui.gypi                      |    2 +
- 3 files changed, 121 insertions(+)
+ 3 files changed, 99 insertions(+)
  create mode 100644 chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
  create mode 100644 chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
 new file mode 100644
-index 0000000..dc4a06d
+index 0000000..f29c51b
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,55 @@
 +// Copyright (c) 2013 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -69,21 +69,6 @@ index 0000000..dc4a06d
 +}
 +
 +////////////////////////////////////////////////////////////////////////////////
-+// BrowserDesktopRootWindowHostOzone,
-+//     views::DesktopRootWindowHostOzone implementation:
-+
-+void BrowserDesktopRootWindowHostOzone::Init(
-+    aura::Window* content_window,
-+    const views::Widget::InitParams& params,
-+    aura::RootWindow::CreateParams* rw_create_params) {
-+  desktop_root_window_host_->Init(content_window, params, rw_create_params);
-+}
-+
-+void BrowserDesktopRootWindowHostOzone::CloseNow() {
-+  desktop_root_window_host_->CloseNow();
-+}
-+
-+////////////////////////////////////////////////////////////////////////////////
 +// BrowserDesktopRootWindowHost, public:
 +
 +// static
@@ -99,10 +84,10 @@ index 0000000..dc4a06d
 +}
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 new file mode 100644
-index 0000000..5b1cbf0
+index 0000000..f1dbe3f
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,42 @@
 +// Copyright (c) 2013 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -136,13 +121,6 @@ index 0000000..5b1cbf0
 +  virtual int GetMinimizeButtonOffset() const OVERRIDE;
 +  virtual bool UsesNativeSystemMenu() const OVERRIDE;
 +
-+  // Overridden from views::DesktopRootWindowHostOzone:
-+  virtual void Init(
-+      aura::Window* content_window,
-+      const views::Widget::InitParams& params,
-+      aura::RootWindow::CreateParams* rw_create_params) OVERRIDE;
-+  virtual void CloseNow() OVERRIDE;
-+
 +  BrowserView* browser_view_;
 +
 +  // Ownership passed to RootWindow on Init.
@@ -153,10 +131,10 @@ index 0000000..5b1cbf0
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 607e01e..a6f27d4 100644
+index dd25e1c..a33cce8 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1801,6 +1801,8 @@
+@@ -1860,6 +1860,8 @@
          'browser/ui/views/frame/desktop_user_action_handler_aura.cc',
          'browser/ui/views/frame/desktop_user_action_handler_aura.h',
          'browser/ui/views/frame/browser_desktop_root_window_host.h',
