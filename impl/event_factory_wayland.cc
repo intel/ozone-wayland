@@ -44,8 +44,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
   impl_.Get().reset(impl);
 }
 
-void EventFactoryWayland::WillDestroyCurrentMessageLoop()
-{
+void EventFactoryWayland::WillDestroyCurrentMessageLoop() {
   watcher_.StopWatchingFileDescriptor();
   base::MessageLoop::current()->RemoveTaskObserver(this);
 }

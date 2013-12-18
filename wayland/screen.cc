@@ -5,16 +5,15 @@
 
 #include "ozone/wayland/screen.h"
 
+#include <wayland-client.h>
+
 #include "ozone/impl/ozone_display.h"
 #include "ozone/wayland/display.h"
-
-#include <wayland-client.h>
 
 namespace ozonewayland {
 
 WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
-    : output_(NULL)
-{
+    : output_(NULL) {
   static const wl_output_listener kOutputListener = {
     WaylandScreen::OutputHandleGeometry,
     WaylandScreen::OutputHandleMode,
@@ -25,8 +24,7 @@ WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
   wl_output_add_listener(output_, &kOutputListener, this);
 }
 
-WaylandScreen::~WaylandScreen()
-{
+WaylandScreen::~WaylandScreen() {
   if (output_)
     wl_output_destroy(output_);
 }
@@ -41,8 +39,7 @@ void WaylandScreen::OutputHandleGeometry(void *data,
                                          int32_t subpixel,
                                          const char* make,
                                          const char* model,
-                                         int32_t output_transform)
-{
+                                         int32_t output_transform) {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
   gfx::Point point = gfx::Point(x, y);
   screen->rect_.set_origin(point);
@@ -54,8 +51,7 @@ void WaylandScreen::OutputHandleMode(void* data,
                                      uint32_t flags,
                                      int32_t width,
                                      int32_t height,
-                                     int32_t refresh)
-{
+                                     int32_t refresh) {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
   if (flags & WL_OUTPUT_MODE_CURRENT) {
       screen->rect_.set_width(width);

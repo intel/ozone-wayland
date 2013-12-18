@@ -1,4 +1,5 @@
 // Copyright 2013 The Chromium Authors. All rights reserved.
+// Copyright 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,8 +13,7 @@ namespace ozonewayland {
 
 WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
     : input_keyboard_(NULL),
-      input_pointer_(NULL)
-{
+      input_pointer_(NULL) {
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
   };
@@ -24,8 +24,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
   wl_seat_set_user_data(input_seat_, this);
 }
 
-WaylandInputDevice::~WaylandInputDevice()
-{
+WaylandInputDevice::~WaylandInputDevice() {
   if (input_keyboard_)
     delete input_keyboard_;
 
@@ -38,8 +37,7 @@ WaylandInputDevice::~WaylandInputDevice()
 
 void WaylandInputDevice::OnSeatCapabilities(void *data,
                                             wl_seat *seat,
-                                            uint32_t caps)
-{
+                                            uint32_t caps) {
   WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !device->input_keyboard_) {
     device->input_keyboard_ = new WaylandKeyboard();

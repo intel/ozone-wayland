@@ -5,8 +5,8 @@
 #ifndef OZONE_WAYLAND_INPUT_DEVICE_H_
 #define OZONE_WAYLAND_INPUT_DEVICE_H_
 
-#include "base/basictypes.h"
 #include <wayland-client.h>
+#include "base/basictypes.h"
 
 namespace ozonewayland {
 

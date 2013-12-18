@@ -14,7 +14,9 @@
 
 #define IPC_MESSAGE_START LastIPCMsgStart
 
-IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify, float /*x*/, float /*y*/)
+IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,
+                     float /*x*/,
+                     float /*y*/)
 
 IPC_MESSAGE_CONTROL5(WaylandInput_ButtonNotify,
                      unsigned /*handle*/,
@@ -23,8 +25,11 @@ IPC_MESSAGE_CONTROL5(WaylandInput_ButtonNotify,
                      float /*x*/,
                      float /*y*/)
 
-IPC_MESSAGE_CONTROL4(WaylandInput_AxisNotify, float /*x*/, float /*y*/,
-                     float /*x_offset*/, float /*y_offset*/)
+IPC_MESSAGE_CONTROL4(WaylandInput_AxisNotify,
+                     float /*x*/,
+                     float /*y*/,
+                     float /*x_offset*/,
+                     float /*y_offset*/)
 
 IPC_MESSAGE_CONTROL3(WaylandInput_PointerEnter,
                      unsigned /*handle*/,
@@ -36,10 +41,13 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PointerLeave,
                      float /*x*/,
                      float /*y*/)
 
-IPC_MESSAGE_CONTROL3(WaylandInput_KeyNotify, unsigned /*type*/, unsigned /*code*/,
+IPC_MESSAGE_CONTROL3(WaylandInput_KeyNotify,
+                     unsigned /*type*/,
+                     unsigned /*code*/,
                      unsigned /*modifiers*/)
 
-IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize, unsigned /*width*/,
+IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize,
+                     unsigned /*width*/,
                      unsigned /*height*/)
 
 // Response from DisplayChannelHost to DisplayChannel as an ack to connection

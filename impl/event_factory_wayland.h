@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_EVENT_FACTORY_H_
-#define OZONE_WAYLAND_EVENT_FACTORY_H_
+#ifndef OZONE_IMPL_EVENT_FACTORY_WAYLAND_H_
+#define OZONE_IMPL_EVENT_FACTORY_WAYLAND_H_
 
 #include "ui/base/ui_export.h"
 #include "base/message_loop/message_loop.h"
@@ -43,4 +43,4 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_EVENT_FACTORY_H_
+#endif  // OZONE_IMPL_EVENT_FACTORY_WAYLAND_H_

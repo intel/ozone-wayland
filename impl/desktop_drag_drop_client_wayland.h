@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
-#define DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
+#ifndef OZONE_IMPL_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
+#define OZONE_IMPL_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
 
 #include "base/compiler_specific.h"
 #include "ui/aura/client/drag_drop_client.h"
@@ -14,7 +14,7 @@ namespace ozonewayland {
 class VIEWS_EXPORT DesktopDragDropClientWayland
     : public aura::client::DragDropClient {
  public:
-  DesktopDragDropClientWayland(aura::Window* root_window);
+  explicit DesktopDragDropClientWayland(aura::Window* root_window);
   virtual ~DesktopDragDropClientWayland();
 
   // Overridden from aura::client::DragDropClient:
@@ -32,9 +32,10 @@ class VIEWS_EXPORT DesktopDragDropClientWayland
   virtual void DragCancel() OVERRIDE;
   virtual bool IsDragDropInProgress() OVERRIDE;
 
+  private:
   DISALLOW_COPY_AND_ASSIGN(DesktopDragDropClientWayland);
 };
 
-}  // namespace views
+}  // namespace ozonewayland
 
-#endif  // DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
+#endif  // OZONE_IMPL_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_

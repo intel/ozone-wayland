@@ -14,13 +14,11 @@
 
 namespace ozonewayland {
 
-WaylandWindow::WaylandWindow(unsigned handle) :
-    shell_surface_(NULL),
+WaylandWindow::WaylandWindow(unsigned handle) : shell_surface_(NULL),
     handle_(handle),
     window_(NULL),
     type_(None),
-    allocation_(gfx::Rect(0, 0, 1, 1))
-{
+    allocation_(gfx::Rect(0, 0, 1, 1)) {
 }
 
 WaylandWindow::~WaylandWindow() {
@@ -30,15 +28,13 @@ WaylandWindow::~WaylandWindow() {
     window_ = NULL;
   }
 
-  if (shell_surface_)
-  {
+  if (shell_surface_) {
     delete shell_surface_;
     shell_surface_ = NULL;
   }
 }
 
-void WaylandWindow::SetShellAttributes(ShellType type)
-{
+void WaylandWindow::SetShellAttributes(ShellType type) {
   if (type_ == type)
     return;
 
@@ -54,8 +50,7 @@ void WaylandWindow::SetShellAttributes(ShellType type)
 void WaylandWindow::SetShellAttributes(ShellType type,
                                        WaylandShellSurface* shell_parent,
                                        unsigned x,
-                                       unsigned y)
-{
+                                       unsigned y) {
   DCHECK(shell_parent && (type == TRANSIENT));
 
   if (!shell_surface_) {
@@ -71,31 +66,26 @@ void WaylandWindow::SetWindowTitle(const string16& title) {
   shell_surface_->SetWindowTitle(title);
 }
 
-void WaylandWindow::Maximize()
-{
+void WaylandWindow::Maximize() {
   NOTIMPLEMENTED();
 }
 
-void WaylandWindow::Minimize()
-{
+void WaylandWindow::Minimize() {
   NOTIMPLEMENTED();
 }
 
-void WaylandWindow::Restore()
-{
+void WaylandWindow::Restore() {
   NOTIMPLEMENTED();
 }
 
-void WaylandWindow::ToggleFullscreen()
-{
+void WaylandWindow::ToggleFullscreen() {
   if (type_ == FULLSCREEN)
     SetShellAttributes(TOPLEVEL);
   else
     SetShellAttributes(FULLSCREEN);
 }
 
-void WaylandWindow::RealizeAcceleratedWidget()
-{
+void WaylandWindow::RealizeAcceleratedWidget() {
   if (!shell_surface_) {
     LOG(ERROR) << "Shell type not set. Setting it to TopLevel";
     SetShellAttributes(TOPLEVEL);
@@ -106,14 +96,12 @@ void WaylandWindow::RealizeAcceleratedWidget()
                             allocation_.width(), allocation_.height());
 }
 
-void WaylandWindow::HandleSwapBuffers()
-{
+void WaylandWindow::HandleSwapBuffers() {
   shell_surface_->Surface()->EnsureFrameCallBackDone();
   shell_surface_->Surface()->AddFrameCallBack();
 }
 
-wl_egl_window* WaylandWindow::egl_window() const
-{
+wl_egl_window* WaylandWindow::egl_window() const {
   return window_ ? window_->egl_window() : 0;
 }
 
@@ -121,8 +109,7 @@ struct wl_surface* WaylandWindow::GetSurface() const {
   return shell_surface_ ? shell_surface_->Surface()->wlSurface() : 0;
 }
 
-bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds)
-{
+bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds) {
   int width = new_bounds.width();
   int height = new_bounds.height();
   allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);

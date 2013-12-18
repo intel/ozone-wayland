@@ -42,11 +42,12 @@ DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
   return ui::NativeTheme::instance();
 }
 
-}
+}  //  namespace views
 
 namespace ozonewayland {
 
-using namespace views;
+using views::Widget;
+using views::NonClientFrameView;
 
 DesktopRootWindowHostWayland* DesktopRootWindowHostWayland::g_current_capture =
     NULL;
@@ -73,7 +74,7 @@ DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
 }
 
 DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
-    internal::NativeWidgetDelegate* native_widget_delegate,
+    views::internal::NativeWidgetDelegate* native_widget_delegate,
     views::DesktopNativeWidgetAura* desktop_native_widget_aura)
     : close_widget_factory_(this),
       root_window_(NULL),
@@ -161,8 +162,9 @@ void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
       windows.remove(window_);
       windows.insert(open_windows().begin(), window_);
     }
-  } else
+  } else {
       Reset();
+  }
 
   // We can skip the rest during initialization phase.
   if (!state_)
@@ -206,7 +208,8 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
     const Widget::InitParams& params) {
   root_window_ = root;
 
-  root_window_->window()->SetProperty(kViewsWindowForRootWindow, content_window_);
+  root_window_->window()->SetProperty(
+      kViewsWindowForRootWindow, content_window_);
   root_window_->window()->SetProperty(kHostForRootWindow, this);
   delegate_ = root_window_;
 
@@ -229,9 +232,10 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
   }
 }
 
-scoped_ptr<views::corewm::Tooltip> DesktopRootWindowHostWayland::CreateTooltip() {
-  return scoped_ptr<corewm::Tooltip>(
-             new corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
+scoped_ptr<views::corewm::Tooltip>
+DesktopRootWindowHostWayland::CreateTooltip() {
+  return scoped_ptr<views::corewm::Tooltip>(
+             new views::corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
 }
 
 scoped_ptr<aura::client::DragDropClient>
@@ -694,8 +698,9 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
                                                 bounds.width(),
                                                 bounds.height());
     delegate_->OnHostResized(bounds.size());
-  } else
+  } else {
     delegate_->OnHostPaint(gfx::Rect(bounds.size()));
+  }
 }
 
 gfx::Insets DesktopRootWindowHostWayland::GetInsets() const {

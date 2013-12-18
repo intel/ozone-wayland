@@ -6,10 +6,10 @@
 #ifndef OZONE_WAYLAND_WINDOW_H_
 #define OZONE_WAYLAND_WINDOW_H_
 
-#include "ui/gfx/rect.h"
-#include "base/strings/string16.h"
-
 #include <wayland-client.h>
+
+#include "base/strings/string16.h"
+#include "ui/gfx/rect.h"
 
 namespace ozonewayland {
 
@@ -32,7 +32,7 @@ class WaylandWindow {
   typedef unsigned ShellType;
 
   // Creates a window and maps it to handle.
-  WaylandWindow(unsigned handle);
+  explicit WaylandWindow(unsigned handle);
   ~WaylandWindow();
 
   void SetShellAttributes(ShellType type);

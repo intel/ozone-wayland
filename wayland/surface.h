@@ -12,7 +12,7 @@ namespace ozonewayland {
 class WaylandDisplay;
 
 class WaylandSurface {
-public:
+ public:
   WaylandSurface();
   virtual ~WaylandSurface();
   struct wl_surface* wlSurface() const { return surface_; }
@@ -37,7 +37,7 @@ public:
   // callback
   static void SurfaceFrameCallback(void*, struct wl_callback*, uint32_t);
 
-private:
+ private:
   void DestroyFrameCallBack();
   struct wl_surface* surface_;
   struct wl_callback* frameCallBack_;

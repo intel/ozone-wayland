@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_CHILD_PROCESS_OBSERVER
-#define OZONE_WAYLAND_CHILD_PROCESS_OBSERVER
+#ifndef OZONE_IMPL_IPC_CHILD_PROCESS_OBSERVER_H_
+#define OZONE_IMPL_IPC_CHILD_PROCESS_OBSERVER_H_
 
 #include "content/public/browser/browser_child_process_observer.h"
 #include "content/public/browser/child_process_data.h"
@@ -18,7 +18,7 @@ class OzoneDisplay;
 // from GpuProcess side.
 class OzoneProcessObserver : public content::BrowserChildProcessObserver {
  public:
-  OzoneProcessObserver(OzoneDisplay* observer);
+  explicit OzoneProcessObserver(OzoneDisplay* observer);
   virtual ~OzoneProcessObserver();
   // Implement |BrowserChildProcessObserver|.
 
@@ -34,4 +34,4 @@ class OzoneProcessObserver : public content::BrowserChildProcessObserver {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_CHILD_PROCESS_OBSERVER
+#endif  // OZONE_IMPL_IPC_CHILD_PROCESS_OBSERVER_H_

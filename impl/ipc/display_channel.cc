@@ -9,10 +9,10 @@
 #include "content/child/child_process.h"
 
 namespace ozonewayland {
-// GpuChannelManager generates unique routeid for every new ImageTransportSurface.
-// In Ozone-Wayland, we register a routeid between DisplayChannel and ChannelHost.
-// Therefore, we hardcore our own routeid with a unique negitive value to avoid
-// any conflicts from the GpuChannelManager ones.
+// GpuChannelManager generates unique routeid for every new
+// ImageTransportSurface. In Ozone-Wayland, we register a routeid between
+// DisplayChannel and ChannelHost. Therefore, we hardcore our own routeid with a
+// unique negitive value to avoid any conflicts from the GpuChannelManager ones.
 #define WAYLAND_ROUTE_ID -0x1
 
 namespace {
@@ -25,15 +25,13 @@ content::ChildThread* GetProcessMainThread() {
 
 }
 
-OzoneDisplayChannel::OzoneDisplayChannel()
-{
+OzoneDisplayChannel::OzoneDisplayChannel() {
 }
 
-OzoneDisplayChannel::~OzoneDisplayChannel()
-{
+OzoneDisplayChannel::~OzoneDisplayChannel() {
   content::ChildThread* thread = GetProcessMainThread();
-   if (thread)
-     thread->RemoveRoute(WAYLAND_ROUTE_ID);
+  if (thread)
+    thread->RemoveRoute(WAYLAND_ROUTE_ID);
 }
 
 bool OzoneDisplayChannel::OnMessageReceived(
@@ -50,13 +48,11 @@ bool OzoneDisplayChannel::OnMessageReceived(
   return handled;
 }
 
-void OzoneDisplayChannel::OnEstablishChannel()
-{
+void OzoneDisplayChannel::OnEstablishChannel() {
   OzoneDisplay::GetInstance()->OnChannelEstablished();
 }
 
-void OzoneDisplayChannel::Register()
-{
+void OzoneDisplayChannel::Register() {
   content::ChildThread* thread = GetProcessMainThread();
   thread->AddRoute(WAYLAND_ROUTE_ID, this);
 }
@@ -64,9 +60,11 @@ void OzoneDisplayChannel::Register()
 void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
                                                unsigned state,
                                                unsigned width,
-                                               unsigned height)
-{
-  OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid, state, width, height);
+                                               unsigned height) {
+  OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid,
+                                                    state,
+                                                    width,
+                                                    height);
 }
 
 void OzoneDisplayChannel::OnWidgetTitleChanged(unsigned widget,
@@ -78,8 +76,7 @@ void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
                                                     unsigned parent,
                                                     unsigned x,
                                                     unsigned y,
-                                                    unsigned type)
-{
+                                                    unsigned type) {
   OzoneDisplay::GetInstance()->OnWidgetAttributesChanged(widget,
                                                          parent,
                                                          x,

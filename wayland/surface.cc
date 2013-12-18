@@ -13,8 +13,7 @@ static const struct wl_callback_listener frameListener = {
 
 WaylandSurface::WaylandSurface() : surface_(NULL),
     frameCallBack_(NULL),
-    m_queue(NULL)
-{
+    m_queue(NULL) {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   surface_ = wl_compositor_create_surface(display->GetCompositor());
 
@@ -25,8 +24,7 @@ WaylandSurface::WaylandSurface() : surface_(NULL),
   wl_proxy_set_queue((struct wl_proxy *)display->registry(), m_queue);
 }
 
-WaylandSurface::~WaylandSurface()
-{
+WaylandSurface::~WaylandSurface() {
   DeleteFrameCallBack();
 
   if (surface_) {
@@ -35,8 +33,7 @@ WaylandSurface::~WaylandSurface()
   }
 }
 
-void WaylandSurface::AddFrameCallBack()
-{
+void WaylandSurface::AddFrameCallBack() {
   if (frameCallBack_)
     return;
 
@@ -45,16 +42,14 @@ void WaylandSurface::AddFrameCallBack()
   wl_proxy_set_queue((struct wl_proxy *)frameCallBack_, m_queue);
 }
 
-void WaylandSurface::DeleteFrameCallBack()
-{
+void WaylandSurface::DeleteFrameCallBack() {
   if (frameCallBack_) {
     wl_callback_destroy(frameCallBack_);
     frameCallBack_ = 0;
   }
 }
 
-int WaylandSurface::EnsureFrameCallBackDone()
-{
+int WaylandSurface::EnsureFrameCallBackDone() {
   if (!m_queue)
     return -1;
 
@@ -73,16 +68,14 @@ int WaylandSurface::EnsureFrameCallBackDone()
 
 void WaylandSurface::SurfaceFrameCallback(void* data,
                                           struct wl_callback* callback,
-                                          uint32_t)
-{
+                                          uint32_t) {
   WaylandSurface* surface = static_cast<WaylandSurface *>(data);
   wl_callback_destroy(callback);
   surface->DestroyFrameCallBack();
 }
 
-void WaylandSurface::DestroyFrameCallBack()
-{
+void WaylandSurface::DestroyFrameCallBack() {
   frameCallBack_ = NULL;
 }
 
-}  // namespace ui
+}  // namespace ozonewayland

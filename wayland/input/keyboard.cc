@@ -4,21 +4,19 @@
 
 #include "ozone/wayland/input/keyboard.h"
 
-#include "ozone/wayland/dispatcher.h"
-
 #include <sys/mman.h>
+
+#include "ozone/wayland/dispatcher.h"
 
 namespace ozonewayland {
 
 WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
     keyboard_modifiers_(0),
-    dispatcher_(NULL)
-{
+    dispatcher_(NULL) {
   xkb_.context = NULL;
 }
 
-WaylandKeyboard::~WaylandKeyboard()
-{
+WaylandKeyboard::~WaylandKeyboard() {
   FiniXKB();
   if (input_keyboard_) {
     wl_keyboard_destroy(input_keyboard_);
@@ -26,8 +24,7 @@ WaylandKeyboard::~WaylandKeyboard()
   }
 }
 
-void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
-{
+void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   static const struct wl_keyboard_listener kInputKeyboardListener = {
     WaylandKeyboard::OnKeyboardKeymap,
     WaylandKeyboard::OnKeyboardEnter,
@@ -55,8 +52,7 @@ void WaylandKeyboard::OnKeyNotify(void* data,
                                   uint32_t serial,
                                   uint32_t time,
                                   uint32_t key,
-                                  uint32_t state)
-{
+                                  uint32_t state) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
   uint32_t code, num_syms;
   const xkb_keysym_t *syms;
@@ -71,7 +67,7 @@ void WaylandKeyboard::OnKeyNotify(void* data,
 
   code = key + 8;
   num_syms = xkb_key_get_syms(device->xkb_.state, code, &syms);
-  if(num_syms == 1)
+  if (num_syms == 1)
     sym = syms[0];
   else
     sym = XKB_KEY_NoSymbol;
@@ -94,8 +90,7 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
                                        struct wl_keyboard *keyboard,
                                        uint32_t format,
                                        int fd,
-                                       uint32_t size)
-{
+                                       uint32_t size) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
   char *map_str;
 
@@ -142,15 +137,13 @@ void WaylandKeyboard::OnKeyboardEnter(void* data,
                                       wl_keyboard* input_keyboard,
                                       uint32_t serial,
                                       wl_surface* surface,
-                                      wl_array* keys)
-{
+                                      wl_array* keys) {
 }
 
 void WaylandKeyboard::OnKeyboardLeave(void* data,
                                       wl_keyboard* input_keyboard,
                                       uint32_t serial,
-                                      wl_surface* surface)
-{
+                                      wl_surface* surface) {
 }
 
 void WaylandKeyboard::OnKeyModifiers(void *data,
@@ -159,16 +152,14 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                                      uint32_t mods_depressed,
                                      uint32_t mods_latched,
                                      uint32_t mods_locked,
-                                     uint32_t group)
-{
+                                     uint32_t group) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
 
   xkb_state_update_mask(device->xkb_.state, mods_depressed, mods_latched,
       mods_locked, 0, 0, group);
 }
 
-void WaylandKeyboard::InitXKB()
-{
+void WaylandKeyboard::InitXKB() {
   if (xkb_.context) {
     return;
   }
@@ -176,8 +167,7 @@ void WaylandKeyboard::InitXKB()
   xkb_.context = xkb_context_new((xkb_context_flags)0);
 }
 
-void WaylandKeyboard::FiniXKB()
-{
+void WaylandKeyboard::FiniXKB() {
   if (xkb_.state)
     xkb_state_unref(xkb_.state);
   if (xkb_.keymap)

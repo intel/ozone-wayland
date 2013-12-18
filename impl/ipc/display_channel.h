@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_DISPLAY_CHANNEL_H_
-#define OZONE_WAYLAND_DISPLAY_CHANNEL_H_
+#ifndef OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
+#define OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
 
 #include "ozone/wayland/dispatcher.h"
 #include "ipc/ipc_listener.h"
@@ -14,8 +14,7 @@ namespace ozonewayland {
 // host counterpart in BrowserProcess. There will be always only one
 // OzoneDisplayChannel per browser instance.
 
-class OzoneDisplayChannel : public IPC::Listener
-{
+class OzoneDisplayChannel : public IPC::Listener {
  public:
   OzoneDisplayChannel();
   virtual ~OzoneDisplayChannel();
@@ -40,6 +39,6 @@ class OzoneDisplayChannel : public IPC::Listener
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_DISPLAY_CHANNEL_H_
+#endif  // OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_

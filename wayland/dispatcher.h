@@ -21,17 +21,16 @@ class OzoneDisplay;
 
 // WaylandDispatcher is also used by input classes to send related events.
 // In case of single process:
-// Dispatcher creates appropriate event and posts it to message loop of mainthread.
-// The event is than dispatched to MessagePumpOzone.
+// Dispatcher creates appropriate event and posts it to message loop of
+// mainthread. The event is than dispatched to MessagePumpOzone.
 // In case of MultiProcess:
 // Dispatcher posts task to childthread, from here it is sent via IPC channel to
 // Browser.
 
 class WaylandDispatcher : public base::Thread {
  public:
-  enum Task
-  {
-    Flush = 0x01, // Handles Flush in worker thread.
+  enum Task {
+    Flush = 0x01,  // Handles Flush in worker thread.
     Poll = 0x02  // To poll on a display fd. Task has no effect in case
                  // a valid display fd is not passed to WaylandDispatcher.
   };
@@ -58,8 +57,7 @@ class WaylandDispatcher : public base::Thread {
   }
 
  private:
-
-  WaylandDispatcher(int fd = 0);
+  explicit WaylandDispatcher(int fd = 0);
   virtual ~WaylandDispatcher();
   static void HandleFlush();
   static void DisplayRun(WaylandDispatcher* data);

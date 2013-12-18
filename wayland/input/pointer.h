@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_POINTER_H_
-#define OZONE_WAYLAND_POINTER_H_
+#ifndef OZONE_WAYLAND_INPUT_POINTER_H_
+#define OZONE_WAYLAND_INPUT_POINTER_H_
 
 #include "ozone/wayland/display.h"
 #include "ui/gfx/point.h"
@@ -73,4 +73,4 @@ class WaylandPointer {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_POINTER_H_
+#endif  // OZONE_WAYLAND_INPUT_POINTER_H_

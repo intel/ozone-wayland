@@ -10,11 +10,11 @@
 #define __STDC_FORMAT_MACROS
 #endif
 
-#include "base/basictypes.h"
-
+#include <wayland-client.h>
 #include <list>
 #include <map>
-#include <wayland-client.h>
+
+#include "base/basictypes.h"
 
 namespace ozonewayland {
 
@@ -60,11 +60,11 @@ class WaylandDisplay {
 
  private:
   enum RegistrationType {
-    RegisterAsNeeded, // Handles all the required registrations.
-    RegisterOutputOnly // Only screen registration.
+    RegisterAsNeeded,  // Handles all the required registrations.
+    RegisterOutputOnly  // Only screen registration.
   };
 
-  WaylandDisplay(RegistrationType type);
+  explicit WaylandDisplay(RegistrationType type);
   virtual ~WaylandDisplay();
   void terminate();
   void SyncDisplay();

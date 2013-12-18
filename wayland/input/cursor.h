@@ -2,19 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_CURSOR_H_
-#define OZONE_WAYLAND_CURSOR_H_
+#ifndef OZONE_WAYLAND_INPUT_CURSOR_H_
+#define OZONE_WAYLAND_INPUT_CURSOR_H_
 
-#include "base/basictypes.h"
 #include <wayland-client.h>
 #include <wayland-cursor.h>
+
+#include "base/basictypes.h"
 
 namespace ozonewayland {
 class WaylandSurface;
 class WaylandDisplay;
 
 class WaylandCursor {
-public:
+ public:
   enum CursorType {
     CURSOR_UNSET,
     CURSOR_BOTTOM_LEFT,
@@ -29,9 +30,9 @@ public:
     CURSOR_TOP,
     CURSOR_IBEAM,
     CURSOR_HAND1
-   };
+  };
 
-  WaylandCursor(wl_shm* shm);
+  explicit WaylandCursor(wl_shm* shm);
   virtual ~WaylandCursor();
 
   void Update(CursorType type, uint32_t serial);
@@ -39,7 +40,7 @@ public:
   wl_pointer* GetInputPointer() { return input_pointer_; }
   void SetInputPointer(wl_pointer* pointer);
 
-private:
+ private:
   void ValidateBuffer(CursorType type, uint32_t serial);
   static void Clear();
   wl_pointer* input_pointer_;

@@ -10,8 +10,7 @@
 namespace ozonewayland {
 
 DesktopDragDropClientWayland::DesktopDragDropClientWayland(
-    aura::Window* root_window)
-{
+    aura::Window* root_window) {
   NOTIMPLEMENTED();
 }
 
@@ -47,4 +46,4 @@ bool DesktopDragDropClientWayland::IsDragDropInProgress() {
   return false;
 }
 
-}  // namespace views
+}  // namespace ozonewayland

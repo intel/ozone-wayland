@@ -4,6 +4,8 @@
 
 #include "ozone/wayland/input/pointer.h"
 
+#include <linux/input.h>
+
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/window.h"
@@ -11,27 +13,22 @@
 #include "ui/events/event.h"
 #include "ui/base/hit_test.h"
 
-#include <linux/input.h>
-
 namespace ozonewayland {
 
 WaylandPointer::WaylandPointer()
   : cursor_(NULL),
     dispatcher_(NULL),
-    focused_window_handle_(0)
-{
+    focused_window_handle_(0) {
 }
 
-WaylandPointer::~WaylandPointer()
-{
+WaylandPointer::~WaylandPointer() {
   if (cursor_) {
     delete cursor_;
     cursor_ = NULL;
   }
 }
 
-void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
-{
+void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   static const struct wl_pointer_listener kInputPointerListener = {
     WaylandPointer::OnPointerEnter,
     WaylandPointer::OnPointerLeave,
@@ -41,7 +38,7 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
   };
 
   if (!cursor_)
-   cursor_ = new WaylandCursor(WaylandDisplay::GetInstance()->shm());
+    cursor_ = new WaylandCursor(WaylandDisplay::GetInstance()->shm());
 
   dispatcher_ = WaylandDispatcher::GetInstance();
 
@@ -50,7 +47,8 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps)
       cursor_->SetInputPointer(input_pointer);
     wl_pointer_set_user_data(input_pointer, this);
     wl_pointer_add_listener(input_pointer, &kInputPointerListener, this);
-  } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && cursor_->GetInputPointer()) {
+  } else if (!(caps & WL_SEAT_CAPABILITY_POINTER)
+                && cursor_->GetInputPointer()) {
     wl_pointer_destroy(cursor_->GetInputPointer());
     cursor_->SetInputPointer(NULL);
   }
@@ -60,8 +58,7 @@ void WaylandPointer::OnMotionNotify(void* data,
                                     wl_pointer* input_pointer,
                                     uint32_t time,
                                     wl_fixed_t sx_w,
-                                    wl_fixed_t sy_w)
-{
+                                    wl_fixed_t sy_w) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   float sx = wl_fixed_to_double(sx_w);
   float sy = wl_fixed_to_double(sy_w);
@@ -75,8 +72,7 @@ void WaylandPointer::OnButtonNotify(void* data,
                                     uint32_t serial,
                                     uint32_t time,
                                     uint32_t button,
-                                    uint32_t state)
-{
+                                    uint32_t state) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   int currentState;
   if (state == WL_POINTER_BUTTON_STATE_PRESSED)
@@ -104,8 +100,7 @@ void WaylandPointer::OnAxisNotify(void* data,
                                   wl_pointer* input_pointer,
                                   uint32_t time,
                                   uint32_t axis,
-                                  int32_t value)
-{
+                                  int32_t value) {
   int x_offset = 0, y_offset = 0;
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   const int delta = ui::MouseWheelEvent::kWheelDelta;
@@ -129,8 +124,7 @@ void WaylandPointer::OnPointerEnter(void* data,
                                     uint32_t serial,
                                     wl_surface* surface,
                                     wl_fixed_t sx_w,
-                                    wl_fixed_t sy_w)
-{
+                                    wl_fixed_t sy_w) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   // TODO(vignatti): sx and sy have to be used for setting different resizing
   // and other cursors.
@@ -148,8 +142,7 @@ void WaylandPointer::OnPointerEnter(void* data,
 void WaylandPointer::OnPointerLeave(void* data,
                                     wl_pointer* input_pointer,
                                     uint32_t serial,
-                                    wl_surface* surface)
-{
+                                    wl_surface* surface) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   device->dispatcher_->PointerLeave(device->focused_window_handle_,
                                     device->pointer_position_.x(),

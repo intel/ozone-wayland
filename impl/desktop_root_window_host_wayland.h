@@ -6,10 +6,13 @@
 #ifndef DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 #define DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 
+#include <list>
+#include <set>
+
 #include "base/basictypes.h"
+#include "ozone/wayland/window_change_observer.h"
 #include "ui/aura/window_tree_host.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
-#include "ozone/wayland/window_change_observer.h"
 
 namespace views {
 class DesktopDispatcherClient;
@@ -23,11 +26,11 @@ class Tooltip;
 namespace ozonewayland {
 class DesktopDragDropClientWayland;
 
-class VIEWS_EXPORT DesktopRootWindowHostWayland :
-    public views::DesktopRootWindowHost,
-    public aura::RootWindowHost,
-    public WindowChangeObserver,
-    public base::MessageLoop::Dispatcher {
+class VIEWS_EXPORT DesktopRootWindowHostWayland
+    : public views::DesktopRootWindowHost,
+      public aura::RootWindowHost,
+      public WindowChangeObserver,
+      public base::MessageLoop::Dispatcher {
  public:
   DesktopRootWindowHostWayland(
       views::internal::NativeWidgetDelegate* native_widget_delegate,
@@ -41,12 +44,12 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
  private:
   enum {
     Uninitialized = 0x00,
-    Visible = 0x01, // Window is Visible.
+    Visible = 0x01,  // Window is Visible.
     FullScreen = 0x02,  // Window is in fullscreen mode.
-    Maximized = 0x04, // Window is maximized,
-    Minimized = 0x08, // Window is minimized.
-    Normal = 0x10, // Window is in Normal Mode.
-    Active = 0x20 // Window is Active.
+    Maximized = 0x04,  // Window is maximized,
+    Minimized = 0x08,  // Window is minimized.
+    Normal = 0x10,  // Window is in Normal Mode.
+    Active = 0x20  // Window is Active.
   };
 
   typedef unsigned RootWindowState;
@@ -82,11 +85,11 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void Init(aura::Window* content_window,
                     const views::Widget::InitParams& params,
                     aura::RootWindow::CreateParams* rw_create_params) OVERRIDE;
-  virtual void OnRootWindowCreated(aura::RootWindow* root,
-                                   const views::Widget::InitParams& params) OVERRIDE;
+  virtual void OnRootWindowCreated(
+      aura::RootWindow* root, const views::Widget::InitParams& params) OVERRIDE;
   virtual scoped_ptr<views::corewm::Tooltip> CreateTooltip() OVERRIDE;
-  virtual scoped_ptr<aura::client::DragDropClient>
-      CreateDragDropClient(views::DesktopNativeCursorManager* cursor_manager) OVERRIDE;
+  virtual scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
+      views::DesktopNativeCursorManager* cursor_manager) OVERRIDE;
   virtual void Close() OVERRIDE;
   virtual void CloseNow() OVERRIDE;
   virtual aura::RootWindowHost* AsRootWindowHost() OVERRIDE;
@@ -168,7 +171,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland :
   virtual void OnWindowLeave(unsigned windowhandle) OVERRIDE;
 
   // Overridden from DesktopSelectionProviderAuraOzone:
-  //virtual void SetDropHandler(
+  // virtual void SetDropHandler(
   //    ui::OSExchangeDataProviderAuraOzone* handler) OVERRIDE;
 
   // Overridden from Dispatcher:

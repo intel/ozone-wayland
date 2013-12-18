@@ -12,8 +12,7 @@ DesktopScreenWayland::DesktopScreenWayland() {
 DesktopScreenWayland::~DesktopScreenWayland() {
 }
 
-void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry)
-{
+void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
   rect_ = geometry;
 }
 
@@ -71,4 +70,4 @@ void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
 void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
 }
 
-}
+}  // namespace ozonewayland

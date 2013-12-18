@@ -33,8 +33,7 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
 WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
-    primary_screen_(NULL)
-{
+    primary_screen_(NULL) {
   display_ = wl_display_connect(NULL);
   if (!display_)
       return;
@@ -58,13 +57,11 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
     terminate();
 }
 
-WaylandDisplay::~WaylandDisplay()
-{
+WaylandDisplay::~WaylandDisplay() {
   terminate();
 }
 
-void WaylandDisplay::terminate()
-{
+void WaylandDisplay::terminate() {
   if (widget_map_.size()) {
     STLDeleteValues(&widget_map_);
     widget_map_.clear();
@@ -106,8 +103,7 @@ void WaylandDisplay::terminate()
   instance_ = NULL;
 }
 
-void WaylandDisplay::SyncDisplay()
-{
+void WaylandDisplay::SyncDisplay() {
   wl_display_roundtrip(display_);
 }
 
@@ -116,8 +112,7 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     struct wl_registry *registry,
     uint32_t name,
     const char *interface,
-    uint32_t version)
-{
+    uint32_t version) {
 
   WaylandDisplay* disp = static_cast<WaylandDisplay*>(data);
 
@@ -146,8 +141,7 @@ void WaylandDisplay::DisplayHandleOutputOnly(void *data,
                                              struct wl_registry *registry,
                                              uint32_t name,
                                              const char *interface,
-                                             uint32_t version)
-{
+                                             uint32_t version) {
   WaylandDisplay* disp = static_cast<WaylandDisplay*>(data);
 
   if (strcmp(interface, "wl_output") == 0) {

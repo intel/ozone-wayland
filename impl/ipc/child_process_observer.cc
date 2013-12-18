@@ -10,24 +10,20 @@
 namespace ozonewayland {
 
 OzoneProcessObserver::OzoneProcessObserver(OzoneDisplay* observer)
-    : observer_(observer)
-{
+    : observer_(observer) {
   BrowserChildProcessObserver::Add(this);
 }
 
-OzoneProcessObserver::~OzoneProcessObserver()
-{
+OzoneProcessObserver::~OzoneProcessObserver() {
 }
 
 void OzoneProcessObserver::BrowserChildProcessHostConnected(
-  const content::ChildProcessData& data)
-{
+  const content::ChildProcessData& data) {
   if (data.process_type == content::PROCESS_TYPE_GPU)
     observer_->EstablishChannel();
 }
 
-void OzoneProcessObserver::WillDestroyCurrentMessageLoop()
-{
+void OzoneProcessObserver::WillDestroyCurrentMessageLoop() {
   BrowserChildProcessObserver::Remove(this);
 }
 

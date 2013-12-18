@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_OZONE_DISPLAY_H_
-#define OZONE_WAYLAND_OZONE_DISPLAY_H_
+#ifndef OZONE_IMPL_OZONE_DISPLAY_H_
+#define OZONE_IMPL_OZONE_DISPLAY_H_
 
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop.h"
@@ -26,26 +26,26 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
                      public base::MessageLoop::DestructionObserver {
  public:
   enum {
-    Create = 1, // Create a new Widget
-    Show = 2, // Widget is visible.
-    Hide = 3, // Widget is hidden.
+    Create = 1,  // Create a new Widget
+    Show = 2,  // Widget is visible.
+    Hide = 3,  // Widget is hidden.
     FullScreen = 4,  // Widget is in fullscreen mode.
-    Maximized = 5, // Widget is maximized,
-    Minimized = 6, // Widget is minimized.
-    Restore = 7, // Restore Widget.
-    Active = 8, // Widget is Activated.
-    InActive = 9, // Widget is DeActivated.
-    Resize = 10, // Widget is Resized.
-    Destroyed = 11 // Widget is Destroyed.
+    Maximized = 5,  // Widget is maximized,
+    Minimized = 6,  // Widget is minimized.
+    Restore = 7,  // Restore Widget.
+    Active = 8,  // Widget is Activated.
+    InActive = 9,  // Widget is DeActivated.
+    Resize = 10,  // Widget is Resized.
+    Destroyed = 11  // Widget is Destroyed.
   };
 
   typedef unsigned WidgetState;
 
   enum {
-    Window = 1, // A decorated Window.
-    WindowFrameLess = 2, // An undecorated Window.
-    Transient = 3 // An undecorated Window, with transient properties
-                  // specialized to menus.
+    Window = 1,  // A decorated Window.
+    WindowFrameLess = 2,  // An undecorated Window.
+    Transient = 3  // An undecorated Window, with transient properties
+                   // specialized to menus.
   };
 
   typedef unsigned WidgetType;
@@ -69,14 +69,17 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
     gfx::AcceleratedWidget w) OVERRIDE;
   virtual bool LoadEGLGLES2Bindings(
     gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback proc_address) OVERRIDE;
+    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
+        proc_address) OVERRIDE;
   // Returns true if resizing of eglwindow associated with opaque handle was
   // successful else returns false.
-  virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
-                                                const gfx::Rect& bounds) OVERRIDE;
-  virtual gfx::VSyncProvider* GetVSyncProvider(gfx::AcceleratedWidget w) OVERRIDE;
+  virtual bool AttemptToResizeAcceleratedWidget(
+      gfx::AcceleratedWidget w, const gfx::Rect& bounds) OVERRIDE;
+  virtual gfx::VSyncProvider* GetVSyncProvider(
+      gfx::AcceleratedWidget w) OVERRIDE;
   virtual bool SchedulePageFlip(gfx::AcceleratedWidget w) OVERRIDE;
-  virtual const int32* GetEGLSurfaceProperties(const int32* desired_list) OVERRIDE;
+  virtual const int32* GetEGLSurfaceProperties(
+      const int32* desired_list) OVERRIDE;
 
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
@@ -107,9 +110,9 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
 
  private:
   enum State {
-   UnInitialized = 0x00,
-   Initialized = 0x01,
-   ChannelConnected = 0x02
+    UnInitialized = 0x00,
+    Initialized = 0x01,
+    ChannelConnected = 0x02
   };
 
   typedef unsigned CurrentState;
@@ -151,4 +154,4 @@ class OzoneDisplay : public gfx::SurfaceFactoryOzone,
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_OZONE_DISPLAY_H_
+#endif  // OZONE_IMPL_OZONE_DISPLAY_H_

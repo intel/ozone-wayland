@@ -14,19 +14,16 @@ namespace ozonewayland {
 #define CHANNEL_ROUTE_ID -0x1
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : channel_(NULL)
-{
+    : channel_(NULL) {
   dispatcher_ = WaylandDispatcher::GetInstance();
 }
 
-OzoneDisplayChannelHost::~OzoneDisplayChannelHost()
-{
+OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
   OzoneDisplay::GetInstance()->OnChannelHostDestroyed();
   DCHECK(deferred_messages_.empty());
 }
 
-void OzoneDisplayChannelHost::EstablishChannel()
-{
+void OzoneDisplayChannelHost::EstablishChannel() {
   if (channel_)
     return;
 
@@ -81,8 +78,7 @@ void OzoneDisplayChannelHost::SendWidgetTitle(
   Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
 }
 
-void OzoneDisplayChannelHost::OnChannelEstablished()
-{
+void OzoneDisplayChannelHost::OnChannelEstablished() {
   DCHECK(channel_);
   Send(new WaylandMsg_DisplayChannelEstablished(CHANNEL_ROUTE_ID));
   while (!deferred_messages_.empty()) {
@@ -91,8 +87,7 @@ void OzoneDisplayChannelHost::OnChannelEstablished()
   }
 }
 
-void OzoneDisplayChannelHost::OnMotionNotify(float x, float y)
-{
+void OzoneDisplayChannelHost::OnMotionNotify(float x, float y) {
   dispatcher_->MotionNotify(x, y);
 }
 
@@ -100,44 +95,41 @@ void OzoneDisplayChannelHost::OnButtonNotify(unsigned handle,
                                              int state,
                                              int flags,
                                              float x,
-                                             float y)
-{
+                                             float y) {
   dispatcher_->ButtonNotify(handle, state, flags, x, y);
 }
 
 void OzoneDisplayChannelHost::OnAxisNotify(float x,
                                            float y,
                                            float xoffset,
-                                           float yoffset)
-{
+                                           float yoffset) {
   dispatcher_->AxisNotify(x, y, xoffset, yoffset);
 }
 
-void OzoneDisplayChannelHost::OnPointerEnter(unsigned handle, float x, float y)
-{
+void OzoneDisplayChannelHost::OnPointerEnter(unsigned handle,
+                                             float x,
+                                             float y) {
   dispatcher_->PointerEnter(handle, x, y);
 }
 
-void OzoneDisplayChannelHost::OnPointerLeave(unsigned handle, float x, float y)
-{
+void OzoneDisplayChannelHost::OnPointerLeave(unsigned handle,
+                                             float x,
+                                             float y) {
   dispatcher_->PointerLeave(handle, x, y);
 }
 
 void OzoneDisplayChannelHost::OnKeyNotify(unsigned type,
                                           unsigned code,
-                                          unsigned modifiers)
-{
+                                          unsigned modifiers) {
   dispatcher_->KeyNotify(type, code, modifiers);
 }
 
 void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
-                                                  unsigned height)
-{
+                                                  unsigned height) {
   OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
 }
 
-bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message)
-{
+bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) <<
       "Must handle messages that were dispatched to another thread!";
 
@@ -156,18 +148,15 @@ bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message)
   return handled;
 }
 
-void OzoneDisplayChannelHost::OnFilterAdded(IPC::Channel* channel)
-{
+void OzoneDisplayChannelHost::OnFilterAdded(IPC::Channel* channel) {
   channel_ = channel;
 }
 
-void OzoneDisplayChannelHost::OnChannelClosing()
-{
+void OzoneDisplayChannelHost::OnChannelClosing() {
   channel_ = NULL;
 }
 
-bool OzoneDisplayChannelHost::Send(IPC::Message* message)
-{
+bool OzoneDisplayChannelHost::Send(IPC::Message* message) {
   if (!channel_) {
     deferred_messages_.push(message);
     return true;
@@ -179,8 +168,7 @@ bool OzoneDisplayChannelHost::Send(IPC::Message* message)
   return channel_->Send(scoped_message.release());
 }
 
-void OzoneDisplayChannelHost::UpdateConnection()
-{
+void OzoneDisplayChannelHost::UpdateConnection() {
   content::GpuProcessHost* host = content::GpuProcessHost::Get(
       content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
       content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);

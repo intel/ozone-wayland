@@ -9,7 +9,7 @@ namespace ozonewayland {
 
 class WaylandCursorData {
  public:
-  WaylandCursorData(wl_shm* shm);
+  explicit WaylandCursorData(wl_shm* shm);
   virtual ~WaylandCursorData();
 
   static WaylandCursorData* GetInstance() {
@@ -38,35 +38,34 @@ class WaylandCursorData {
 
 WaylandCursorData* WaylandCursorData::impl_ = NULL;
 
-WaylandCursorData::WaylandCursorData(wl_shm* shm)
-{
-    const char *cursor_names[] = {
-      "bottom_left_corner",
-      "bottom_right_corner",
-      "bottom_side",
-      "grabbing",
-      "left_ptr",
-      "left_side",
-      "right_side",
-      "top_left_corner",
-      "top_right_corner",
-      "top_side",
-      "xterm",
-      "hand1",
-    };
+WaylandCursorData::WaylandCursorData(wl_shm* shm) {
+  const char *cursor_names[] = {
+    "bottom_left_corner",
+    "bottom_right_corner",
+    "bottom_side",
+    "grabbing",
+    "left_ptr",
+    "left_side",
+    "right_side",
+    "top_left_corner",
+    "top_right_corner",
+    "top_side",
+    "xterm",
+    "hand1",
+  };
 
-    // (kalyan) We should be able to configure the size of cursor and theme name.
-    unsigned int i, array_size = (sizeof(cursor_names) / sizeof(cursor_names[0])) -1;
-    cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm);
-    cursors_ = new wl_cursor*[array_size];
-    memset(cursors_, 0, sizeof(wl_cursor*) * array_size);
+  // (kalyan) We should be able to configure the size of cursor and theme name.
+  unsigned int i, array_size =
+      (sizeof(cursor_names) / sizeof(cursor_names[0])) -1;
+  cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm);
+  cursors_ = new wl_cursor*[array_size];
+  memset(cursors_, 0, sizeof(wl_cursor*) * array_size);
 
-    for(i = 0; i < array_size; i++)
-      cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
+  for (i = 0; i < array_size; i++)
+    cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
 }
 
-struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index)
-{
+struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index) {
     struct wl_cursor *cursor = cursors_[index];
     if (!cursor)
       return 0;
@@ -74,41 +73,35 @@ struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index)
     return cursor->images[0];
 }
 
-WaylandCursorData::~WaylandCursorData()
-{
- if(cursor_theme_)
- {
-   wl_cursor_theme_destroy(cursor_theme_);
-   cursor_theme_ = NULL;
- }
+WaylandCursorData::~WaylandCursorData() {
+  if (cursor_theme_) {
+    wl_cursor_theme_destroy(cursor_theme_);
+    cursor_theme_ = NULL;
+  }
 
- if(cursors_)
- {
-   delete[] cursors_;
-   cursors_ = NULL;
- }
+  if (cursors_) {
+    delete[] cursors_;
+    cursors_ = NULL;
+  }
 }
 
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
     buffer_(NULL),
     width_(0),
     height_(0),
-    type_(CURSOR_UNSET)
-{
+    type_(CURSOR_UNSET) {
   pointer_surface_ = new WaylandSurface();
   WaylandCursorData::InitializeCursorData(shm);
 }
 
-WaylandCursor::~WaylandCursor()
-{
+WaylandCursor::~WaylandCursor() {
   if (pointer_surface_) {
     delete pointer_surface_;
     pointer_surface_ = NULL;
   }
 }
 
-void WaylandCursor::Update(CursorType type, uint32_t serial)
-{
+void WaylandCursor::Update(CursorType type, uint32_t serial) {
   if (!input_pointer_)
     return;
 
@@ -119,13 +112,11 @@ void WaylandCursor::Update(CursorType type, uint32_t serial)
   wl_surface_commit(surface);
 }
 
-void WaylandCursor::SetInputPointer(wl_pointer* pointer)
-{
+void WaylandCursor::SetInputPointer(wl_pointer* pointer) {
   input_pointer_ = pointer;
 }
 
-void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial)
-{
+void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial) {
   if (type_ == type)
     return;
 
@@ -141,8 +132,7 @@ void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial)
                         image->hotspot_y);
 }
 
-void WaylandCursor::Clear()
-{
+void WaylandCursor::Clear() {
   WaylandCursorData::DestroyCursorData();
 }
 

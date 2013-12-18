@@ -8,7 +8,6 @@
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/event_factory_wayland.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/egl/egl_window.h"
@@ -24,8 +23,7 @@ namespace ozonewayland {
 
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
 
-OzoneDisplay* OzoneDisplay::GetInstance()
-{
+OzoneDisplay* OzoneDisplay::GetInstance() {
   return instance_;
 }
 
@@ -38,20 +36,19 @@ OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     host_(NULL),
     e_factory_(NULL),
     spec_(NULL),
-    kMaxDisplaySize_(20)
-{
+    kMaxDisplaySize_(20) {
   instance_ = this;
 }
 
-OzoneDisplay::~OzoneDisplay()
-{
+OzoneDisplay::~OzoneDisplay() {
   Terminate();
   instance_ = NULL;
 }
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
   if (spec_[0] == '\0')
-    NOTREACHED() << "OutputHandleMode should come from Wayland compositor first";
+    NOTREACHED() <<
+        "OutputHandleMode should come from Wayland compositor first";
 
   return spec_;
 }
@@ -65,15 +62,15 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   return desktop_screen_;
 }
 
-gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
-{
+gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware() {
   if (state_ & Initialized)
     return initialized_state_;
 
   state_ |= Initialized;
   display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
-  initialized_state_ = display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
-                                           : gfx::SurfaceFactoryOzone::FAILED;
+  initialized_state_ =
+      display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
+                          : gfx::SurfaceFactoryOzone::FAILED;
 
   if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
     LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
@@ -87,23 +84,20 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware()
     // initialized.
     base::MessageLoop::current()->message_loop_proxy()->PostTask(
         FROM_HERE, base::Bind(&OzoneDisplay::DelayedInitialization, this));
-   }
+  }
 
   return initialized_state_;
 }
 
-intptr_t OzoneDisplay::GetNativeDisplay()
-{
+intptr_t OzoneDisplay::GetNativeDisplay() {
   return (intptr_t)display_->display();
 }
 
-void OzoneDisplay::ShutdownHardware()
-{
+void OzoneDisplay::ShutdownHardware() {
   Terminate();
 }
 
-gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget()
-{
+gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
   // Ensure dispatcher is initialized.
   if (!dispatcher_)
@@ -129,8 +123,8 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 }
 
 bool OzoneDisplay::LoadEGLGLES2Bindings(
-      gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-      gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback set_proc_address) {
+    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback setprocaddress) {
   std::string error;
   base::NativeLibrary gles_library = base::LoadNativeLibrary(
     base::FilePath("libGLESv2.so.2"), &error);
@@ -161,7 +155,7 @@ bool OzoneDisplay::LoadEGLGLES2Bindings(
     return false;
   }
 
-  set_proc_address.Run(get_proc_address);
+  setprocaddress.Run(get_proc_address);
   add_gl_library.Run(egl_library);
   add_gl_library.Run(gles_library);
   return true;
@@ -189,13 +183,11 @@ bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
   return true;
 }
 
-const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list)
-{
+const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
   return EGLWindow::GetEGLConfigAttribs();
 }
 
-void OzoneDisplay::WillDestroyCurrentMessageLoop()
-{
+void OzoneDisplay::WillDestroyCurrentMessageLoop() {
   DCHECK(base::MessageLoop::current());
   dispatcher_->MessageLoopDestroyed();
 
@@ -217,8 +209,7 @@ DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
 void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
                                   WidgetState state,
                                   unsigned width,
-                                  unsigned height)
-{
+                                  unsigned height) {
   if (host_)
     host_->SendWidgetState(w, state, width, height);
   else
@@ -228,8 +219,7 @@ void OzoneDisplay::SetWidgetState(gfx::AcceleratedWidget w,
 void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
                                        WidgetState state,
                                        unsigned width,
-                                       unsigned height)
-{
+                                       unsigned height) {
   switch (state) {
     case Create:
     {
@@ -280,7 +270,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
     {
       display_->DestroyWindow(w);
       const std::map<unsigned, WaylandWindow*> widget_map =
-        display_->GetWindowList();
+          display_->GetWindowList();
 
       if (!widget_map.size()) {
         if (e_factory_)
@@ -348,8 +338,7 @@ void OzoneDisplay::OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
   }
 }
 
-void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer)
-{
+void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer) {
   DCHECK(dispatcher_);
   dispatcher_->SetWindowChangeObserver(observer);
 }
@@ -359,8 +348,7 @@ void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
   display->channel_->Register();
 }
 
-void OzoneDisplay::EstablishChannel()
-{
+void OzoneDisplay::EstablishChannel() {
   if (state_ & ChannelConnected)
     return;
 
@@ -371,26 +359,23 @@ void OzoneDisplay::EstablishChannel()
   state_ |= ChannelConnected;
 }
 
-void OzoneDisplay::OnChannelEstablished()
-{
+void OzoneDisplay::OnChannelEstablished() {
   state_ |= ChannelConnected;
 }
 
-void OzoneDisplay::OnChannelHostDestroyed()
-{
+void OzoneDisplay::OnChannelHostDestroyed() {
   state_ &= ~ChannelConnected;
   host_ = NULL;
 }
 
 void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
                                        int width,
-                                       int height)
-{
+                                       int height) {
   if (!(state_ & Initialized))
     return;
 
   if (screen != display_->PrimaryScreen()) {
-    NOTIMPLEMENTED () << "Multiple screens are not implemented";
+    NOTIMPLEMENTED() << "Multiple screens are not implemented";
     return;
   }
 
@@ -400,16 +385,14 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
     OnOutputSizeChanged(width, height);
 }
 
-void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height)
-{
+void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
   if (spec_)
     base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
   if (desktop_screen_)
     desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
 
-WaylandWindow* OzoneDisplay::CreateWidget(unsigned w)
-{
+WaylandWindow* OzoneDisplay::CreateWidget(unsigned w) {
   DCHECK((!display_ && host_) || (display_ && !host_));
   WaylandWindow* window = NULL;
   if (display_)
@@ -420,8 +403,7 @@ WaylandWindow* OzoneDisplay::CreateWidget(unsigned w)
   return window;
 }
 
-WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w)
-{
+WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {
   DCHECK(display_);
   const std::map<unsigned, WaylandWindow*> widget_map =
       display_->GetWindowList();
@@ -430,8 +412,7 @@ WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w)
     return it == widget_map.end() ? NULL : it->second;
 }
 
-void OzoneDisplay::Terminate()
-{
+void OzoneDisplay::Terminate() {
   if (!(state_ & Initialized))
     return;
 
@@ -467,8 +448,7 @@ void OzoneDisplay::Terminate()
   }
 }
 
-void OzoneDisplay::InitializeDispatcher(int fd)
-{
+void OzoneDisplay::InitializeDispatcher(int fd) {
   dispatcher_ = new WaylandDispatcher(fd);
   DCHECK(base::MessageLoop::current());
 
@@ -479,9 +459,9 @@ void OzoneDisplay::InitializeDispatcher(int fd)
     spec_[0] = '\0';
     base::MessageLoop::current()->AddDestructionObserver(this);
 
-    if (display_)
+    if (display_) {
       e_factory_ = new EventFactoryWayland();
-    else {
+    } else {
       child_process_observer_ = new OzoneProcessObserver(this);
       EstablishChannel();
     }

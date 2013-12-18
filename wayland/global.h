@@ -7,9 +7,9 @@
 
 namespace ozonewayland {
 
-#define MOD_SHIFT_MASK		0x01
-#define MOD_ALT_MASK		0x02
-#define MOD_CONTROL_MASK	0x04
+#define MOD_SHIFT_MASK  0x01
+#define MOD_ALT_MASK  0x02
+#define MOD_CONTROL_MASK  0x04
 
 enum WindowLocation {
   WINDOW_INTERIOR = 0,
@@ -25,11 +25,10 @@ enum WindowLocation {
   WINDOW_EXTERIOR = 16,
   WINDOW_TITLEBAR = 17,
   WINDOW_CLIENT_AREA = 18,
- };
+};
 
 // Constants to identify the type of resize.
-enum BoundsChangeType
-{
+enum BoundsChangeType {
   kBoundsChange_None = 0,
   kBoundsChange_Repositions,
   kBoundsChange_Resizes,

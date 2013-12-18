@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_OZONE_PLATFORM_WAYLAND_H_
-#define OZONE_IMPL_OZONE_PLATFORM_WAYLAND_H_
+#ifndef OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
+#define OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 
 #include "ui/events/ozone/event_factory_ozone.h"
 #include "ui/ozone/ozone_platform.h"
@@ -29,7 +29,7 @@ class OzonePlatformWayland : public OzonePlatform {
  private:
   ozonewayland::OzoneDisplay surface_factory_ozone_;
 
-  // TODO: Use EventFactoryOzone. This is a stub that does nothing.
+  // TODO(kalyan): Use EventFactoryOzone. This is a stub that does nothing.
   EventFactoryOzone event_factory_ozone_;
 
   // This creates a minimal input context.
@@ -47,4 +47,4 @@ OZONE_WAYLAND_EXPORT OzonePlatform* CreateOzonePlatformWayland();
 
 }  // namespace ui
 
-#endif  // OZONE_IMPL_OZONE_PLATFORM_WAYLAND_H_
+#endif  // OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_

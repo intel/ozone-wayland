@@ -5,10 +5,10 @@
 
 #include "ozone/wayland/input/kbd_conversion.h"
 
+#include <xkbcommon/xkbcommon.h>
+
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
-
-#include <xkbcommon/xkbcommon.h>
 
 namespace ozonewayland {
 
@@ -197,7 +197,8 @@ ui::KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
     case XKB_KEY_KP_7:
     case XKB_KEY_KP_8:
     case XKB_KEY_KP_9:
-      return static_cast<ui::KeyboardCode>(ui::VKEY_NUMPAD0 + (keysym - XKB_KEY_KP_0));
+      return static_cast<ui::KeyboardCode>(
+                 ui::VKEY_NUMPAD0 + (keysym - XKB_KEY_KP_0));
 
     case XKB_KEY_multiply:
     case XKB_KEY_KP_Multiply:
@@ -311,7 +312,8 @@ ui::KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
     case XKB_KEY_KP_F2:
     case XKB_KEY_KP_F3:
     case XKB_KEY_KP_F4:
-      return static_cast<ui::KeyboardCode>(ui::VKEY_F1 + (keysym - XKB_KEY_KP_F1));
+      return static_cast<ui::KeyboardCode>(
+                 ui::VKEY_F1 + (keysym - XKB_KEY_KP_F1));
 
     case XKB_KEY_guillemotleft:
     case XKB_KEY_guillemotright:

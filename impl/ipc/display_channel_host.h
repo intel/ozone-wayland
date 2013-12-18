@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
-#define OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
+#ifndef OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_
+#define OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_
 
 #include <queue>
 
@@ -67,4 +67,4 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_DISPLAY_CHANNEL_HOST_H_
+#endif  // OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_
