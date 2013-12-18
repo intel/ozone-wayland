@@ -38,7 +38,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
                             unsigned x,
                             unsigned y,
                             unsigned type);
-  void OnChannelEstablished(unsigned router_id);
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle, int state, int flags, float x, float y);
   void OnAxisNotify(float x, float y, float xoffset, float yoffset);
@@ -53,16 +52,16 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   virtual void OnChannelClosing() OVERRIDE;
 
   bool Send(IPC::Message* message);
-  bool UpdateConnection();
 
  private:
   virtual ~OzoneDisplayChannelHost();
+  void OnChannelEstablished();
+  void UpdateConnection();
   WaylandDispatcher* dispatcher_;
   IPC::Channel* channel_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.
   DeferredMessages deferred_messages_;
-  unsigned router_id_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannelHost);
 };
 

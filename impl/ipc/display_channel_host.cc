@@ -14,8 +14,7 @@ namespace ozonewayland {
 #define CHANNEL_ROUTE_ID -0x1
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : channel_(NULL),
-      router_id_(0)
+    : channel_(NULL)
 {
   dispatcher_ = WaylandDispatcher::GetInstance();
 }
@@ -23,15 +22,12 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost()
 {
   OzoneDisplay::GetInstance()->OnChannelHostDestroyed();
-  while (!deferred_messages_.empty()) {
-    delete deferred_messages_.front();
-    deferred_messages_.pop();
-  }
+  DCHECK(deferred_messages_.empty());
 }
 
 void OzoneDisplayChannelHost::EstablishChannel()
 {
-  if (router_id_ == CHANNEL_ROUTE_ID)
+  if (channel_)
     return;
 
   content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
@@ -42,51 +38,54 @@ void OzoneDisplayChannelHost::EstablishChannel()
 void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
                                               unsigned state,
                                               unsigned width,
-                                              unsigned height)
-{
-  if (router_id_ == CHANNEL_ROUTE_ID)
-    Send(new WaylandWindow_State(router_id_, w, state, width, height));
-  else
-    deferred_messages_.push(new WaylandWindow_State(router_id_,
-                                                    w,
-                                                    state,
-                                                    width,
-                                                    height));
+                                              unsigned height) {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::SendWidgetState,
+            base::Unretained(this), w, state, width, height));
+    return;
+  }
+
+  Send(new WaylandWindow_State(CHANNEL_ROUTE_ID, w, state, width, height));
 }
 
 void OzoneDisplayChannelHost::SendWidgetAttributes(unsigned widget,
                                                    unsigned parent,
                                                    unsigned x,
                                                    unsigned y,
-                                                   unsigned type)
-{
-  if (router_id_ == CHANNEL_ROUTE_ID)
-    Send(new WaylandWindow_Attributes(router_id_, widget, parent, x, y, type));
-  else
-    deferred_messages_.push(new WaylandWindow_Attributes(router_id_,
-                                                         widget,
-                                                         parent,
-                                                         x,
-                                                         y,
-                                                         type));
+                                                   unsigned type) {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::SendWidgetAttributes,
+            base::Unretained(this), widget, parent, x, y, type));
+    return;
+  }
+
+  Send(new WaylandWindow_Attributes(CHANNEL_ROUTE_ID,
+                                    widget,
+                                    parent,
+                                    x,
+                                    y,
+                                    type));
 }
 
 void OzoneDisplayChannelHost::SendWidgetTitle(
     unsigned w, const string16& title) {
-  if (router_id_ == CHANNEL_ROUTE_ID)
-    Send(new WaylandWindow_Title(router_id_, w, title));
-  else
-    deferred_messages_.push(new WaylandWindow_Title(router_id_,
-                                                    w,
-                                                    title));
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::SendWidgetTitle,
+            base::Unretained(this), w, title));
+    return;
+  }
+
+  Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
 }
 
-void OzoneDisplayChannelHost::OnChannelEstablished(unsigned route_id)
+void OzoneDisplayChannelHost::OnChannelEstablished()
 {
-  router_id_ = route_id;
-  Send(new WaylandMsg_DisplayChannelEstablished(route_id));
+  DCHECK(channel_);
+  Send(new WaylandMsg_DisplayChannelEstablished(CHANNEL_ROUTE_ID));
   while (!deferred_messages_.empty()) {
-    deferred_messages_.front()->set_routing_id(router_id_);
     Send(deferred_messages_.front());
     deferred_messages_.pop();
   }
@@ -165,29 +164,22 @@ void OzoneDisplayChannelHost::OnFilterAdded(IPC::Channel* channel)
 void OzoneDisplayChannelHost::OnChannelClosing()
 {
   channel_ = NULL;
-  router_id_ = 0;
 }
 
 bool OzoneDisplayChannelHost::Send(IPC::Message* message)
 {
-  if (channel_) {
-    if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-      content::BrowserThread::PostTask(
-          content::BrowserThread::IO,
-          FROM_HERE,
-          base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::Send), this,
-                     message));
-      return true;
-    }
-
-    return channel_->Send(message);
+  if (!channel_) {
+    deferred_messages_.push(message);
+    return true;
   }
 
-  delete message;
-  return false;
+  // Callee takes ownership of message, regardless of whether Send is
+  // successful. See IPC::Sender.
+  scoped_ptr<IPC::Message> scoped_message(message);
+  return channel_->Send(scoped_message.release());
 }
 
-bool OzoneDisplayChannelHost::UpdateConnection()
+void OzoneDisplayChannelHost::UpdateConnection()
 {
   content::GpuProcessHost* host = content::GpuProcessHost::Get(
       content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
@@ -195,7 +187,7 @@ bool OzoneDisplayChannelHost::UpdateConnection()
 
   DCHECK(host);
   host->AddFilter(this);
-  OnChannelEstablished(CHANNEL_ROUTE_ID);
+  OnChannelEstablished();
 }
 
 }  // namespace ozonewayland
