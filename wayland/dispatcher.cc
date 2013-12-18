@@ -88,6 +88,7 @@ void WaylandDispatcher::MotionNotify(float x, float y)
         new ui::MouseEvent(ui::ET_MOUSE_MOVED,
                            gfx::Point(x, y),
                            gfx::Point(x, y),
+                           0,
                            0));
 
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
@@ -118,7 +119,8 @@ void WaylandDispatcher::ButtonNotify(unsigned handle,
         new ui::MouseEvent(type,
                            gfx::Point(x, y),
                            gfx::Point(x, y),
-                           flags));
+                           flags,
+                           1));
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::NotifyButtonPress, this, handle));
 
@@ -141,6 +143,7 @@ void WaylandDispatcher::AxisNotify(float x, float y, float xoffset, float yoffse
         ui::ET_MOUSEWHEEL,
         gfx::Point(x,y),
         gfx::Point(x,y),
+        0,
         0);
 
     scoped_ptr<ui::MouseWheelEvent> wheelev(
@@ -166,7 +169,8 @@ void WaylandDispatcher::PointerEnter(unsigned handle, float x, float y)
         new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
                            gfx::Point(x, y),
                            gfx::Point(x, y),
-                           handle));
+                           handle,
+                           0));
     PostTaskOnMainLoop(FROM_HERE, base::Bind(
                         &WaylandDispatcher::NotifyPointerEnter, this, handle));
 
@@ -188,6 +192,7 @@ void WaylandDispatcher::PointerLeave(unsigned handle, float x, float y)
         new ui::MouseEvent(ui::ET_MOUSE_EXITED,
                            gfx::Point(x, y),
                            gfx::Point(x, y),
+                           0,
                            0));
 
     PostTaskOnMainLoop(FROM_HERE, base::Bind(

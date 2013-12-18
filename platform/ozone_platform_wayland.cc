@@ -18,6 +18,11 @@ ui::EventFactoryOzone* OzonePlatformWayland::GetEventFactoryOzone() {
   return &event_factory_ozone_;
 }
 
+ui::InputMethodContextFactoryOzone*
+OzonePlatformWayland::GetInputMethodContextFactoryOzone() {
+  return &input_method_context_factory_ozone_;
+}
+
 OzonePlatform* CreateOzonePlatformWayland() { return new OzonePlatformWayland; }
 
 }  // namespace ui

@@ -23,12 +23,17 @@ class OzonePlatformWayland : public OzonePlatform {
 
   virtual gfx::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE;
   virtual ui::EventFactoryOzone* GetEventFactoryOzone() OVERRIDE;
+  virtual ui::InputMethodContextFactoryOzone*
+      GetInputMethodContextFactoryOzone() OVERRIDE;
 
  private:
   ozonewayland::OzoneDisplay surface_factory_ozone_;
 
   // TODO: Use EventFactoryOzone. This is a stub that does nothing.
   EventFactoryOzone event_factory_ozone_;
+
+  // This creates a minimal input context.
+  ui::InputMethodContextFactoryOzone input_method_context_factory_ozone_;
 
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
   ozonewayland::DesktopFactoryWayland desktop_factory_ozone_;
