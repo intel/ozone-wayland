@@ -56,7 +56,7 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm) {
 
   // (kalyan) We should be able to configure the size of cursor and theme name.
   unsigned int i, array_size =
-      (sizeof(cursor_names) / sizeof(cursor_names[0])) -1;
+      (sizeof(cursor_names) / sizeof(cursor_names[0]));
   cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm);
   cursors_ = new wl_cursor*[array_size];
   memset(cursors_, 0, sizeof(cursors_) * array_size);
