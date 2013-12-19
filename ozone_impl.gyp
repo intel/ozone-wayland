@@ -38,6 +38,8 @@
         'impl/ipc/display_channel.cc',
         'impl/ipc/display_channel_host.h',
         'impl/ipc/display_channel_host.cc',
+        'impl/ipc/gpu_process_dispatcher_delegate.cc',
+        'impl/ipc/gpu_process_dispatcher_delegate.h',
         'impl/ipc/messages.h',
         'impl/ipc/message_generator.h',
         'impl/ipc/message_generator.cc',
