@@ -21,6 +21,7 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/tooltip_aura.h"
+#include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
@@ -605,11 +606,12 @@ void DesktopRootWindowHostWayland::OnRootViewLayout() const {
 }
 
 void DesktopRootWindowHostWayland::OnNativeWidgetFocus() {
-  NOTIMPLEMENTED();
+  native_widget_delegate_->AsWidget()->GetInputMethod()->OnFocus();
 }
 
 void DesktopRootWindowHostWayland::OnNativeWidgetBlur() {
-  NOTIMPLEMENTED();
+  if (window_)
+    native_widget_delegate_->AsWidget()->GetInputMethod()->OnBlur();
 }
 
 bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
