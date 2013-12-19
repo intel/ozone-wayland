@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 
 #include "ozone/wayland/dispatcher.h"
+#include "ui/events/event.h"
 
 namespace ozonewayland {
 

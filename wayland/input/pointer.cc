@@ -6,12 +6,11 @@
 
 #include <linux/input.h>
 
-#include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/dispatcher.h"
+#include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/window.h"
-
-#include "ui/events/event.h"
 #include "ui/base/hit_test.h"
+#include "ui/events/event.h"
 
 namespace ozonewayland {
 

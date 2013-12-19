@@ -5,12 +5,11 @@
 
 #include "ozone/wayland/window.h"
 
+#include "base/logging.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
 #include "ozone/wayland/shell_surface.h"
 #include "ozone/wayland/surface.h"
-
-#include "base/logging.h"
 
 namespace ozonewayland {
 

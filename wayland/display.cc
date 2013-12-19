@@ -5,12 +5,11 @@
 
 #include "ozone/wayland/display.h"
 
+#include "base/stl_util.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
-
-#include "base/stl_util.h"
 
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;

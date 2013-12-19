@@ -4,9 +4,9 @@
 
 #include "ozone/impl/event_factory_wayland.h"
 
+#include "base/lazy_instance.h"
 #include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/display.h"
-#include "base/lazy_instance.h"
 
 namespace ozonewayland {
 

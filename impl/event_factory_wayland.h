@@ -5,9 +5,9 @@
 #ifndef OZONE_IMPL_EVENT_FACTORY_WAYLAND_H_
 #define OZONE_IMPL_EVENT_FACTORY_WAYLAND_H_
 
-#include "ui/base/ui_export.h"
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_libevent.h"
+#include "ui/base/ui_export.h"
 
 namespace ozonewayland {
 

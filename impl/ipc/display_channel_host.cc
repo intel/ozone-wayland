@@ -4,9 +4,11 @@
 
 #include "ozone/impl/ipc/display_channel_host.h"
 
-#include "ozone/impl/ozone_display.h"
 #include "base/bind.h"
 #include "content/public/browser/browser_thread.h"
+#include "ozone/impl/ipc/messages.h"
+#include "ozone/impl/ozone_display.h"
+#include "ozone/wayland/dispatcher.h"
 
 namespace ozonewayland {
 

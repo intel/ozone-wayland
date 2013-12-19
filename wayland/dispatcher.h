@@ -5,10 +5,10 @@
 #ifndef OZONE_WAYLAND_DISPATCHER_H_
 #define OZONE_WAYLAND_DISPATCHER_H_
 
-#include "ozone/impl/ipc/messages.h"
-#include "ozone/wayland/window_change_observer.h"
-#include "base/threading/thread.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/threading/thread.h"
+#include "ozone/wayland/display.h"
+#include "ozone/wayland/window_change_observer.h"
 #include "ui/events/event.h"
 
 namespace ozonewayland {

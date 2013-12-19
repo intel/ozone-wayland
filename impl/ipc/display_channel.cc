@@ -4,9 +4,10 @@
 
 #include "ozone/impl/ipc/display_channel.h"
 
-#include "ozone/impl/ozone_display.h"
-#include "content/child/child_thread.h"
 #include "content/child/child_process.h"
+#include "content/child/child_thread.h"
+#include "ozone/impl/ipc/messages.h"
+#include "ozone/impl/ozone_display.h"
 
 namespace ozonewayland {
 // GpuChannelManager generates unique routeid for every new

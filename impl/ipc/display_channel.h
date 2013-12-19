@@ -5,7 +5,7 @@
 #ifndef OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
 #define OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
 
-#include "ozone/wayland/dispatcher.h"
+#include "base/strings/string16.h"
 #include "ipc/ipc_listener.h"
 
 namespace ozonewayland {

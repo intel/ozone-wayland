@@ -4,9 +4,9 @@
 
 // Multiply-included message file, hence no include guard here.
 
-#include "ipc/ipc_message_macros.h"
 #include "base/basictypes.h"
 #include "base/strings/string16.h"
+#include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_utils.h"
 #include "ipc/ipc_param_traits.h"

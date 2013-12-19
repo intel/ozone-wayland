@@ -7,7 +7,6 @@
 
 #include <queue>
 
-#include "ozone/wayland/dispatcher.h"
 #include "content/browser/gpu/gpu_process_host.h"
 
 namespace IPC {
@@ -15,6 +14,8 @@ class Channel;
 }
 
 namespace ozonewayland {
+
+class WaylandDispatcher;
 
 // OzoneDisplayChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will

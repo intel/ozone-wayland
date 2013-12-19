@@ -5,17 +5,19 @@
 
 #include "ozone/impl/desktop_root_window_host_wayland.h"
 
-#include "ozone/impl/ozone_display.h"
-
 #include "base/bind.h"
+#include "ozone/impl/desktop_drag_drop_client_wayland.h"
+#include "ozone/impl/desktop_screen_wayland.h"
+#include "ozone/impl/ozone_display.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
 #include "ui/events/event_utils.h"
-#include "ui/gfx/ozone/surface_factory_ozone.h"
 #include "ui/gfx/insets.h"
+#include "ui/gfx/ozone/surface_factory_ozone.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/tooltip_aura.h"
@@ -24,9 +26,6 @@
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
-#include "ozone/impl/desktop_drag_drop_client_wayland.h"
-#include "ozone/impl/desktop_screen_wayland.h"
-#include "ozone/platform/ozone_export_wayland.h"
 
 namespace views {
 // static

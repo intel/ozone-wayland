@@ -13,9 +13,9 @@
 
 #include "base/bind.h"
 #include "base/message_loop/message_pump_ozone.h"
-#include "content/child/child_thread.h"
 #include "content/child/child_process.h"
-#include "ozone/wayland/display.h"
+#include "content/child/child_thread.h"
+#include "ozone/impl/ipc/messages.h"
 #include "ozone/wayland/input/kbd_conversion.h"
 
 namespace {
