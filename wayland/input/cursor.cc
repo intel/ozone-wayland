@@ -59,7 +59,7 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm) {
       (sizeof(cursor_names) / sizeof(cursor_names[0])) -1;
   cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm);
   cursors_ = new wl_cursor*[array_size];
-  memset(cursors_, 0, sizeof(wl_cursor*) * array_size);
+  memset(cursors_, 0, sizeof(cursors_) * array_size);
 
   for (i = 0; i < array_size; i++)
     cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);

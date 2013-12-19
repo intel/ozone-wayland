@@ -105,7 +105,8 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
     return;
   }
 
-  map_str = (char*) mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+  map_str =
+      reinterpret_cast<char*>(mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0));
   if (map_str == MAP_FAILED) {
     close(fd);
     return;
