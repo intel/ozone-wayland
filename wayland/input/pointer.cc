@@ -124,13 +124,16 @@ void WaylandPointer::OnPointerEnter(void* data,
                                     wl_surface* surface,
                                     wl_fixed_t sx_w,
                                     wl_fixed_t sy_w) {
+  float sx = wl_fixed_to_double(sx_w);
+  float sy = wl_fixed_to_double(sy_w);
+
   if (!surface) {
     /* enter event for a window we've just destroyed */
     return;
   }
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
-  // TODO(vignatti): sx and sy have to be used for setting different resizing
-  // and other cursors.
+  device->pointer_position_.SetPoint(sx, sy);
+
   WaylandWindow* window =
       static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
   device->focused_window_handle_ = window->Handle();
