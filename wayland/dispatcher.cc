@@ -12,22 +12,8 @@
 #include <wayland-client.h>
 
 #include "base/bind.h"
-#include "base/message_loop/message_pump_ozone.h"
-#include "content/child/child_process.h"
-#include "content/child/child_thread.h"
-#include "ozone/impl/ipc/messages.h"
-#include "ozone/wayland/input/kbd_conversion.h"
-
-namespace {
-
-content::ChildThread* GetProcessMainThread() {
-  content::ChildProcess* process = content::ChildProcess::current();
-  DCHECK(process);
-  DCHECK(process->main_thread());
-  return process ? process->main_thread() : NULL;
-}
-
-}
+#include "ozone/wayland/dispatcher_delegate.h"
+#include "ozone/wayland/display.h"
 
 namespace ozonewayland {
 WaylandDispatcher* WaylandDispatcher::instance_ = NULL;
@@ -73,23 +59,8 @@ int osEpollCreateCloExec(void) {
 }  // os-compatibility
 
 void WaylandDispatcher::MotionNotify(float x, float y) {
-  if (epoll_fd_) {
-    if (!running)
-      return;
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::SendMotionNotify, x, y));
-  } else {
-    scoped_ptr<ui::MouseEvent> mouseev(
-        new ui::MouseEvent(ui::ET_MOUSE_MOVED,
-                           gfx::Point(x, y),
-                           gfx::Point(x, y),
-                           0,
-                           0));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
-                                              mouseev.PassAs<ui::Event>())));
-  }
+  DCHECK(delegate_);
+  delegate_->MotionNotify(x, y);
 }
 
 void WaylandDispatcher::ButtonNotify(unsigned handle,
@@ -97,144 +68,45 @@ void WaylandDispatcher::ButtonNotify(unsigned handle,
                                      int flags,
                                      float x,
                                      float y) {
-  if (epoll_fd_) {
-    if (!running)
-      return;
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-        &WaylandDispatcher::SendButtonNotify, handle, state, flags, x, y));
-  } else {
-    ui::EventType type;
-    if (state == 1)
-      type = ui::ET_MOUSE_PRESSED;
-    else
-      type = ui::ET_MOUSE_RELEASED;
-
-    scoped_ptr<ui::MouseEvent> mouseev(
-        new ui::MouseEvent(type,
-                           gfx::Point(x, y),
-                           gfx::Point(x, y),
-                           flags,
-                           1));
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::NotifyButtonPress, this, handle));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
-                                              mouseev.PassAs<ui::Event>())));
-  }
+  DCHECK(delegate_);
+  delegate_->ButtonNotify(handle, state, flags, x, y);
 }
 
 void WaylandDispatcher::AxisNotify(float x,
                                    float y,
                                    float xoffset,
                                    float yoffset) {
-  if (epoll_fd_) {
-    if (!running)
-      return;
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendAxisNotify,
-                                             x, y, xoffset, yoffset));
-  } else {
-    ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL,
-                           gfx::Point(x, y),
-                           gfx::Point(x, y),
-                           0,
-                           0);
-
-    scoped_ptr<ui::MouseWheelEvent> wheelev(
-        new ui::MouseWheelEvent(mouseev,
-                                xoffset,
-                                yoffset));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
-                                              wheelev.PassAs<ui::Event>())));
-  }
+  DCHECK(delegate_);
+  delegate_->AxisNotify(x, y, xoffset, yoffset);
 }
 
 void WaylandDispatcher::PointerEnter(unsigned handle, float x, float y) {
-  if (epoll_fd_) {
-    if (!running)
-      return;
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-        &WaylandDispatcher::SendPointerEnter, handle, x, y));
-  } else {
-    scoped_ptr<ui::MouseEvent> mouseev(
-        new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
-                           gfx::Point(x, y),
-                           gfx::Point(x, y),
-                           handle,
-                           0));
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::NotifyPointerEnter, this, handle));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
-                                              mouseev.PassAs<ui::Event>())));
-  }
+  DCHECK(delegate_);
+  delegate_->PointerEnter(handle, x, y);
 }
 
 void WaylandDispatcher::PointerLeave(unsigned handle, float x, float y) {
-  if (epoll_fd_) {
-    if (!running)
-      return;
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-        &WaylandDispatcher::SendPointerLeave, handle, x, y));
-  } else {
-    scoped_ptr<ui::MouseEvent> mouseev(
-        new ui::MouseEvent(ui::ET_MOUSE_EXITED,
-                           gfx::Point(x, y),
-                           gfx::Point(x, y),
-                           0,
-                           0));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::NotifyPointerLeave, this, handle));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
-                                              mouseev.PassAs<ui::Event>())));
-  }
+  DCHECK(delegate_);
+  delegate_->PointerLeave(handle, x, y);
 }
 
 void WaylandDispatcher::KeyNotify(unsigned state,
                                   unsigned code,
                                   unsigned modifiers) {
-  if (epoll_fd_) {
-    if (!running)
-      return;
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(&WaylandDispatcher::SendKeyNotify,
-                                             state, code, modifiers));
-  } else {
-    ui::EventType type;
-    if (state)
-      type = ui::ET_KEY_PRESSED;
-    else
-      type = ui::ET_KEY_RELEASED;
-
-    scoped_ptr<ui::KeyEvent> keyev(
-        new ui::KeyEvent(type,
-                         KeyboardCodeFromXKeysym(code),
-                         modifiers,
-                         true));
-
-    PostTaskOnMainLoop(FROM_HERE, base::Bind(
-                        &WaylandDispatcher::DispatchEventHelper, base::Passed(
-                                              keyev.PassAs<ui::Event>())));
-  }
+  DCHECK(delegate_);
+  delegate_->KeyNotify(state, code, modifiers);
 }
 
 void WaylandDispatcher::OutputSizeChanged(unsigned width, unsigned height) {
-  if (!running || !epoll_fd_)
-    return;
-
-  PostTaskOnMainLoop(FROM_HERE, base::Bind(
-      &WaylandDispatcher::SendOutputSizeChanged, width, height));
+  DCHECK(delegate_);
+  delegate_->OutputSizeChanged(width, height);
 }
 
 void WaylandDispatcher::PostTask(Task type) {
-  if (!IsRunning() || ignore_task_)
+  if (!IsRunning() || !active_)
     return;
+
+  DCHECK(delegate_);
 
   switch (type) {
     case(Flush):
@@ -242,37 +114,37 @@ void WaylandDispatcher::PostTask(Task type) {
           FROM_HERE, base::Bind(&WaylandDispatcher::HandleFlush));
       break;
     case(Poll):
-      if (epoll_fd_) {
-        loop_ = base::MessageLoop::current();
-        if (!running)
-          message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
-              &WaylandDispatcher::DisplayRun, this));
-      }
+      DCHECK(epoll_fd_);
+      message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
+          &WaylandDispatcher::DisplayRun, this));
   default:
     break;
   }
 }
 
-void WaylandDispatcher::DispatchEvent(scoped_ptr<ui::Event> event) {
-  PostTaskOnMainLoop(FROM_HERE, base::Bind(
-      &WaylandDispatcher::DispatchEventHelper, base::Passed(&event)));
+void WaylandDispatcher::SetWindowChangeObserver(
+    WindowChangeObserver* observer) {
+  DCHECK(delegate_);
+  delegate_->SetWindowChangeObserver(observer);
 }
 
-void WaylandDispatcher::PostTaskOnMainLoop(
-    const tracked_objects::Location& from_here, const base::Closure& task) {
-  if (ignore_task_ || !IsRunning() || !loop_)
-    return;
+void WaylandDispatcher::SetDelegate(WaylandDispatcherDelegate* delegate) {
+  delegate_ = delegate;
+  SetActive(true);
+}
 
-  loop_->message_loop_proxy()->PostTask(from_here, task);
+void WaylandDispatcher::SetActive(bool active) {
+  DCHECK(delegate_);
+  active_ = active;
+  delegate_->SetActive(active);
 }
 
 WaylandDispatcher::WaylandDispatcher(int fd)
     : Thread("WaylandDispatcher"),
-      ignore_task_(false),
-      running(false),
+      active_(false),
       epoll_fd_(0),
       display_fd_(fd),
-      observer_(NULL) {
+      delegate_(NULL) {
   instance_ = this;
   if (display_fd_) {
     epoll_fd_ = osEpollCreateCloExec();
@@ -282,7 +154,6 @@ WaylandDispatcher::WaylandDispatcher(int fd)
     epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
   }
 
-  loop_ = base::MessageLoop::current();
   Options options;
   options.message_loop_type = base::MessageLoop::TYPE_IO;
   StartWithOptions(options);
@@ -290,9 +161,10 @@ WaylandDispatcher::WaylandDispatcher(int fd)
 }
 
 WaylandDispatcher::~WaylandDispatcher() {
-  ignore_task_ = true;
-  loop_ = NULL;
-  running = false;
+  active_ = false;
+  if (delegate_)
+    delete delegate_;
+
   Stop();
 
   if (epoll_fd_) {
@@ -317,15 +189,13 @@ void WaylandDispatcher::HandleFlush() {
 void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
   struct epoll_event ep[16];
   int i, count, ret;
-
-  data->running = 1;
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
     wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
     wl_display_dispatch_pending(waylandDisp);
 
-    if (!data->running)
+    if (!data->active_)
       break;
 
     ret = wl_display_flush(waylandDisp);
@@ -337,6 +207,9 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
     }
 
     count = epoll_wait(data->epoll_fd_, ep, 16, -1);
+    if (!data->active_)
+      break;
+
     for (i = 0; i < count; i++) {
       int ret;
       uint32_t event = ep[i].events;
@@ -364,77 +237,6 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
       }
     }
   }
-}
-
-void WaylandDispatcher::NotifyPointerEnter(WaylandDispatcher* data,
-                                           unsigned handle) {
-  if (data->observer_)
-    data->observer_->OnWindowEnter(handle);
-}
-
-void WaylandDispatcher::NotifyPointerLeave(WaylandDispatcher* data,
-                                           unsigned handle) {
-  if (data->observer_)
-    data->observer_->OnWindowLeave(handle);
-}
-
-
-void WaylandDispatcher::NotifyButtonPress(WaylandDispatcher* data,
-                                          unsigned handle) {
-  if (data->observer_)
-    data->observer_->OnWindowFocused(handle);
-}
-
-void WaylandDispatcher::DispatchEventHelper(scoped_ptr<ui::Event> key) {
-  base::MessagePumpOzone::Current()->Dispatch(key.get());
-}
-
-void WaylandDispatcher::SendMotionNotify(float x, float y) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_MotionNotify(x, y));
-}
-
-void WaylandDispatcher::SendButtonNotify(unsigned handle,
-                                         int state,
-                                         int flags,
-                                         float x,
-                                         float y) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_ButtonNotify(handle, state, flags, x, y));
-}
-
-void WaylandDispatcher::SendAxisNotify(float x, float y, float xoffset,
-                                       float yoffset) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
-}
-
-void WaylandDispatcher::SendPointerEnter(unsigned handle, float x, float y) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_PointerEnter(handle, x, y));
-}
-
-void WaylandDispatcher::SendPointerLeave(unsigned handle, float x, float y) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_PointerLeave(handle, x, y));
-}
-
-void WaylandDispatcher::SendKeyNotify(unsigned type,
-                                      unsigned code,
-                                      unsigned modifiers) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_KeyNotify(type, code, modifiers));
-}
-
-void WaylandDispatcher::SendOutputSizeChanged(unsigned width, unsigned height) {
-  content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_OutputSize(width, height));
-}
-
-void WaylandDispatcher::MessageLoopDestroyed() {
-  ignore_task_ = true;
-  loop_ = NULL;
-  running = false;
 }
 
 }  // namespace ozonewayland

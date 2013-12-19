@@ -11,9 +11,11 @@
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/event_factory_wayland.h"
+#include "ozone/impl/ipc/browser_process_dispatcher_delegate.h"
 #include "ozone/impl/ipc/child_process_observer.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
+#include "ozone/impl/ipc/gpu_process_dispatcher_delegate.h"
 #include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
@@ -190,7 +192,7 @@ const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
 
 void OzoneDisplay::WillDestroyCurrentMessageLoop() {
   DCHECK(base::MessageLoop::current());
-  dispatcher_->MessageLoopDestroyed();
+  dispatcher_->SetActive(false);
 
   if (child_process_observer_)
     child_process_observer_->WillDestroyCurrentMessageLoop();
@@ -277,7 +279,7 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
         if (e_factory_)
           WillDestroyCurrentMessageLoop();
         else
-          dispatcher_->MessageLoopDestroyed();
+          dispatcher_->SetActive(false);
       }
       break;
     }
@@ -454,8 +456,10 @@ void OzoneDisplay::InitializeDispatcher(int fd) {
   DCHECK(base::MessageLoop::current());
 
   if (fd) {
+    dispatcher_->SetDelegate(new GpuProcessDispatcherDelegate());
     dispatcher_->PostTask(WaylandDispatcher::Poll);
   } else {
+    dispatcher_->SetDelegate(new BrowserProcessDispatcherDelegate());
     spec_ = new char[kMaxDisplaySize_];
     spec_[0] = '\0';
     base::MessageLoop::current()->AddDestructionObserver(this);
