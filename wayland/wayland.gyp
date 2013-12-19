@@ -55,6 +55,8 @@
         'display.h',
         'dispatcher.cc',
         'dispatcher.h',
+        'dispatcher_delegate.cc',
+        'dispatcher_delegate.h',
         'global.h',
         'input_device.cc',
         'input_device.h',
