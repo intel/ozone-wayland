@@ -73,6 +73,7 @@ void WaylandPointer::OnButtonNotify(void* data,
                                     uint32_t button,
                                     uint32_t state) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
+  WaylandDisplay::GetInstance()->SetSerial(serial);
   int currentState;
   if (state == WL_POINTER_BUTTON_STATE_PRESSED)
     currentState = 1;
@@ -132,6 +133,7 @@ void WaylandPointer::OnPointerEnter(void* data,
     return;
   }
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
+  WaylandDisplay::GetInstance()->SetSerial(serial);
   device->pointer_position_.SetPoint(sx, sy);
 
   WaylandWindow* window =
@@ -148,6 +150,7 @@ void WaylandPointer::OnPointerLeave(void* data,
                                     uint32_t serial,
                                     wl_surface* surface) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
+  WaylandDisplay::GetInstance()->SetSerial(serial);
   device->dispatcher_->PointerLeave(device->focused_window_handle_,
                                     device->pointer_position_.x(),
                                     device->pointer_position_.y());

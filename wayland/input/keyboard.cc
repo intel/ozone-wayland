@@ -59,8 +59,10 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   const xkb_keysym_t *syms;
   xkb_keysym_t sym;
   xkb_mod_mask_t mask;
-
   unsigned currentState = 0;
+
+  WaylandDisplay::GetInstance()->SetSerial(serial);
+
   if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
     currentState = 1;
   else
@@ -140,12 +142,14 @@ void WaylandKeyboard::OnKeyboardEnter(void* data,
                                       uint32_t serial,
                                       wl_surface* surface,
                                       wl_array* keys) {
+  WaylandDisplay::GetInstance()->SetSerial(serial);
 }
 
 void WaylandKeyboard::OnKeyboardLeave(void* data,
                                       wl_keyboard* input_keyboard,
                                       uint32_t serial,
                                       wl_surface* surface) {
+  WaylandDisplay::GetInstance()->SetSerial(serial);
 }
 
 void WaylandKeyboard::OnKeyModifiers(void *data,

@@ -30,6 +30,7 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
 }
 
 WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
+    serial_(0),
     shell_(NULL),
     shm_(NULL),
     primary_screen_(NULL) {

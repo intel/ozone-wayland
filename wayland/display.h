@@ -45,6 +45,8 @@ class WaylandDisplay {
   wl_shm* shm() const { return shm_; }
   wl_compositor* GetCompositor() const { return compositor_; }
   int GetDisplayFd() const { return wl_display_get_fd(display_); }
+  unsigned GetSerial() { return serial_; }
+  void SetSerial(unsigned serial) { serial_ = serial; }
 
   const WindowMap& GetWindowList() const { return widget_map_; }
 
@@ -97,6 +99,7 @@ class WaylandDisplay {
   std::list<WaylandInputDevice*> input_list_;
   WindowMap widget_map_;
   static WaylandDisplay* instance_;
+  unsigned serial_;
 
   friend class OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
