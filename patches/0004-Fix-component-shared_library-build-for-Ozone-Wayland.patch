@@ -1,0 +1,27 @@
+From 7cdbfc4c9be4c85ed55b847f00e01d87ea60116c Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Mon, 25 Nov 2013 12:16:47 +0200
+Subject: [PATCH] Fix component=shared_library build for Ozone-Wayland.
+
+This patch exports needed symbols in GPUProcessHost used by
+Ozone-Wayland. We would need to investigate if this change can
+be avoided.
+---
+ content/browser/gpu/gpu_process_host.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/content/browser/gpu/gpu_process_host.h b/content/browser/gpu/gpu_process_host.h
+index 32345b7..2b65432 100644
+--- a/content/browser/gpu/gpu_process_host.h
++++ b/content/browser/gpu/gpu_process_host.h
+@@ -96,7 +96,7 @@ class GpuProcessHost : public BrowserChildProcessHostDelegate,
+   virtual bool Send(IPC::Message* msg) OVERRIDE;
+
+   // Adds a message filter to the GpuProcessHost's channel.
+-  void AddFilter(IPC::ChannelProxy::MessageFilter* filter);
++  CONTENT_EXPORT void AddFilter(IPC::ChannelProxy::MessageFilter* filter);
+
+   // Tells the GPU process to create a new channel for communication with a
+   // client. Once the GPU process responds asynchronously with the IPC handle
+--
+1.7.9.5
