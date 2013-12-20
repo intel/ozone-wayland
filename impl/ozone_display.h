@@ -7,6 +7,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
@@ -22,8 +23,9 @@ class WaylandDispatcher;
 class WaylandScreen;
 class WindowChangeObserver;
 
-class OzoneDisplay : public gfx::SurfaceFactoryOzone,
-                     public base::MessageLoop::DestructionObserver {
+class OZONE_WAYLAND_EXPORT OzoneDisplay
+    : public gfx::SurfaceFactoryOzone,
+      public base::MessageLoop::DestructionObserver {
  public:
   enum {
     Create = 1,  // Create a new Widget
