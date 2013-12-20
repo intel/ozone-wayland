@@ -1,0 +1,53 @@
+========================================================================
+Milestone Santa
+Release Date: 19 Dec 2013.
+========================================================================
+
+Based on Chromium-
+Version: 32.0.1700.69.
+Channel: Beta.
+Revision: 6f5eb8456ae3021c7396be3a67c454d82b2cfb30.
+
+---------------------------------------------------------------------
+
+New Features enabled in this release:
+1) WebGL.
+2) MultiWindow support.
+3) FullScreen support.
+
+---------------------------------------------------------------------
+
+Fixed Issues:
+1) [#129] Position the Child Window/Popups correctly.
+2) [#145] content_shell SIGSEGV, while trying to open a context menu.
+3) [#146] Fix IPCHandShake.
+4) [#151] Crash when resizing browser window.
+5) [#154] Fix FullScreen bounds.
+6) [#169] Fix heap and stack corruption in DisplayChannelHost.
+
+Lot more enhancements.
+
+---------------------------------------------------------------------
+
+The release has been tested on Ubuntu 12.04, x86-64 against the following
+dependencies:
+
+1) Wayland and Weston.
+   Version: 1.3
+   Wayland Revision: 84247b7513abd03720438192c0cd2a815a294dec
+   Weston Revision: 5e3ff49c7d4ed46c1678e640ec11f6938369c0bc
+2) Mesa.
+   Version: 10.0
+   Revision: b160fea306b1f922d7699bf1c91f39e0a2797734
+3) DRM.
+   Revision: 4c5de721c4ef96ef412fd6af4cb415f04a7515f6
+4) GLProto.
+   Revision: 7adf6d08b7d9fe1304f8c37f5a9152df97a6344d
+5) libunwind.
+   Revision: 2c3444d0f4821b159d60290c514a8aeba8d9061f
+6) libxkbcommon.
+   Revision: 9a3c115be045189aa8b688d1cf9468488df4a491
+7) Cairo.
+   Revision: dcbe16eb40b488f89f2398181f4c3f8a65f84b52
+8) Pixman.
+   Revision: 9ba3a34797399b286dbfe21c7b213a7547abf577
