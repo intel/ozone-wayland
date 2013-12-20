@@ -1,0 +1,64 @@
+From 46f56e91b099f793bdcd44a3ccc24c35fbf5ab27 Mon Sep 17 00:00:00 2001
+From: Raphael Kubo da Costa <raphael.kubo.da.costa@intel.com>
+Date: Fri, 20 Dec 2013 17:24:04 +0200
+Subject: [PATCH] Backport Chromium r233274 to M32.
+
+This patch adapts the fixes done in r233274 ("ozone: Fix shared component
+builds") to the M32 code base.
+
+Effecting CLs:
+https://codereview.chromium.org/59263004
+---
+ ui/events/ozone/evdev/event_factory.h              | 3 ++-
+ ui/gfx/ozone/impl/file_surface_factory_ozone.h     | 2 +-
+ ui/gfx/ozone/impl/software_surface_factory_ozone.h | 2 +-
+ 3 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/ui/events/ozone/evdev/event_factory.h b/ui/events/ozone/evdev/event_factory.h
+index 04a3a52..b0e7a0a 100644
+--- a/ui/events/ozone/evdev/event_factory.h
++++ b/ui/events/ozone/evdev/event_factory.h
+@@ -6,13 +6,14 @@
+ #define UI_EVENTS_OZONE_EVENT_FACTORY_DELEGATE_EVDEV_H_
+
+ #include "base/compiler_specific.h"
++#include "ui/events/events_export.h"
+ #include "ui/events/ozone/evdev/event_modifiers.h"
+ #include "ui/events/ozone/event_factory_ozone.h"
+
+ namespace ui {
+
+ // Ozone events implementation for the Linux input subsystem ("evdev").
+-class EventFactoryEvdev : public EventFactoryOzone {
++class EVENTS_EXPORT EventFactoryEvdev : public EventFactoryOzone {
+  public:
+   EventFactoryEvdev();
+   virtual ~EventFactoryEvdev();
+diff --git a/ui/gfx/ozone/impl/file_surface_factory_ozone.h b/ui/gfx/ozone/impl/file_surface_factory_ozone.h
+index 6b1df26..f5d6729 100644
+--- a/ui/gfx/ozone/impl/file_surface_factory_ozone.h
++++ b/ui/gfx/ozone/impl/file_surface_factory_ozone.h
+@@ -16,7 +16,7 @@ class SkCanvas;
+
+ namespace gfx {
+
+-class FileSurfaceFactoryOzone : public SurfaceFactoryOzone {
++class GFX_EXPORT FileSurfaceFactoryOzone : public SurfaceFactoryOzone {
+  public:
+   explicit FileSurfaceFactoryOzone(const base::FilePath& dump_location);
+   virtual ~FileSurfaceFactoryOzone();
+diff --git a/ui/gfx/ozone/impl/software_surface_factory_ozone.h b/ui/gfx/ozone/impl/software_surface_factory_ozone.h
+index d6fa1e9..363a81b 100644
+--- a/ui/gfx/ozone/impl/software_surface_factory_ozone.h
++++ b/ui/gfx/ozone/impl/software_surface_factory_ozone.h
+@@ -17,7 +17,7 @@ class SoftwareSurfaceOzone;
+ // SurfaceFactoryOzone implementation on top of DRM/KMS using dumb buffers.
+ // This implementation is used in conjunction with the software rendering
+ // path.
+-class SoftwareSurfaceFactoryOzone : public SurfaceFactoryOzone {
++class GFX_EXPORT SoftwareSurfaceFactoryOzone : public SurfaceFactoryOzone {
+  public:
+   SoftwareSurfaceFactoryOzone();
+   virtual ~SoftwareSurfaceFactoryOzone();
+--
+1.8.5.2
