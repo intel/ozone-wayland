@@ -23,7 +23,6 @@ void BrowserProcessDispatcherDelegate::MotionNotify(float x, float y) {
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_MOVED,
                                                         position,
                                                         position,
-                                                        0,
                                                         0));
 
   PostTaskOnMainLoop(base::Bind(
@@ -46,8 +45,7 @@ void BrowserProcessDispatcherDelegate::ButtonNotify(unsigned handle,
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(type,
                                                         position,
                                                         position,
-                                                        flags,
-                                                        1));
+                                                        flags));
   PostTaskOnMainLoop(base::Bind(
       &BrowserProcessDispatcherDelegate::NotifyButtonPress, this, handle));
 
@@ -61,7 +59,7 @@ void BrowserProcessDispatcherDelegate::AxisNotify(float x,
                                                   float xoffset,
                                                   float yoffset) {
   gfx::Point position = gfx::Point(x, y);
-  ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
+  ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0);
 
   scoped_ptr<ui::MouseWheelEvent> wheelev(new ui::MouseWheelEvent(mouseev,
                                                                   xoffset,
@@ -79,8 +77,7 @@ void BrowserProcessDispatcherDelegate::PointerEnter(unsigned handle,
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
                                                         position,
                                                         position,
-                                                        handle,
-                                                        0));
+                                                        handle));
   PostTaskOnMainLoop(base::Bind(
       &BrowserProcessDispatcherDelegate::NotifyPointerEnter, this, handle));
 
@@ -96,7 +93,6 @@ void BrowserProcessDispatcherDelegate::PointerLeave(unsigned handle,
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_EXITED,
                                                         position,
                                                         position,
-                                                        0,
                                                         0));
 
   PostTaskOnMainLoop(base::Bind(
