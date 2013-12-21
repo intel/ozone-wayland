@@ -130,7 +130,7 @@ void WaylandPointer::OnPointerEnter(void* data,
   float sy = wl_fixed_to_double(sy_w);
 
   if (!surface) {
-    /* enter event for a window we've just destroyed */
+    // enter event for a window we've just destroyed.
     return;
   }
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
