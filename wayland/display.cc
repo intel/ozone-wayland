@@ -33,6 +33,7 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
     serial_(0),
     shell_(NULL),
     shm_(NULL),
+    primary_input_(NULL),
     primary_screen_(NULL) {
   display_ = wl_display_connect(NULL);
   if (!display_)
@@ -127,6 +128,7 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else if (strcmp(interface, "wl_seat") == 0) {
     WaylandInputDevice *input_device = new WaylandInputDevice(disp, name);
     disp->input_list_.push_back(input_device);
+    disp->primary_input_ = disp->input_list_.front();
   } else if (strcmp(interface, "wl_shell") == 0) {
     disp->shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));

@@ -61,8 +61,6 @@ class WaylandPointer {
 
   WaylandCursor* cursor_;
   WaylandDispatcher* dispatcher_;
-  // Keeps track of current focused window.
-  unsigned focused_window_handle_;
   // Keeps track of the last position for the motion event. We want to
   // dispatch this with events such as wheel or button which don't have a
   // position associated on Wayland.

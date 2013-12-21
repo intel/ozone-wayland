@@ -13,6 +13,7 @@ namespace ozonewayland {
 class WaylandKeyboard;
 class WaylandPointer;
 class WaylandDisplay;
+class WaylandWindow;
 
 class WaylandInputDevice {
  public:
@@ -22,12 +23,16 @@ class WaylandInputDevice {
   wl_seat* GetInputSeat() { return input_seat_; }
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
   WaylandPointer* GetPointer() const { return input_pointer_; }
+  unsigned GetFocusWindowHandle() { return focused_window_handle_; }
+  void SetFocusWindowHandle(unsigned windowhandle);
 
  private:
   static void OnSeatCapabilities(void *data,
                                  wl_seat *seat,
                                  uint32_t caps);
 
+  // Keeps track of current focused window.
+  unsigned focused_window_handle_;
   wl_seat* input_seat_;
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
