@@ -169,6 +169,10 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
   if (xkb_state_mod_name_is_active(
       device->xkb_.state, XKB_MOD_NAME_ALT, XKB_STATE_MODS_EFFECTIVE))
     device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
+
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_CAPS, XKB_STATE_MODS_EFFECTIVE))
+    device->keyboard_modifiers_ |= ui::EF_CAPS_LOCK_DOWN;
 }
 
 void WaylandKeyboard::InitXKB() {
