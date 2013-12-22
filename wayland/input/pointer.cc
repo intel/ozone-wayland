@@ -126,23 +126,23 @@ void WaylandPointer::OnPointerEnter(void* data,
                                     wl_surface* surface,
                                     wl_fixed_t sx_w,
                                     wl_fixed_t sy_w) {
-  float sx = wl_fixed_to_double(sx_w);
-  float sy = wl_fixed_to_double(sy_w);
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
 
   if (!surface) {
-    // enter event for a window we've just destroyed.
+    input->SetFocusWindowHandle(0);
     return;
   }
-  WaylandPointer* device = static_cast<WaylandPointer*>(data);
-  WaylandDisplay::GetInstance()->SetSerial(serial);
-  device->pointer_position_.SetPoint(sx, sy);
 
+  WaylandPointer* device = static_cast<WaylandPointer*>(data);
   WaylandWindow* window =
       static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
   unsigned handle = window->Handle();
-  device->cursor_->Update(WaylandCursor::CURSOR_LEFT_PTR, serial);
+  float sx = wl_fixed_to_double(sx_w);
+  float sy = wl_fixed_to_double(sy_w);
 
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  WaylandDisplay::GetInstance()->SetSerial(serial);
+  device->pointer_position_.SetPoint(sx, sy);
+  device->cursor_->Update(WaylandCursor::CURSOR_LEFT_PTR, serial);
   input->SetFocusWindowHandle(handle);
   device->dispatcher_->PointerEnter(handle,
                                     device->pointer_position_.x(),
