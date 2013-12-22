@@ -15,6 +15,8 @@ WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
     keyboard_modifiers_(0),
     dispatcher_(NULL) {
   xkb_.context = NULL;
+  xkb_.keymap = NULL;
+  xkb_.state = NULL;
 }
 
 WaylandKeyboard::~WaylandKeyboard() {
@@ -174,12 +176,20 @@ void WaylandKeyboard::InitXKB() {
 }
 
 void WaylandKeyboard::FiniXKB() {
-  if (xkb_.state)
+  if (xkb_.state) {
     xkb_state_unref(xkb_.state);
-  if (xkb_.keymap)
+    xkb_.state = NULL;
+  }
+
+  if (xkb_.keymap) {
     xkb_map_unref(xkb_.keymap);
-  if (xkb_.context)
+    xkb_.keymap = NULL;
+  }
+
+  if (xkb_.context) {
     xkb_context_unref(xkb_.context);
+    xkb_.context = NULL;
+  }
 }
 
 }  // namespace ozonewayland
