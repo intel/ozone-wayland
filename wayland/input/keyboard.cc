@@ -119,7 +119,9 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
   }
 
   device->xkb_.keymap = xkb_map_new_from_string(device->xkb_.context,
-      map_str, XKB_KEYMAP_FORMAT_TEXT_V1, (xkb_map_compile_flags)0);
+                                                map_str,
+                                                XKB_KEYMAP_FORMAT_TEXT_V1,
+                                                (xkb_map_compile_flags)0);
   munmap(map_str, size);
   close(fd);
   if (!device->xkb_.keymap) {
@@ -158,8 +160,13 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                                      uint32_t group) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
 
-  xkb_state_update_mask(device->xkb_.state, mods_depressed, mods_latched,
-      mods_locked, 0, 0, group);
+  xkb_state_update_mask(device->xkb_.state,
+                        mods_depressed,
+                        mods_latched,
+                        mods_locked,
+                        0,
+                        0,
+                        group);
 }
 
 void WaylandKeyboard::InitXKB() {
