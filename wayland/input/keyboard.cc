@@ -57,11 +57,15 @@ void WaylandKeyboard::OnKeyNotify(void* data,
                                   uint32_t key,
                                   uint32_t state) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  uint32_t code, num_syms;
   const xkb_keysym_t *syms;
   xkb_keysym_t sym;
-  xkb_mod_mask_t mask;
   unsigned currentState = 0;
+  uint32_t code = key + 8;
+  uint32_t num_syms = xkb_key_get_syms(device->xkb_.state, code, &syms);
+  if (num_syms == 1)
+    sym = syms[0];
+  else
+    sym = XKB_KEY_NoSymbol;
 
   WaylandDisplay::GetInstance()->SetSerial(serial);
 
@@ -70,25 +74,23 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   else
     currentState = 0;
 
-  code = key + 8;
-  num_syms = xkb_key_get_syms(device->xkb_.state, code, &syms);
-  if (num_syms == 1)
-    sym = syms[0];
-  else
-    sym = XKB_KEY_NoSymbol;
-
-  mask = xkb_state_serialize_mods(device->xkb_.state,
-      (xkb_state_component)(XKB_STATE_DEPRESSED | XKB_STATE_LATCHED));
   device->keyboard_modifiers_ = 0;
-  if (mask & device->xkb_.control_mask)
-    device->keyboard_modifiers_ |= ui::EF_CONTROL_DOWN;
-  if (mask & device->xkb_.alt_mask)
-    device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
-  if (mask & device->xkb_.shift_mask)
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_SHIFT, XKB_STATE_MODS_EFFECTIVE))
     device->keyboard_modifiers_ |= ui::EF_SHIFT_DOWN;
 
-  device->dispatcher_->KeyNotify(currentState, sym,
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE))
+    device->keyboard_modifiers_ |= ui::EF_CONTROL_DOWN;
+
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_ALT, XKB_STATE_MODS_EFFECTIVE))
+    device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
+
+  device->dispatcher_->KeyNotify(currentState,
+                                 sym,
                                  device->keyboard_modifiers_);
+
 }
 
 void WaylandKeyboard::OnKeyboardKeymap(void *data,
@@ -130,13 +132,6 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
     device->xkb_.keymap = NULL;
     return;
   }
-
-  device->xkb_.control_mask =
-    1 << xkb_map_mod_get_index(device->xkb_.keymap, "Control");
-  device->xkb_.alt_mask =
-    1 << xkb_map_mod_get_index(device->xkb_.keymap, "Mod1");
-  device->xkb_.shift_mask =
-    1 << xkb_map_mod_get_index(device->xkb_.keymap, "Shift");
 }
 
 void WaylandKeyboard::OnKeyboardEnter(void* data,
