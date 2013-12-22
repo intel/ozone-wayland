@@ -74,19 +74,6 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   else
     currentState = 0;
 
-  device->keyboard_modifiers_ = 0;
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_SHIFT, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_SHIFT_DOWN;
-
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_CONTROL_DOWN;
-
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_ALT, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
-
   device->dispatcher_->KeyNotify(currentState,
                                  sym,
                                  device->keyboard_modifiers_);
@@ -159,6 +146,8 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                                      uint32_t mods_locked,
                                      uint32_t group) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
+  if (!device->xkb_.state)
+    return;
 
   xkb_state_update_mask(device->xkb_.state,
                         mods_depressed,
@@ -167,6 +156,19 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                         0,
                         0,
                         group);
+
+  device->keyboard_modifiers_ = 0;
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_SHIFT, XKB_STATE_MODS_EFFECTIVE))
+    device->keyboard_modifiers_ |= ui::EF_SHIFT_DOWN;
+
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE))
+    device->keyboard_modifiers_ |= ui::EF_CONTROL_DOWN;
+
+  if (xkb_state_mod_name_is_active(
+      device->xkb_.state, XKB_MOD_NAME_ALT, XKB_STATE_MODS_EFFECTIVE))
+    device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
 }
 
 void WaylandKeyboard::InitXKB() {
