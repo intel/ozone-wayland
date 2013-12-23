@@ -806,13 +806,13 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
       break;
     }
     case ui::ET_KEY_PRESSED: {
-      ui::KeyEvent keydown_event(event, false);
-      delegate_->OnHostKeyEvent(&keydown_event);
+      ui::KeyEvent* keydown_event = static_cast<ui::KeyEvent*>(ne);
+      delegate_->OnHostKeyEvent(keydown_event);
       break;
     }
     case ui::ET_KEY_RELEASED: {
-      ui::KeyEvent keyup_event(event, false);
-      delegate_->OnHostKeyEvent(&keyup_event);
+      ui::KeyEvent* keyup_event = static_cast<ui::KeyEvent*>(ne);
+      delegate_->OnHostKeyEvent(keyup_event);
       break;
     }
     case ui::ET_MOUSEWHEEL: {
