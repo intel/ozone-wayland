@@ -233,7 +233,7 @@ ui::KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
     case XKB_KEY_slash:
       return ui::VKEY_OEM_2;
     case XKB_KEY_asciitilde:
-    case XKB_KEY_quoteleft:
+    case XKB_KEY_grave:
       return ui::VKEY_OEM_3;
     case XKB_KEY_bracketleft:
     case XKB_KEY_braceleft:
@@ -244,8 +244,8 @@ ui::KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
     case XKB_KEY_bracketright:
     case XKB_KEY_braceright:
       return ui::VKEY_OEM_6;
-    case XKB_KEY_quoteright:
     case XKB_KEY_quotedbl:
+    case XKB_KEY_apostrophe:
       return ui::VKEY_OEM_7;
     case XKB_KEY_Shift_L:
     case XKB_KEY_Shift_R:
