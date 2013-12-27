@@ -146,6 +146,7 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   }
 
   surface_factory->AttemptToResizeAcceleratedWidget(window_, bounds_);
+  CreateCompositor(GetAcceleratedWidget());
 }
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
@@ -573,7 +574,7 @@ void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
                                               OzoneDisplay::FullScreen,
                                               rect.width(),
                                               rect.height());
-  delegate_->OnHostResized(rect.size());
+  NotifyHostResized(rect.size());
 }
 
 bool DesktopRootWindowHostWayland::IsFullscreen() const {
@@ -698,9 +699,9 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
                                                 OzoneDisplay::Resize,
                                                 bounds.width(),
                                                 bounds.height());
-    delegate_->OnHostResized(bounds.size());
+    NotifyHostResized(bounds.size());
   } else {
-    delegate_->OnHostPaint(gfx::Rect(bounds.size()));
+    compositor()->ScheduleRedrawRect(bounds);
   }
 }
 
