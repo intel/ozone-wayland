@@ -11,6 +11,7 @@
 
 namespace ozonewayland {
 
+class KeyboardEngineXKB;
 class WaylandDispatcher;
 
 class WaylandKeyboard {
@@ -55,23 +56,7 @@ class WaylandKeyboard {
 
   wl_keyboard* input_keyboard_;
   WaylandDispatcher* dispatcher_;
-
-  // Keeps track of the currently active keyboard modifiers. We keep this
-  // since we want to advertise keyboard modifiers with mouse events.
-  uint32_t keyboard_modifiers_;
-
-  // keymap used to transform keyboard events.
-  struct xkb {
-    struct xkb_rule_names names;
-    struct xkb_keymap *keymap;
-    struct xkb_state *state;
-    struct xkb_context *context;
-  };
-
-  xkb xkb_;
-
-  void InitXKB();
-  void FiniXKB();
+  KeyboardEngineXKB* backend_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandKeyboard);
 };

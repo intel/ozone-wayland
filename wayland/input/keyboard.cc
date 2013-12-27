@@ -4,23 +4,20 @@
 
 #include "ozone/wayland/input/keyboard.h"
 
-#include <sys/mman.h>
-
+#include "ozone/ui/ime/keyboard_engine_xkb.h"
 #include "ozone/wayland/dispatcher.h"
-#include "ui/events/event.h"
 
 namespace ozonewayland {
 
 WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
-    keyboard_modifiers_(0),
-    dispatcher_(NULL) {
-  xkb_.context = NULL;
-  xkb_.keymap = NULL;
-  xkb_.state = NULL;
+    dispatcher_(NULL),
+    backend_(NULL) {
 }
 
 WaylandKeyboard::~WaylandKeyboard() {
-  FiniXKB();
+  if (backend_)
+    delete backend_;
+
   if (input_keyboard_) {
     wl_keyboard_destroy(input_keyboard_);
     input_keyboard_ = NULL;
@@ -39,12 +36,17 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   dispatcher_ = WaylandDispatcher::GetInstance();
 
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
-    InitXKB();
+    DCHECK(!backend_);
+    backend_ =  new KeyboardEngineXKB();
     input_keyboard_ = wl_seat_get_keyboard(seat);
     wl_keyboard_add_listener(input_keyboard_, &kInputKeyboardListener,
         this);
   } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && input_keyboard_) {
-    FiniXKB();
+    if (backend_) {
+      delete backend_;
+      backend_ = NULL;
+    }
+
     wl_keyboard_destroy(input_keyboard_);
     input_keyboard_ = NULL;
   }
@@ -57,16 +59,7 @@ void WaylandKeyboard::OnKeyNotify(void* data,
                                   uint32_t key,
                                   uint32_t state) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  const xkb_keysym_t *syms;
-  xkb_keysym_t sym;
-  unsigned currentState = 0;
-  uint32_t code = key + 8;
-  uint32_t num_syms = xkb_key_get_syms(device->xkb_.state, code, &syms);
-  if (num_syms == 1)
-    sym = syms[0];
-  else
-    sym = XKB_KEY_NoSymbol;
-
+  unsigned currentState = 1;
   WaylandDisplay::GetInstance()->SetSerial(serial);
 
   if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
@@ -74,10 +67,13 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   else
     currentState = 0;
 
-  device->dispatcher_->KeyNotify(currentState,
-                                 sym,
-                                 device->keyboard_modifiers_);
+  // Check if we can ignore the KeyEvent notification, saves an IPC call.
+  if (device->backend_->IgnoreKeyNotify(key, currentState))
+    return;
 
+  device->dispatcher_->KeyNotify(currentState,
+                                 device->backend_->ConvertKeyCodeFromEvdev(key),
+                                 device->backend_->GetKeyBoardModifiers());
 }
 
 void WaylandKeyboard::OnKeyboardKeymap(void *data,
@@ -86,7 +82,6 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
                                        int fd,
                                        uint32_t size) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  char *map_str;
 
   if (!data) {
     close(fd);
@@ -98,29 +93,8 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
     return;
   }
 
-  map_str =
-      reinterpret_cast<char*>(mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0));
-  if (map_str == MAP_FAILED) {
-    close(fd);
-    return;
-  }
-
-  device->xkb_.keymap = xkb_map_new_from_string(device->xkb_.context,
-                                                map_str,
-                                                XKB_KEYMAP_FORMAT_TEXT_V1,
-                                                (xkb_map_compile_flags)0);
-  munmap(map_str, size);
+  device->backend_->OnKeyboardKeymap(fd, size);
   close(fd);
-  if (!device->xkb_.keymap) {
-    return;
-  }
-
-  device->xkb_.state = xkb_state_new(device->xkb_.keymap);
-  if (!device->xkb_.state) {
-    xkb_map_unref(device->xkb_.keymap);
-    device->xkb_.keymap = NULL;
-    return;
-  }
 }
 
 void WaylandKeyboard::OnKeyboardEnter(void* data,
@@ -146,58 +120,10 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                                      uint32_t mods_locked,
                                      uint32_t group) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  if (!device->xkb_.state)
-    return;
-
-  xkb_state_update_mask(device->xkb_.state,
-                        mods_depressed,
-                        mods_latched,
-                        mods_locked,
-                        0,
-                        0,
-                        group);
-
-  device->keyboard_modifiers_ = 0;
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_SHIFT, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_SHIFT_DOWN;
-
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_CONTROL_DOWN;
-
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_ALT, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_ALT_DOWN;
-
-  if (xkb_state_mod_name_is_active(
-      device->xkb_.state, XKB_MOD_NAME_CAPS, XKB_STATE_MODS_EFFECTIVE))
-    device->keyboard_modifiers_ |= ui::EF_CAPS_LOCK_DOWN;
-}
-
-void WaylandKeyboard::InitXKB() {
-  if (xkb_.context) {
-    return;
-  }
-
-  xkb_.context = xkb_context_new((xkb_context_flags)0);
-}
-
-void WaylandKeyboard::FiniXKB() {
-  if (xkb_.state) {
-    xkb_state_unref(xkb_.state);
-    xkb_.state = NULL;
-  }
-
-  if (xkb_.keymap) {
-    xkb_map_unref(xkb_.keymap);
-    xkb_.keymap = NULL;
-  }
-
-  if (xkb_.context) {
-    xkb_context_unref(xkb_.context);
-    xkb_.context = NULL;
-  }
+  device->backend_->OnKeyModifiers(mods_depressed,
+                                   mods_latched,
+                                   mods_locked,
+                                   group);
 }
 
 }  // namespace ozonewayland
