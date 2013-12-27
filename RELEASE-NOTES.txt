@@ -1,6 +1,6 @@
 ========================================================================
 Milestone Santa
-Release Date: 19 Dec 2013.
+Release Date: 27 Dec 2013.
 ========================================================================
 
 Based on Chromium-
@@ -24,8 +24,19 @@ Fixed Issues:
 4) [#151] Crash when resizing browser window.
 5) [#154] Fix FullScreen bounds.
 6) [#169] Fix heap and stack corruption in DisplayChannelHost.
+7) Support AddressSanitizer tool.
+   http://www.chromium.org/developers/testing/addresssanitizer
+8) Support Component=shared_library  build.
 
 Lot more enhancements.
+
+---------------------------------------------------------------------
+
+Known Issues:
+1) Dialogs are not supported.(i.e. File picker)
+2) Keyboard: CapsLock and special characters are not recognized correctly.
+3) Missing Drag and Drop support.
+4) Browser window cannot be resized(Only FullScreen mode is supported).
 
 ---------------------------------------------------------------------
 
