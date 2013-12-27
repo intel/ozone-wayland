@@ -5,7 +5,7 @@
 #include "ozone/impl/ipc/browser_process_dispatcher_delegate.h"
 
 #include "base/bind.h"
-#include "ozone/wayland/input/kbd_conversion.h"
+#include "ozone/ui/events/keyboard_code_conversion_ozone.h"
 #include "ozone/wayland/window_change_observer.h"
 
 namespace ozonewayland {
@@ -117,9 +117,9 @@ void BrowserProcessDispatcherDelegate::KeyNotify(unsigned state,
     type = ui::ET_KEY_RELEASED;
 
   scoped_ptr<ui::KeyEvent> keyev(new ui::KeyEvent(type,
-                                                  KeyboardCodeFromXKeysym(code),
-                                                  modifiers,
-                                                  true));
+      KeyboardCodeFromNativeKeysym(code), modifiers, true));
+
+  keyev.get()->set_character(CharacterCodeFromNativeKeySym(code, modifiers));
 
   PostTaskOnMainLoop(base::Bind(
       &BrowserProcessDispatcherDelegate::DispatchEventHelper, base::Passed(

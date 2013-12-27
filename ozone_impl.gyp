@@ -16,6 +16,9 @@
       'include_dirs': [
         '..',
       ],
+      'includes': [
+        'ui/events/events.gypi',
+      ],
       'defines': [
         'OZONE_WAYLAND_IMPLEMENTATION',
       ],
