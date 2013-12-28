@@ -339,8 +339,9 @@ bool DesktopRootWindowHostWayland::IsVisible() const {
 }
 
 void DesktopRootWindowHostWayland::SetSize(const gfx::Size& size) {
-  // TODO(erg):
-  NOTIMPLEMENTED();
+  gfx::Rect new_bounds = bounds_;
+  new_bounds.set_size(size);
+  SetBounds(new_bounds);
 }
 
 void DesktopRootWindowHostWayland::StackAtTop() {
