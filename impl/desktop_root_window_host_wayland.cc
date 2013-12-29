@@ -413,8 +413,8 @@ gfx::Rect DesktopRootWindowHostWayland::GetRestoredBounds() const {
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetWorkAreaBoundsInScreen() const {
-  NOTIMPLEMENTED();
-  return gfx::Rect(0, 0, 10, 10);
+  // TODO(kalyan): Take into account wm decorations. i.e Dock, panel etc.
+  return OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
 }
 
 void DesktopRootWindowHostWayland::SetShape(gfx::NativeRegion native_region) {
