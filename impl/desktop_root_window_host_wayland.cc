@@ -407,9 +407,10 @@ gfx::Rect DesktopRootWindowHostWayland::GetClientAreaBoundsInScreen() const {
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetRestoredBounds() const {
-  // TODO(erg):
-  NOTIMPLEMENTED();
-  return gfx::Rect();
+  if (!previous_bounds_.IsEmpty())
+    return previous_bounds_;
+
+  return bounds_;
 }
 
 gfx::Rect DesktopRootWindowHostWayland::GetWorkAreaBoundsInScreen() const {
