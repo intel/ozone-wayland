@@ -111,7 +111,6 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   }
 
   bounds_ = params.bounds;
-  previous_bounds_ = bounds_;
   switch (params.type) {
     case Widget::InitParams::TYPE_TOOLTIP:
     case Widget::InitParams::TYPE_POPUP:
@@ -567,9 +566,13 @@ void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
   else
     state_ &= ~FullScreen;
 
-  gfx::Rect rect = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
-  if (!(state_ & FullScreen))
-    rect = previous_bounds_;
+  gfx::Rect rect = previous_bounds_;
+  if (!(state_ & FullScreen)) {
+    previous_bounds_ = gfx::Rect();
+  } else {
+    previous_bounds_ = bounds_;
+    rect = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
+  }
 
   bounds_ = rect;
   // We could use HandleConfigure in ShellSurface to set the correct bounds of
