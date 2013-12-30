@@ -79,7 +79,7 @@ void BrowserProcessDispatcherDelegate::PointerEnter(unsigned handle,
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
                                                         position,
                                                         position,
-                                                        handle,
+                                                        0,
                                                         0));
   PostTaskOnMainLoop(base::Bind(
       &BrowserProcessDispatcherDelegate::NotifyPointerEnter, this, handle));
