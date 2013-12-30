@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
+#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/shell_surface.h"
 #include "ozone/wayland/surface.h"
 
@@ -55,6 +56,8 @@ void WaylandWindow::SetShellAttributes(ShellType type,
   if (!shell_surface_) {
     shell_surface_ = new WaylandShellSurface(this);
     wl_surface_set_user_data(GetSurface(), this);
+    WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+    input->SetGrabWindowHandle(handle_, 0);
   }
 
   type_ = type;
