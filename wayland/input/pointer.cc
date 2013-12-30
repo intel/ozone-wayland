@@ -10,7 +10,6 @@
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/window.h"
-#include "ui/base/hit_test.h"
 #include "ui/events/event.h"
 
 namespace ozonewayland {
@@ -59,10 +58,16 @@ void WaylandPointer::OnMotionNotify(void* data,
                                     wl_fixed_t sx_w,
                                     wl_fixed_t sy_w) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
   float sx = wl_fixed_to_double(sx_w);
   float sy = wl_fixed_to_double(sy_w);
 
   device->pointer_position_.SetPoint(sx, sy);
+  if (input->GetGrabWindowHandle() &&
+        input->GetGrabWindowHandle() != input->GetFocusWindowHandle()) {
+      return;
+  }
+
   device->dispatcher_->MotionNotify(sx, sy);
 }
 
@@ -74,27 +79,37 @@ void WaylandPointer::OnButtonNotify(void* data,
                                     uint32_t state) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
   WaylandDisplay::GetInstance()->SetSerial(serial);
-  int currentState;
-  if (state == WL_POINTER_BUTTON_STATE_PRESSED)
-    currentState = 1;
-  else
-    currentState = 0;
-
-  // TODO(vignatti): simultaneous clicks fail
-  int flags = 0;
-  if (button == BTN_LEFT)
-    flags = ui::EF_LEFT_MOUSE_BUTTON;
-  else if (button == BTN_RIGHT)
-    flags = ui::EF_RIGHT_MOUSE_BUTTON;
-  else if (button == BTN_MIDDLE)
-    flags = ui::EF_MIDDLE_MOUSE_BUTTON;
-
   WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
-  device->dispatcher_->ButtonNotify(input->GetFocusWindowHandle(),
-                                    currentState,
-                                    flags,
-                                    device->pointer_position_.x(),
-                                    device->pointer_position_.y());
+  if (input->GetFocusWindowHandle() && input->GetGrabButton() == 0 &&
+        state == WL_POINTER_BUTTON_STATE_PRESSED)
+    input->SetGrabWindowHandle(input->GetFocusWindowHandle(), button);
+
+  if (input->GetGrabWindowHandle()) {
+    int currentState;
+    if (state == WL_POINTER_BUTTON_STATE_PRESSED)
+      currentState = 1;
+    else
+      currentState = 0;
+
+    // TODO(vignatti): simultaneous clicks fail
+    int flags = 0;
+    if (button == BTN_LEFT)
+      flags = ui::EF_LEFT_MOUSE_BUTTON;
+    else if (button == BTN_RIGHT)
+      flags = ui::EF_RIGHT_MOUSE_BUTTON;
+    else if (button == BTN_MIDDLE)
+      flags = ui::EF_MIDDLE_MOUSE_BUTTON;
+
+    device->dispatcher_->ButtonNotify(input->GetFocusWindowHandle(),
+                                      currentState,
+                                      flags,
+                                      device->pointer_position_.x(),
+                                      device->pointer_position_.y());
+  }
+
+  if (input->GetGrabWindowHandle() && input->GetGrabButton() == button &&
+        state == WL_POINTER_BUTTON_STATE_RELEASED)
+    input->SetGrabWindowHandle(0, 0);
 }
 
 void WaylandPointer::OnAxisNotify(void* data,

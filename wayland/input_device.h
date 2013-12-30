@@ -23,7 +23,10 @@ class WaylandInputDevice {
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
   WaylandPointer* GetPointer() const { return input_pointer_; }
   unsigned GetFocusWindowHandle() const { return focused_window_handle_; }
+  unsigned GetGrabWindowHandle() const { return grab_window_handle_; }
+  uint32_t GetGrabButton() const { return grab_button_; }
   void SetFocusWindowHandle(unsigned windowhandle);
+  void SetGrabWindowHandle(unsigned windowhandle, uint32_t button);
 
  private:
   static void OnSeatCapabilities(void *data,
@@ -32,6 +35,8 @@ class WaylandInputDevice {
 
   // Keeps track of current focused window.
   unsigned focused_window_handle_;
+  unsigned grab_window_handle_;
+  uint32_t grab_button_;
   wl_seat* input_seat_;
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
