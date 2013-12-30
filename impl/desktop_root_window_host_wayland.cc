@@ -485,8 +485,9 @@ bool DesktopRootWindowHostWayland::IsMinimized() const {
 }
 
 void DesktopRootWindowHostWayland::OnCaptureReleased() {
-  native_widget_delegate_->OnMouseCaptureLost();
   g_current_capture = NULL;
+  delegate_->OnHostLostWindowCapture();
+  native_widget_delegate_->OnMouseCaptureLost();
 }
 
 void DesktopRootWindowHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
