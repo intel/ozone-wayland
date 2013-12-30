@@ -195,6 +195,8 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   views::internal::NativeWidgetDelegate* native_widget_delegate_;
 
   RootWindowState state_;
+  unsigned current_focus_window_;
+  bool button_grabber_;
 
   // Current bounds of DRWH.
   gfx::Rect bounds_;

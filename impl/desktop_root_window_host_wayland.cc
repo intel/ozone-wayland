@@ -82,6 +82,8 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       native_widget_delegate_(native_widget_delegate),
       desktop_native_widget_aura_(desktop_native_widget_aura),
       state_(Uninitialized),
+      current_focus_window_(0),
+      button_grabber_(false),
       window_parent_(NULL) {
 }
 
@@ -492,9 +494,33 @@ void DesktopRootWindowHostWayland::OnCaptureReleased() {
 
 void DesktopRootWindowHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
   if (!g_current_capture || g_current_capture == this) {
-    delegate_->OnHostMouseEvent(event);
+    g_current_dispatcher_->delegate_->OnHostMouseEvent(event);
   } else {
     // Another DesktopRootWindowHostWayland has installed itself as capture.
+    unsigned currentDispatcher = g_current_dispatcher_->current_focus_window_;
+    if (event->type() == ui::ET_MOUSE_MOVED &&
+         (currentDispatcher != g_current_capture->window_))
+      return;
+
+    if (event->type() == ui::ET_MOUSE_PRESSED) {
+      g_current_capture->button_grabber_ = true;
+      if (currentDispatcher != g_current_capture->window_) {
+        ReleaseCapture();
+        delegate_->OnHostMouseEvent(event);
+        return;
+      }
+    } else if (event->type() == ui::ET_MOUSE_RELEASED) {
+      if (!g_current_capture->button_grabber_)
+        return;
+
+      g_current_capture->button_grabber_ = false;
+
+      if (currentDispatcher != g_current_capture->window_) {
+        delegate_->OnHostMouseEvent(event);
+        return;
+      }
+    }
+
     g_current_capture->delegate_->OnHostMouseEvent(event);
   }
 }
@@ -639,24 +665,33 @@ bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
 
 void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
   DCHECK(g_current_dispatcher_ && g_current_dispatcher_ == this);
+  g_current_dispatcher_->current_focus_window_ = handle;
+  if (g_current_dispatcher_->window_ == handle)
+    return;
+
   // A new window should not steal focus in case the current window has a open
   // popup.
-  if (g_current_capture)
+  if (g_current_capture && g_current_capture != g_current_dispatcher_)
     return;
 
   // Ensure that the top level focussed window is activated.
   DesktopRootWindowHostWayland* window = NULL;
   if (handle)
     window = GetHostForAcceleratedWidget(handle);
-  if (window && !window->window_parent_ && g_current_dispatcher_ != window) {
+
+  if (!window)
+    return;
+
+  if (!window->window_parent_) {
     // DeActivate any previous root window.
     HandleNativeWidgetActivationChanged(false);
+    ReleaseCapture();
     // Activate current root window.
     window->HandleNativeWidgetActivationChanged(true);
+    window->current_focus_window_ = handle;
   }
 
-  if (window)
-    window->Activate();
+  window->Activate();
 }
 
 void DesktopRootWindowHostWayland::OnWindowEnter(unsigned handle) {
@@ -738,6 +773,7 @@ void DesktopRootWindowHostWayland::SetCapture() {
     g_current_capture->OnCaptureReleased();
 
   g_current_capture = this;
+  g_current_capture->button_grabber_ = false;
 }
 
 void DesktopRootWindowHostWayland::ReleaseCapture() {
