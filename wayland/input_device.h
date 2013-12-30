@@ -13,7 +13,6 @@ namespace ozonewayland {
 class WaylandKeyboard;
 class WaylandPointer;
 class WaylandDisplay;
-class WaylandWindow;
 
 class WaylandInputDevice {
  public:
