@@ -20,10 +20,10 @@ class WaylandInputDevice {
   WaylandInputDevice(WaylandDisplay* display, uint32_t id);
   ~WaylandInputDevice();
 
-  wl_seat* GetInputSeat() { return input_seat_; }
+  wl_seat* GetInputSeat() const { return input_seat_; }
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
   WaylandPointer* GetPointer() const { return input_pointer_; }
-  unsigned GetFocusWindowHandle() { return focused_window_handle_; }
+  unsigned GetFocusWindowHandle() const { return focused_window_handle_; }
   void SetFocusWindowHandle(unsigned windowhandle);
 
  private:
