@@ -8,6 +8,7 @@
 
 #include <list>
 #include <set>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "ozone/wayland/window_change_observer.h"

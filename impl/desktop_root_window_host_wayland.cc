@@ -223,13 +223,12 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
     parent->AddTransientChild(content_window_);
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
+  open_windows().push_back(window_);
 
   // Add DesktopRootWindowHostWayland as dispatcher.
   bool root_window = params.type == Widget::InitParams::TYPE_WINDOW ||
                       params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   if (!window_parent_ && root_window) {
-    open_windows().push_back(window_);
-
     if (g_current_dispatcher_)
       g_current_dispatcher_->Reset();
 
@@ -292,8 +291,8 @@ void DesktopRootWindowHostWayland::CloseNow() {
   // If we have a parent, remove ourselves from its children list.
   if (window_parent_)
     window_parent_->window_children_.erase(this);
-  else
-    open_windows().remove(window_);
+
+  open_windows().remove(window_);
 
   // Remove event listeners we've installed.
   if (g_current_dispatcher_ == this) {
