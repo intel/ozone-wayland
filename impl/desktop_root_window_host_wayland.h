@@ -37,9 +37,10 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
       views::DesktopNativeWidgetAura* desktop_native_widget_aura);
   virtual ~DesktopRootWindowHostWayland();
 
-  // Called by OzoneDesktopHandler to notify us that the native windowing system
-  // has changed our activation.
-  void HandleNativeWidgetActivationChanged(bool active);
+  // Accepts a opaque handle widget and returns associated
+  // DesktopRootWindowHostWayland.
+  static DesktopRootWindowHostWayland* GetHostForAcceleratedWidget(
+      gfx::AcceleratedWidget widget);
 
  private:
   enum {
@@ -53,11 +54,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   };
 
   typedef unsigned RootWindowState;
-
-  // Accepts a opaque handle widget and returns associated
-  // DesktopRootWindowHostWayland.
-  static DesktopRootWindowHostWayland* GetHostForAcceleratedWidget(
-      gfx::AcceleratedWidget widget);
 
   // Initializes our Ozone surface to draw on. This method performs all
   // initialization related to talking to the Ozone server.
@@ -170,16 +166,15 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   virtual void OnWindowEnter(unsigned windowhandle) OVERRIDE;
   virtual void OnWindowLeave(unsigned windowhandle) OVERRIDE;
 
-  // Overridden from DesktopSelectionProviderAuraOzone:
-  // virtual void SetDropHandler(
-  //    ui::OSExchangeDataProviderAuraOzone* handler) OVERRIDE;
-
   // Overridden from Dispatcher:
   virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
 
-  std::list<gfx::AcceleratedWidget>& open_windows();
   void Register();
   void Reset();
+  void HandleNativeWidgetActivationChanged(bool active);
+
+  // private static functions.
+  static std::list<gfx::AcceleratedWidget>& open_windows();
 
   base::WeakPtrFactory<DesktopRootWindowHostWayland> close_widget_factory_;
 

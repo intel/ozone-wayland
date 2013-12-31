@@ -58,20 +58,11 @@ DesktopRootWindowHostWayland*
 std::list<gfx::AcceleratedWidget>* DesktopRootWindowHostWayland::open_windows_ =
     NULL;
 
-
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
 
 DEFINE_WINDOW_PROPERTY_KEY(
     DesktopRootWindowHostWayland*, kHostForRootWindow, NULL);
-
-// static
-DesktopRootWindowHostWayland*
-DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
-    gfx::AcceleratedWidget widget) {
-  aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
-  return root ? root->window()->GetProperty(kHostForRootWindow) : NULL;
-}
 
 DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     views::internal::NativeWidgetDelegate* native_widget_delegate,
@@ -89,6 +80,14 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
   root_window_->window()->ClearProperty(kHostForRootWindow);
   desktop_native_widget_aura_->OnDesktopRootWindowHostDestroyed(root_window_);
+}
+
+// static
+DesktopRootWindowHostWayland*
+DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
+    gfx::AcceleratedWidget widget) {
+  aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
+  return root ? root->window()->GetProperty(kHostForRootWindow) : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,35 +149,6 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
 
   surface_factory->AttemptToResizeAcceleratedWidget(window_, bounds_);
   CreateCompositor(GetAcceleratedWidget());
-}
-
-void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
-    bool active) {
-  if (active) {
-    // TODO(kalyan): We might not need to do this once
-    // https://code.google.com/p/chromium/issues/detail?id=319986 is fixed.
-    Register();
-    // Make sure the stacking order is correct. The activated window should
-    // be first one in list of open windows.
-    std::list<gfx::AcceleratedWidget>& windows = open_windows();
-    DCHECK(windows.size());
-    if (windows.front() != window_) {
-      windows.remove(window_);
-      windows.insert(open_windows().begin(), window_);
-    }
-  } else {
-      Reset();
-  }
-
-  // We can skip the rest during initialization phase.
-  if (!state_)
-    return;
-
-  if (active)
-    delegate_->OnHostActivated();
-
-  desktop_native_widget_aura_->HandleActivationChanged(active);
-  native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
 }
 
 bool DesktopRootWindowHostWayland::IsWindowManagerPresent() {
@@ -658,44 +628,6 @@ bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
   return false;
 }
 
-void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
-  DCHECK(g_current_dispatcher_ && g_current_dispatcher_ == this);
-  g_current_dispatcher_->current_focus_window_ = handle;
-  if (g_current_dispatcher_->window_ == handle)
-    return;
-
-  // A new window should not steal focus in case the current window has a open
-  // popup.
-  if (g_current_capture && g_current_capture != g_current_dispatcher_)
-    return;
-
-  // Ensure that the top level focussed window is activated.
-  DesktopRootWindowHostWayland* window = NULL;
-  if (handle)
-    window = GetHostForAcceleratedWidget(handle);
-
-  if (!window)
-    return;
-
-  if (!window->window_parent_) {
-    // DeActivate any previous root window.
-    HandleNativeWidgetActivationChanged(false);
-    ReleaseCapture();
-    // Activate current root window.
-    window->HandleNativeWidgetActivationChanged(true);
-    window->current_focus_window_ = handle;
-  }
-
-  window->Activate();
-}
-
-void DesktopRootWindowHostWayland::OnWindowEnter(unsigned handle) {
-  OnWindowFocused(handle);
-}
-
-void DesktopRootWindowHostWayland::OnWindowLeave(unsigned handle) {
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostWayland, aura::RootWindowHost implementation:
 
@@ -815,26 +747,44 @@ void DesktopRootWindowHostWayland::OnDeviceScaleFactorChanged(
 void DesktopRootWindowHostWayland::PrepareForShutdown() {
 }
 
-std::list<gfx::AcceleratedWidget>&
-DesktopRootWindowHostWayland::open_windows() {
-  if (!open_windows_)
-    open_windows_ = new std::list<gfx::AcceleratedWidget>();
+////////////////////////////////////////////////////////////////////////////////
+// DesktopRootWindowHostWayland, WindowChangeObserver implementation:
+void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
+  DCHECK(g_current_dispatcher_ && g_current_dispatcher_ == this);
+  g_current_dispatcher_->current_focus_window_ = handle;
+  if (g_current_dispatcher_->window_ == handle)
+    return;
 
-  return *open_windows_;
+  // A new window should not steal focus in case the current window has a open
+  // popup.
+  if (g_current_capture && g_current_capture != g_current_dispatcher_)
+    return;
+
+  // Ensure that the top level focussed window is activated.
+  DesktopRootWindowHostWayland* window = NULL;
+  if (handle)
+    window = GetHostForAcceleratedWidget(handle);
+
+  if (!window)
+    return;
+
+  if (!window->window_parent_) {
+    // DeActivate any previous root window.
+    HandleNativeWidgetActivationChanged(false);
+    ReleaseCapture();
+    // Activate current root window.
+    window->HandleNativeWidgetActivationChanged(true);
+    window->current_focus_window_ = handle;
+  }
+
+  window->Activate();
 }
 
-void DesktopRootWindowHostWayland::Register() {
-  DCHECK(!g_current_dispatcher_);
-  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
-  OzoneDisplay::GetInstance()->SetWindowChangeObserver(this);
-  g_current_dispatcher_ = this;
+void DesktopRootWindowHostWayland::OnWindowEnter(unsigned handle) {
+  OnWindowFocused(handle);
 }
 
-void DesktopRootWindowHostWayland::Reset() {
-  DCHECK(g_current_dispatcher_);
-  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
-  OzoneDisplay::GetInstance()->SetWindowChangeObserver(NULL);
-  g_current_dispatcher_ = NULL;
+void DesktopRootWindowHostWayland::OnWindowLeave(unsigned handle) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -893,6 +843,59 @@ bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
       NOTIMPLEMENTED() << "DesktopRootWindowHostWayland: unknown event type.";
   }
   return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// DesktopRootWindowHostWayland, Private implementation:
+void DesktopRootWindowHostWayland::Register() {
+  DCHECK(!g_current_dispatcher_);
+  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
+  OzoneDisplay::GetInstance()->SetWindowChangeObserver(this);
+  g_current_dispatcher_ = this;
+}
+
+void DesktopRootWindowHostWayland::Reset() {
+  DCHECK(g_current_dispatcher_);
+  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
+  OzoneDisplay::GetInstance()->SetWindowChangeObserver(NULL);
+  g_current_dispatcher_ = NULL;
+}
+
+void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
+    bool active) {
+  if (active) {
+    // TODO(kalyan): We might not need to do this once
+    // https://code.google.com/p/chromium/issues/detail?id=319986 is fixed.
+    Register();
+    // Make sure the stacking order is correct. The activated window should
+    // be first one in list of open windows.
+    std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    DCHECK(windows.size());
+    if (windows.front() != window_) {
+      windows.remove(window_);
+      windows.insert(open_windows().begin(), window_);
+    }
+  } else {
+      Reset();
+  }
+
+  // We can skip the rest during initialization phase.
+  if (!state_)
+    return;
+
+  if (active)
+    delegate_->OnHostActivated();
+
+  desktop_native_widget_aura_->HandleActivationChanged(active);
+  native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
+}
+
+std::list<gfx::AcceleratedWidget>&
+DesktopRootWindowHostWayland::open_windows() {
+  if (!open_windows_)
+    open_windows_ = new std::list<gfx::AcceleratedWidget>();
+
+  return *open_windows_;
 }
 
 }  // namespace ozonewayland
