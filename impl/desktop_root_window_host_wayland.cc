@@ -124,11 +124,13 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
       DesktopRootWindowHostWayland* parent = window_parent_;
       if (!parent)
         parent = GetHostForAcceleratedWidget(open_windows().front());
-
+      // Transient type expects a position relative to the parent
+      gfx::Point transientPos = gfx::Point(bounds_.x() - parent->bounds_.x(),
+                                           bounds_.y() - parent->bounds_.y());
       OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
                                                        parent->window_,
-                                                       bounds_.x(),
-                                                       bounds_.y(),
+                                                       transientPos.x(),
+                                                       transientPos.y(),
                                                        OzoneDisplay::Transient);
       break;
     }
