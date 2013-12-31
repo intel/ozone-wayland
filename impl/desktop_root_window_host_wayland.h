@@ -196,7 +196,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
 
   RootWindowState state_;
   unsigned current_focus_window_;
-  bool button_grabber_;
 
   // Current bounds of DRWH.
   gfx::Rect bounds_;

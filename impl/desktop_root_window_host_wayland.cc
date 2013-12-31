@@ -83,7 +83,6 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       desktop_native_widget_aura_(desktop_native_widget_aura),
       state_(Uninitialized),
       current_focus_window_(0),
-      button_grabber_(false),
       window_parent_(NULL) {
 }
 
@@ -124,6 +123,7 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
       DesktopRootWindowHostWayland* parent = window_parent_;
       if (!parent)
         parent = GetHostForAcceleratedWidget(open_windows().front());
+
       // Transient type expects a position relative to the parent
       gfx::Point transientPos = gfx::Point(bounds_.x() - parent->bounds_.x(),
                                            bounds_.y() - parent->bounds_.y());
@@ -374,7 +374,6 @@ void DesktopRootWindowHostWayland::CenterWindow(const gfx::Size& size) {
   // Don't size the window bigger than the parent, otherwise the user may not be
   // able to close or move it.
   window_bounds.AdjustToFit(parent_bounds);
-
   SetBounds(window_bounds);
 }
 
@@ -497,36 +496,28 @@ void DesktopRootWindowHostWayland::OnCaptureReleased() {
 }
 
 void DesktopRootWindowHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
+  bool stop_propogation = g_current_capture ? true : false;
   if (!g_current_capture || g_current_capture == this) {
     g_current_dispatcher_->delegate_->OnHostMouseEvent(event);
   } else {
     // Another DesktopRootWindowHostWayland has installed itself as capture.
-    unsigned currentDispatcher = g_current_dispatcher_->current_focus_window_;
-    if (event->type() == ui::ET_MOUSE_MOVED &&
-         (currentDispatcher != g_current_capture->window_))
-      return;
-
+    bool handle_event = g_current_dispatcher_->current_focus_window_ ==
+                            g_current_capture->window_;
     if (event->type() == ui::ET_MOUSE_PRESSED) {
-      g_current_capture->button_grabber_ = true;
-      if (currentDispatcher != g_current_capture->window_) {
+      if (!handle_event)
         ReleaseCapture();
-        delegate_->OnHostMouseEvent(event);
-        return;
-      }
-    } else if (event->type() == ui::ET_MOUSE_RELEASED) {
-      if (!g_current_capture->button_grabber_)
-        return;
-
-      g_current_capture->button_grabber_ = false;
-
-      if (currentDispatcher != g_current_capture->window_) {
-        delegate_->OnHostMouseEvent(event);
-        return;
-      }
     }
 
-    g_current_capture->delegate_->OnHostMouseEvent(event);
+    if (handle_event)
+      g_current_capture->delegate_->OnHostMouseEvent(event);
   }
+
+  // Stop event propogation as this window is acting as event grabber. All
+  // event's we create are "cancelable". If in future we use events that are
+  // not cancelable, then a check for cancelable events needs to be added
+  // here.
+  if (stop_propogation)
+    event->StopPropagation();
 }
 
 bool DesktopRootWindowHostWayland::HasCapture() const {
@@ -777,7 +768,6 @@ void DesktopRootWindowHostWayland::SetCapture() {
     g_current_capture->OnCaptureReleased();
 
   g_current_capture = this;
-  g_current_capture->button_grabber_ = false;
 }
 
 void DesktopRootWindowHostWayland::ReleaseCapture() {
