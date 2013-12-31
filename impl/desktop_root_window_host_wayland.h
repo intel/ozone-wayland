@@ -42,6 +42,19 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   static DesktopRootWindowHostWayland* GetHostForAcceleratedWidget(
       gfx::AcceleratedWidget widget);
 
+  // Get all open top-level windows. This includes windows that may not be
+  // visible. This list is sorted in their stacking order, i.e. the first window
+  // is the topmost window.
+  static std::vector<aura::Window*>& GetAllOpenWindows();
+
+  // Accepts a opaque handle widget and returns associated aura::Window.
+  static aura::Window* GetContentWindowForAcceleratedWidget(
+      gfx::AcceleratedWidget widget);
+
+  // Returns window bounds. This is used by Screen to determine if a point
+  // belongs to a particular window.
+  gfx::Rect GetBoundsInScreen() const;
+
  private:
   enum {
     Uninitialized = 0x00,
@@ -217,6 +230,8 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   static DesktopRootWindowHostWayland* g_current_dispatcher_;
   // List of all open windows.
   static std::list<gfx::AcceleratedWidget>* open_windows_;
+  // List of all open aura::Window.
+  static std::vector<aura::Window*>* aura_windows_;
 
   DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostWayland);
 };

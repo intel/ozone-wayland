@@ -58,6 +58,8 @@ DesktopRootWindowHostWayland*
 std::list<gfx::AcceleratedWidget>* DesktopRootWindowHostWayland::open_windows_ =
     NULL;
 
+std::vector<aura::Window*>* DesktopRootWindowHostWayland::aura_windows_ = NULL;
+
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
 
@@ -88,6 +90,33 @@ DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
   aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
   return root ? root->window()->GetProperty(kHostForRootWindow) : NULL;
+}
+
+// static
+std::vector<aura::Window*>& DesktopRootWindowHostWayland::GetAllOpenWindows() {
+  if (!aura_windows_) {
+    std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    DCHECK(windows.size());
+    aura_windows_ = new std::vector<aura::Window*>(windows.size());
+    std::transform(windows.begin(),
+                   windows.end(),
+                   aura_windows_->begin(),
+                   GetContentWindowForAcceleratedWidget);
+  }
+
+  return *aura_windows_;
+}
+
+// static
+aura::Window*
+DesktopRootWindowHostWayland::GetContentWindowForAcceleratedWidget(
+    gfx::AcceleratedWidget widget) {
+  aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
+  return root ? root->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
+}
+
+gfx::Rect DesktopRootWindowHostWayland::GetBoundsInScreen() const {
+  return bounds_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,6 +235,11 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
 
     Register();
   }
+
+  if (aura_windows_) {
+    delete aura_windows_;
+    aura_windows_ = NULL;
+  }
 }
 
 scoped_ptr<views::corewm::Tooltip>
@@ -222,6 +256,11 @@ DesktopRootWindowHostWayland::CreateDragDropClient(
 }
 
 void DesktopRootWindowHostWayland::Close() {
+  if (aura_windows_) {
+    delete aura_windows_;
+    aura_windows_ = NULL;
+  }
+
   if (!close_widget_factory_.HasWeakPtrs()) {
     // And we delay the close so that if we are called from an ATL callback,
     // we don't destroy the window before the callback returned (as the caller
