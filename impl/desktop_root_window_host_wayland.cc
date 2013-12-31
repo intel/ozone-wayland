@@ -226,7 +226,9 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
   native_widget_delegate_->OnNativeWidgetCreated(true);
 
   // Add DesktopRootWindowHostWayland as dispatcher.
-  if (!window_parent_) {
+  bool root_window = params.type == Widget::InitParams::TYPE_WINDOW ||
+                      params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
+  if (!window_parent_ && root_window) {
     open_windows().push_back(window_);
 
     if (g_current_dispatcher_)
