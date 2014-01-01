@@ -129,7 +129,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   virtual bool HasCapture() const OVERRIDE;
   virtual bool IsAlwaysOnTop() const OVERRIDE;
   virtual void SetAlwaysOnTop(bool always_on_top) OVERRIDE;
-  virtual bool SetWindowTitle(const string16& title) OVERRIDE;
+  virtual bool SetWindowTitle(const base::string16& title) OVERRIDE;
   virtual void ClearNativeFocus() OVERRIDE;
   virtual views::Widget::MoveLoopResult RunMoveLoop(
       const gfx::Vector2d& drag_offset,
@@ -219,7 +219,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   DesktopRootWindowHostWayland* window_parent_;
   std::set<DesktopRootWindowHostWayland*> window_children_;
 
-  string16 title_;
+  base::string16 title_;
 
   // The current root window host that has capture. While X11 has something
   // like Windows SetCapture()/ReleaseCapture(), it is entirely implicit and

@@ -96,8 +96,9 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
                             WidgetState state,
                             unsigned width,
                             unsigned height);
-  void SetWidgetTitle(gfx::AcceleratedWidget w, const string16& title);
-  void OnWidgetTitleChanged(gfx::AcceleratedWidget w, const string16& title);
+  void SetWidgetTitle(gfx::AcceleratedWidget w, const base::string16& title);
+  void OnWidgetTitleChanged(gfx::AcceleratedWidget w,
+                            const base::string16& title);
   void SetWidgetAttributes(gfx::AcceleratedWidget widget,
                            gfx::AcceleratedWidget parent,
                            unsigned x,

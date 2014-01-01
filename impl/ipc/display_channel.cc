@@ -69,7 +69,7 @@ void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
 }
 
 void OzoneDisplayChannel::OnWidgetTitleChanged(unsigned widget,
-                                               string16 title) {
+                                               base::string16 title) {
   OzoneDisplay::GetInstance()->OnWidgetTitleChanged(widget, title);
 }
 

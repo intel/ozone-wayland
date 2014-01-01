@@ -40,7 +40,7 @@ class WaylandWindow {
                           WaylandShellSurface* shell_parent,
                           unsigned x,
                           unsigned y);
-  void SetWindowTitle(const string16& title);
+  void SetWindowTitle(const base::string16& title);
   void Maximize();
   void Minimize();
   void Restore();

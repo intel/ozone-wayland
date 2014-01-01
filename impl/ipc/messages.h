@@ -68,4 +68,4 @@ IPC_MESSAGE_ROUTED5(WaylandWindow_Attributes,  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_ROUTED2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,
-                    string16 /* window title */)
+                    base::string16 /* window title */)

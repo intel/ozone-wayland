@@ -79,7 +79,7 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   }
 }
 
-void WaylandShellSurface::SetWindowTitle(const string16& title) {
+void WaylandShellSurface::SetWindowTitle(const base::string16& title) {
   wl_shell_surface_set_title(shell_surface_, UTF16ToUTF8(title).c_str());
 }
 

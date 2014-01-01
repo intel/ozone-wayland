@@ -64,7 +64,7 @@ void WaylandWindow::SetShellAttributes(ShellType type,
   shell_surface_->UpdateShellSurface(type_, shell_parent, x, y);
 }
 
-void WaylandWindow::SetWindowTitle(const string16& title) {
+void WaylandWindow::SetWindowTitle(const base::string16& title) {
   shell_surface_->SetWindowTitle(title);
 }
 

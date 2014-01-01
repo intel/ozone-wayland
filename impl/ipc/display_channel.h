@@ -28,7 +28,7 @@ class OzoneDisplayChannel : public IPC::Listener {
                             unsigned state,
                             unsigned width,
                             unsigned height);
-  void OnWidgetTitleChanged(unsigned widget, string16 title);
+  void OnWidgetTitleChanged(unsigned widget, base::string16 title);
   void OnWidgetAttributesChanged(unsigned widget,
                                  unsigned parent,
                                  unsigned x,

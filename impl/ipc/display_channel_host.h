@@ -33,7 +33,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
                        unsigned state,
                        unsigned width,
                        unsigned height);
-  void SendWidgetTitle(unsigned w, const string16& title);
+  void SendWidgetTitle(unsigned w, const base::string16& title);
   void SendWidgetAttributes(unsigned widget,
                             unsigned parent,
                             unsigned x,

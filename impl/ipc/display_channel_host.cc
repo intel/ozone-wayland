@@ -69,7 +69,7 @@ void OzoneDisplayChannelHost::SendWidgetAttributes(unsigned widget,
 }
 
 void OzoneDisplayChannelHost::SendWidgetTitle(
-    unsigned w, const string16& title) {
+    unsigned w, const base::string16& title) {
   if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
     content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
         base::Bind(&OzoneDisplayChannelHost::SendWidgetTitle,

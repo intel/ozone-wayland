@@ -542,7 +542,7 @@ void DesktopRootWindowHostWayland::SetAlwaysOnTop(bool always_on_top) {
   NOTIMPLEMENTED();
 }
 
-bool DesktopRootWindowHostWayland::SetWindowTitle(const string16& title) {
+bool DesktopRootWindowHostWayland::SetWindowTitle(const base::string16& title) {
   if (title.compare(title_)) {
     OzoneDisplay::GetInstance()->SetWidgetTitle(window_, title);
     title_ = title;
