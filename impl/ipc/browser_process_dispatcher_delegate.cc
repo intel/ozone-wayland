@@ -49,11 +49,12 @@ void BrowserProcessDispatcherDelegate::ButtonNotify(unsigned handle,
                                                         flags,
                                                         1));
   PostTaskOnMainLoop(base::Bind(
-      &BrowserProcessDispatcherDelegate::NotifyButtonPress, this, handle));
-
-  PostTaskOnMainLoop(base::Bind(
       &BrowserProcessDispatcherDelegate::DispatchEventHelper, base::Passed(
           mouseev.PassAs<ui::Event>())));
+
+  if (type == ui::ET_MOUSE_RELEASED)
+    PostTaskOnMainLoop(base::Bind(
+        &BrowserProcessDispatcherDelegate::NotifyButtonPress, this, handle));
 }
 
 void BrowserProcessDispatcherDelegate::AxisNotify(float x,
