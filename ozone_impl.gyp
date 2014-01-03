@@ -35,6 +35,8 @@
         'impl/event_factory_wayland.h',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
+        'impl/root_window_host_delegate_wayland.cc',
+        'impl/root_window_host_delegate_wayland.h',
         'impl/ipc/browser_process_dispatcher_delegate.cc',
         'impl/ipc/browser_process_dispatcher_delegate.h',
         'impl/ipc/child_process_observer.h',
