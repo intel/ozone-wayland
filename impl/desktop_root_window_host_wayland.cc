@@ -9,6 +9,7 @@
 #include "ozone/impl/desktop_drag_drop_client_wayland.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/ozone_display.h"
+#include "ozone/impl/root_window_host_delegate_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
@@ -49,16 +50,8 @@ namespace ozonewayland {
 using views::Widget;
 using views::NonClientFrameView;
 
-DesktopRootWindowHostWayland* DesktopRootWindowHostWayland::g_current_capture =
-    NULL;
-
-DesktopRootWindowHostWayland*
-    DesktopRootWindowHostWayland::g_current_dispatcher_ = NULL;
-
-std::list<gfx::AcceleratedWidget>* DesktopRootWindowHostWayland::open_windows_ =
-    NULL;
-
-std::vector<aura::Window*>* DesktopRootWindowHostWayland::aura_windows_ = NULL;
+RootWindowHostDelegateWayland*
+    DesktopRootWindowHostWayland::g_dispatcher_ozone_wayland_ = NULL;
 
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
@@ -75,7 +68,6 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       native_widget_delegate_(native_widget_delegate),
       desktop_native_widget_aura_(desktop_native_widget_aura),
       state_(Uninitialized),
-      current_focus_window_(0),
       window_parent_(NULL) {
 }
 
@@ -94,17 +86,8 @@ DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
 
 // static
 std::vector<aura::Window*>& DesktopRootWindowHostWayland::GetAllOpenWindows() {
-  if (!aura_windows_) {
-    std::list<gfx::AcceleratedWidget>& windows = open_windows();
-    DCHECK(windows.size());
-    aura_windows_ = new std::vector<aura::Window*>(windows.size());
-    std::transform(windows.begin(),
-                   windows.end(),
-                   aura_windows_->begin(),
-                   GetContentWindowForAcceleratedWidget);
-  }
-
-  return *aura_windows_;
+  DCHECK(g_dispatcher_ozone_wayland_);
+  return g_dispatcher_ozone_wayland_->GetAllOpenWindows();
 }
 
 // static
@@ -150,7 +133,8 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
       // therefore we use root window to calculate their position.
       DesktopRootWindowHostWayland* parent = window_parent_;
       if (!parent)
-        parent = GetHostForAcceleratedWidget(open_windows().front());
+        parent = GetHostForAcceleratedWidget(
+                     g_dispatcher_ozone_wayland_->GetActiveWindow()->window_);
 
       // Transient type expects a position relative to the parent
       gfx::Point transientPos = gfx::Point(bounds_.x() - parent->bounds_.x(),
@@ -223,22 +207,17 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
     parent->AddTransientChild(content_window_);
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
-  open_windows().push_back(window_);
+
+  if (!g_dispatcher_ozone_wayland_)
+    g_dispatcher_ozone_wayland_ = new RootWindowHostDelegateWayland();
+
+  g_dispatcher_ozone_wayland_->OnRootWindowCreated(window_);
 
   // Add DesktopRootWindowHostWayland as dispatcher.
   bool root_window = params.type == Widget::InitParams::TYPE_WINDOW ||
                       params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
-  if (!window_parent_ && root_window) {
-    if (g_current_dispatcher_)
-      g_current_dispatcher_->Reset();
-
-    Register();
-  }
-
-  if (aura_windows_) {
-    delete aura_windows_;
-    aura_windows_ = NULL;
-  }
+  if (!window_parent_ && root_window)
+    g_dispatcher_ozone_wayland_->SetActiveWindow(this);
 }
 
 scoped_ptr<views::corewm::Tooltip>
@@ -255,11 +234,6 @@ DesktopRootWindowHostWayland::CreateDragDropClient(
 }
 
 void DesktopRootWindowHostWayland::Close() {
-  if (aura_windows_) {
-    delete aura_windows_;
-    aura_windows_ = NULL;
-  }
-
   if (!close_widget_factory_.HasWeakPtrs()) {
     // And we delay the close so that if we are called from an ATL callback,
     // we don't destroy the window before the callback returned (as the caller
@@ -273,8 +247,8 @@ void DesktopRootWindowHostWayland::Close() {
 }
 
 void DesktopRootWindowHostWayland::CloseNow() {
-  DCHECK(g_current_dispatcher_);
-  int widgetId = window_;
+  DCHECK(g_dispatcher_ozone_wayland_);
+  unsigned widgetId = window_;
   native_widget_delegate_->OnNativeWidgetDestroying();
 
   // If we have children, close them. Use a copy for iteration because they'll
@@ -292,30 +266,12 @@ void DesktopRootWindowHostWayland::CloseNow() {
   if (window_parent_)
     window_parent_->window_children_.erase(this);
 
-  open_windows().remove(window_);
-
-  // Remove event listeners we've installed.
-  if (g_current_dispatcher_ == this) {
-    DCHECK(!window_parent_);
-    g_current_dispatcher_->HandleNativeWidgetActivationChanged(false);
-    // Set first top level window in the list of open windows as dispatcher.
-    // This is just a guess of the window which would eventually be focussed.
-    // We should set the correct root window as dispatcher in OnWindowFocused.
-    // This is needed to ensure we always have a dispatcher for RootWindow.
-    const std::list<gfx::AcceleratedWidget>& windows = open_windows();
-    if (windows.size()) {
-      DesktopRootWindowHostWayland* rootWindow = GetHostForAcceleratedWidget(
-          windows.front());
-      rootWindow->Activate();
-      rootWindow->HandleNativeWidgetActivationChanged(true);
-    }
-  }
-
+  g_dispatcher_ozone_wayland_->OnRootWindowClosed(widgetId);
   window_parent_ = NULL;
-  if (open_windows_ && !open_windows_->size()) {
-    // We have no open windows, free open_windows_.
-    delete open_windows_;
-    open_windows_ = NULL;
+  if (!g_dispatcher_ozone_wayland_->GetActiveWindow()) {
+    // We have no open windows, free g_dispatcher_ozone_wayland_.
+    delete g_dispatcher_ozone_wayland_;
+    g_dispatcher_ozone_wayland_ = NULL;
   }
 
   desktop_native_widget_aura_->OnHostClosed();
@@ -498,38 +454,12 @@ bool DesktopRootWindowHostWayland::IsMinimized() const {
 }
 
 void DesktopRootWindowHostWayland::OnCaptureReleased() {
-  g_current_capture = NULL;
   delegate_->OnHostLostWindowCapture();
   native_widget_delegate_->OnMouseCaptureLost();
 }
 
-void DesktopRootWindowHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
-  bool stop_propogation = g_current_capture ? true : false;
-  if (!g_current_capture || g_current_capture == this) {
-    g_current_dispatcher_->delegate_->OnHostMouseEvent(event);
-  } else {
-    // Another DesktopRootWindowHostWayland has installed itself as capture.
-    bool handle_event = g_current_dispatcher_->current_focus_window_ ==
-                            g_current_capture->window_;
-    if (event->type() == ui::ET_MOUSE_PRESSED) {
-      if (!handle_event)
-        ReleaseCapture();
-    }
-
-    if (handle_event)
-      g_current_capture->delegate_->OnHostMouseEvent(event);
-  }
-
-  // Stop event propogation as this window is acting as event grabber. All
-  // event's we create are "cancelable". If in future we use events that are
-  // not cancelable, then a check for cancelable events needs to be added
-  // here.
-  if (stop_propogation)
-    event->StopPropagation();
-}
-
 bool DesktopRootWindowHostWayland::HasCapture() const {
-  return g_current_capture == this;
+  return g_dispatcher_ozone_wayland_->GetCurrentCapture() == this;
 }
 
 bool DesktopRootWindowHostWayland::IsAlwaysOnTop() const {
@@ -734,15 +664,11 @@ gfx::Point DesktopRootWindowHostWayland::GetLocationOnNativeScreen() const {
 }
 
 void DesktopRootWindowHostWayland::SetCapture() {
-  if (g_current_capture)
-    g_current_capture->OnCaptureReleased();
-
-  g_current_capture = this;
+  g_dispatcher_ozone_wayland_->SetCapture(this);
 }
 
 void DesktopRootWindowHostWayland::ReleaseCapture() {
-  if (g_current_capture)
-    g_current_capture->OnCaptureReleased();
+  g_dispatcher_ozone_wayland_->SetCapture(NULL);
 }
 
 void DesktopRootWindowHostWayland::SetCursor(gfx::NativeCursor cursor) {
@@ -786,138 +712,11 @@ void DesktopRootWindowHostWayland::PrepareForShutdown() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostWayland, WindowChangeObserver implementation:
-void DesktopRootWindowHostWayland::OnWindowFocused(unsigned handle) {
-  DCHECK(g_current_dispatcher_ && g_current_dispatcher_ == this);
-  g_current_dispatcher_->current_focus_window_ = handle;
-  if (g_current_dispatcher_->window_ == handle)
-    return;
-
-  // A new window should not steal focus in case the current window has a open
-  // popup.
-  if (g_current_capture && g_current_capture != g_current_dispatcher_)
-    return;
-
-  // Ensure that the top level focussed window is activated.
-  DesktopRootWindowHostWayland* window = NULL;
-  if (handle)
-    window = GetHostForAcceleratedWidget(handle);
-
-  if (!window)
-    return;
-
-  if (!window->window_parent_) {
-    // DeActivate any previous root window.
-    HandleNativeWidgetActivationChanged(false);
-    ReleaseCapture();
-    // Activate current root window.
-    window->HandleNativeWidgetActivationChanged(true);
-    window->current_focus_window_ = handle;
-  }
-
-  window->Activate();
-}
-
-void DesktopRootWindowHostWayland::OnWindowEnter(unsigned handle) {
-  OnWindowFocused(handle);
-}
-
-void DesktopRootWindowHostWayland::OnWindowLeave(unsigned handle) {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostWayland, MessageLoop::Dispatcher implementation:
-
-bool DesktopRootWindowHostWayland::Dispatch(const base::NativeEvent& ne) {
-  ui::Event* event = static_cast<ui::Event*>(ne);
-  ui::EventType type = ui::EventTypeFromNative(ne);
-
-  switch (type) {
-    case ui::ET_TOUCH_MOVED:
-    case ui::ET_TOUCH_PRESSED:
-    case ui::ET_TOUCH_CANCELLED:
-    case ui::ET_TOUCH_RELEASED: {
-      ui::TouchEvent touchev(event);
-      delegate_->OnHostTouchEvent(&touchev);
-      break;
-    }
-    case ui::ET_KEY_PRESSED: {
-      ui::KeyEvent* keydown_event = static_cast<ui::KeyEvent*>(ne);
-      delegate_->OnHostKeyEvent(keydown_event);
-      break;
-    }
-    case ui::ET_KEY_RELEASED: {
-      ui::KeyEvent* keyup_event = static_cast<ui::KeyEvent*>(ne);
-      delegate_->OnHostKeyEvent(keyup_event);
-      break;
-    }
-    case ui::ET_MOUSEWHEEL: {
-      ui::MouseWheelEvent wheelev(event);
-      DispatchMouseEvent(&wheelev);
-      break;
-    }
-    case ui::ET_MOUSE_MOVED:
-    case ui::ET_MOUSE_DRAGGED:
-    case ui::ET_MOUSE_PRESSED:
-    case ui::ET_MOUSE_RELEASED:
-    case ui::ET_MOUSE_ENTERED:
-    case ui::ET_MOUSE_EXITED: {
-      ui::MouseEvent mouseev(event);
-      DispatchMouseEvent(&mouseev);
-      break;
-    }
-    case ui::ET_SCROLL_FLING_START:
-    case ui::ET_SCROLL_FLING_CANCEL:
-    case ui::ET_SCROLL: {
-      ui::ScrollEvent scrollev(event);
-      delegate_->OnHostScrollEvent(&scrollev);
-      break;
-    }
-    case ui::ET_UMA_DATA:
-      break;
-    case ui::ET_UNKNOWN:
-      break;
-    default:
-      NOTIMPLEMENTED() << "DesktopRootWindowHostWayland: unknown event type.";
-  }
-  return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostWayland, Private implementation:
-void DesktopRootWindowHostWayland::Register() {
-  DCHECK(!g_current_dispatcher_);
-  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
-  OzoneDisplay::GetInstance()->SetWindowChangeObserver(this);
-  g_current_dispatcher_ = this;
-}
-
-void DesktopRootWindowHostWayland::Reset() {
-  DCHECK(g_current_dispatcher_);
-  base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
-  OzoneDisplay::GetInstance()->SetWindowChangeObserver(NULL);
-  g_current_dispatcher_ = NULL;
-}
 
 void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
     bool active) {
-  if (active) {
-    // TODO(kalyan): We might not need to do this once
-    // https://code.google.com/p/chromium/issues/detail?id=319986 is fixed.
-    Register();
-    // Make sure the stacking order is correct. The activated window should
-    // be first one in list of open windows.
-    std::list<gfx::AcceleratedWidget>& windows = open_windows();
-    DCHECK(windows.size());
-    if (windows.front() != window_) {
-      windows.remove(window_);
-      windows.insert(open_windows().begin(), window_);
-    }
-  } else {
-      Reset();
-  }
-
-  // We can skip the rest during initialization phase.
+  // We can skip during initialization phase.
   if (!state_)
     return;
 
@@ -926,14 +725,6 @@ void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
-}
-
-std::list<gfx::AcceleratedWidget>&
-DesktopRootWindowHostWayland::open_windows() {
-  if (!open_windows_)
-    open_windows_ = new std::list<gfx::AcceleratedWidget>();
-
-  return *open_windows_;
 }
 
 }  // namespace ozonewayland

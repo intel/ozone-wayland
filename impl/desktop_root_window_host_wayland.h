@@ -3,22 +3,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
-#define DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
+#ifndef OZONE_IMPL_DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
+#define OZONE_IMPL_DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
 
-#include <list>
 #include <set>
 #include <vector>
 
 #include "base/basictypes.h"
-#include "ozone/wayland/window_change_observer.h"
 #include "ui/aura/window_tree_host.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
 
 namespace views {
-class DesktopDispatcherClient;
-class OzoneDesktopWindowMoveClient;
-class OzoneWindowEventFilter;
 namespace corewm {
 class Tooltip;
 }
@@ -26,12 +21,11 @@ class Tooltip;
 
 namespace ozonewayland {
 class DesktopDragDropClientWayland;
+class RootWindowHostDelegateWayland;
 
 class VIEWS_EXPORT DesktopRootWindowHostWayland
     : public views::DesktopRootWindowHost,
-      public aura::RootWindowHost,
-      public WindowChangeObserver,
-      public base::MessageLoop::Dispatcher {
+      public aura::RootWindowHost {
  public:
   DesktopRootWindowHostWayland(
       views::internal::NativeWidgetDelegate* native_widget_delegate,
@@ -85,11 +79,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   // Called when another DRWHL takes capture, or when capture is released
   // entirely.
   void OnCaptureReleased();
-
-  // Dispatches a mouse event, taking mouse capture into account. If a
-  // different host has capture, we translate the event to its coordinate space
-  // and dispatch it to that host instead.
-  void DispatchMouseEvent(ui::MouseEvent* event);
 
   // Overridden from DesktopRootWindowHost:
   virtual void Init(aura::Window* content_window,
@@ -175,20 +164,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE;
   virtual void PrepareForShutdown() OVERRIDE;
 
-  // Window Change Observer.
-  virtual void OnWindowFocused(unsigned windowhandle) OVERRIDE;
-  virtual void OnWindowEnter(unsigned windowhandle) OVERRIDE;
-  virtual void OnWindowLeave(unsigned windowhandle) OVERRIDE;
-
-  // Overridden from Dispatcher:
-  virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
-
-  void Register();
-  void Reset();
   void HandleNativeWidgetActivationChanged(bool active);
-
-  // private static functions.
-  static std::list<gfx::AcceleratedWidget>& open_windows();
 
   base::WeakPtrFactory<DesktopRootWindowHostWayland> close_widget_factory_;
 
@@ -198,13 +174,10 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;
 
-  scoped_ptr<views::DesktopDispatcherClient> dispatcher_client_;
-
   gfx::AcceleratedWidget window_;
   views::internal::NativeWidgetDelegate* native_widget_delegate_;
 
   RootWindowState state_;
-  unsigned current_focus_window_;
 
   // Current bounds of DRWH.
   gfx::Rect bounds_;
@@ -221,22 +194,11 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
 
   base::string16 title_;
 
-  // The current root window host that has capture. While X11 has something
-  // like Windows SetCapture()/ReleaseCapture(), it is entirely implicit and
-  // there are no notifications when this changes. We need to track this so we
-  // can notify widgets when they have lost capture, which controls a bunch of
-  // things in views like hiding menus.
-  static DesktopRootWindowHostWayland* g_current_capture;
-  // Current dispatcher.
-  static DesktopRootWindowHostWayland* g_current_dispatcher_;
-  // List of all open windows.
-  static std::list<gfx::AcceleratedWidget>* open_windows_;
-  // List of all open aura::Window.
-  static std::vector<aura::Window*>* aura_windows_;
-
+  static RootWindowHostDelegateWayland* g_dispatcher_ozone_wayland_;
+  friend class RootWindowHostDelegateWayland;
   DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostWayland);
 };
 
 }  // namespace ozonewayland
 
-#endif  // DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
+#endif  // OZONE_IMPL_DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
