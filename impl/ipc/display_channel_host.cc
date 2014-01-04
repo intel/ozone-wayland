@@ -164,10 +164,11 @@ bool OzoneDisplayChannelHost::Send(IPC::Message* message) {
     return true;
   }
 
-  // Callee takes ownership of message, regardless of whether Send is
-  // successful. See IPC::Sender.
-  scoped_ptr<IPC::Message> scoped_message(message);
-  return channel_->Send(scoped_message.release());
+  // The GPU process never sends synchronous IPC, so clear the unblock flag.
+  // This ensures the message is treated as a synchronous one and helps preserve
+  // order. Check set_unblock in ipc_messages.h for explanation.
+  message->set_unblock(true);
+  return channel_->Send(message);
 }
 
 void OzoneDisplayChannelHost::UpdateConnection() {
