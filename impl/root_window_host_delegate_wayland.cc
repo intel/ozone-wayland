@@ -38,7 +38,7 @@ void RootWindowHostDelegateWayland::OnRootWindowCreated(unsigned handle) {
 
 void RootWindowHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
   open_windows().remove(handle);
-  if (!open_windows().size()) {
+  if (open_windows().empty()) {
     delete open_windows_;
     open_windows_ = NULL;
     SetActiveWindow(NULL);
