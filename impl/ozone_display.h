@@ -133,7 +133,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   typedef unsigned CurrentState;
 
   void OnOutputSizeChanged(WaylandScreen* screen, int width, int height);
-  WaylandWindow* CreateWidget(unsigned w);
+  void CreateWidget(unsigned w);
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
   void Terminate();

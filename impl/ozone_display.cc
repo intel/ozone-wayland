@@ -396,15 +396,12 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
     OnOutputSizeChanged(width, height);
 }
 
-WaylandWindow* OzoneDisplay::CreateWidget(unsigned w) {
+void OzoneDisplay::CreateWidget(unsigned w) {
   DCHECK((!display_ && host_) || (display_ && !host_));
-  WaylandWindow* window = NULL;
   if (display_)
-    return display_->CreateAcceleratedSurface(w);
+    display_->CreateAcceleratedSurface(w);
   else
     host_->SendWidgetState(w, Create, 0, 0);
-
-  return window;
 }
 
 WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {
