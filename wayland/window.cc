@@ -15,9 +15,9 @@
 namespace ozonewayland {
 
 WaylandWindow::WaylandWindow(unsigned handle) : shell_surface_(NULL),
-    handle_(handle),
     window_(NULL),
     type_(None),
+    handle_(handle),
     allocation_(gfx::Rect(0, 0, 1, 1)) {
 }
 

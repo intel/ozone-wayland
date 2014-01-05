@@ -15,7 +15,9 @@ static base::LazyInstance<scoped_ptr<EventFactoryWayland> > impl_ =
     LAZY_INSTANCE_INITIALIZER;
 
 EventFactoryWayland::EventFactoryWayland()
-    : fd_(-1) {
+    : fd_(-1),
+      watcher_(),
+      dispatcher_(NULL) {
   LOG(INFO) << "Ozone: EventFactoryWayland";
   fd_ = wl_display_get_fd(WaylandDisplay::GetInstance()->display());
   CHECK_GE(fd_, 0);
@@ -47,6 +49,7 @@ void EventFactoryWayland::SetInstance(EventFactoryWayland* impl) {
 void EventFactoryWayland::WillDestroyCurrentMessageLoop() {
   watcher_.StopWatchingFileDescriptor();
   base::MessageLoop::current()->RemoveTaskObserver(this);
+  dispatcher_ = NULL;
 }
 
 void EventFactoryWayland::OnFileCanReadWithoutBlocking(int fd) {

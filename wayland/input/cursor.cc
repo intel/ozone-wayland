@@ -31,16 +31,17 @@ class WaylandCursorData {
   struct wl_cursor_image* GetCursorImage(int index);
 
  private:
-  wl_cursor_theme *cursor_theme_;
-  wl_cursor **cursors_;
+  wl_cursor_theme* cursor_theme_;
+  wl_cursor** cursors_;
   static WaylandCursorData* impl_;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursorData);
 };
 
 WaylandCursorData* WaylandCursorData::impl_ = NULL;
 
-WaylandCursorData::WaylandCursorData(wl_shm* shm) {
-  const char *cursor_names[] = {
+WaylandCursorData::WaylandCursorData(wl_shm* shm)
+    : cursor_theme_(NULL) {
+  const char* cursor_names[] = {
     "bottom_left_corner",
     "bottom_right_corner",
     "bottom_side",
@@ -87,11 +88,11 @@ WaylandCursorData::~WaylandCursorData() {
 }
 
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
+    pointer_surface_(new WaylandSurface()),
     buffer_(NULL),
     width_(0),
     height_(0),
     type_(CURSOR_UNSET) {
-  pointer_surface_ = new WaylandSurface();
   WaylandCursorData::InitializeCursorData(shm);
 }
 

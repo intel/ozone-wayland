@@ -13,7 +13,9 @@
 namespace ozonewayland {
 
 WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
-    : output_(NULL) {
+    : output_(NULL),
+      refresh_(0),
+      rect_(0, 0, 0, 0) {
   static const wl_output_listener kOutputListener = {
     WaylandScreen::OutputHandleGeometry,
     WaylandScreen::OutputHandleMode,

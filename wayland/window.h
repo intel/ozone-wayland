@@ -66,9 +66,9 @@ class WaylandWindow {
   WaylandShellSurface* shell_surface_;
   EGLWindow* window_;
 
-  gfx::Rect allocation_;
   ShellType type_;
   unsigned handle_;
+  gfx::Rect allocation_;
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
 

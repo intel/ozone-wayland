@@ -166,6 +166,15 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
 
   void HandleNativeWidgetActivationChanged(bool active);
 
+  RootWindowState state_;
+
+  // Current bounds of DRWH.
+  gfx::Rect bounds_;
+  // Original bounds of DRWH.
+  gfx::Rect previous_bounds_;
+  gfx::AcceleratedWidget window_;
+  base::string16 title_;
+
   base::WeakPtrFactory<DesktopRootWindowHostWayland> close_widget_factory_;
 
   // We are owned by the RootWindow, but we have to have a back pointer to it.
@@ -173,17 +182,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
 
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;
-
-  gfx::AcceleratedWidget window_;
   views::internal::NativeWidgetDelegate* native_widget_delegate_;
-
-  RootWindowState state_;
-
-  // Current bounds of DRWH.
-  gfx::Rect bounds_;
-  // Original bounds of DRWH.
-  gfx::Rect previous_bounds_;
-
   aura::Window* content_window_;
 
   views::DesktopNativeWidgetAura* desktop_native_widget_aura_;
@@ -191,8 +190,6 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   // children who we're responsible for closing when we CloseNow().
   DesktopRootWindowHostWayland* window_parent_;
   std::set<DesktopRootWindowHostWayland*> window_children_;
-
-  base::string16 title_;
 
   static RootWindowHostDelegateWayland* g_dispatcher_ozone_wayland_;
   friend class RootWindowHostDelegateWayland;

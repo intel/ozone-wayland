@@ -101,8 +101,8 @@ class WaylandDisplay {
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
   WindowMap widget_map_;
-  static WaylandDisplay* instance_;
   unsigned serial_;
+  static WaylandDisplay* instance_;
 
   friend class OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);

@@ -51,13 +51,10 @@ class WaylandScreen {
 
   // The Wayland output this object wraps
   wl_output* output_;
-  // The position of the screen. This is important in multi monitor display
-  // since it provides the position of the screen in the virtual screen.
-  gfx::Point position_;
 
   // Rect and Refresh rate of active mode.
-  gfx::Rect rect_;
   int32_t refresh_;
+  gfx::Rect rect_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandScreen);
 };

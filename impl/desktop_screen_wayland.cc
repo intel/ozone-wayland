@@ -9,7 +9,9 @@
 
 namespace ozonewayland {
 
-DesktopScreenWayland::DesktopScreenWayland() {
+DesktopScreenWayland::DesktopScreenWayland()
+    : rect_(0, 0, 0, 0),
+      displays_() {
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {

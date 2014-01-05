@@ -62,13 +62,19 @@ DEFINE_WINDOW_PROPERTY_KEY(
 DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     views::internal::NativeWidgetDelegate* native_widget_delegate,
     views::DesktopNativeWidgetAura* desktop_native_widget_aura)
-    : close_widget_factory_(this),
+    : state_(Uninitialized),
+      bounds_(0, 0, 0, 0),
+      previous_bounds_(0, 0, 0, 0),
+      window_(0),
+      title_(base::string16()),
+      close_widget_factory_(this),
       root_window_(NULL),
       drag_drop_client_(NULL),
       native_widget_delegate_(native_widget_delegate),
+      content_window_(NULL),
       desktop_native_widget_aura_(desktop_native_widget_aura),
-      state_(Uninitialized),
-      window_parent_(NULL) {
+      window_parent_(NULL),
+      window_children_() {
 }
 
 DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {

@@ -16,7 +16,8 @@ namespace ozonewayland {
 
 WaylandPointer::WaylandPointer()
   : cursor_(NULL),
-    dispatcher_(NULL) {
+    dispatcher_(NULL),
+    pointer_position_(0, 0) {
 }
 
 WaylandPointer::~WaylandPointer() {

@@ -16,8 +16,9 @@ namespace ozonewayland {
 #define CHANNEL_ROUTE_ID -0x1
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : channel_(NULL) {
-  dispatcher_ = WaylandDispatcher::GetInstance();
+    : dispatcher_(WaylandDispatcher::GetInstance()),
+      channel_(NULL),
+      deferred_messages_() {
 }
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {

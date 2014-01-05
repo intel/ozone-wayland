@@ -33,12 +33,17 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
   widget_map_.erase(w);
 }
 
-WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
-    serial_(0),
+WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
+    registry_(NULL),
+    compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
+    primary_screen_(NULL),
     primary_input_(NULL),
-    primary_screen_(NULL) {
+    screen_list_(),
+    input_list_(),
+    widget_map_(),
+    serial_(0) {
   display_ = wl_display_connect(NULL);
   if (!display_)
       return;

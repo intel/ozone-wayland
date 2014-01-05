@@ -31,6 +31,8 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
 }
 
 OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
+    initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
+    kMaxDisplaySize_(20),
     desktop_screen_(NULL),
     dispatcher_(NULL),
     display_(NULL),
@@ -38,8 +40,7 @@ OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     channel_(NULL),
     host_(NULL),
     e_factory_(NULL),
-    spec_(NULL),
-    kMaxDisplaySize_(20) {
+    spec_(NULL) {
   instance_ = this;
 }
 
