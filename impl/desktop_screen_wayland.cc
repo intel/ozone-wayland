@@ -10,7 +10,8 @@
 namespace ozonewayland {
 
 DesktopScreenWayland::DesktopScreenWayland()
-    : rect_(0, 0, 0, 0),
+    : gfx::Screen(),
+      rect_(0, 0, 0, 0),
       displays_() {
 }
 

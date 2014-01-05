@@ -62,7 +62,8 @@ DEFINE_WINDOW_PROPERTY_KEY(
 DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
     views::internal::NativeWidgetDelegate* native_widget_delegate,
     views::DesktopNativeWidgetAura* desktop_native_widget_aura)
-    : state_(Uninitialized),
+    : aura::RootWindowHost(),
+      state_(Uninitialized),
       bounds_(0, 0, 0, 0),
       previous_bounds_(0, 0, 0, 0),
       window_(0),

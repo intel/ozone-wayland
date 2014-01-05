@@ -8,7 +8,7 @@
 
 namespace ozonewayland {
 
-DesktopFactoryWayland::DesktopFactoryWayland() {
+DesktopFactoryWayland::DesktopFactoryWayland() : views::DesktopFactoryOzone() {
   LOG(INFO) << "Ozone: DesktopFactoryWayland";
   views::DesktopFactoryOzone::SetInstance(this);
 }
