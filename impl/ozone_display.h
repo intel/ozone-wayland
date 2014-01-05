@@ -112,15 +112,17 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   void OnOutputSizeChanged(unsigned width, unsigned height);
   void SetWindowChangeObserver(WindowChangeObserver* observer);
 
-  // Called by OzoneProcessObserver to notify when GPUProcess is launched. This
-  // can be used to establish IPC channel between DisplayChannelHost and
-  // DisplayChannel.
+  // EstablishChannel is called by OzoneProcessObserver (i.e. on BrowserProcess
+  // side) when GPU Process is connected. This can be used to establish an IPC
+  // channel between DisplayChannelHost and DisplayChannel.
   void EstablishChannel();
-  // This is called by DisplayChannel when IPC Channel connection between
-  // itself and DisplayChannelHost is established succesfully.
+  // OnChannelEstablished is called by DisplayChannel (i.e. on GPUProcess side)
+  // when the IPC Channel connection between itself and DisplayChannelHost is
+  // established successfully.
   void OnChannelEstablished();
-  // This is called by DisplayChannelHost when IPC Channel connection between
-  // itself and DisplayChannel is closed.
+  // OnChannelHostDestroyed is called by DisplayChannelHost (i.e. on
+  // BrowserProcess side) when the IPC Channel connection between itself and
+  // DisplayChannel is closed.
   void OnChannelHostDestroyed();
 
  private:
