@@ -8,7 +8,6 @@
 #include "base/threading/thread.h"
 
 namespace ozonewayland {
-class OzoneDisplay;
 class WaylandDispatcherDelegate;
 class WindowChangeObserver;
 
@@ -28,6 +27,9 @@ class WaylandDispatcher : public base::Thread {
                  // a valid display fd is not passed to WaylandDispatcher.
   };
 
+  explicit WaylandDispatcher(int fd = 0);
+  virtual ~WaylandDispatcher();
+
   static WaylandDispatcher* GetInstance() { return instance_; }
   void MotionNotify(float x, float y);
   void ButtonNotify(unsigned handle, int state, int flags, float x, float y);
@@ -45,8 +47,6 @@ class WaylandDispatcher : public base::Thread {
   void SetActive(bool active);
 
  private:
-  explicit WaylandDispatcher(int fd = 0);
-  virtual ~WaylandDispatcher();
   static void HandleFlush();
   static void DisplayRun(WaylandDispatcher* data);
   bool active_ :1;
@@ -54,7 +54,6 @@ class WaylandDispatcher : public base::Thread {
   int display_fd_;
   WaylandDispatcherDelegate* delegate_;
   static WaylandDispatcher* instance_;
-  friend class OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDispatcher);
 };
 

@@ -341,14 +341,16 @@ void OzoneDisplay::OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
   }
 }
 
+void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
+  if (spec_)
+    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
+  if (desktop_screen_)
+    desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
+}
+
 void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer) {
   DCHECK(dispatcher_);
   dispatcher_->SetWindowChangeObserver(observer);
-}
-
-void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
-  display->channel_ = new OzoneDisplayChannel();
-  display->channel_->Register();
 }
 
 void OzoneDisplay::EstablishChannel() {
@@ -371,6 +373,11 @@ void OzoneDisplay::OnChannelHostDestroyed() {
   host_ = NULL;
 }
 
+void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
+  display->channel_ = new OzoneDisplayChannel();
+  display->channel_->Register();
+}
+
 void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
                                        int width,
                                        int height) {
@@ -386,13 +393,6 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
     dispatcher_->OutputSizeChanged(width, height);
   else
     OnOutputSizeChanged(width, height);
-}
-
-void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
-  if (spec_)
-    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
-  if (desktop_screen_)
-    desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
 
 WaylandWindow* OzoneDisplay::CreateWidget(unsigned w) {

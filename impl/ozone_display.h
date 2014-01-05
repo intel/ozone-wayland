@@ -109,7 +109,19 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
                                  unsigned x,
                                  unsigned y,
                                  WidgetType type);
+  void OnOutputSizeChanged(unsigned width, unsigned height);
   void SetWindowChangeObserver(WindowChangeObserver* observer);
+
+  // Called by OzoneProcessObserver to notify when GPUProcess is launched. This
+  // can be used to establish IPC channel between DisplayChannelHost and
+  // DisplayChannel.
+  void EstablishChannel();
+  // This is called by DisplayChannel when IPC Channel connection between
+  // itself and DisplayChannelHost is established succesfully.
+  void OnChannelEstablished();
+  // This is called by DisplayChannelHost when IPC Channel connection between
+  // itself and DisplayChannel is closed.
+  void OnChannelHostDestroyed();
 
  private:
   enum State {
@@ -120,11 +132,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   typedef unsigned CurrentState;
 
-  void EstablishChannel();
-  void OnChannelEstablished();
-  void OnChannelHostDestroyed();
   void OnOutputSizeChanged(WaylandScreen* screen, int width, int height);
-  void OnOutputSizeChanged(unsigned width, unsigned height);
   WaylandWindow* CreateWidget(unsigned w);
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
@@ -148,9 +156,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   char* spec_;
   static OzoneDisplay* instance_;
 
-  friend class OzoneProcessObserver;
-  friend class OzoneDisplayChannelHost;
-  friend class OzoneDisplayChannel;
   friend class WaylandScreen;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };

@@ -58,6 +58,42 @@ int osEpollCreateCloExec(void) {
 }
 }  // os-compatibility
 
+WaylandDispatcher::WaylandDispatcher(int fd)
+    : Thread("WaylandDispatcher"),
+      active_(false),
+      epoll_fd_(0),
+      display_fd_(fd),
+      delegate_(NULL) {
+  instance_ = this;
+  if (display_fd_) {
+    epoll_fd_ = osEpollCreateCloExec();
+    struct epoll_event ep;
+    ep.events = EPOLLIN | EPOLLOUT;
+    ep.data.ptr = 0;
+    epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
+  }
+
+  Options options;
+  options.message_loop_type = base::MessageLoop::TYPE_IO;
+  StartWithOptions(options);
+  SetPriority(base::kThreadPriority_Background);
+}
+
+WaylandDispatcher::~WaylandDispatcher() {
+  active_ = false;
+  if (delegate_)
+    delete delegate_;
+
+  Stop();
+
+  if (epoll_fd_) {
+    close(epoll_fd_);
+    epoll_fd_ = 0;
+  }
+
+  instance_ = NULL;
+}
+
 void WaylandDispatcher::MotionNotify(float x, float y) {
   DCHECK(delegate_);
   delegate_->MotionNotify(x, y);
@@ -137,42 +173,6 @@ void WaylandDispatcher::SetActive(bool active) {
   DCHECK(delegate_);
   active_ = active;
   delegate_->SetActive(active);
-}
-
-WaylandDispatcher::WaylandDispatcher(int fd)
-    : Thread("WaylandDispatcher"),
-      active_(false),
-      epoll_fd_(0),
-      display_fd_(fd),
-      delegate_(NULL) {
-  instance_ = this;
-  if (display_fd_) {
-    epoll_fd_ = osEpollCreateCloExec();
-    struct epoll_event ep;
-    ep.events = EPOLLIN | EPOLLOUT;
-    ep.data.ptr = 0;
-    epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
-  }
-
-  Options options;
-  options.message_loop_type = base::MessageLoop::TYPE_IO;
-  StartWithOptions(options);
-  SetPriority(base::kThreadPriority_Background);
-}
-
-WaylandDispatcher::~WaylandDispatcher() {
-  active_ = false;
-  if (delegate_)
-    delete delegate_;
-
-  Stop();
-
-  if (epoll_fd_) {
-    close(epoll_fd_);
-    epoll_fd_ = 0;
-  }
-
-  instance_ = NULL;
 }
 
 void WaylandDispatcher::HandleFlush() {

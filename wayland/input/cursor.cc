@@ -102,6 +102,10 @@ WaylandCursor::~WaylandCursor() {
   }
 }
 
+void WaylandCursor::Clear() {
+  WaylandCursorData::DestroyCursorData();
+}
+
 void WaylandCursor::Update(CursorType type, uint32_t serial) {
   if (!input_pointer_)
     return;
@@ -137,10 +141,6 @@ void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial) {
                         pointer_surface_->wlSurface(),
                         image->hotspot_x,
                         image->hotspot_y);
-}
-
-void WaylandCursor::Clear() {
-  WaylandCursorData::DestroyCursorData();
 }
 
 }  // namespace ozonewayland
