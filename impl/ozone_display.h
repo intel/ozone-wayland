@@ -86,7 +86,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
 
-  DesktopScreenWayland* GetPrimaryScreen() const;
+  const DesktopScreenWayland* GetPrimaryScreen() const;
 
   void SetWidgetState(gfx::AcceleratedWidget w,
                       WidgetState state,

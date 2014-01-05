@@ -47,7 +47,6 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
     wl_pointer_add_listener(input_pointer, &kInputPointerListener, this);
   } else if (!(caps & WL_SEAT_CAPABILITY_POINTER)
                 && cursor_->GetInputPointer()) {
-    wl_pointer_destroy(cursor_->GetInputPointer());
     cursor_->SetInputPointer(NULL);
   }
 }

@@ -203,7 +203,7 @@ void OzoneDisplay::WillDestroyCurrentMessageLoop() {
   base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
 
-DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
+const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
   // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
   // after multi screen support is added.
   return desktop_screen_;

@@ -10,7 +10,7 @@ namespace ozonewayland {
 class WaylandCursorData {
  public:
   explicit WaylandCursorData(wl_shm* shm);
-  virtual ~WaylandCursorData();
+  ~WaylandCursorData();
 
   static WaylandCursorData* GetInstance() {
     return impl_;
@@ -34,6 +34,7 @@ class WaylandCursorData {
   wl_cursor_theme *cursor_theme_;
   wl_cursor **cursors_;
   static WaylandCursorData* impl_;
+  DISALLOW_COPY_AND_ASSIGN(WaylandCursorData);
 };
 
 WaylandCursorData* WaylandCursorData::impl_ = NULL;
@@ -113,6 +114,12 @@ void WaylandCursor::Update(CursorType type, uint32_t serial) {
 }
 
 void WaylandCursor::SetInputPointer(wl_pointer* pointer) {
+  if (input_pointer_ == pointer)
+    return;
+
+  if (input_pointer_)
+    wl_pointer_destroy(input_pointer_);
+
   input_pointer_ = pointer;
 }
 

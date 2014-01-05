@@ -40,7 +40,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   // Get all open top-level windows. This includes windows that may not be
   // visible. This list is sorted in their stacking order, i.e. the first window
   // is the topmost window.
-  static std::vector<aura::Window*>& GetAllOpenWindows();
+  static const std::vector<aura::Window*>& GetAllOpenWindows();
 
   // Accepts a opaque handle widget and returns associated aura::Window.
   static aura::Window* GetContentWindowForAcceleratedWidget(

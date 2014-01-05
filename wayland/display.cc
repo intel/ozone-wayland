@@ -14,6 +14,10 @@
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
+const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
+  return screen_list_;
+}
+
 WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
   WaylandWindow* window = new WaylandWindow(w);
   widget_map_[w] = window;

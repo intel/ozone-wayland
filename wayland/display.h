@@ -37,8 +37,9 @@ class WaylandDisplay {
   wl_registry* registry() const { return registry_; }
 
   WaylandInputDevice* PrimaryInput() const { return primary_input_; }
+
   // Returns a list of the registered screens.
-  std::list<WaylandScreen*> GetScreenList() const { return screen_list_; }
+  const std::list<WaylandScreen*>& GetScreenList() const;
   WaylandScreen* PrimaryScreen() const { return primary_screen_ ; }
 
   wl_shell* shell() const { return shell_; }
@@ -46,7 +47,7 @@ class WaylandDisplay {
   wl_shm* shm() const { return shm_; }
   wl_compositor* GetCompositor() const { return compositor_; }
   int GetDisplayFd() const { return wl_display_get_fd(display_); }
-  unsigned GetSerial() { return serial_; }
+  unsigned GetSerial() const { return serial_; }
   void SetSerial(unsigned serial) { serial_ = serial; }
 
   const WindowMap& GetWindowList() const { return widget_map_; }

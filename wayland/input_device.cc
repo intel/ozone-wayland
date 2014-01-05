@@ -11,8 +11,8 @@
 
 namespace ozonewayland {
 
-WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display, uint32_t id)
-    : focused_window_handle_(0),
+WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
+                                       uint32_t id) : focused_window_handle_(0),
       grab_window_handle_(0),
       grab_button_(0),
       input_keyboard_(NULL),

@@ -14,7 +14,7 @@ class WaylandDisplay;
 class WaylandSurface {
  public:
   WaylandSurface();
-  virtual ~WaylandSurface();
+  ~WaylandSurface();
   struct wl_surface* wlSurface() const { return surface_; }
 
   // FrameCallBack.

@@ -20,7 +20,7 @@ class WaylandPointer {
   ~WaylandPointer();
 
   void OnSeatCapabilities(wl_seat *seat, uint32_t caps);
-  WaylandCursor* Cursor() { return cursor_; }
+  WaylandCursor* Cursor() const { return cursor_; }
 
  private:
   static void OnMotionNotify(

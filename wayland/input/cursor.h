@@ -33,11 +33,11 @@ class WaylandCursor {
   };
 
   explicit WaylandCursor(wl_shm* shm);
-  virtual ~WaylandCursor();
+  ~WaylandCursor();
 
   void Update(CursorType type, uint32_t serial);
 
-  wl_pointer* GetInputPointer() { return input_pointer_; }
+  wl_pointer* GetInputPointer() const { return input_pointer_; }
   void SetInputPointer(wl_pointer* pointer);
 
  private:

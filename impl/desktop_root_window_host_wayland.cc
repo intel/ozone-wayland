@@ -85,7 +85,8 @@ DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
 }
 
 // static
-std::vector<aura::Window*>& DesktopRootWindowHostWayland::GetAllOpenWindows() {
+const std::vector<aura::Window*>&
+DesktopRootWindowHostWayland::GetAllOpenWindows() {
   DCHECK(g_dispatcher_ozone_wayland_);
   return g_dispatcher_ozone_wayland_->GetAllOpenWindows();
 }

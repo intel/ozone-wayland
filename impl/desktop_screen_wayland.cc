@@ -47,7 +47,7 @@ gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
 
 gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(
     const gfx::Point& point) {
-  std::vector<aura::Window*>& windows =
+  const std::vector<aura::Window*>& windows =
       DesktopRootWindowHostWayland::GetAllOpenWindows();
   for (std::vector<aura::Window*>::const_iterator it = windows.begin();
          it != windows.end(); ++it) {
