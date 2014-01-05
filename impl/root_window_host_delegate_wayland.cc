@@ -31,6 +31,7 @@ void RootWindowHostDelegateWayland::OnRootWindowCreated(unsigned handle) {
   open_windows().push_back(handle);
 
   if (aura_windows_) {
+    aura_windows_->clear();
     delete aura_windows_;
     aura_windows_ = NULL;
   }
@@ -49,6 +50,7 @@ void RootWindowHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
   }
 
   if (aura_windows_) {
+    aura_windows_->clear();
     delete aura_windows_;
     aura_windows_ = NULL;
   }
