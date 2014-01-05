@@ -3,9 +3,15 @@
 // found in the LICENSE file.
 
 #include "ozone/wayland/input/cursor.h"
+
+#include <vector>
+
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
+// This number should be equal to size of array defined in WaylandCursorData
+// constructor.
+const unsigned TotalCursorTypes = 12;
 
 class WaylandCursorData {
  public:
@@ -32,7 +38,8 @@ class WaylandCursorData {
 
  private:
   wl_cursor_theme* cursor_theme_;
-  wl_cursor** cursors_;
+  // All supported Cursor types.
+  std::vector<wl_cursor*> cursors_;
   static WaylandCursorData* impl_;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursorData);
 };
@@ -40,7 +47,9 @@ class WaylandCursorData {
 WaylandCursorData* WaylandCursorData::impl_ = NULL;
 
 WaylandCursorData::WaylandCursorData(wl_shm* shm)
-    : cursor_theme_(NULL) {
+    : cursor_theme_(NULL),
+      cursors_(std::vector<wl_cursor*>(TotalCursorTypes)) {
+  // This list should be always in sync with WaylandCursor::CursorType
   const char* cursor_names[] = {
     "bottom_left_corner",
     "bottom_right_corner",
@@ -57,18 +66,14 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm)
   };
 
   // (kalyan) We should be able to configure the size of cursor and theme name.
-  unsigned int i, array_size =
-      (sizeof(cursor_names) / sizeof(cursor_names[0]));
   cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm);
-  cursors_ = new wl_cursor*[array_size];
-  memset(cursors_, 0, sizeof(cursors_) * array_size);
 
-  for (i = 0; i < array_size; i++)
+  for (unsigned i = 0; i < TotalCursorTypes; i++)
     cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
 }
 
 struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index) {
-  struct wl_cursor *cursor = cursors_[index];
+  const struct wl_cursor* cursor = cursors_.at(index);
   if (!cursor)
     return NULL;
 
@@ -81,10 +86,8 @@ WaylandCursorData::~WaylandCursorData() {
     cursor_theme_ = NULL;
   }
 
-  if (cursors_) {
-    delete[] cursors_;
-    cursors_ = NULL;
-  }
+  if (!cursors_.empty())
+    cursors_.clear();
 }
 
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
