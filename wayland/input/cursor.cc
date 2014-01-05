@@ -68,11 +68,11 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm)
 }
 
 struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index) {
-    struct wl_cursor *cursor = cursors_[index];
-    if (!cursor)
-      return 0;
+  struct wl_cursor *cursor = cursors_[index];
+  if (!cursor)
+    return NULL;
 
-    return cursor->images[0];
+  return cursor->images[0];
 }
 
 WaylandCursorData::~WaylandCursorData() {
@@ -88,11 +88,7 @@ WaylandCursorData::~WaylandCursorData() {
 }
 
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
-    pointer_surface_(new WaylandSurface()),
-    buffer_(NULL),
-    width_(0),
-    height_(0),
-    type_(CURSOR_UNSET) {
+    pointer_surface_(new WaylandSurface()) {
   WaylandCursorData::InitializeCursorData(shm);
 }
 
@@ -111,10 +107,20 @@ void WaylandCursor::Update(CursorType type, uint32_t serial) {
   if (!input_pointer_)
     return;
 
-  ValidateBuffer(type, serial);
+  struct wl_cursor_image* image = WaylandCursorData::GetInstance()->
+      GetCursorImage(type - 1);
+  struct wl_buffer* buffer = wl_cursor_image_get_buffer(image);
+  int width = image->width;
+  int height = image->height;
+  wl_pointer_set_cursor(input_pointer_,
+                        serial,
+                        pointer_surface_->wlSurface(),
+                        image->hotspot_x,
+                        image->hotspot_y);
+
   struct wl_surface* surface = pointer_surface_->wlSurface();
-  wl_surface_attach(surface, buffer_, 0, 0);
-  wl_surface_damage(surface, 0, 0, width_, height_);
+  wl_surface_attach(surface, buffer, 0, 0);
+  wl_surface_damage(surface, 0, 0, width, height);
   wl_surface_commit(surface);
 }
 
@@ -126,22 +132,6 @@ void WaylandCursor::SetInputPointer(wl_pointer* pointer) {
     wl_pointer_destroy(input_pointer_);
 
   input_pointer_ = pointer;
-}
-
-void WaylandCursor::ValidateBuffer(CursorType type, uint32_t serial) {
-  if (type_ == type)
-    return;
-
-  struct wl_cursor_image* image = WaylandCursorData::GetInstance()->
-      GetCursorImage(type - 1);
-  buffer_ = wl_cursor_image_get_buffer(image);
-  width_ = image->width;
-  height_ = image->height;
-  wl_pointer_set_cursor(input_pointer_,
-                        serial,
-                        pointer_surface_->wlSurface(),
-                        image->hotspot_x,
-                        image->hotspot_y);
 }
 
 }  // namespace ozonewayland

@@ -44,13 +44,8 @@ class WaylandCursor {
   void SetInputPointer(wl_pointer* pointer);
 
  private:
-  void ValidateBuffer(CursorType type, uint32_t serial);
   wl_pointer* input_pointer_;
   WaylandSurface* pointer_surface_;
-  struct wl_buffer* buffer_;
-  int width_;
-  int height_;
-  CursorType type_;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 
