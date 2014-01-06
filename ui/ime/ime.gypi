@@ -4,6 +4,10 @@
 
 {
   'sources': [
+    'input_method_context_factory_wayland.h',
+    'input_method_context_factory_wayland.cc',
+    'input_method_context_impl_wayland.h',
+    'input_method_context_impl_wayland.cc',
     'keyboard_engine_xkb.h',
     'keyboard_engine_xkb.cc',
   ],

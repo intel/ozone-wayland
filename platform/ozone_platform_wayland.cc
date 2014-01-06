@@ -20,7 +20,7 @@ ui::EventFactoryOzone* OzonePlatformWayland::GetEventFactoryOzone() {
 
 ui::InputMethodContextFactoryOzone*
 OzonePlatformWayland::GetInputMethodContextFactoryOzone() {
-  return &input_method_context_factory_ozone_;
+  return &input_method_context_factory_;
 }
 
 OzonePlatform* CreateOzonePlatformWayland() { return new OzonePlatformWayland; }
