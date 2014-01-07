@@ -7,7 +7,7 @@
 
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_libevent.h"
-#include "ui/base/ui_export.h"
+#include "ozone/platform/ozone_export_wayland.h"
 
 namespace ozonewayland {
 
@@ -20,10 +20,10 @@ class EventFactoryWayland : public base::MessageLoop::TaskObserver,
   virtual ~EventFactoryWayland();
 
   // Returns the instance
-  UI_EXPORT static EventFactoryWayland* GetInstance();
+  OZONE_WAYLAND_EXPORT static EventFactoryWayland* GetInstance();
 
   // Sets the implementation delegate.
-  UI_EXPORT static void SetInstance(EventFactoryWayland* impl);
+  OZONE_WAYLAND_EXPORT static void SetInstance(EventFactoryWayland* impl);
 
   void WillDestroyCurrentMessageLoop();
 
