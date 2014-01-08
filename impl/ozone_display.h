@@ -46,8 +46,9 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   enum {
     Window = 1,  // A decorated Window.
     WindowFrameLess = 2,  // An undecorated Window.
-    Transient = 3  // An undecorated Window, with transient properties
-                   // specialized to menus.
+    Popup = 3 // An undecorated Window, with transient positioning relative to
+              // its parent and in which the input pointer is implicit grabbed
+              // (i.e. Wayland install the grab) by the Window.
   };
 
   typedef unsigned WidgetType;

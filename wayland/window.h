@@ -25,7 +25,7 @@ class WaylandWindow {
     None,
     TOPLEVEL,
     FULLSCREEN,
-    TRANSIENT,
+    POPUP,
     CUSTOM
   };
 

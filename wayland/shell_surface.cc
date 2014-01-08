@@ -8,6 +8,7 @@
 #include "base/strings/utf_string_conversions.h"
 
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -58,13 +59,19 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   case WaylandWindow::TOPLEVEL:
     wl_shell_surface_set_toplevel(shell_surface_);
     break;
-  case WaylandWindow::TRANSIENT:
-    wl_shell_surface_set_transient(shell_surface_,
-                                   shell_parent->Surface()->wlSurface(),
-                                   x,
-                                   y,
-                                   WL_SHELL_SURFACE_TRANSIENT_INACTIVE);
+  case WaylandWindow::POPUP: {
+    WaylandDisplay* display = WaylandDisplay::GetInstance();
+    WaylandInputDevice* input_device = display->PrimaryInput();
+    wl_surface* parent_surface = shell_parent->Surface()->wlSurface();
+    wl_shell_surface_set_popup(shell_surface_,
+                               input_device->GetInputSeat(),
+                               display->GetSerial(),
+                               parent_surface,
+                               x,
+                               y,
+                               0);
     break;
+  }
   case WaylandWindow::FULLSCREEN:
     wl_shell_surface_set_fullscreen(shell_surface_,
                                     WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
@@ -92,6 +99,7 @@ void WaylandShellSurface::HandleConfigure(void *data,
 
 void WaylandShellSurface::HandlePopupDone(void *data,
                                           struct wl_shell_surface *surface) {
+  // TODO(vignatti): dispatch a close window to Chromium
 }
 
 void WaylandShellSurface::HandlePing(void *data,

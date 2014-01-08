@@ -51,7 +51,7 @@ void WaylandWindow::SetShellAttributes(ShellType type,
                                        WaylandShellSurface* shell_parent,
                                        unsigned x,
                                        unsigned y) {
-  DCHECK(shell_parent && (type == TRANSIENT));
+  DCHECK(shell_parent && (type == POPUP));
 
   if (!shell_surface_) {
     shell_surface_ = new WaylandShellSurface(this);

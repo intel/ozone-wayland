@@ -147,11 +147,21 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
       // Transient type expects a position relative to the parent
       gfx::Point transientPos = gfx::Point(bounds_.x() - parent->bounds_.x(),
                                            bounds_.y() - parent->bounds_.y());
+
+      // Different platforms implement different input grab pointer behaviors
+      // on Chromium. While the Linux GTK+ grab button clicks but not the
+      // pointer movement, the MS Windows implementation don't implement any
+      // pointer grab. In here we're using another different behavior for
+      // Chromium, but which is the common sense on most Wayland UI
+      // environments, where the input pointer is grabbed as a whole when a
+      // menu type of window is opened. I.e. both pointer clicks and movements
+      // will be routed only to the newly created window (grab installed). For
+      // more information please refer to the Wayland protocol.
       OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
                                                        parent->window_,
                                                        transientPos.x(),
                                                        transientPos.y(),
-                                                       OzoneDisplay::Transient);
+                                                       OzoneDisplay::Popup);
       break;
     }
     case Widget::InitParams::TYPE_WINDOW:
