@@ -1,6 +1,6 @@
-From 0fd635681c6e7e3d2e1875f0c9e7f32547990ba1 Mon Sep 17 00:00:00 2001
+From 3f921877e5102e524f75e8633d198015d360c84c Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Tue, 17 Dec 2013 15:33:36 +0200
+Date: Sun, 12 Jan 2014 12:02:08 +0200
 Subject: [PATCH] browser: Support Desktop Aura creation on Ozone
 
 This CL creates BrowserDesktopRootWindowHostOzone and gives support for Aura
@@ -23,7 +23,7 @@ BUG=295089
 
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
 new file mode 100644
-index 0000000..f29c51b
+index 0000000..794524a
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
 @@ -0,0 +1,55 @@
@@ -34,57 +34,57 @@ index 0000000..f29c51b
 +#include "chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h"
 +
 +////////////////////////////////////////////////////////////////////////////////
-+// BrowserDesktopRootWindowHostOzone, public:
++// BrowserDesktopWindowTreeHostOzone, public:
 +
-+BrowserDesktopRootWindowHostOzone::BrowserDesktopRootWindowHostOzone(
++BrowserDesktopWindowTreeHostOzone::BrowserDesktopWindowTreeHostOzone(
 +    views::internal::NativeWidgetDelegate* native_widget_delegate,
 +    views::DesktopNativeWidgetAura* desktop_native_widget_aura,
 +    BrowserView* browser_view)
 +      : browser_view_(browser_view),
 +      desktop_root_window_host_(NULL) {
-+  desktop_root_window_host_ = views::DesktopRootWindowHost::Create(
++  desktop_root_window_host_ = views::DesktopWindowTreeHost::Create(
 +      native_widget_delegate,
 +      desktop_native_widget_aura);
 +}
 +
-+BrowserDesktopRootWindowHostOzone::~BrowserDesktopRootWindowHostOzone() {
++BrowserDesktopWindowTreeHostOzone::~BrowserDesktopWindowTreeHostOzone() {
 +  desktop_root_window_host_ = NULL;
 +}
 +
 +////////////////////////////////////////////////////////////////////////////////
-+// BrowserDesktopRootWindowHostOzone,
-+//     BrowserDesktopRootWindowHost implementation:
++// BrowserDesktopWindowTreeHostOzone,
++//     BrowserDesktopWindowTreeHost implementation:
 +
-+views::DesktopRootWindowHost*
-+    BrowserDesktopRootWindowHostOzone::AsDesktopRootWindowHost() {
++views::DesktopWindowTreeHost*
++    BrowserDesktopWindowTreeHostOzone::AsDesktopWindowTreeHost() {
 +  return desktop_root_window_host_;
 +}
 +
-+int BrowserDesktopRootWindowHostOzone::GetMinimizeButtonOffset() const {
++int BrowserDesktopWindowTreeHostOzone::GetMinimizeButtonOffset() const {
 +  return 0;
 +}
 +
-+bool BrowserDesktopRootWindowHostOzone::UsesNativeSystemMenu() const {
++bool BrowserDesktopWindowTreeHostOzone::UsesNativeSystemMenu() const {
 +  return false;
 +}
 +
 +////////////////////////////////////////////////////////////////////////////////
-+// BrowserDesktopRootWindowHost, public:
++// BrowserDesktopWindowTreeHost, public:
 +
 +// static
-+BrowserDesktopRootWindowHost*
-+    BrowserDesktopRootWindowHost::CreateBrowserDesktopRootWindowHost(
++BrowserDesktopWindowTreeHost*
++    BrowserDesktopWindowTreeHost::CreateBrowserDesktopWindowTreeHost(
 +        views::internal::NativeWidgetDelegate* native_widget_delegate,
 +        views::DesktopNativeWidgetAura* desktop_native_widget_aura,
 +        BrowserView* browser_view,
 +        BrowserFrame* browser_frame) {
-+  return new BrowserDesktopRootWindowHostOzone(native_widget_delegate,
++  return new BrowserDesktopWindowTreeHostOzone(native_widget_delegate,
 +                                               desktop_native_widget_aura,
 +                                               browser_view);
 +}
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 new file mode 100644
-index 0000000..f1dbe3f
+index 0000000..b0c1584
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 @@ -0,0 +1,42 @@
@@ -106,35 +106,35 @@ index 0000000..f1dbe3f
 +class DesktopNativeWidgetAura;
 +}
 +
-+class BrowserDesktopRootWindowHostOzone
-+    : public BrowserDesktopRootWindowHost {
++class BrowserDesktopWindowTreeHostOzone
++    : public BrowserDesktopWindowTreeHost {
 + public:
-+  BrowserDesktopRootWindowHostOzone(
++  BrowserDesktopWindowTreeHostOzone(
 +      views::internal::NativeWidgetDelegate* native_widget_delegate,
 +      views::DesktopNativeWidgetAura* desktop_native_widget_aura,
 +      BrowserView* browser_view);
-+  virtual ~BrowserDesktopRootWindowHostOzone();
++  virtual ~BrowserDesktopWindowTreeHostOzone();
 +
 + private:
-+  // Overridden from BrowserDesktopRootWindowHost:
-+  virtual views::DesktopRootWindowHost* AsDesktopRootWindowHost() OVERRIDE;
++  // Overridden from BrowserDesktopWindowTreeHost:
++  virtual views::DesktopWindowTreeHost* AsDesktopWindowTreeHost() OVERRIDE;
 +  virtual int GetMinimizeButtonOffset() const OVERRIDE;
 +  virtual bool UsesNativeSystemMenu() const OVERRIDE;
 +
 +  BrowserView* browser_view_;
 +
 +  // Ownership passed to RootWindow on Init.
-+  views::DesktopRootWindowHost* desktop_root_window_host_;
++  views::DesktopWindowTreeHost* desktop_root_window_host_;
 +
-+  DISALLOW_COPY_AND_ASSIGN(BrowserDesktopRootWindowHostOzone);
++  DISALLOW_COPY_AND_ASSIGN(BrowserDesktopWindowTreeHostOzone);
 +};
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index dd25e1c..a33cce8 100644
+index 3c9f144..34f2adc 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1860,6 +1860,8 @@
+@@ -1873,6 +1873,8 @@
          'browser/ui/views/frame/desktop_user_action_handler_aura.cc',
          'browser/ui/views/frame/desktop_user_action_handler_aura.h',
          'browser/ui/views/frame/browser_desktop_root_window_host.h',

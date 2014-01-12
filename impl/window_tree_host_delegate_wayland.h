@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_ROOT_WINDOW_HOST_DELEGATE_WAYLAND_H_
-#define OZONE_IMPL_ROOT_WINDOW_HOST_DELEGATE_WAYLAND_H_
+#ifndef OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
+#define OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
 
 #include <list>
 #include <vector>
@@ -16,38 +16,36 @@
 
 namespace ozonewayland {
 
-class DesktopRootWindowHostWayland;
+class DesktopWindowTreeHostWayland;
 
-// A static class used by DesktopRootWindowHostWayland to dispatch native events
+// A static class used by DesktopWindowTreeHostWayland to dispatch native events
 // and basic window management.
-class RootWindowHostDelegateWayland
+class WindowTreeHostDelegateWayland
     : public base::MessageLoop::Dispatcher,
       public WindowChangeObserver {
  public:
-  RootWindowHostDelegateWayland();
-  virtual ~RootWindowHostDelegateWayland();
+  WindowTreeHostDelegateWayland();
+  virtual ~WindowTreeHostDelegateWayland();
 
   void OnRootWindowCreated(unsigned handle);
   void OnRootWindowClosed(unsigned handle);
 
-  void SetActiveWindow(DesktopRootWindowHostWayland* dispatcher);
-  DesktopRootWindowHostWayland* GetActiveWindow() const;
+  void SetActiveWindow(DesktopWindowTreeHostWayland* dispatcher);
+  DesktopWindowTreeHostWayland* GetActiveWindow() const;
 
-  void SetCapture(DesktopRootWindowHostWayland* dispatcher);
-  DesktopRootWindowHostWayland* GetCurrentCapture() const;
+  void SetCapture(DesktopWindowTreeHostWayland* dispatcher);
+  DesktopWindowTreeHostWayland* GetCurrentCapture() const;
 
-  std::vector<aura::Window*>& GetAllOpenWindows();
+  const std::vector<aura::Window*>& GetAllOpenWindows();
  private:
   // Overridden from Dispatcher:
   virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
   // Window Change Observer.
-  virtual void OnWindowFocused(unsigned windowhandle) OVERRIDE;
-  virtual void OnWindowEnter(unsigned windowhandle) OVERRIDE;
-  virtual void OnWindowLeave(unsigned windowhandle) OVERRIDE;
+  virtual void OnWindowFocused(unsigned handle) OVERRIDE;
+  virtual void OnWindowEnter(unsigned handle) OVERRIDE;
+  virtual void OnWindowLeave(unsigned handle) OVERRIDE;
 
-  // Dispatches a mouse event, taking mouse capture into account. If a
-  // different host has capture, we translate the event to its coordinate space
-  // and dispatch it to that host instead.
+  // Dispatches a mouse event.
   void DispatchMouseEvent(ui::MouseEvent* event);
   std::list<gfx::AcceleratedWidget>& open_windows();
 
@@ -56,19 +54,19 @@ class RootWindowHostDelegateWayland
   bool stop_propogation_ :1;
 
   // Current dispatcher.
-  DesktopRootWindowHostWayland* current_dispatcher_;
+  DesktopWindowTreeHostWayland* current_dispatcher_;
   // The current root window host that has capture. We need to track this so we
   // can notify widgets when they have lost capture, which controls a bunch of
   // things in views like hiding menus.
-  DesktopRootWindowHostWayland* current_capture_;
-  DesktopRootWindowHostWayland* current_active_window_;
+  DesktopWindowTreeHostWayland* current_capture_;
+  DesktopWindowTreeHostWayland* current_active_window_;
   // List of all open windows.
   std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   std::vector<aura::Window*>* aura_windows_;
-  DISALLOW_COPY_AND_ASSIGN(RootWindowHostDelegateWayland);
+  DISALLOW_COPY_AND_ASSIGN(WindowTreeHostDelegateWayland);
 };
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_ROOT_WINDOW_HOST_DELEGATE_WAYLAND_H_
+#endif  // OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_

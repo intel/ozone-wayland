@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
-#define OZONE_IMPL_DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
+#ifndef OZONE_IMPL_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_
+#define OZONE_IMPL_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_
 
 #include <set>
 #include <vector>
@@ -21,20 +21,20 @@ class Tooltip;
 
 namespace ozonewayland {
 class DesktopDragDropClientWayland;
-class RootWindowHostDelegateWayland;
+class WindowTreeHostDelegateWayland;
 
-class VIEWS_EXPORT DesktopRootWindowHostWayland
-    : public views::DesktopRootWindowHost,
-      public aura::RootWindowHost {
+class VIEWS_EXPORT DesktopWindowTreeHostWayland
+    : public views::DesktopWindowTreeHost,
+      public aura::WindowTreeHost {
  public:
-  DesktopRootWindowHostWayland(
+  DesktopWindowTreeHostWayland(
       views::internal::NativeWidgetDelegate* native_widget_delegate,
       views::DesktopNativeWidgetAura* desktop_native_widget_aura);
-  virtual ~DesktopRootWindowHostWayland();
+  virtual ~DesktopWindowTreeHostWayland();
 
   // Accepts a opaque handle widget and returns associated
-  // DesktopRootWindowHostWayland.
-  static DesktopRootWindowHostWayland* GetHostForAcceleratedWidget(
+  // DesktopWindowTreeHostWayland.
+  static DesktopWindowTreeHostWayland* GetHostForAcceleratedWidget(
       gfx::AcceleratedWidget widget);
 
   // Get all open top-level windows. This includes windows that may not be
@@ -80,7 +80,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   // entirely.
   void OnCaptureReleased();
 
-  // Overridden from DesktopRootWindowHost:
+  // Overridden from DesktopWindowTreeHost:
   virtual void Init(aura::Window* content_window,
                     const views::Widget::InitParams& params,
                     aura::RootWindow::CreateParams* rw_create_params) OVERRIDE;
@@ -91,7 +91,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
       views::DesktopNativeCursorManager* cursor_manager) OVERRIDE;
   virtual void Close() OVERRIDE;
   virtual void CloseNow() OVERRIDE;
-  virtual aura::RootWindowHost* AsRootWindowHost() OVERRIDE;
+  virtual aura::WindowTreeHost* AsWindowTreeHost() OVERRIDE;
   virtual void ShowWindowWithState(ui::WindowShowState show_state) OVERRIDE;
   virtual void ShowMaximizedWithBounds(
       const gfx::Rect& restored_bounds) OVERRIDE;
@@ -141,7 +141,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   virtual void OnNativeWidgetBlur() OVERRIDE;
   virtual bool IsAnimatingClosed() const OVERRIDE;
 
-  // Overridden from aura::RootWindowHost:
+  // Overridden from aura::WindowTreeHost:
   virtual aura::RootWindow* GetRootWindow() OVERRIDE;
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual void Show() OVERRIDE;
@@ -175,7 +175,7 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   gfx::AcceleratedWidget window_;
   base::string16 title_;
 
-  base::WeakPtrFactory<DesktopRootWindowHostWayland> close_widget_factory_;
+  base::WeakPtrFactory<DesktopWindowTreeHostWayland> close_widget_factory_;
 
   // We are owned by the RootWindow, but we have to have a back pointer to it.
   aura::RootWindow* root_window_;
@@ -188,14 +188,14 @@ class VIEWS_EXPORT DesktopRootWindowHostWayland
   views::DesktopNativeWidgetAura* desktop_native_widget_aura_;
   // We can optionally have a parent which can order us to close, or own
   // children who we're responsible for closing when we CloseNow().
-  DesktopRootWindowHostWayland* window_parent_;
-  std::set<DesktopRootWindowHostWayland*> window_children_;
+  DesktopWindowTreeHostWayland* window_parent_;
+  std::set<DesktopWindowTreeHostWayland*> window_children_;
 
-  static RootWindowHostDelegateWayland* g_dispatcher_ozone_wayland_;
-  friend class RootWindowHostDelegateWayland;
-  DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostWayland);
+  static WindowTreeHostDelegateWayland* g_delegate_ozone_wayland_;
+  friend class WindowTreeHostDelegateWayland;
+  DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_DESKTOP_ROOT_WINDOW_HOST_WAYLAND_H_
+#endif  // OZONE_IMPL_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_

@@ -3,13 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/desktop_root_window_host_wayland.h"
+#include "ozone/impl/desktop_window_tree_host_wayland.h"
 
 #include "base/bind.h"
 #include "ozone/impl/desktop_drag_drop_client_wayland.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/ozone_display.h"
-#include "ozone/impl/root_window_host_delegate_wayland.h"
+#include "ozone/impl/window_tree_host_delegate_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
@@ -22,6 +22,7 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/tooltip_aura.h"
+#include "ui/views/corewm/window_util.h"
 #include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
@@ -32,7 +33,7 @@
 namespace views {
 // static
 OZONE_WAYLAND_EXPORT ui::NativeTheme*
-DesktopRootWindowHost::GetNativeTheme(aura::Window* window) {
+DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
   const views::LinuxUI* linux_ui = views::LinuxUI::instance();
   if (linux_ui) {
     ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
@@ -50,19 +51,19 @@ namespace ozonewayland {
 using views::Widget;
 using views::NonClientFrameView;
 
-RootWindowHostDelegateWayland*
-    DesktopRootWindowHostWayland::g_dispatcher_ozone_wayland_ = NULL;
+WindowTreeHostDelegateWayland*
+    DesktopWindowTreeHostWayland::g_delegate_ozone_wayland_ = NULL;
 
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
 
 DEFINE_WINDOW_PROPERTY_KEY(
-    DesktopRootWindowHostWayland*, kHostForRootWindow, NULL);
+    DesktopWindowTreeHostWayland*, kHostForRootWindow, NULL);
 
-DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
+DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
     views::internal::NativeWidgetDelegate* native_widget_delegate,
     views::DesktopNativeWidgetAura* desktop_native_widget_aura)
-    : aura::RootWindowHost(),
+    : aura::WindowTreeHost(),
       state_(Uninitialized),
       bounds_(0, 0, 0, 0),
       previous_bounds_(0, 0, 0, 0),
@@ -78,14 +79,15 @@ DesktopRootWindowHostWayland::DesktopRootWindowHostWayland(
       window_children_() {
 }
 
-DesktopRootWindowHostWayland::~DesktopRootWindowHostWayland() {
+DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
+  DestroyCompositor();
   root_window_->window()->ClearProperty(kHostForRootWindow);
-  desktop_native_widget_aura_->OnDesktopRootWindowHostDestroyed(root_window_);
+  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(root_window_);
 }
 
 // static
-DesktopRootWindowHostWayland*
-DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
+DesktopWindowTreeHostWayland*
+DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
   aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
   return root ? root->window()->GetProperty(kHostForRootWindow) : NULL;
@@ -93,27 +95,27 @@ DesktopRootWindowHostWayland::GetHostForAcceleratedWidget(
 
 // static
 const std::vector<aura::Window*>&
-DesktopRootWindowHostWayland::GetAllOpenWindows() {
-  DCHECK(g_dispatcher_ozone_wayland_);
-  return g_dispatcher_ozone_wayland_->GetAllOpenWindows();
+DesktopWindowTreeHostWayland::GetAllOpenWindows() {
+  DCHECK(g_delegate_ozone_wayland_);
+  return g_delegate_ozone_wayland_->GetAllOpenWindows();
 }
 
 // static
 aura::Window*
-DesktopRootWindowHostWayland::GetContentWindowForAcceleratedWidget(
+DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
   aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
   return root ? root->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
 }
 
-gfx::Rect DesktopRootWindowHostWayland::GetBoundsInScreen() const {
+gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
   return bounds_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostWayland, private:
+// DesktopWindowTreeHostWayland, private:
 
-void DesktopRootWindowHostWayland::InitWaylandWindow(
+void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
   gfx::SurfaceFactoryOzone* surface_factory =
           gfx::SurfaceFactoryOzone::GetInstance();
@@ -139,10 +141,10 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
       // surfaces always require a parent surface for relative placement. Here
       // there's a catch because content_shell menus don't have parent and
       // therefore we use root window to calculate their position.
-      DesktopRootWindowHostWayland* parent = window_parent_;
+      DesktopWindowTreeHostWayland* parent = window_parent_;
       if (!parent)
         parent = GetHostForAcceleratedWidget(
-                     g_dispatcher_ozone_wayland_->GetActiveWindow()->window_);
+                     g_delegate_ozone_wayland_->GetActiveWindow()->window_);
 
       // Transient type expects a position relative to the parent
       gfx::Point transientPos = gfx::Point(bounds_.x() - parent->bounds_.x(),
@@ -182,14 +184,14 @@ void DesktopRootWindowHostWayland::InitWaylandWindow(
   CreateCompositor(GetAcceleratedWidget());
 }
 
-bool DesktopRootWindowHostWayland::IsWindowManagerPresent() {
+bool DesktopWindowTreeHostWayland::IsWindowManagerPresent() {
   return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostWayland, DesktopRootWindowHost implementation:
+// DesktopWindowTreeHostWayland, DesktopWindowTreeHost implementation:
 
-void DesktopRootWindowHostWayland::Init(
+void DesktopWindowTreeHostWayland::Init(
     aura::Window* content_window,
     const Widget::InitParams& params,
     aura::RootWindow::CreateParams* rw_create_params) {
@@ -208,7 +210,7 @@ void DesktopRootWindowHostWayland::Init(
   rw_create_params->host = this;
 }
 
-void DesktopRootWindowHostWayland::OnRootWindowCreated(
+void DesktopWindowTreeHostWayland::OnRootWindowCreated(
     aura::RootWindow* root,
     const Widget::InitParams& params) {
   root_window_ = root;
@@ -222,36 +224,36 @@ void DesktopRootWindowHostWayland::OnRootWindowCreated(
   // window. Otherwise activation gets screwy.
   gfx::NativeView parent = params.parent;
   if (!params.child && params.parent)
-    parent->AddTransientChild(content_window_);
+    views::corewm::AddTransientChild(parent, content_window_);
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
 
-  if (!g_dispatcher_ozone_wayland_)
-    g_dispatcher_ozone_wayland_ = new RootWindowHostDelegateWayland();
+  if (!g_delegate_ozone_wayland_)
+    g_delegate_ozone_wayland_ = new WindowTreeHostDelegateWayland();
 
-  g_dispatcher_ozone_wayland_->OnRootWindowCreated(window_);
+  g_delegate_ozone_wayland_->OnRootWindowCreated(window_);
 
-  // Add DesktopRootWindowHostWayland as dispatcher.
+  // Add DesktopWindowTreeHostWayland as dispatcher.
   bool root_window = params.type == Widget::InitParams::TYPE_WINDOW ||
                       params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   if (!window_parent_ && root_window)
-    g_dispatcher_ozone_wayland_->SetActiveWindow(this);
+    g_delegate_ozone_wayland_->SetActiveWindow(this);
 }
 
 scoped_ptr<views::corewm::Tooltip>
-DesktopRootWindowHostWayland::CreateTooltip() {
+DesktopWindowTreeHostWayland::CreateTooltip() {
   return scoped_ptr<views::corewm::Tooltip>(
              new views::corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
 }
 
 scoped_ptr<aura::client::DragDropClient>
-DesktopRootWindowHostWayland::CreateDragDropClient(
+DesktopWindowTreeHostWayland::CreateDragDropClient(
     views::DesktopNativeCursorManager* cursor_manager) {
   drag_drop_client_ = new DesktopDragDropClientWayland(root_window_->window());
   return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
 }
 
-void DesktopRootWindowHostWayland::Close() {
+void DesktopWindowTreeHostWayland::Close() {
   if (!close_widget_factory_.HasWeakPtrs()) {
     // And we delay the close so that if we are called from an ATL callback,
     // we don't destroy the window before the callback returned (as the caller
@@ -259,21 +261,21 @@ void DesktopRootWindowHostWayland::Close() {
     // dereference us when the callback returns).
     base::MessageLoop::current()->PostTask(
         FROM_HERE,
-        base::Bind(&DesktopRootWindowHostWayland::CloseNow,
+        base::Bind(&DesktopWindowTreeHostWayland::CloseNow,
                    close_widget_factory_.GetWeakPtr()));
   }
 }
 
-void DesktopRootWindowHostWayland::CloseNow() {
-  DCHECK(g_dispatcher_ozone_wayland_);
+void DesktopWindowTreeHostWayland::CloseNow() {
+  DCHECK(g_delegate_ozone_wayland_);
   unsigned widgetId = window_;
   native_widget_delegate_->OnNativeWidgetDestroying();
 
   // If we have children, close them. Use a copy for iteration because they'll
   // remove themselves.
-  std::set<DesktopRootWindowHostWayland*> window_children_copy =
+  std::set<DesktopWindowTreeHostWayland*> window_children_copy =
       window_children_;
-  for (std::set<DesktopRootWindowHostWayland*>::iterator it =
+  for (std::set<DesktopWindowTreeHostWayland*>::iterator it =
            window_children_copy.begin(); it != window_children_copy.end();
        ++it) {
     (*it)->CloseNow();
@@ -284,24 +286,24 @@ void DesktopRootWindowHostWayland::CloseNow() {
   if (window_parent_)
     window_parent_->window_children_.erase(this);
 
-  g_dispatcher_ozone_wayland_->OnRootWindowClosed(widgetId);
+  g_delegate_ozone_wayland_->OnRootWindowClosed(widgetId);
   window_parent_ = NULL;
-  if (!g_dispatcher_ozone_wayland_->GetActiveWindow()) {
-    // We have no open windows, free g_dispatcher_ozone_wayland_.
-    delete g_dispatcher_ozone_wayland_;
-    g_dispatcher_ozone_wayland_ = NULL;
+  if (!g_delegate_ozone_wayland_->GetActiveWindow()) {
+    // We have no open windows, free g_delegate_ozone_wayland_.
+    delete g_delegate_ozone_wayland_;
+    g_delegate_ozone_wayland_ = NULL;
   }
 
   desktop_native_widget_aura_->OnHostClosed();
-  OzoneDisplay::GetInstance()->SetWidgetState(
-      widgetId, OzoneDisplay::Destroyed);
+  OzoneDisplay::GetInstance()->SetWidgetState(widgetId,
+                                              OzoneDisplay::Destroyed);
 }
 
-aura::RootWindowHost* DesktopRootWindowHostWayland::AsRootWindowHost() {
+aura::WindowTreeHost* DesktopWindowTreeHostWayland::AsWindowTreeHost() {
   return this;
 }
 
-void DesktopRootWindowHostWayland::ShowWindowWithState(
+void DesktopWindowTreeHostWayland::ShowWindowWithState(
     ui::WindowShowState show_state) {
   if (show_state != ui::SHOW_STATE_DEFAULT &&
       show_state != ui::SHOW_STATE_NORMAL) {
@@ -312,7 +314,7 @@ void DesktopRootWindowHostWayland::ShowWindowWithState(
   Show();
 }
 
-void DesktopRootWindowHostWayland::ShowMaximizedWithBounds(
+void DesktopWindowTreeHostWayland::ShowMaximizedWithBounds(
     const gfx::Rect& restored_bounds) {
   // TODO(erg):
   NOTIMPLEMENTED();
@@ -321,27 +323,27 @@ void DesktopRootWindowHostWayland::ShowMaximizedWithBounds(
   Show();
 }
 
-bool DesktopRootWindowHostWayland::IsVisible() const {
+bool DesktopWindowTreeHostWayland::IsVisible() const {
   return state_ & Visible;
 }
 
-void DesktopRootWindowHostWayland::SetSize(const gfx::Size& size) {
+void DesktopWindowTreeHostWayland::SetSize(const gfx::Size& size) {
   gfx::Rect new_bounds = bounds_;
   new_bounds.set_size(size);
   SetBounds(new_bounds);
 }
 
-void DesktopRootWindowHostWayland::StackAtTop() {
+void DesktopWindowTreeHostWayland::StackAtTop() {
 }
 
-void DesktopRootWindowHostWayland::CenterWindow(const gfx::Size& size) {
+void DesktopWindowTreeHostWayland::CenterWindow(const gfx::Size& size) {
   gfx::Rect parent_bounds = GetWorkAreaBoundsInScreen();
 
   // If |window_|'s transient parent bounds are big enough to contain |size|,
   // use them instead.
-  if (content_window_->transient_parent()) {
+  if (views::corewm::GetTransientParent(content_window_)) {
     gfx::Rect transient_parent_rect =
-        content_window_->transient_parent()->GetBoundsInScreen();
+        views::corewm::GetTransientParent(content_window_)->GetBoundsInScreen();
     if (transient_parent_rect.height() >= size.height() &&
         transient_parent_rect.width() >= size.width()) {
       parent_bounds = transient_parent_rect;
@@ -359,7 +361,7 @@ void DesktopRootWindowHostWayland::CenterWindow(const gfx::Size& size) {
   SetBounds(window_bounds);
 }
 
-void DesktopRootWindowHostWayland::GetWindowPlacement(
+void DesktopWindowTreeHostWayland::GetWindowPlacement(
     gfx::Rect* bounds,
     ui::WindowShowState* show_state) const {
   *bounds = bounds_;
@@ -377,14 +379,14 @@ void DesktopRootWindowHostWayland::GetWindowPlacement(
   }
 }
 
-gfx::Rect DesktopRootWindowHostWayland::GetWindowBoundsInScreen() const {
+gfx::Rect DesktopWindowTreeHostWayland::GetWindowBoundsInScreen() const {
   return bounds_;
 }
 
-gfx::Rect DesktopRootWindowHostWayland::GetClientAreaBoundsInScreen() const {
+gfx::Rect DesktopWindowTreeHostWayland::GetClientAreaBoundsInScreen() const {
   // TODO(erg): The NativeWidgetAura version returns |bounds_|, claiming its
   // needed for View::ConvertPointToScreen() to work
-  // correctly. DesktopRootWindowHostWin::GetClientAreaBoundsInScreen() just
+  // correctly. DesktopWindowTreeHostWin::GetClientAreaBoundsInScreen() just
   // asks windows what it thinks the client rect is.
   //
   // Attempts to calculate the rect by asking the NonClientFrameView what it
@@ -393,24 +395,24 @@ gfx::Rect DesktopRootWindowHostWayland::GetClientAreaBoundsInScreen() const {
   return bounds_;
 }
 
-gfx::Rect DesktopRootWindowHostWayland::GetRestoredBounds() const {
+gfx::Rect DesktopWindowTreeHostWayland::GetRestoredBounds() const {
   if (!previous_bounds_.IsEmpty())
     return previous_bounds_;
 
   return bounds_;
 }
 
-gfx::Rect DesktopRootWindowHostWayland::GetWorkAreaBoundsInScreen() const {
+gfx::Rect DesktopWindowTreeHostWayland::GetWorkAreaBoundsInScreen() const {
   // TODO(kalyan): Take into account wm decorations. i.e Dock, panel etc.
   return OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
 }
 
-void DesktopRootWindowHostWayland::SetShape(gfx::NativeRegion native_region) {
+void DesktopWindowTreeHostWayland::SetShape(gfx::NativeRegion native_region) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::Activate() {
+void DesktopWindowTreeHostWayland::Activate() {
   if (state_ & Active)
     return;
 
@@ -421,7 +423,7 @@ void DesktopRootWindowHostWayland::Activate() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Active);
 }
 
-void DesktopRootWindowHostWayland::Deactivate() {
+void DesktopWindowTreeHostWayland::Deactivate() {
   if (!(state_ & Active))
     return;
 
@@ -429,11 +431,11 @@ void DesktopRootWindowHostWayland::Deactivate() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::InActive);
 }
 
-bool DesktopRootWindowHostWayland::IsActive() const {
+bool DesktopWindowTreeHostWayland::IsActive() const {
   return state_ & Active;
 }
 
-void DesktopRootWindowHostWayland::Maximize() {
+void DesktopWindowTreeHostWayland::Maximize() {
   if (state_ & Maximized)
     return;
 
@@ -443,7 +445,7 @@ void DesktopRootWindowHostWayland::Maximize() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Maximized);
 }
 
-void DesktopRootWindowHostWayland::Minimize() {
+void DesktopWindowTreeHostWayland::Minimize() {
   if (state_ & Minimized)
     return;
 
@@ -453,7 +455,7 @@ void DesktopRootWindowHostWayland::Minimize() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Minimized);
 }
 
-void DesktopRootWindowHostWayland::Restore() {
+void DesktopWindowTreeHostWayland::Restore() {
   if (state_ & Normal)
     return;
 
@@ -463,34 +465,34 @@ void DesktopRootWindowHostWayland::Restore() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Restore);
 }
 
-bool DesktopRootWindowHostWayland::IsMaximized() const {
+bool DesktopWindowTreeHostWayland::IsMaximized() const {
   return state_ & Maximized;
 }
 
-bool DesktopRootWindowHostWayland::IsMinimized() const {
+bool DesktopWindowTreeHostWayland::IsMinimized() const {
   return state_ & Minimized;
 }
 
-void DesktopRootWindowHostWayland::OnCaptureReleased() {
+void DesktopWindowTreeHostWayland::OnCaptureReleased() {
   delegate_->OnHostLostWindowCapture();
   native_widget_delegate_->OnMouseCaptureLost();
 }
 
-bool DesktopRootWindowHostWayland::HasCapture() const {
-  return g_dispatcher_ozone_wayland_->GetCurrentCapture() == this;
+bool DesktopWindowTreeHostWayland::HasCapture() const {
+  return g_delegate_ozone_wayland_->GetCurrentCapture() == this;
 }
 
-bool DesktopRootWindowHostWayland::IsAlwaysOnTop() const {
+bool DesktopWindowTreeHostWayland::IsAlwaysOnTop() const {
   NOTIMPLEMENTED();
   return false;
 }
 
-void DesktopRootWindowHostWayland::SetAlwaysOnTop(bool always_on_top) {
+void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-bool DesktopRootWindowHostWayland::SetWindowTitle(const base::string16& title) {
+bool DesktopWindowTreeHostWayland::SetWindowTitle(const base::string16& title) {
   if (title.compare(title_)) {
     OzoneDisplay::GetInstance()->SetWidgetTitle(window_, title);
     title_ = title;
@@ -500,7 +502,7 @@ bool DesktopRootWindowHostWayland::SetWindowTitle(const base::string16& title) {
   return false;
 }
 
-void DesktopRootWindowHostWayland::ClearNativeFocus() {
+void DesktopWindowTreeHostWayland::ClearNativeFocus() {
   // This method is weird and misnamed. Instead of clearing the native focus,
   // it sets the focus to our |content_window_|, which will trigger a cascade
   // of focus changes into views.
@@ -511,7 +513,7 @@ void DesktopRootWindowHostWayland::ClearNativeFocus() {
   }
 }
 
-Widget::MoveLoopResult DesktopRootWindowHostWayland::RunMoveLoop(
+Widget::MoveLoopResult DesktopWindowTreeHostWayland::RunMoveLoop(
     const gfx::Vector2d& drag_offset,
     Widget::MoveLoopSource source,
     Widget::MoveLoopEscapeBehavior escape_behavior) {
@@ -519,27 +521,27 @@ Widget::MoveLoopResult DesktopRootWindowHostWayland::RunMoveLoop(
   return Widget::MOVE_LOOP_SUCCESSFUL;
 }
 
-void DesktopRootWindowHostWayland::EndMoveLoop() {
+void DesktopWindowTreeHostWayland::EndMoveLoop() {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::SetVisibilityChangedAnimationsEnabled(
+void DesktopWindowTreeHostWayland::SetVisibilityChangedAnimationsEnabled(
     bool value) {
   // Much like the previous NativeWidgetGtk, we don't have anything to do here.
 }
 
-bool DesktopRootWindowHostWayland::ShouldUseNativeFrame() {
+bool DesktopWindowTreeHostWayland::ShouldUseNativeFrame() {
   return false;
 }
 
-void DesktopRootWindowHostWayland::FrameTypeChanged() {
+void DesktopWindowTreeHostWayland::FrameTypeChanged() {
 }
 
-NonClientFrameView* DesktopRootWindowHostWayland::CreateNonClientFrameView() {
+NonClientFrameView* DesktopWindowTreeHostWayland::CreateNonClientFrameView() {
   return NULL;
 }
 
-void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
+void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
   if ((state_ & FullScreen) == fullscreen)
     return;
 
@@ -571,22 +573,22 @@ void DesktopRootWindowHostWayland::SetFullscreen(bool fullscreen) {
   NotifyHostResized(rect.size());
 }
 
-bool DesktopRootWindowHostWayland::IsFullscreen() const {
+bool DesktopWindowTreeHostWayland::IsFullscreen() const {
   return state_ & FullScreen;
 }
 
-void DesktopRootWindowHostWayland::SetOpacity(unsigned char opacity) {
+void DesktopWindowTreeHostWayland::SetOpacity(unsigned char opacity) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::SetWindowIcons(
+void DesktopWindowTreeHostWayland::SetWindowIcons(
     const gfx::ImageSkia& window_icon, const gfx::ImageSkia& app_icon) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::InitModalType(ui::ModalType modal_type) {
+void DesktopWindowTreeHostWayland::InitModalType(ui::ModalType modal_type) {
   switch (modal_type) {
     case ui::MODAL_TYPE_NONE:
       break;
@@ -598,41 +600,41 @@ void DesktopRootWindowHostWayland::InitModalType(ui::ModalType modal_type) {
   }
 }
 
-void DesktopRootWindowHostWayland::FlashFrame(bool flash_frame) {
+void DesktopWindowTreeHostWayland::FlashFrame(bool flash_frame) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::OnRootViewLayout() const {
+void DesktopWindowTreeHostWayland::OnRootViewLayout() const {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::OnNativeWidgetFocus() {
+void DesktopWindowTreeHostWayland::OnNativeWidgetFocus() {
   native_widget_delegate_->AsWidget()->GetInputMethod()->OnFocus();
 }
 
-void DesktopRootWindowHostWayland::OnNativeWidgetBlur() {
+void DesktopWindowTreeHostWayland::OnNativeWidgetBlur() {
   if (window_)
     native_widget_delegate_->AsWidget()->GetInputMethod()->OnBlur();
 }
 
-bool DesktopRootWindowHostWayland::IsAnimatingClosed() const {
+bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
   NOTIMPLEMENTED();
   return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostWayland, aura::RootWindowHost implementation:
+// DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
 
-aura::RootWindow* DesktopRootWindowHostWayland::GetRootWindow() {
+aura::RootWindow* DesktopWindowTreeHostWayland::GetRootWindow() {
   return root_window_;
 }
 
-gfx::AcceleratedWidget DesktopRootWindowHostWayland::GetAcceleratedWidget() {
+gfx::AcceleratedWidget DesktopWindowTreeHostWayland::GetAcceleratedWidget() {
   return window_;
 }
 
-void DesktopRootWindowHostWayland::Show() {
+void DesktopWindowTreeHostWayland::Show() {
   if (state_ & Visible)
     return;
 
@@ -642,7 +644,7 @@ void DesktopRootWindowHostWayland::Show() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Show);
 }
 
-void DesktopRootWindowHostWayland::Hide() {
+void DesktopWindowTreeHostWayland::Hide() {
   if (!(state_ & Visible))
     return;
 
@@ -650,15 +652,15 @@ void DesktopRootWindowHostWayland::Hide() {
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Hide);
 }
 
-void DesktopRootWindowHostWayland::ToggleFullScreen() {
+void DesktopWindowTreeHostWayland::ToggleFullScreen() {
   SetFullscreen(!(state_ & FullScreen));
 }
 
-gfx::Rect DesktopRootWindowHostWayland::GetBounds() const {
+gfx::Rect DesktopWindowTreeHostWayland::GetBounds() const {
   return bounds_;
 }
 
-void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
+void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
   bool origin_changed = bounds_.origin() != bounds.origin();
   bool size_changed = bounds_.size() != bounds.size();
 
@@ -677,69 +679,69 @@ void DesktopRootWindowHostWayland::SetBounds(const gfx::Rect& bounds) {
   }
 }
 
-gfx::Insets DesktopRootWindowHostWayland::GetInsets() const {
+gfx::Insets DesktopWindowTreeHostWayland::GetInsets() const {
   return gfx::Insets();
 }
 
-void DesktopRootWindowHostWayland::SetInsets(const gfx::Insets& insets) {
+void DesktopWindowTreeHostWayland::SetInsets(const gfx::Insets& insets) {
 }
 
-gfx::Point DesktopRootWindowHostWayland::GetLocationOnNativeScreen() const {
+gfx::Point DesktopWindowTreeHostWayland::GetLocationOnNativeScreen() const {
   return bounds_.origin();
 }
 
-void DesktopRootWindowHostWayland::SetCapture() {
-  g_dispatcher_ozone_wayland_->SetCapture(this);
+void DesktopWindowTreeHostWayland::SetCapture() {
+  g_delegate_ozone_wayland_->SetCapture(this);
 }
 
-void DesktopRootWindowHostWayland::ReleaseCapture() {
-  g_dispatcher_ozone_wayland_->SetCapture(NULL);
+void DesktopWindowTreeHostWayland::ReleaseCapture() {
+  g_delegate_ozone_wayland_->SetCapture(NULL);
 }
 
-void DesktopRootWindowHostWayland::SetCursor(gfx::NativeCursor cursor) {
+void DesktopWindowTreeHostWayland::SetCursor(gfx::NativeCursor cursor) {
   NOTIMPLEMENTED();
 }
 
-bool DesktopRootWindowHostWayland::QueryMouseLocation(
+bool DesktopWindowTreeHostWayland::QueryMouseLocation(
     gfx::Point* location_return) {
   NOTIMPLEMENTED();
   return false;
 }
 
-bool DesktopRootWindowHostWayland::ConfineCursorToRootWindow() {
+bool DesktopWindowTreeHostWayland::ConfineCursorToRootWindow() {
   NOTIMPLEMENTED();
   return false;
 }
 
-void DesktopRootWindowHostWayland::UnConfineCursor() {
+void DesktopWindowTreeHostWayland::UnConfineCursor() {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::OnCursorVisibilityChanged(bool show) {
+void DesktopWindowTreeHostWayland::OnCursorVisibilityChanged(bool show) {
   // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
   // the same tap-to-click disabling here that chromeos does.
 }
 
-void DesktopRootWindowHostWayland::MoveCursorTo(const gfx::Point& location) {
+void DesktopWindowTreeHostWayland::MoveCursorTo(const gfx::Point& location) {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::PostNativeEvent(
+void DesktopWindowTreeHostWayland::PostNativeEvent(
     const base::NativeEvent& native_event) {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostWayland::OnDeviceScaleFactorChanged(
+void DesktopWindowTreeHostWayland::OnDeviceScaleFactorChanged(
     float device_scale_factor) {
 }
 
-void DesktopRootWindowHostWayland::PrepareForShutdown() {
+void DesktopWindowTreeHostWayland::PrepareForShutdown() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostWayland, Private implementation:
+// DesktopWindowTreeHostWayland, Private implementation:
 
-void DesktopRootWindowHostWayland::HandleNativeWidgetActivationChanged(
+void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
     bool active) {
   // We can skip during initialization phase.
   if (!state_)
