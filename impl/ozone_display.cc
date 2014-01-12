@@ -21,6 +21,7 @@
 #include "ozone/wayland/egl/egl_window.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
+#include "ui/gl/sync_control_vsync_provider.h"
 
 namespace ozonewayland {
 
@@ -179,8 +180,9 @@ bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
   return window->SetBounds(bounds);
 }
 
-gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(gfx::AcceleratedWidget w) {
-  return 0;
+scoped_ptr<gfx::VSyncProvider>
+OzoneDisplay::CreateVSyncProvider(gfx::AcceleratedWidget w) {
+  return scoped_ptr<gfx::VSyncProvider>();
 }
 
 bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {

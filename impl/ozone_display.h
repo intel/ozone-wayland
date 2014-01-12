@@ -78,7 +78,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   // successful else returns false.
   virtual bool AttemptToResizeAcceleratedWidget(
       gfx::AcceleratedWidget w, const gfx::Rect& bounds) OVERRIDE;
-  virtual gfx::VSyncProvider* GetVSyncProvider(
+  virtual scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider(
       gfx::AcceleratedWidget w) OVERRIDE;
   virtual bool SchedulePageFlip(gfx::AcceleratedWidget w) OVERRIDE;
   virtual const int32* GetEGLSurfaceProperties(

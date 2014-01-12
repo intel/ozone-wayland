@@ -33,6 +33,7 @@
         'impl/desktop_screen_wayland.h',
         'impl/event_factory_wayland.cc',
         'impl/event_factory_wayland.h',
+        'impl/fullscreen_wayland.cc',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
         'impl/window_tree_host_delegate_wayland.cc',
