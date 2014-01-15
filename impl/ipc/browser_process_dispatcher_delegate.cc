@@ -19,7 +19,7 @@ BrowserProcessDispatcherDelegate::~BrowserProcessDispatcherDelegate() {
 }
 
 void BrowserProcessDispatcherDelegate::MotionNotify(float x, float y) {
-  gfx::Point position = gfx::Point(x, y);
+  gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_MOVED,
                                                         position,
                                                         position,
@@ -42,7 +42,7 @@ void BrowserProcessDispatcherDelegate::ButtonNotify(unsigned handle,
   else
     type = ui::ET_MOUSE_RELEASED;
 
-  gfx::Point position = gfx::Point(x, y);
+  gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(type,
                                                         position,
                                                         position,
@@ -61,7 +61,7 @@ void BrowserProcessDispatcherDelegate::AxisNotify(float x,
                                                   float y,
                                                   float xoffset,
                                                   float yoffset) {
-  gfx::Point position = gfx::Point(x, y);
+  gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
 
   scoped_ptr<ui::MouseWheelEvent> wheelev(new ui::MouseWheelEvent(mouseev,
@@ -76,7 +76,7 @@ void BrowserProcessDispatcherDelegate::AxisNotify(float x,
 void BrowserProcessDispatcherDelegate::PointerEnter(unsigned handle,
                                                     float x,
                                                     float y) {
-  gfx::Point position = gfx::Point(x, y);
+  gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
                                                         position,
                                                         position,
@@ -93,7 +93,7 @@ void BrowserProcessDispatcherDelegate::PointerEnter(unsigned handle,
 void BrowserProcessDispatcherDelegate::PointerLeave(unsigned handle,
                                                     float x,
                                                     float y) {
-  gfx::Point position = gfx::Point(x, y);
+  gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_EXITED,
                                                         position,
                                                         position,

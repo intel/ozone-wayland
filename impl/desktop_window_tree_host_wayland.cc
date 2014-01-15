@@ -147,8 +147,8 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
                      g_delegate_ozone_wayland_->GetActiveWindow()->window_);
 
       // Transient type expects a position relative to the parent
-      gfx::Point transientPos = gfx::Point(bounds_.x() - parent->bounds_.x(),
-                                           bounds_.y() - parent->bounds_.y());
+      gfx::Point transientPos(bounds_.x() - parent->bounds_.x(),
+                              bounds_.y() - parent->bounds_.y());
 
       // Different platforms implement different input grab pointer behaviors
       // on Chromium. While the Linux GTK+ grab button clicks but not the

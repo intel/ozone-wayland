@@ -43,8 +43,7 @@ void WaylandScreen::OutputHandleGeometry(void *data,
                                          const char* model,
                                          int32_t output_transform) {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
-  gfx::Point point = gfx::Point(x, y);
-  screen->rect_.set_origin(point);
+  screen->rect_.set_origin(gfx::Point(x, y));
 }
 
 // static
