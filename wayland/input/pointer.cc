@@ -122,16 +122,19 @@ void WaylandPointer::OnAxisNotify(void* data,
   const int delta = ui::MouseWheelEvent::kWheelDelta;
 
   switch (axis) {
-  case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
-    x_offset = value > 0 ? -delta : delta;
-    break;
-  case WL_POINTER_AXIS_VERTICAL_SCROLL:
-    y_offset = value > 0 ? -delta : delta;
-    break;
+    case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
+      x_offset = value > 0 ? -delta : delta;
+      break;
+    case WL_POINTER_AXIS_VERTICAL_SCROLL:
+      y_offset = value > 0 ? -delta : delta;
+      break;
+    default:
+      break;
   }
 
   device->dispatcher_->AxisNotify(device->pointer_position_.x(),
-                                  device->pointer_position_.y(), x_offset,
+                                  device->pointer_position_.y(),
+                                  x_offset,
                                   y_offset);
 }
 

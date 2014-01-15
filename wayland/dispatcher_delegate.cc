@@ -24,7 +24,7 @@ void WaylandDispatcherDelegate::SetActive(bool active) {
     DCHECK(!ignore_task_);
   } else {
     ignore_task_ = true;
-      loop_ = NULL;
+    loop_ = NULL;
   }
 }
 

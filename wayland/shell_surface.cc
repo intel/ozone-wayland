@@ -22,9 +22,8 @@ WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
 
   surface_ = new WaylandSurface();
   if (display->shell())
-    shell_surface_ = wl_shell_get_shell_surface(
-        display->shell(),
-        surface_->wlSurface());
+    shell_surface_ = wl_shell_get_shell_surface(display->shell(),
+                                                surface_->wlSurface());
 
   if (shell_surface_) {
     static const wl_shell_surface_listener shell_surface_listener = {

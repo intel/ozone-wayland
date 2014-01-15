@@ -56,10 +56,10 @@ void WaylandScreen::OutputHandleMode(void* data,
                                      int32_t refresh) {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
   if (flags & WL_OUTPUT_MODE_CURRENT) {
-      screen->rect_.set_width(width);
-      screen->rect_.set_height(height);
-      screen->refresh_ = refresh;
-      OzoneDisplay::GetInstance()->OnOutputSizeChanged(screen, width, height);
+    screen->rect_.set_width(width);
+    screen->rect_.set_height(height);
+    screen->refresh_ = refresh;
+    OzoneDisplay::GetInstance()->OnOutputSizeChanged(screen, width, height);
   }
 }
 

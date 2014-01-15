@@ -95,7 +95,8 @@ void WaylandWindow::RealizeAcceleratedWidget() {
 
   if (!window_)
     window_ = new EGLWindow(shell_surface_->Surface()->wlSurface(),
-                            allocation_.width(), allocation_.height());
+                            allocation_.width(),
+                            allocation_.height());
 }
 
 void WaylandWindow::HandleSwapBuffers() {
