@@ -56,19 +56,16 @@ void WaylandKeyboard::OnKeyNotify(void* data,
                                   uint32_t key,
                                   uint32_t state) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  unsigned currentState = 1;
+  ui::EventType type = ui::ET_KEY_PRESSED;
   WaylandDisplay::GetInstance()->SetSerial(serial);
-
-  if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
-    currentState = 1;
-  else
-    currentState = 0;
+  if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
+    type = ui::ET_KEY_RELEASED;
 
   // Check if we can ignore the KeyEvent notification, saves an IPC call.
-  if (device->backend_->IgnoreKeyNotify(key, currentState))
+  if (device->backend_->IgnoreKeyNotify(key, type == ui::ET_KEY_PRESSED))
     return;
 
-  device->dispatcher_->KeyNotify(currentState,
+  device->dispatcher_->KeyNotify(type,
                                  device->backend_->ConvertKeyCodeFromEvdev(key),
                                  device->backend_->GetKeyBoardModifiers());
 }

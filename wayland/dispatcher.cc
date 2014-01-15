@@ -125,11 +125,11 @@ void WaylandDispatcher::PointerLeave(unsigned handle, float x, float y) {
   delegate_->PointerLeave(handle, x, y);
 }
 
-void WaylandDispatcher::KeyNotify(unsigned state,
+void WaylandDispatcher::KeyNotify(ui::EventType type,
                                   unsigned code,
                                   unsigned modifiers) {
   DCHECK(delegate_);
-  delegate_->KeyNotify(state, code, modifiers);
+  delegate_->KeyNotify(type, code, modifiers);
 }
 
 void WaylandDispatcher::OutputSizeChanged(unsigned width, unsigned height) {

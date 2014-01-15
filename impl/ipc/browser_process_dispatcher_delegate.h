@@ -33,7 +33,7 @@ class BrowserProcessDispatcherDelegate : public WaylandDispatcherDelegate {
                           int yoffset) OVERRIDE;
   virtual void PointerEnter(unsigned handle, float x, float y) OVERRIDE;
   virtual void PointerLeave(unsigned handle, float x, float y) OVERRIDE;
-  virtual void KeyNotify(unsigned type,
+  virtual void KeyNotify(ui::EventType type,
                          unsigned code,
                          unsigned modifiers) OVERRIDE;
 

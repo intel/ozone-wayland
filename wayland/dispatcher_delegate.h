@@ -30,7 +30,9 @@ class WaylandDispatcherDelegate {
   virtual void AxisNotify(float x, float y, int xoffset, int yoffset) = 0;
   virtual void PointerEnter(unsigned handle, float x, float y) = 0;
   virtual void PointerLeave(unsigned handle, float x, float y) = 0;
-  virtual void KeyNotify(unsigned type, unsigned code, unsigned modifiers) = 0;
+  virtual void KeyNotify(ui::EventType type,
+                         unsigned code,
+                         unsigned modifiers) = 0;
 
   virtual void SetActive(bool active);
 

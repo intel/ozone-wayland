@@ -41,7 +41,7 @@ class WaylandDispatcher : public base::Thread {
   void AxisNotify(float x, float y, float xoffset, float yoffset);
   void PointerEnter(unsigned handle, float x, float y);
   void PointerLeave(unsigned handle, float x, float y);
-  void KeyNotify(unsigned type, unsigned code, unsigned modifiers);
+  void KeyNotify(ui::EventType type, unsigned code, unsigned modifiers);
   void OutputSizeChanged(unsigned width, unsigned height);
 
   // Posts task to worker thread.

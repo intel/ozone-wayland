@@ -30,7 +30,7 @@ class GpuProcessDispatcherDelegate : public WaylandDispatcherDelegate {
                           int yoffset) OVERRIDE;
   virtual void PointerEnter(unsigned handle, float x, float y) OVERRIDE;
   virtual void PointerLeave(unsigned handle, float x, float y) OVERRIDE;
-  virtual void KeyNotify(unsigned type,
+  virtual void KeyNotify(ui::EventType type,
                          unsigned code,
                          unsigned modifiers) OVERRIDE;
 
@@ -46,7 +46,9 @@ class GpuProcessDispatcherDelegate : public WaylandDispatcherDelegate {
   static void SendAxisNotify(float x, float y, int xoffset, int yoffset);
   static void SendPointerEnter(unsigned handle, float x, float y);
   static void SendPointerLeave(unsigned handle, float x, float y);
-  static void SendKeyNotify(unsigned type, unsigned code, unsigned modifiers);
+  static void SendKeyNotify(ui::EventType type,
+                            unsigned code,
+                            unsigned modifiers);
   static void SendOutputSizeChanged(unsigned width, unsigned height);
   DISALLOW_COPY_AND_ASSIGN(GpuProcessDispatcherDelegate);
 };

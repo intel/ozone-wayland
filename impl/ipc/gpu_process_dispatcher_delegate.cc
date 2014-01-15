@@ -77,11 +77,11 @@ void GpuProcessDispatcherDelegate::PointerLeave(unsigned handle,
                                 y));
 }
 
-void GpuProcessDispatcherDelegate::KeyNotify(unsigned state,
+void GpuProcessDispatcherDelegate::KeyNotify(ui::EventType type,
                                              unsigned code,
                                              unsigned modifiers) {
   PostTaskOnMainLoop(base::Bind(&GpuProcessDispatcherDelegate::SendKeyNotify,
-                                state,
+                                type,
                                 code,
                                 modifiers));
 }
@@ -128,7 +128,7 @@ void GpuProcessDispatcherDelegate::SendPointerLeave(unsigned handle,
   thread->Send(new WaylandInput_PointerLeave(handle, x, y));
 }
 
-void GpuProcessDispatcherDelegate::SendKeyNotify(unsigned type,
+void GpuProcessDispatcherDelegate::SendKeyNotify(ui::EventType type,
                                                  unsigned code,
                                                  unsigned modifiers) {
   content::ChildThread* thread = GetProcessMainThread();

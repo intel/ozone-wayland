@@ -122,7 +122,7 @@ void OzoneDisplayChannelHost::OnPointerLeave(unsigned handle,
   dispatcher_->PointerLeave(handle, x, y);
 }
 
-void OzoneDisplayChannelHost::OnKeyNotify(unsigned type,
+void OzoneDisplayChannelHost::OnKeyNotify(ui::EventType type,
                                           unsigned code,
                                           unsigned modifiers) {
   dispatcher_->KeyNotify(type, code, modifiers);

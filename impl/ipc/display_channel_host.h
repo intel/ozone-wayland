@@ -49,7 +49,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   void OnAxisNotify(float x, float y, int xoffset, int yoffset);
   void OnPointerEnter(unsigned handle, float x, float y);
   void OnPointerLeave(unsigned handle, float x, float y);
-  void OnKeyNotify(unsigned type, unsigned code, unsigned modifiers);
+  void OnKeyNotify(ui::EventType type, unsigned code, unsigned modifiers);
   void OnOutputSizeChanged(unsigned width, unsigned height);
 
   // IPC::ChannelProxy::MessageFilter implementation:

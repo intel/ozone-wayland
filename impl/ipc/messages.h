@@ -47,7 +47,7 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PointerLeave,  // NOLINT(readability/fn_size)
                      float /*y*/)
 
 IPC_MESSAGE_CONTROL3(WaylandInput_KeyNotify,  // NOLINT(readability/fn_size)
-                     unsigned /*type*/,
+                     ui::EventType /*type*/,
                      unsigned /*code*/,
                      unsigned /*modifiers*/)
 

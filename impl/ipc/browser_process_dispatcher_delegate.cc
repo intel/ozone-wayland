@@ -102,15 +102,9 @@ void BrowserProcessDispatcherDelegate::PointerLeave(unsigned handle,
           mouseev.PassAs<ui::Event>())));
 }
 
-void BrowserProcessDispatcherDelegate::KeyNotify(unsigned state,
+void BrowserProcessDispatcherDelegate::KeyNotify(ui::EventType type,
                                                  unsigned code,
                                                  unsigned modifiers) {
-  ui::EventType type;
-  if (state)
-    type = ui::ET_KEY_PRESSED;
-  else
-    type = ui::ET_KEY_RELEASED;
-
   scoped_ptr<ui::KeyEvent> keyev(new ui::KeyEvent(type,
       KeyboardCodeFromNativeKeysym(code), modifiers, true));
 
