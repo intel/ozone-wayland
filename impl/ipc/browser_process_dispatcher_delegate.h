@@ -23,8 +23,8 @@ class BrowserProcessDispatcherDelegate : public WaylandDispatcherDelegate {
 
   virtual void MotionNotify(float x, float y) OVERRIDE;
   virtual void ButtonNotify(unsigned handle,
-                            int state,
-                            int flags,
+                            ui::EventType type,
+                            ui::EventFlags flags,
                             float x,
                             float y) OVERRIDE;
   virtual void AxisNotify(float x,

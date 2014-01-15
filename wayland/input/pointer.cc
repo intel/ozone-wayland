@@ -82,14 +82,12 @@ void WaylandPointer::OnButtonNotify(void* data,
     input->SetGrabWindowHandle(input->GetFocusWindowHandle(), button);
 
   if (input->GetGrabWindowHandle()) {
-    int currentState;
-    if (state == WL_POINTER_BUTTON_STATE_PRESSED)
-      currentState = 1;
-    else
-      currentState = 0;
+    ui::EventType type = ui::ET_MOUSE_PRESSED;
+    if (state == WL_POINTER_BUTTON_STATE_RELEASED)
+      type = ui::ET_MOUSE_RELEASED;
 
     // TODO(vignatti): simultaneous clicks fail
-    int flags = 0;
+    ui::EventFlags flags = ui::EF_NONE;
     if (button == BTN_LEFT)
       flags = ui::EF_LEFT_MOUSE_BUTTON;
     else if (button == BTN_RIGHT)
@@ -98,7 +96,7 @@ void WaylandPointer::OnButtonNotify(void* data,
       flags = ui::EF_MIDDLE_MOUSE_BUTTON;
 
     device->dispatcher_->ButtonNotify(input->GetFocusWindowHandle(),
-                                      currentState,
+                                      type,
                                       flags,
                                       device->pointer_position_.x(),
                                       device->pointer_position_.y());

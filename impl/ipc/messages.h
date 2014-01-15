@@ -10,8 +10,14 @@
 #include "ipc/ipc_message_utils.h"
 #include "ipc/ipc_param_traits.h"
 #include "ipc/param_traits_macros.h"
+#include "ui/events/event_constants.h"
 
 #define IPC_MESSAGE_START LastIPCMsgStart
+
+IPC_ENUM_TRAITS_MAX_VALUE(ui::EventFlags,
+                          ui::EF_ALTGR_DOWN)
+IPC_ENUM_TRAITS_MAX_VALUE(ui::EventType,
+                          ui::ET_LAST)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
@@ -19,8 +25,8 @@ IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_CONTROL5(WaylandInput_ButtonNotify,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/,
-                     int /*state*/,
-                     int /*flags*/,
+                     ui::EventType /*type*/,
+                     ui::EventFlags /*flags*/,
                      float /*x*/,
                      float /*y*/)
 

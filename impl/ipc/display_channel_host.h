@@ -8,6 +8,7 @@
 #include <queue>
 
 #include "content/browser/gpu/gpu_process_host.h"
+#include "ui/events/event_constants.h"
 
 namespace IPC {
 class Channel;
@@ -40,7 +41,11 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
                             unsigned y,
                             unsigned type);
   void OnMotionNotify(float x, float y);
-  void OnButtonNotify(unsigned handle, int state, int flags, float x, float y);
+  void OnButtonNotify(unsigned handle,
+                      ui::EventType type,
+                      ui::EventFlags flags,
+                      float x,
+                      float y);
   void OnAxisNotify(float x, float y, int xoffset, int yoffset);
   void OnPointerEnter(unsigned handle, float x, float y);
   void OnPointerLeave(unsigned handle, float x, float y);

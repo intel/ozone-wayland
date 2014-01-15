@@ -6,6 +6,7 @@
 #define OZONE_WAYLAND_DISPATCHER_DELEGATE_H_
 
 #include "base/message_loop/message_loop.h"
+#include "ui/events/event_constants.h"
 
 namespace ozonewayland {
 
@@ -22,8 +23,8 @@ class WaylandDispatcherDelegate {
 
   virtual void MotionNotify(float x, float y) = 0;
   virtual void ButtonNotify(unsigned handle,
-                            int state,
-                            int flags,
+                            ui::EventType type,
+                            ui::EventFlags flags,
                             float x,
                             float y) = 0;
   virtual void AxisNotify(float x, float y, int xoffset, int yoffset) = 0;

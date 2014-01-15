@@ -96,11 +96,11 @@ void OzoneDisplayChannelHost::OnMotionNotify(float x, float y) {
 }
 
 void OzoneDisplayChannelHost::OnButtonNotify(unsigned handle,
-                                             int state,
-                                             int flags,
+                                             ui::EventType type,
+                                             ui::EventFlags flags,
                                              float x,
                                              float y) {
-  dispatcher_->ButtonNotify(handle, state, flags, x, y);
+  dispatcher_->ButtonNotify(handle, type, flags, x, y);
 }
 
 void OzoneDisplayChannelHost::OnAxisNotify(float x,

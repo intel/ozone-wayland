@@ -20,8 +20,8 @@ class GpuProcessDispatcherDelegate : public WaylandDispatcherDelegate {
 
   virtual void MotionNotify(float x, float y) OVERRIDE;
   virtual void ButtonNotify(unsigned handle,
-                            int state,
-                            int flags,
+                            ui::EventType type,
+                            ui::EventFlags flags,
                             float x,
                             float y) OVERRIDE;
   virtual void AxisNotify(float x,
@@ -39,8 +39,8 @@ class GpuProcessDispatcherDelegate : public WaylandDispatcherDelegate {
  private:
   static void SendMotionNotify(float x, float y);
   static void SendButtonNotify(unsigned handle,
-                               int state,
-                               int flags,
+                               ui::EventType type,
+                               ui::EventFlags flags,
                                float x,
                                float y);
   static void SendAxisNotify(float x, float y, int xoffset, int yoffset);

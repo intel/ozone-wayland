@@ -6,6 +6,7 @@
 #define OZONE_WAYLAND_DISPATCHER_H_
 
 #include "base/threading/thread.h"
+#include "ui/events/event_constants.h"
 
 namespace ozonewayland {
 class WaylandDispatcherDelegate;
@@ -32,7 +33,11 @@ class WaylandDispatcher : public base::Thread {
 
   static WaylandDispatcher* GetInstance() { return instance_; }
   void MotionNotify(float x, float y);
-  void ButtonNotify(unsigned handle, int state, int flags, float x, float y);
+  void ButtonNotify(unsigned handle,
+                    ui::EventType type,
+                    ui::EventFlags flags,
+                    float x,
+                    float y);
   void AxisNotify(float x, float y, float xoffset, float yoffset);
   void PointerEnter(unsigned handle, float x, float y);
   void PointerLeave(unsigned handle, float x, float y);

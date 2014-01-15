@@ -99,12 +99,12 @@ void WaylandDispatcher::MotionNotify(float x, float y) {
 }
 
 void WaylandDispatcher::ButtonNotify(unsigned handle,
-                                     int state,
-                                     int flags,
+                                     ui::EventType type,
+                                     ui::EventFlags flags,
                                      float x,
                                      float y) {
   DCHECK(delegate_);
-  delegate_->ButtonNotify(handle, state, flags, x, y);
+  delegate_->ButtonNotify(handle, type, flags, x, y);
 }
 
 void WaylandDispatcher::AxisNotify(float x,

@@ -32,16 +32,10 @@ void BrowserProcessDispatcherDelegate::MotionNotify(float x, float y) {
 }
 
 void BrowserProcessDispatcherDelegate::ButtonNotify(unsigned handle,
-                                                    int state,
-                                                    int flags,
+                                                    ui::EventType type,
+                                                    ui::EventFlags flags,
                                                     float x,
                                                     float y) {
-  ui::EventType type;
-  if (state == 1)
-    type = ui::ET_MOUSE_PRESSED;
-  else
-    type = ui::ET_MOUSE_RELEASED;
-
   gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(type,
                                                         position,

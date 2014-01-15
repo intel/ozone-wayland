@@ -36,13 +36,13 @@ void GpuProcessDispatcherDelegate::MotionNotify(float x, float y) {
 }
 
 void GpuProcessDispatcherDelegate::ButtonNotify(unsigned handle,
-                                                int state,
-                                                int flags,
+                                                ui::EventType type,
+                                                ui::EventFlags flags,
                                                 float x,
                                                 float y) {
   PostTaskOnMainLoop(base::Bind(&GpuProcessDispatcherDelegate::SendButtonNotify,
                                 handle,
-                                state,
+                                type,
                                 flags,
                                 x,
                                 y));
@@ -98,12 +98,12 @@ void GpuProcessDispatcherDelegate::SendMotionNotify(float x, float y) {
 }
 
 void GpuProcessDispatcherDelegate::SendButtonNotify(unsigned handle,
-                                                    int state,
-                                                    int flags,
+                                                    ui::EventType type,
+                                                    ui::EventFlags flags,
                                                     float x,
                                                     float y) {
   content::ChildThread* thread = GetProcessMainThread();
-  thread->Send(new WaylandInput_ButtonNotify(handle, state, flags, x, y));
+  thread->Send(new WaylandInput_ButtonNotify(handle, type, flags, x, y));
 }
 
 void GpuProcessDispatcherDelegate::SendAxisNotify(float x,
