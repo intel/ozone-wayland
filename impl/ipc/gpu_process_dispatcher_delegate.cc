@@ -50,8 +50,8 @@ void GpuProcessDispatcherDelegate::ButtonNotify(unsigned handle,
 
 void GpuProcessDispatcherDelegate::AxisNotify(float x,
                                               float y,
-                                              float xoffset,
-                                              float yoffset) {
+                                              int xoffset,
+                                              int yoffset) {
   PostTaskOnMainLoop(base::Bind(&GpuProcessDispatcherDelegate::SendAxisNotify,
                                 x,
                                 y,
@@ -108,8 +108,8 @@ void GpuProcessDispatcherDelegate::SendButtonNotify(unsigned handle,
 
 void GpuProcessDispatcherDelegate::SendAxisNotify(float x,
                                                   float y,
-                                                  float xoffset,
-                                                  float yoffset) {
+                                                  int xoffset,
+                                                  int yoffset) {
   content::ChildThread* thread = GetProcessMainThread();
   thread->Send(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
 }

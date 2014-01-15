@@ -29,8 +29,8 @@ class BrowserProcessDispatcherDelegate : public WaylandDispatcherDelegate {
                             float y) OVERRIDE;
   virtual void AxisNotify(float x,
                           float y,
-                          float xoffset,
-                          float yoffset) OVERRIDE;
+                          int xoffset,
+                          int yoffset) OVERRIDE;
   virtual void PointerEnter(unsigned handle, float x, float y) OVERRIDE;
   virtual void PointerLeave(unsigned handle, float x, float y) OVERRIDE;
   virtual void KeyNotify(unsigned type,

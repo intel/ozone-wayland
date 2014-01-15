@@ -59,8 +59,8 @@ void BrowserProcessDispatcherDelegate::ButtonNotify(unsigned handle,
 
 void BrowserProcessDispatcherDelegate::AxisNotify(float x,
                                                   float y,
-                                                  float xoffset,
-                                                  float yoffset) {
+                                                  int xoffset,
+                                                  int yoffset) {
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
 

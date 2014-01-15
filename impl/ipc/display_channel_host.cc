@@ -105,8 +105,8 @@ void OzoneDisplayChannelHost::OnButtonNotify(unsigned handle,
 
 void OzoneDisplayChannelHost::OnAxisNotify(float x,
                                            float y,
-                                           float xoffset,
-                                           float yoffset) {
+                                           int xoffset,
+                                           int yoffset) {
   dispatcher_->AxisNotify(x, y, xoffset, yoffset);
 }
 

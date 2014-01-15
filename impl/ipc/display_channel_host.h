@@ -41,7 +41,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
                             unsigned type);
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle, int state, int flags, float x, float y);
-  void OnAxisNotify(float x, float y, float xoffset, float yoffset);
+  void OnAxisNotify(float x, float y, int xoffset, int yoffset);
   void OnPointerEnter(unsigned handle, float x, float y);
   void OnPointerLeave(unsigned handle, float x, float y);
   void OnKeyNotify(unsigned type, unsigned code, unsigned modifiers);

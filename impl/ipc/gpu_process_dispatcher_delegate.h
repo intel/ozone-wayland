@@ -26,8 +26,8 @@ class GpuProcessDispatcherDelegate : public WaylandDispatcherDelegate {
                             float y) OVERRIDE;
   virtual void AxisNotify(float x,
                           float y,
-                          float xoffset,
-                          float yoffset) OVERRIDE;
+                          int xoffset,
+                          int yoffset) OVERRIDE;
   virtual void PointerEnter(unsigned handle, float x, float y) OVERRIDE;
   virtual void PointerLeave(unsigned handle, float x, float y) OVERRIDE;
   virtual void KeyNotify(unsigned type,
@@ -43,7 +43,7 @@ class GpuProcessDispatcherDelegate : public WaylandDispatcherDelegate {
                                int flags,
                                float x,
                                float y);
-  static void SendAxisNotify(float x, float y, float xoffset, float yoffset);
+  static void SendAxisNotify(float x, float y, int xoffset, int yoffset);
   static void SendPointerEnter(unsigned handle, float x, float y);
   static void SendPointerLeave(unsigned handle, float x, float y);
   static void SendKeyNotify(unsigned type, unsigned code, unsigned modifiers);

@@ -26,7 +26,7 @@ class WaylandDispatcherDelegate {
                             int flags,
                             float x,
                             float y) = 0;
-  virtual void AxisNotify(float x, float y, float xoffset, float yoffset) = 0;
+  virtual void AxisNotify(float x, float y, int xoffset, int yoffset) = 0;
   virtual void PointerEnter(unsigned handle, float x, float y) = 0;
   virtual void PointerLeave(unsigned handle, float x, float y) = 0;
   virtual void KeyNotify(unsigned type, unsigned code, unsigned modifiers) = 0;

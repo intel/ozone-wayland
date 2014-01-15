@@ -27,8 +27,8 @@ IPC_MESSAGE_CONTROL5(WaylandInput_ButtonNotify,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL4(WaylandInput_AxisNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
                      float /*y*/,
-                     float /*x_offset*/,
-                     float /*y_offset*/)
+                     int /*x_offset*/,
+                     int /*y_offset*/)
 
 IPC_MESSAGE_CONTROL3(WaylandInput_PointerEnter,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/,
