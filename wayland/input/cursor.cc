@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "base/logging.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -67,6 +68,7 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm)
 
   // (kalyan) We should be able to configure the size of cursor and theme name.
   cursor_theme_ = wl_cursor_theme_load(NULL, 24, shm);
+  DCHECK(cursor_theme_);
 
   for (unsigned i = 0; i < TotalCursorTypes; i++)
     cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
@@ -81,10 +83,7 @@ struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index) {
 }
 
 WaylandCursorData::~WaylandCursorData() {
-  if (cursor_theme_) {
-    wl_cursor_theme_destroy(cursor_theme_);
-    cursor_theme_ = NULL;
-  }
+  wl_cursor_theme_destroy(cursor_theme_);
 
   if (!cursors_.empty())
     cursors_.clear();
@@ -96,10 +95,7 @@ WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
 }
 
 WaylandCursor::~WaylandCursor() {
-  if (pointer_surface_) {
-    delete pointer_surface_;
-    pointer_surface_ = NULL;
-  }
+  delete pointer_surface_;
 }
 
 void WaylandCursor::Clear() {

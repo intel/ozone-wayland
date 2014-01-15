@@ -15,13 +15,10 @@ WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
 }
 
 WaylandKeyboard::~WaylandKeyboard() {
-  if (backend_)
-    delete backend_;
+  delete backend_;
 
-  if (input_keyboard_) {
+  if (input_keyboard_)
     wl_keyboard_destroy(input_keyboard_);
-    input_keyboard_ = NULL;
-  }
 }
 
 void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {

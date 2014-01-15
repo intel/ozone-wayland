@@ -5,6 +5,7 @@
 
 #include "ozone/wayland/input_device.h"
 
+#include "base/logging.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/input/pointer.h"
@@ -25,19 +26,15 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
 
   input_seat_ = static_cast<wl_seat*>(
       wl_registry_bind(display->registry(), id, &wl_seat_interface, 1));
+  DCHECK(input_seat_);
   wl_seat_add_listener(input_seat_, &kInputSeatListener, this);
   wl_seat_set_user_data(input_seat_, this);
 }
 
 WaylandInputDevice::~WaylandInputDevice() {
-  if (input_keyboard_)
-    delete input_keyboard_;
-
-  if (input_pointer_)
-    delete input_pointer_;
-
-  if (input_seat_)
-    wl_seat_destroy(input_seat_);
+  delete input_keyboard_;
+  delete input_pointer_;
+  wl_seat_destroy(input_seat_);
 }
 
 void WaylandInputDevice::OnSeatCapabilities(void *data,

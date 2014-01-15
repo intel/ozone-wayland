@@ -420,35 +420,14 @@ void OzoneDisplay::Terminate() {
     return;
 
   state_ &= ~Initialized;
-  if (spec_) {
+  if (spec_)
     delete[] spec_;
-    spec_ = NULL;
-  }
 
-  if (channel_) {
-    delete channel_;
-    channel_ = NULL;
-  }
-
-  if (child_process_observer_) {
-    delete child_process_observer_;
-    child_process_observer_ = NULL;
-  }
-
-  if (dispatcher_) {
-    delete dispatcher_;
-    dispatcher_ = NULL;
-  }
-
-  if (desktop_screen_) {
-    delete desktop_screen_;
-    desktop_screen_ = NULL;
-  }
-
-  if (display_) {
-    delete display_;
-    display_ = NULL;
-  }
+  delete channel_;
+  delete child_process_observer_;
+  delete dispatcher_;
+  delete desktop_screen_;
+  delete display_;
 }
 
 void OzoneDisplay::InitializeDispatcher(int fd) {

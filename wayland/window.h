@@ -48,7 +48,7 @@ class WaylandWindow {
 
   ShellType Type() const { return type_; }
   unsigned Handle() const { return handle_; }
-  WaylandShellSurface *ShellSurface() const { return shell_surface_; }
+  WaylandShellSurface* ShellSurface() const { return shell_surface_; }
 
   void RealizeAcceleratedWidget();
   void HandleSwapBuffers();

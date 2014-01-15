@@ -21,10 +21,7 @@ WaylandPointer::WaylandPointer()
 }
 
 WaylandPointer::~WaylandPointer() {
-  if (cursor_) {
-    delete cursor_;
-    cursor_ = NULL;
-  }
+  delete cursor_;
 }
 
 void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {

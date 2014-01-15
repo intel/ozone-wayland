@@ -31,8 +31,7 @@ OzoneDisplayChannel::OzoneDisplayChannel() {
 
 OzoneDisplayChannel::~OzoneDisplayChannel() {
   content::ChildThread* thread = GetProcessMainThread();
-  if (thread)
-    thread->RemoveRoute(WAYLAND_ROUTE_ID);
+  thread->RemoveRoute(WAYLAND_ROUTE_ID);
 }
 
 bool OzoneDisplayChannel::OnMessageReceived(

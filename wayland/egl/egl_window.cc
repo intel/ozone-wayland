@@ -17,8 +17,7 @@ EGLWindow::EGLWindow(struct wl_surface* surface, int32_t width, int32_t height)
 }
 
 EGLWindow::~EGLWindow() {
-  if (window_)
-    wl_egl_window_destroy(window_);
+  wl_egl_window_destroy(window_);
 }
 
 bool EGLWindow::Resize(WaylandSurface* surface, int32_t width, int32_t height) {

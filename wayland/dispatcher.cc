@@ -81,8 +81,7 @@ WaylandDispatcher::WaylandDispatcher(int fd)
 
 WaylandDispatcher::~WaylandDispatcher() {
   active_ = false;
-  if (delegate_)
-    delete delegate_;
+  delete delegate_;
 
   Stop();
 

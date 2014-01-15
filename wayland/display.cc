@@ -72,7 +72,7 @@ WaylandDisplay::~WaylandDisplay() {
 }
 
 void WaylandDisplay::terminate() {
-  if (widget_map_.size()) {
+  if (!widget_map_.empty()) {
     STLDeleteValues(&widget_map_);
     widget_map_.clear();
   }

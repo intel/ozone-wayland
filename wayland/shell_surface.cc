@@ -17,37 +17,28 @@ WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
     : surface_(NULL),
       shell_surface_(NULL) {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
-  if (!display)
-      return;
+  DCHECK(display && display->shell());
 
   surface_ = new WaylandSurface();
-  if (display->shell())
-    shell_surface_ = wl_shell_get_shell_surface(display->shell(),
-                                                surface_->wlSurface());
+  shell_surface_ = wl_shell_get_shell_surface(display->shell(),
+                                              surface_->wlSurface());
 
-  if (shell_surface_) {
-    static const wl_shell_surface_listener shell_surface_listener = {
-      WaylandShellSurface::HandlePing,
-      WaylandShellSurface::HandleConfigure,
-      WaylandShellSurface::HandlePopupDone
-    };
+  static const wl_shell_surface_listener shell_surface_listener = {
+    WaylandShellSurface::HandlePing,
+    WaylandShellSurface::HandleConfigure,
+    WaylandShellSurface::HandlePopupDone
+  };
 
-    wl_shell_surface_add_listener(shell_surface_,
-                                  &shell_surface_listener,
-                                  window);
-  }
+  wl_shell_surface_add_listener(shell_surface_,
+                                &shell_surface_listener,
+                                window);
+
+  DCHECK(shell_surface_);
 }
 
 WaylandShellSurface::~WaylandShellSurface() {
-  if (shell_surface_) {
-    wl_shell_surface_destroy(shell_surface_);
-    shell_surface_ = NULL;
-  }
-
-  if (surface_) {
-    delete surface_;
-    surface_ = NULL;
-  }
+  wl_shell_surface_destroy(shell_surface_);
+  delete surface_;
 }
 
 void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,

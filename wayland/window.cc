@@ -23,15 +23,8 @@ WaylandWindow::WaylandWindow(unsigned handle) : shell_surface_(NULL),
 
 WaylandWindow::~WaylandWindow() {
   wl_surface_set_user_data(GetSurface(), 0);
-  if (window_) {
-    delete window_;
-    window_ = NULL;
-  }
-
-  if (shell_surface_) {
-    delete shell_surface_;
-    shell_surface_ = NULL;
-  }
+  delete window_;
+  delete shell_surface_;
 }
 
 void WaylandWindow::SetShellAttributes(ShellType type) {
@@ -105,11 +98,13 @@ void WaylandWindow::HandleSwapBuffers() {
 }
 
 wl_egl_window* WaylandWindow::egl_window() const {
-  return window_ ? window_->egl_window() : 0;
+  DCHECK(window_);
+  return window_->egl_window();
 }
 
 struct wl_surface* WaylandWindow::GetSurface() const {
-  return shell_surface_ ? shell_surface_->Surface()->wlSurface() : 0;
+  DCHECK(shell_surface_);
+  return shell_surface_->Surface()->wlSurface();
 }
 
 bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds) {
@@ -117,7 +112,7 @@ bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds) {
   int height = new_bounds.height();
   allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);
   if (!shell_surface_ || !window_)
-      return false;
+    return false;
 
   return window_->Resize(shell_surface_->Surface(), width, height);
 }

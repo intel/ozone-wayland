@@ -24,11 +24,11 @@ WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
   output_ = static_cast<wl_output*>(
       wl_registry_bind(display->registry(), id, &wl_output_interface, 1));
   wl_output_add_listener(output_, &kOutputListener, this);
+  DCHECK(output_);
 }
 
 WaylandScreen::~WaylandScreen() {
-  if (output_)
-    wl_output_destroy(output_);
+  wl_output_destroy(output_);
 }
 
 // static
