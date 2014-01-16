@@ -58,8 +58,6 @@
         'display.h',
         'dispatcher.cc',
         'dispatcher.h',
-        'dispatcher_delegate.cc',
-        'dispatcher_delegate.h',
         'input_device.cc',
         'input_device.h',
         'screen.cc',
