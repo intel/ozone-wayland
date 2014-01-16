@@ -32,7 +32,7 @@ class WaylandCursor {
   };
 
   explicit WaylandCursor(wl_shm* shm);
-  virtual ~WaylandCursor();
+  ~WaylandCursor();
 
   // Destroys CursorData. WaylandDisplay is responsible for calling this as
   // needed. No other class should call this.

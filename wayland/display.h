@@ -69,7 +69,7 @@ class WaylandDisplay {
   };
 
   explicit WaylandDisplay(RegistrationType type);
-  virtual ~WaylandDisplay();
+  ~WaylandDisplay();
   void terminate();
   void SyncDisplay();
   // This handler resolves all server events used in initialization. It also
