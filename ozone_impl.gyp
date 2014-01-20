@@ -31,8 +31,6 @@
         'impl/desktop_drag_drop_client_wayland.h',
         'impl/desktop_screen_wayland.cc',
         'impl/desktop_screen_wayland.h',
-        'impl/event_factory_wayland.cc',
-        'impl/event_factory_wayland.h',
         'impl/fullscreen_wayland.cc',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
