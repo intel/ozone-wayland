@@ -12,7 +12,6 @@
 #include <wayland-client.h>
 
 #include "base/bind.h"
-#include "ozone/wayland/dispatcher_delegate.h"
 #include "ozone/wayland/display.h"
 
 namespace ozonewayland {
@@ -60,10 +59,9 @@ int osEpollCreateCloExec(void) {
 
 WaylandDispatcher::WaylandDispatcher(int fd)
     : Thread("WaylandDispatcher"),
-      active_(false),
+      active_(true),
       epoll_fd_(0),
-      display_fd_(fd),
-      delegate_(NULL) {
+      display_fd_(fd) {
   instance_ = this;
   if (display_fd_) {
     epoll_fd_ = osEpollCreateCloExec();
@@ -81,7 +79,6 @@ WaylandDispatcher::WaylandDispatcher(int fd)
 
 WaylandDispatcher::~WaylandDispatcher() {
   active_ = false;
-  delete delegate_;
 
   Stop();
 
@@ -93,55 +90,9 @@ WaylandDispatcher::~WaylandDispatcher() {
   instance_ = NULL;
 }
 
-void WaylandDispatcher::MotionNotify(float x, float y) {
-  DCHECK(delegate_);
-  delegate_->MotionNotify(x, y);
-}
-
-void WaylandDispatcher::ButtonNotify(unsigned handle,
-                                     ui::EventType type,
-                                     ui::EventFlags flags,
-                                     float x,
-                                     float y) {
-  DCHECK(delegate_);
-  delegate_->ButtonNotify(handle, type, flags, x, y);
-}
-
-void WaylandDispatcher::AxisNotify(float x,
-                                   float y,
-                                   float xoffset,
-                                   float yoffset) {
-  DCHECK(delegate_);
-  delegate_->AxisNotify(x, y, xoffset, yoffset);
-}
-
-void WaylandDispatcher::PointerEnter(unsigned handle, float x, float y) {
-  DCHECK(delegate_);
-  delegate_->PointerEnter(handle, x, y);
-}
-
-void WaylandDispatcher::PointerLeave(unsigned handle, float x, float y) {
-  DCHECK(delegate_);
-  delegate_->PointerLeave(handle, x, y);
-}
-
-void WaylandDispatcher::KeyNotify(ui::EventType type,
-                                  unsigned code,
-                                  unsigned modifiers) {
-  DCHECK(delegate_);
-  delegate_->KeyNotify(type, code, modifiers);
-}
-
-void WaylandDispatcher::OutputSizeChanged(unsigned width, unsigned height) {
-  DCHECK(delegate_);
-  delegate_->OutputSizeChanged(width, height);
-}
-
 void WaylandDispatcher::PostTask(Task type) {
   if (!IsRunning() || !active_)
     return;
-
-  DCHECK(delegate_);
 
   switch (type) {
     case(Flush):
@@ -155,23 +106,6 @@ void WaylandDispatcher::PostTask(Task type) {
   default:
     break;
   }
-}
-
-void WaylandDispatcher::SetWindowChangeObserver(
-    WindowChangeObserver* observer) {
-  DCHECK(delegate_);
-  delegate_->SetWindowChangeObserver(observer);
-}
-
-void WaylandDispatcher::SetDelegate(WaylandDispatcherDelegate* delegate) {
-  delegate_ = delegate;
-  SetActive(true);
-}
-
-void WaylandDispatcher::SetActive(bool active) {
-  DCHECK(delegate_);
-  active_ = active;
-  delegate_->SetActive(active);
 }
 
 void WaylandDispatcher::HandleFlush() {

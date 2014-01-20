@@ -6,19 +6,14 @@
 #define OZONE_WAYLAND_DISPATCHER_H_
 
 #include "base/threading/thread.h"
-#include "ui/events/event_constants.h"
 
 namespace ozonewayland {
-class WaylandDispatcherDelegate;
 class WindowChangeObserver;
 
 // WaylandDispatcher class is used by OzoneDisplay for reading pending events
 // coming from Wayland compositor and flush requests back. WaylandDispatcher is
 // performed entirely in a separate IO thread and it can use polling as needed
 // for the operations.
-
-// WaylandDispatcher uses WaylandDispatcherDelegate to dispatch messages
-// appropriately.
 
 class WaylandDispatcher : public base::Thread {
  public:
@@ -32,32 +27,15 @@ class WaylandDispatcher : public base::Thread {
   virtual ~WaylandDispatcher();
 
   static WaylandDispatcher* GetInstance() { return instance_; }
-  void MotionNotify(float x, float y);
-  void ButtonNotify(unsigned handle,
-                    ui::EventType type,
-                    ui::EventFlags flags,
-                    float x,
-                    float y);
-  void AxisNotify(float x, float y, float xoffset, float yoffset);
-  void PointerEnter(unsigned handle, float x, float y);
-  void PointerLeave(unsigned handle, float x, float y);
-  void KeyNotify(ui::EventType type, unsigned code, unsigned modifiers);
-  void OutputSizeChanged(unsigned width, unsigned height);
 
   // Posts task to worker thread.
   void PostTask(Task type = Flush);
-
-  void SetWindowChangeObserver(WindowChangeObserver* observer);
-  void SetDelegate(WaylandDispatcherDelegate* delegate);
-  void SetActive(bool active);
-
  private:
   static void HandleFlush();
   static void DisplayRun(WaylandDispatcher* data);
   bool active_ :1;
   int epoll_fd_;
   int display_fd_;
-  WaylandDispatcherDelegate* delegate_;
   static WaylandDispatcher* instance_;
   DISALLOW_COPY_AND_ASSIGN(WaylandDispatcher);
 };
