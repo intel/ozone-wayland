@@ -4,8 +4,8 @@
 
 #include "ozone/wayland/input/keyboard.h"
 
+#include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/ime/keyboard_engine_xkb.h"
-#include "ozone/wayland/dispatcher.h"
 
 namespace ozonewayland {
 
@@ -30,7 +30,7 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
     WaylandKeyboard::OnKeyModifiers,
   };
 
-  dispatcher_ = WaylandDispatcher::GetInstance();
+  dispatcher_ = EventConverterOzoneWayland::GetInstance();
 
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
     DCHECK(!backend_);

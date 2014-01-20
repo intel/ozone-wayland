@@ -10,8 +10,8 @@
 
 namespace ozonewayland {
 
+class EventConverterOzoneWayland;
 class WaylandCursor;
-class WaylandDispatcher;
 class WaylandWindow;
 
 class WaylandPointer {
@@ -60,7 +60,7 @@ class WaylandPointer {
       wl_surface* surface);
 
   WaylandCursor* cursor_;
-  WaylandDispatcher* dispatcher_;
+  EventConverterOzoneWayland* dispatcher_;
   // Keeps track of the last position for the motion event. We want to
   // dispatch this with events such as wheel or button which don't have a
   // position associated on Wayland.

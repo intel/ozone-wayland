@@ -11,8 +11,8 @@
 
 namespace ozonewayland {
 
+class EventConverterOzoneWayland;
 class KeyboardEngineXKB;
-class WaylandDispatcher;
 
 class WaylandKeyboard {
  public:
@@ -55,7 +55,7 @@ class WaylandKeyboard {
                              uint32_t group);
 
   wl_keyboard* input_keyboard_;
-  WaylandDispatcher* dispatcher_;
+  EventConverterOzoneWayland* dispatcher_;
   KeyboardEngineXKB* backend_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandKeyboard);

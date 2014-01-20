@@ -8,7 +8,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "ozone/impl/ipc/messages.h"
 #include "ozone/impl/ozone_display.h"
-#include "ozone/wayland/dispatcher.h"
+#include "ozone/ui/events/event_converter_ozone_wayland.h"
 
 namespace ozonewayland {
 
@@ -17,7 +17,7 @@ namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : IPC::ChannelProxy::MessageFilter(),
-      dispatcher_(WaylandDispatcher::GetInstance()),
+      dispatcher_(EventConverterOzoneWayland::GetInstance()),
       channel_(NULL),
       deferred_messages_() {
 }

@@ -16,7 +16,7 @@ class Channel;
 
 namespace ozonewayland {
 
-class WaylandDispatcher;
+class EventConverterOzoneWayland;
 
 // OzoneDisplayChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
@@ -63,7 +63,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
   virtual ~OzoneDisplayChannelHost();
   void OnChannelEstablished();
   void UpdateConnection();
-  WaylandDispatcher* dispatcher_;
+  EventConverterOzoneWayland* dispatcher_;
   IPC::Channel* channel_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.

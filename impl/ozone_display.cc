@@ -11,11 +11,11 @@
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/event_factory_wayland.h"
-#include "ozone/impl/ipc/browser_process_dispatcher_delegate.h"
 #include "ozone/impl/ipc/child_process_observer.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
-#include "ozone/impl/ipc/gpu_process_dispatcher_delegate.h"
+#include "ozone/ui/events/event_converter_in_process.h"
+#include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
@@ -41,6 +41,7 @@ OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     channel_(NULL),
     host_(NULL),
     e_factory_(NULL),
+    event_converter_(NULL),
     spec_(NULL) {
   instance_ = this;
 }
@@ -104,8 +105,8 @@ void OzoneDisplay::ShutdownHardware() {
 
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
-  // Ensure dispatcher is initialized.
-  if (!dispatcher_)
+  // Ensure Event Converter is initialized.
+  if (!event_converter_)
     InitializeDispatcher();
 
   opaque_handle++;
@@ -116,9 +117,9 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
-  // Dispatcher should be already initialized unless we are in gpu process side.
-  // Initialize dispatcher and start polling for wayland events.
-  if (!dispatcher_)
+  // Event Converter should be already initialized unless we are in gpu process
+  // side.
+  if (!event_converter_)
     InitializeDispatcher(display_->GetDisplayFd());
 
   WaylandWindow* widget = GetWidget(w);
@@ -200,8 +201,10 @@ const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
 }
 
 void OzoneDisplay::WillDestroyCurrentMessageLoop() {
+  if (!child_process_observer_ && !e_factory_)
+    return;
+
   DCHECK(base::MessageLoop::current());
-  dispatcher_->SetActive(false);
 
   if (child_process_observer_)
     child_process_observer_->WillDestroyCurrentMessageLoop();
@@ -284,12 +287,8 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       const std::map<unsigned, WaylandWindow*> widget_map =
           display_->GetWindowList();
 
-      if (widget_map.empty()) {
-        if (e_factory_)
-          WillDestroyCurrentMessageLoop();
-        else
-          dispatcher_->SetActive(false);
-      }
+      if (widget_map.empty())
+        WillDestroyCurrentMessageLoop();
       break;
     }
     default:
@@ -358,8 +357,8 @@ void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
 }
 
 void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer) {
-  DCHECK(dispatcher_);
-  dispatcher_->SetWindowChangeObserver(observer);
+  DCHECK(event_converter_);
+  event_converter_->SetWindowChangeObserver(observer);
 }
 
 void OzoneDisplay::EstablishChannel() {
@@ -399,7 +398,7 @@ void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
   }
 
   if (channel_ && (state_ & ChannelConnected))
-    dispatcher_->OutputSizeChanged(width, height);
+    event_converter_->OutputSizeChanged(width, height);
   else
     OnOutputSizeChanged(width, height);
 }
@@ -434,20 +433,23 @@ void OzoneDisplay::Terminate() {
   delete dispatcher_;
   delete desktop_screen_;
   delete display_;
+  delete event_converter_;
 }
 
 void OzoneDisplay::InitializeDispatcher(int fd) {
+  DCHECK(base::MessageLoop::current() && !event_converter_);
   dispatcher_ = new WaylandDispatcher(fd);
-  DCHECK(base::MessageLoop::current());
 
   if (fd) {
-    dispatcher_->SetDelegate(new GpuProcessDispatcherDelegate());
+    // Start polling for wayland events.
     dispatcher_->PostTask(WaylandDispatcher::Poll);
+    event_converter_ = new RemoteEventDispatcher();
   } else {
-    dispatcher_->SetDelegate(new BrowserProcessDispatcherDelegate());
+    event_converter_ = new EventConverterInProcess();
     spec_ = new char[kMaxDisplaySize_];
     spec_[0] = '\0';
     base::MessageLoop::current()->AddDestructionObserver(this);
+
 
     if (display_) {
       e_factory_ = new EventFactoryWayland();

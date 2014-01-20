@@ -14,6 +14,7 @@ namespace ozonewayland {
 
 class DesktopScreenWayland;
 class EventFactoryWayland;
+class EventConverterOzoneWayland;
 class OzoneProcessObserver;
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
@@ -156,6 +157,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;
   EventFactoryWayland* e_factory_;
+  EventConverterOzoneWayland* event_converter_;
   char* spec_;
   static OzoneDisplay* instance_;
 
