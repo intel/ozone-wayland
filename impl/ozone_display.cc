@@ -10,7 +10,6 @@
 #include "base/native_library.h"
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
-#include "ozone/impl/event_factory_wayland.h"
 #include "ozone/impl/ipc/child_process_observer.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
@@ -40,7 +39,6 @@ OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     child_process_observer_(NULL),
     channel_(NULL),
     host_(NULL),
-    e_factory_(NULL),
     event_converter_(NULL),
     spec_(NULL) {
   instance_ = this;
@@ -201,16 +199,13 @@ const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
 }
 
 void OzoneDisplay::WillDestroyCurrentMessageLoop() {
-  if (!child_process_observer_ && !e_factory_)
+  if (!child_process_observer_)
     return;
 
   DCHECK(base::MessageLoop::current());
 
   if (child_process_observer_)
     child_process_observer_->WillDestroyCurrentMessageLoop();
-
-  if (e_factory_)
-    e_factory_->WillDestroyCurrentMessageLoop();
 
   base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
@@ -438,25 +433,23 @@ void OzoneDisplay::Terminate() {
 
 void OzoneDisplay::InitializeDispatcher(int fd) {
   DCHECK(base::MessageLoop::current() && !event_converter_);
-  dispatcher_ = new WaylandDispatcher(fd);
-
   if (fd) {
-    // Start polling for wayland events.
-    dispatcher_->PostTask(WaylandDispatcher::Poll);
     event_converter_ = new RemoteEventDispatcher();
   } else {
     event_converter_ = new EventConverterInProcess();
     spec_ = new char[kMaxDisplaySize_];
     spec_[0] = '\0';
     base::MessageLoop::current()->AddDestructionObserver(this);
+  }
 
 
-    if (display_) {
-      e_factory_ = new EventFactoryWayland();
-    } else {
-      child_process_observer_ = new OzoneProcessObserver(this);
-      EstablishChannel();
-    }
+  if (display_) {
+    // Start polling for wayland events.
+    dispatcher_ = new WaylandDispatcher(display_->GetDisplayFd());
+    dispatcher_->PostTask(WaylandDispatcher::Poll);
+  } else {
+    child_process_observer_ = new OzoneProcessObserver(this);
+    EstablishChannel();
   }
 }
 
