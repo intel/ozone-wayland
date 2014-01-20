@@ -6,6 +6,7 @@
 #include "ozone/wayland/display.h"
 
 #include "base/stl_util.h"
+#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
@@ -33,6 +34,12 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
   widget_map_.erase(w);
 }
 
+void WaylandDisplay::StartProcessingEvents() {
+  DCHECK(dispatcher_);
+  // Start polling for wayland events.
+  dispatcher_->PostTask(WaylandDispatcher::Poll);
+}
+
 WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     registry_(NULL),
     compositor_(NULL),
@@ -40,13 +47,14 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     shm_(NULL),
     primary_screen_(NULL),
     primary_input_(NULL),
+    dispatcher_(NULL),
     screen_list_(),
     input_list_(),
     widget_map_(),
     serial_(0) {
   display_ = wl_display_connect(NULL);
   if (!display_)
-      return;
+    return;
 
   instance_ = this;
   static const struct wl_registry_listener registry_all = {
@@ -65,6 +73,8 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
 
   if (wl_display_roundtrip(display_) < 0)
     terminate();
+  else if (type == RegisterAsNeeded)
+    dispatcher_ = new WaylandDispatcher(wl_display_get_fd(display_));
 }
 
 WaylandDisplay::~WaylandDisplay() {
@@ -103,6 +113,8 @@ void WaylandDisplay::terminate() {
 
   if (registry_)
     wl_registry_destroy(registry_);
+
+  delete dispatcher_;
 
   if (display_) {
     wl_display_flush(display_);

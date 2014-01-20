@@ -15,7 +15,6 @@
 #include "ozone/impl/ipc/display_channel_host.h"
 #include "ozone/ui/events/event_converter_in_process.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
-#include "ozone/wayland/dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
 #include "ozone/wayland/screen.h"
@@ -34,7 +33,6 @@ OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
     kMaxDisplaySize_(20),
     desktop_screen_(NULL),
-    dispatcher_(NULL),
     display_(NULL),
     child_process_observer_(NULL),
     channel_(NULL),
@@ -425,7 +423,6 @@ void OzoneDisplay::Terminate() {
 
   delete channel_;
   delete child_process_observer_;
-  delete dispatcher_;
   delete desktop_screen_;
   delete display_;
   delete event_converter_;
@@ -444,9 +441,7 @@ void OzoneDisplay::InitializeDispatcher(int fd) {
 
 
   if (display_) {
-    // Start polling for wayland events.
-    dispatcher_ = new WaylandDispatcher(display_->GetDisplayFd());
-    dispatcher_->PostTask(WaylandDispatcher::Poll);
+    display_->StartProcessingEvents();
   } else {
     child_process_observer_ = new OzoneProcessObserver(this);
     EstablishChannel();

@@ -19,7 +19,6 @@ class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
 class WaylandDisplay;
 class WaylandWindow;
-class WaylandDispatcher;
 class WaylandScreen;
 class WindowChangeObserver;
 
@@ -150,7 +149,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   const int kMaxDisplaySize_;
 
   DesktopScreenWayland* desktop_screen_;
-  WaylandDispatcher* dispatcher_;
   WaylandDisplay* display_;
   OzoneProcessObserver* child_process_observer_;
   OzoneDisplayChannel* channel_;
