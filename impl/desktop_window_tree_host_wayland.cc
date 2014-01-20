@@ -80,7 +80,6 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
 }
 
 DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
-  DestroyCompositor();
   root_window_->window()->ClearProperty(kHostForRootWindow);
   desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(root_window_);
 }
@@ -287,6 +286,10 @@ void DesktopWindowTreeHostWayland::CloseNow() {
     window_parent_->window_children_.erase(this);
 
   g_delegate_ozone_wayland_->OnRootWindowClosed(widgetId);
+  // Destroy the compositor before destroying the window since shutdown
+  // may try to swap, and the swap without a window causes an error, which
+  // causes a crash with in-process renderer.
+  DestroyCompositor();
   window_parent_ = NULL;
   if (!g_delegate_ozone_wayland_->GetActiveWindow()) {
     // We have no open windows, free g_delegate_ozone_wayland_.

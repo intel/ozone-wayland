@@ -130,6 +130,12 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 bool OzoneDisplay::LoadEGLGLES2Bindings(
     gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
     gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback setprocaddress) {
+  // The variable EGL_PLATFORM specifies native platform to be used by the
+  // drivers (atleast on Mesa). When the variable is not set, Mesa uses the
+  // first platform listed in --with-egl-platforms during compilation. Thus, we
+  // ensure here that wayland is set as the native platform. However, we don't
+  // override the EGL_PLATFORM value in case it has already been set.
+  setenv("EGL_PLATFORM", "wayland", 0);
   std::string error;
   base::NativeLibrary gles_library = base::LoadNativeLibrary(
     base::FilePath("libGLESv2.so.2"), &error);

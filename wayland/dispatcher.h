@@ -28,7 +28,7 @@ class WaylandDispatcher : public base::Thread {
   };
 
   explicit WaylandDispatcher(int fd = 0);
-  ~WaylandDispatcher();
+  virtual ~WaylandDispatcher();
 
   static WaylandDispatcher* GetInstance() { return instance_; }
   void MotionNotify(float x, float y);

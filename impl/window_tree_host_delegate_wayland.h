@@ -21,7 +21,7 @@ class DesktopWindowTreeHostWayland;
 // A static class used by DesktopWindowTreeHostWayland to dispatch native events
 // and basic window management.
 class WindowTreeHostDelegateWayland
-    : public base::MessageLoop::Dispatcher,
+    : public base::MessagePumpDispatcher,
       public WindowChangeObserver {
  public:
   WindowTreeHostDelegateWayland();

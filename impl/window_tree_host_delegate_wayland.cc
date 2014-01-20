@@ -153,7 +153,7 @@ WindowTreeHostDelegateWayland::open_windows() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// WindowTreeHostDelegateWayland, MessageLoop::Dispatcher implementation:
+// WindowTreeHostDelegateWayland, MessagePumpDispatcher implementation:
 bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
   ui::EventType type = ui::EventTypeFromNative(ne);
   DCHECK(current_dispatcher_);
