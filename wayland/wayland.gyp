@@ -56,8 +56,8 @@
       'sources': [
         'display.cc',
         'display.h',
-        'dispatcher.cc',
-        'dispatcher.h',
+        'display_poll_thread.cc',
+        'display_poll_thread.h',
         'input_device.cc',
         'input_device.h',
         'screen.cc',

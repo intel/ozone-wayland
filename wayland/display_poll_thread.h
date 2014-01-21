@@ -9,10 +9,10 @@ namespace ozonewayland {
 // read any pending events coming from Wayland compositor and flush requests
 // back. Caller should ensure that StopProcessingEvents is called before display
 // is destroyed.
-class WaylandDispatcher : public base::Thread {
+class WaylandDisplayPollThread : public base::Thread {
  public:
-  explicit WaylandDispatcher(wl_display* display);
-  virtual ~WaylandDispatcher();
+  explicit WaylandDisplayPollThread(wl_display* display);
+  virtual ~WaylandDisplayPollThread();
 
   // Starts polling on wl_display fd and read/flush requests coming from Wayland
   // compositor.
@@ -20,11 +20,11 @@ class WaylandDispatcher : public base::Thread {
   // Stops polling and handling of any events from Wayland compositor.
   void StopProcessingEvents();
  private:
-  static void DisplayRun(WaylandDispatcher* data);
+  static void DisplayRun(WaylandDisplayPollThread* data);
   bool active_ :1;
   int epoll_fd_;
   wl_display* display_;
-  DISALLOW_COPY_AND_ASSIGN(WaylandDispatcher);
+  DISALLOW_COPY_AND_ASSIGN(WaylandDisplayPollThread);
 };
 
 }

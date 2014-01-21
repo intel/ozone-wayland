@@ -18,7 +18,7 @@
 
 namespace ozonewayland {
 
-class WaylandDispatcher;
+class WaylandDisplayPollThread;
 class WaylandInputDevice;
 class WaylandScreen;
 class WaylandWindow;
@@ -106,7 +106,7 @@ class WaylandDisplay {
   wl_shm* shm_;
   WaylandScreen* primary_screen_;
   WaylandInputDevice* primary_input_;
-  WaylandDispatcher* dispatcher_;
+  WaylandDisplayPollThread* display_poll_thread_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;

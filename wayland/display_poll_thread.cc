@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/dispatcher.h"
+#include "ozone/wayland/display_poll_thread.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -56,20 +56,20 @@ int osEpollCreateCloExec(void) {
 }
 }  // os-compatibility
 
-WaylandDispatcher::WaylandDispatcher(wl_display* display)
-    : Thread("WaylandDispatcher"),
+WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
+    : base::Thread("WaylandDisplayPollThread"),
       display_(display),
       active_(false),
       epoll_fd_(0) {
   DCHECK(display_);
 }
 
-WaylandDispatcher::~WaylandDispatcher() {
+WaylandDisplayPollThread::~WaylandDisplayPollThread() {
   StopProcessingEvents();
   Stop();
 }
 
-void WaylandDispatcher::StartProcessingEvents() {
+void WaylandDisplayPollThread::StartProcessingEvents() {
   DCHECK(!active_ && !epoll_fd_);
   epoll_fd_ = osEpollCreateCloExec();
   DCHECK(epoll_fd_ > 0) << "Epoll creation failed.";
@@ -80,15 +80,15 @@ void WaylandDispatcher::StartProcessingEvents() {
     LOG(ERROR) << "epoll_ctl Add failed";
 
   active_ = true;
-  Options options;
+  base::Thread::Options options;
   options.message_loop_type = base::MessageLoop::TYPE_IO;
   StartWithOptions(options);
   SetPriority(base::kThreadPriority_Background);
   message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
-      &WaylandDispatcher::DisplayRun, this));
+      &WaylandDisplayPollThread::DisplayRun, this));
 }
 
-void WaylandDispatcher::StopProcessingEvents() {
+void WaylandDisplayPollThread::StopProcessingEvents() {
   active_ = false;
   if (epoll_fd_) {
     close(epoll_fd_);
@@ -96,7 +96,7 @@ void WaylandDispatcher::StopProcessingEvents() {
   }
 }
 
-void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
+void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   struct epoll_event ep[MAX_EVENTS];
   int i, count, ret;
   unsigned display_fd = wl_display_get_fd(data->display_);
