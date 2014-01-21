@@ -80,7 +80,7 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
   if (wl_display_roundtrip(display_) < 0)
     terminate();
   else if (type == RegisterAsNeeded)
-    dispatcher_ = new WaylandDispatcher(wl_display_get_fd(display_));
+    dispatcher_ = new WaylandDispatcher(display_);
 }
 
 WaylandDisplay::~WaylandDisplay() {

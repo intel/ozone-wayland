@@ -56,12 +56,12 @@ int osEpollCreateCloExec(void) {
 }
 }  // os-compatibility
 
-WaylandDispatcher::WaylandDispatcher(int fd)
+WaylandDispatcher::WaylandDispatcher(wl_display* display)
     : Thread("WaylandDispatcher"),
+      display_(display),
       active_(false),
-      epoll_fd_(0),
-      display_fd_(fd) {
-  DCHECK(display_fd_ > 0);
+      epoll_fd_(0) {
+  DCHECK(display_);
 }
 
 WaylandDispatcher::~WaylandDispatcher() {
@@ -76,7 +76,7 @@ void WaylandDispatcher::StartProcessingEvents() {
   struct epoll_event ep;
   ep.events = EPOLLIN | EPOLLOUT;
   ep.data.ptr = 0;
-  if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep) < 0)
+  if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, wl_display_get_fd(display_), &ep) < 0)
     LOG(ERROR) << "epoll_ctl Add failed";
 
   active_ = true;
@@ -99,19 +99,19 @@ void WaylandDispatcher::StopProcessingEvents() {
 void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
   struct epoll_event ep[MAX_EVENTS];
   int i, count, ret;
+  unsigned display_fd = wl_display_get_fd(data->display_);
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
-    wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
-    wl_display_dispatch_pending(waylandDisp);
+    wl_display_dispatch_pending(data->display_);
 
     if (!data->active_)
       break;
 
-    ret = wl_display_flush(waylandDisp);
+    ret = wl_display_flush(data->display_);
     if (ret < 0 && errno == EAGAIN) {
       ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
-      epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &ep[0]);
+      epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, display_fd, &ep[0]);
     } else if (ret < 0) {
       break;
     }
@@ -128,19 +128,19 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
         return;
 
       if (event & EPOLLIN) {
-        ret = wl_display_dispatch(waylandDisp);
+        ret = wl_display_dispatch(data->display_);
         if (ret == -1)
           return;
       }
 
       if (event & EPOLLOUT) {
-        ret = wl_display_flush(waylandDisp);
+        ret = wl_display_flush(data->display_);
         if (ret == 0) {
           struct epoll_event eps;
           memset(&eps, 0, sizeof(eps));
 
           eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-          epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &eps);
+          epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, display_fd, &eps);
         } else if (ret == -1 && errno != EAGAIN) {
           return;
         }
