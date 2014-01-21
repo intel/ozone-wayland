@@ -59,27 +59,18 @@ int osEpollCreateCloExec(void) {
 WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
     : base::Thread("WaylandDisplayPollThread"),
       display_(display),
-      active_(false),
-      epoll_fd_(0) {
+      polling_(true, false),
+      stop_polling_(true, false) {
   DCHECK(display_);
 }
 
 WaylandDisplayPollThread::~WaylandDisplayPollThread() {
-  StopProcessingEvents();
+  DCHECK(!polling_.IsSignaled());
   Stop();
 }
 
 void WaylandDisplayPollThread::StartProcessingEvents() {
-  DCHECK(!active_ && !epoll_fd_);
-  epoll_fd_ = osEpollCreateCloExec();
-  DCHECK(epoll_fd_ > 0) << "Epoll creation failed.";
-  struct epoll_event ep;
-  ep.events = EPOLLIN | EPOLLOUT;
-  ep.data.ptr = 0;
-  if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, wl_display_get_fd(display_), &ep) < 0)
-    LOG(ERROR) << "epoll_ctl Add failed";
-
-  active_ = true;
+  DCHECK(!polling_.IsSignaled());
   base::Thread::Options options;
   options.message_loop_type = base::MessageLoop::TYPE_IO;
   StartWithOptions(options);
@@ -89,48 +80,72 @@ void WaylandDisplayPollThread::StartProcessingEvents() {
 }
 
 void WaylandDisplayPollThread::StopProcessingEvents() {
-  active_ = false;
-  if (epoll_fd_) {
-    close(epoll_fd_);
-    epoll_fd_ = 0;
-  }
+  if (polling_.IsSignaled())
+    stop_polling_.Signal();
 }
 
 void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   struct epoll_event ep[MAX_EVENTS];
-  int i, count, ret;
+  int i, ret, count = 0;
+  uint32_t event = 0;
+  bool epoll_err = false;
   unsigned display_fd = wl_display_get_fd(data->display_);
+  int epoll_fd = osEpollCreateCloExec();
+  if (epoll_fd < 0 ) {
+    LOG(ERROR) << "Epoll creation failed.";
+    return;
+  }
+
+  ep[0].events = EPOLLIN | EPOLLOUT;
+  ep[0].data.ptr = 0;
+  if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, display_fd, &ep[0]) < 0) {
+    close(epoll_fd);
+    LOG(ERROR) << "epoll_ctl Add failed";
+    return;
+  }
+
+  // Set the signal state. This is used to query from other threads (i.e.
+  // StopProcessingEvents on Main thread), if this thread is still polling.
+  data->polling_.Signal();
+
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
     wl_display_dispatch_pending(data->display_);
+    if (wl_display_flush(data->display_) < 0) {
+      if (errno != EAGAIN) {
+        epoll_err = true;
+      } else {
+        ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
+        if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &ep[0]) < 0) {
+          epoll_err = true;
+        }
+      }
 
-    if (!data->active_)
-      break;
-
-    ret = wl_display_flush(data->display_);
-    if (ret < 0 && errno == EAGAIN) {
-      ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
-      epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, display_fd, &ep[0]);
-    } else if (ret < 0) {
-      break;
+      if (epoll_err)
+        break;
     }
 
-    count = epoll_wait(data->epoll_fd_, ep, MAX_EVENTS, -1);
-    if (!data->active_)
+    // StopProcessingEvents has been called or we have been asked to stop
+    // polling. Break from the loop.
+    if (data->stop_polling_.IsSignaled())
       break;
 
+    count = epoll_wait(epoll_fd, ep, MAX_EVENTS, -1);
     for (i = 0; i < count; i++) {
-      int ret;
-      uint32_t event = ep[i].events;
+      event = ep[i].events;
 
-      if (event & EPOLLERR || event & EPOLLHUP)
-        return;
+      if (event & EPOLLERR || event & EPOLLHUP) {
+        epoll_err = true;
+        break;
+      }
 
       if (event & EPOLLIN) {
         ret = wl_display_dispatch(data->display_);
-        if (ret == -1)
-          return;
+        if (ret == -1) {
+          epoll_err = true;
+          break;
+        }
       }
 
       if (event & EPOLLOUT) {
@@ -140,13 +155,21 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
           memset(&eps, 0, sizeof(eps));
 
           eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-          epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, display_fd, &eps);
+          epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &eps);
         } else if (ret == -1 && errno != EAGAIN) {
-          return;
+          epoll_err = true;
+          break;
         }
       }
     }
+
+    if (epoll_err)
+      break;
   }
+
+  close(epoll_fd);
+  data->polling_.Reset();
+  data->stop_polling_.Reset();
 }
 
 }  // namespace ozonewayland
