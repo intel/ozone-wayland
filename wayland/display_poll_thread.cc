@@ -114,10 +114,12 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
     wl_display_dispatch_pending(data->display_);
     if (wl_display_flush(data->display_) < 0) {
       if (errno != EAGAIN) {
+        LOG(ERROR) << "wl_display_flush failed with an error." << errno;
         epoll_err = true;
       } else {
         ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
         if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &ep[0]) < 0) {
+          LOG(ERROR) << "epoll_ctl Mod failed";
           epoll_err = true;
         }
       }
@@ -132,10 +134,20 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
       break;
 
     count = epoll_wait(epoll_fd, ep, MAX_EVENTS, -1);
+    // Break if epoll wait returned value less than 0 and we aren't interrupted
+    // by a signal.
+    if (count < 0 && errno != EINTR) {
+      LOG(ERROR) << "epoll_wait returned an error." << errno;
+      epoll_err = true;
+      break;
+    }
+
     for (i = 0; i < count; i++) {
       event = ep[i].events;
-
-      if (event & EPOLLERR || event & EPOLLHUP) {
+      // We can have cases where EPOLLIN and EPOLLHUP are both set for
+      // example. Don't break if both flags are set.
+      if ((event & EPOLLERR || event & EPOLLHUP) &&
+             !(event & EPOLLIN || event & EPOLLOUT)) {
         epoll_err = true;
         break;
       }
@@ -143,6 +155,7 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
       if (event & EPOLLIN) {
         ret = wl_display_dispatch(data->display_);
         if (ret == -1) {
+          LOG(ERROR) << "wl_display_dispatch failed with an error." << errno;
           epoll_err = true;
           break;
         }
@@ -157,6 +170,7 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
           eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
           epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &eps);
         } else if (ret == -1 && errno != EAGAIN) {
+          LOG(ERROR) << "wl_display_flush failed with an error." << errno;
           epoll_err = true;
           break;
         }
