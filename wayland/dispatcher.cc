@@ -15,8 +15,7 @@
 #include "ozone/wayland/display.h"
 
 namespace ozonewayland {
-WaylandDispatcher* WaylandDispatcher::instance_ = NULL;
-
+const int MAX_EVENTS = 16;
 // os-compatibility
 extern "C" {
 int osEpollCreateCloExec(void);
@@ -59,68 +58,46 @@ int osEpollCreateCloExec(void) {
 
 WaylandDispatcher::WaylandDispatcher(int fd)
     : Thread("WaylandDispatcher"),
-      active_(true),
+      active_(false),
       epoll_fd_(0),
       display_fd_(fd) {
-  instance_ = this;
-  if (display_fd_) {
-    epoll_fd_ = osEpollCreateCloExec();
-    struct epoll_event ep;
-    ep.events = EPOLLIN | EPOLLOUT;
-    ep.data.ptr = 0;
-    epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
-  }
+  DCHECK(display_fd_ > 0);
+}
 
+WaylandDispatcher::~WaylandDispatcher() {
+  StopProcessingEvents();
+  Stop();
+}
+
+void WaylandDispatcher::StartProcessingEvents() {
+  DCHECK(!active_ && !epoll_fd_);
+  epoll_fd_ = osEpollCreateCloExec();
+  DCHECK(epoll_fd_ > 0) << "Epoll creation failed.";
+  struct epoll_event ep;
+  ep.events = EPOLLIN | EPOLLOUT;
+  ep.data.ptr = 0;
+  if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep) < 0)
+    LOG(ERROR) << "epoll_ctl Add failed";
+
+  active_ = true;
   Options options;
   options.message_loop_type = base::MessageLoop::TYPE_IO;
   StartWithOptions(options);
   SetPriority(base::kThreadPriority_Background);
+  message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
+      &WaylandDispatcher::DisplayRun, this));
 }
 
-WaylandDispatcher::~WaylandDispatcher() {
+void WaylandDispatcher::StopProcessingEvents() {
   active_ = false;
-
-  Stop();
-
   if (epoll_fd_) {
     close(epoll_fd_);
     epoll_fd_ = 0;
   }
-
-  instance_ = NULL;
-}
-
-void WaylandDispatcher::PostTask(Task type) {
-  if (!IsRunning() || !active_)
-    return;
-
-  switch (type) {
-    case(Flush):
-      message_loop_proxy()->PostTask(
-          FROM_HERE, base::Bind(&WaylandDispatcher::HandleFlush));
-      break;
-    case(Poll):
-      DCHECK(epoll_fd_);
-      message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
-          &WaylandDispatcher::DisplayRun, this));
-  default:
-    break;
-  }
-}
-
-void WaylandDispatcher::HandleFlush() {
-  wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
-
-  while (wl_display_prepare_read(waylandDisp) != 0)
-    wl_display_dispatch_pending(waylandDisp);
-
-  wl_display_flush(waylandDisp);
-  wl_display_read_events(waylandDisp);
-  wl_display_dispatch_pending(waylandDisp);
 }
 
 void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
-  struct epoll_event ep[16];
+  struct epoll_event ep[MAX_EVENTS];
   int i, count, ret;
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
@@ -139,7 +116,7 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
       break;
     }
 
-    count = epoll_wait(data->epoll_fd_, ep, 16, -1);
+    count = epoll_wait(data->epoll_fd_, ep, MAX_EVENTS, -1);
     if (!data->active_)
       break;
 

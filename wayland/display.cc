@@ -37,7 +37,13 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
 void WaylandDisplay::StartProcessingEvents() {
   DCHECK(dispatcher_);
   // Start polling for wayland events.
-  dispatcher_->PostTask(WaylandDispatcher::Poll);
+  dispatcher_->StartProcessingEvents();
+}
+
+void WaylandDisplay::StopProcessingEvents() {
+  DCHECK(dispatcher_);
+  // Start polling for wayland events.
+  dispatcher_->StopProcessingEvents();
 }
 
 WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),

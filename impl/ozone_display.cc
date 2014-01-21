@@ -280,8 +280,10 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       const std::map<unsigned, WaylandWindow*> widget_map =
           display_->GetWindowList();
 
-      if (widget_map.empty())
+      if (widget_map.empty()) {
         WillDestroyCurrentMessageLoop();
+        display_->StopProcessingEvents();
+      }
       break;
     }
     default:
