@@ -64,12 +64,14 @@ class WaylandDisplay {
   void DestroyWindow(unsigned w);
 
   // Starts polling on display fd. This should be used when one needs to
-  // continuously read pending events coming from Wayland compositor and flush
-  // requests back. The polling is done completely on a separate thread and
+  // continuously read pending events coming from Wayland compositor and
+  // dispatch them. The polling is done completely on a separate thread and
   // doesn't block the thread from which this is called.
   void StartProcessingEvents();
   // Stops polling on display fd.
   void StopProcessingEvents();
+  // Flush Display.
+  void FlushDisplay();
 
  private:
   enum RegistrationType {

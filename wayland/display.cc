@@ -46,6 +46,10 @@ void WaylandDisplay::StopProcessingEvents() {
   display_poll_thread_->StopProcessingEvents();
 }
 
+void WaylandDisplay::FlushDisplay() {
+  wl_display_flush(display_);
+}
+
 WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     registry_(NULL),
     compositor_(NULL),

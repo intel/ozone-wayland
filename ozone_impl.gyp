@@ -34,6 +34,8 @@
         'impl/fullscreen_wayland.cc',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
+        'impl/vsync_provider_wayland.cc',
+        'impl/vsync_provider_wayland.h',
         'impl/window_tree_host_delegate_wayland.cc',
         'impl/window_tree_host_delegate_wayland.h',
         'impl/ipc/child_process_observer.h',
