@@ -51,7 +51,6 @@ class WaylandWindow {
   WaylandShellSurface* ShellSurface() const { return shell_surface_; }
 
   void RealizeAcceleratedWidget();
-  void HandleSwapBuffers();
 
   // Returns pointer to egl window associated with the window.
   // The WaylandWindow object owns the pointer.

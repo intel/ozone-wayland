@@ -92,11 +92,6 @@ void WaylandWindow::RealizeAcceleratedWidget() {
                             allocation_.height());
 }
 
-void WaylandWindow::HandleSwapBuffers() {
-  shell_surface_->Surface()->EnsureFrameCallBackDone();
-  shell_surface_->Surface()->AddFrameCallBack();
-}
-
 wl_egl_window* WaylandWindow::egl_window() const {
   DCHECK(window_);
   return window_->egl_window();
