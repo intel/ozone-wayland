@@ -133,6 +133,10 @@ void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
   OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
 }
 
+void OzoneDisplayChannelHost::OnCloseWidget(unsigned handle) {
+  dispatcher_->CloseWidget(handle);
+}
+
 bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) <<
       "Must handle messages that were dispatched to another thread!";
@@ -146,6 +150,7 @@ bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, OnPointerLeave)
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, OnKeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 

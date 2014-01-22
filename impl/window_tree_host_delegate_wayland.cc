@@ -245,4 +245,17 @@ void WindowTreeHostDelegateWayland::OnWindowEnter(unsigned handle) {
 void WindowTreeHostDelegateWayland::OnWindowLeave(unsigned handle) {
 }
 
+void WindowTreeHostDelegateWayland::OnWindowClose(unsigned handle) {
+  // we specially treat grabbed windows in this function, thus the need for
+  // current_capture_ always be a valid pointer.
+  if (!handle || !current_capture_)
+    return;
+  if (current_capture_->window_ != handle)
+    return;
+  DesktopWindowTreeHostWayland* window = NULL;
+  window = DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  window->OnCaptureReleased();
+  window->Close();
+}
+
 }  // namespace ozonewayland

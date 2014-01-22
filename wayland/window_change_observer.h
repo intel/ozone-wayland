@@ -19,6 +19,8 @@ class WindowChangeObserver {
   virtual void OnWindowEnter(unsigned windowhandle) = 0;
   // Called when the pointer leaves a window.
   virtual void OnWindowLeave(unsigned windowhandle) = 0;
+  // Called when a window is closed.
+  virtual void OnWindowClose(unsigned windowhandle) = 0;
 
  protected:
   virtual ~WindowChangeObserver() {}

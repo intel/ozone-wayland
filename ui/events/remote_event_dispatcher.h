@@ -36,6 +36,7 @@ class RemoteEventDispatcher : public EventConverterOzoneWayland {
                          unsigned modifiers) OVERRIDE;
 
   virtual void OutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
+  virtual void CloseWidget(unsigned handle) OVERRIDE;
 
  private:
   static void SendMotionNotify(float x, float y);
@@ -51,6 +52,7 @@ class RemoteEventDispatcher : public EventConverterOzoneWayland {
                             unsigned code,
                             unsigned modifiers);
   static void SendOutputSizeChanged(unsigned width, unsigned height);
+  static void SendCloseWidget(unsigned handle);
   static void Send(IPC::Message* message);
   DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);
 };

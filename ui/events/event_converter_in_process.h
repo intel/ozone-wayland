@@ -31,6 +31,7 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
   virtual void KeyNotify(ui::EventType type,
                          unsigned code,
                          unsigned modifiers) OVERRIDE;
+  virtual void CloseWidget(unsigned handle) OVERRIDE;
 
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer) OVERRIDE;
 
@@ -40,6 +41,8 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
   static void NotifyPointerLeave(EventConverterInProcess* data,
                                  unsigned handle);
   static void NotifyButtonPress(EventConverterInProcess* data,
+                                unsigned handle);
+  static void NotifyCloseWidget(EventConverterInProcess* data,
                                 unsigned handle);
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
   WindowChangeObserver* observer_;

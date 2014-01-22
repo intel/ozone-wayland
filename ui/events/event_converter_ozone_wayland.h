@@ -42,6 +42,7 @@ class EventConverterOzoneWayland {
                          unsigned modifiers) = 0;
 
   virtual void OutputSizeChanged(unsigned width, unsigned height);
+  virtual void CloseWidget(unsigned handle) = 0;
   // Sets the window change observer. Ownership is retained by the caller.
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
 

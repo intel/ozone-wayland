@@ -115,6 +115,11 @@ void EventConverterInProcess::KeyNotify(ui::EventType type,
           keyev.PassAs<ui::Event>())));
 }
 
+void EventConverterInProcess::CloseWidget(unsigned handle) {
+  PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyCloseWidget, this, handle));
+}
+
 void EventConverterInProcess::SetWindowChangeObserver(
     WindowChangeObserver* observer) {
   observer_ = observer;
@@ -136,6 +141,12 @@ void EventConverterInProcess::NotifyButtonPress(
     EventConverterInProcess* data, unsigned handle) {
   if (data->observer_)
     data->observer_->OnWindowFocused(handle);
+}
+
+void EventConverterInProcess::NotifyCloseWidget(
+    EventConverterInProcess* data, unsigned handle) {
+  if (data->observer_)
+    data->observer_->OnWindowClose(handle);
 }
 
 void EventConverterInProcess::DispatchEventHelper(

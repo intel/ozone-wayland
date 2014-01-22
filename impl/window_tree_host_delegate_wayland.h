@@ -44,6 +44,7 @@ class WindowTreeHostDelegateWayland
   virtual void OnWindowFocused(unsigned handle) OVERRIDE;
   virtual void OnWindowEnter(unsigned handle) OVERRIDE;
   virtual void OnWindowLeave(unsigned handle) OVERRIDE;
+  virtual void OnWindowClose(unsigned handle) OVERRIDE;
 
   // Dispatches a mouse event.
   void DispatchMouseEvent(ui::MouseEvent* event);

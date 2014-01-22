@@ -91,6 +91,11 @@ void RemoteEventDispatcher::OutputSizeChanged(unsigned width,
       &RemoteEventDispatcher::SendOutputSizeChanged, width, height));
 }
 
+void RemoteEventDispatcher::CloseWidget(unsigned handle) {
+  PostTaskOnMainLoop(base::Bind(
+      &RemoteEventDispatcher::SendCloseWidget, handle));
+}
+
 void RemoteEventDispatcher::SendMotionNotify(float x, float y) {
   Send(new WaylandInput_MotionNotify(x, y));
 }
@@ -131,6 +136,10 @@ void RemoteEventDispatcher::SendKeyNotify(ui::EventType type,
 void RemoteEventDispatcher::SendOutputSizeChanged(unsigned width,
                                                   unsigned height) {
   Send(new WaylandInput_OutputSize(width, height));
+}
+
+void RemoteEventDispatcher::SendCloseWidget(unsigned handle) {
+  Send(new WaylandInput_CloseWidget(handle));
 }
 
 void RemoteEventDispatcher::Send(IPC::Message* message) {

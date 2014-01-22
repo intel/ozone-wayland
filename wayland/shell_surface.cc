@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 
+#include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/surface.h"
@@ -89,7 +90,14 @@ void WaylandShellSurface::HandleConfigure(void *data,
 
 void WaylandShellSurface::HandlePopupDone(void *data,
                                           struct wl_shell_surface *surface) {
-  // TODO(vignatti): dispatch a close window to Chromium
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  EventConverterOzoneWayland* dispatcher =
+      EventConverterOzoneWayland::GetInstance();
+
+  if (!input->GetGrabWindowHandle())
+    return;
+  dispatcher->CloseWidget(input->GetGrabWindowHandle());
+  input->SetGrabWindowHandle(0, 0);
 }
 
 void WaylandShellSurface::HandlePing(void *data,
