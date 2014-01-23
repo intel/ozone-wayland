@@ -200,7 +200,7 @@ void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
     wl_display_dispatch_pending(waylandDisp);
     ret = wl_display_flush(waylandDisp);
     if (ret < 0 && errno == EAGAIN) {
-      ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
+      ep[0].events = EPOLLIN | EPOLLERR | EPOLLHUP;
       epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &ep[0]);
     } else if (ret < 0) {
       epoll_err = true;
