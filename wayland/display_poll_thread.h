@@ -11,9 +11,9 @@
 class wl_display;
 namespace ozonewayland {
 // This class lets you poll on a given Wayland display (passed in constructor),
-// read any pending events coming from Wayland compositor and flush requests
-// back. Caller should ensure that StopProcessingEvents is called before display
-// is destroyed.
+// read any pending events coming from Wayland compositor and dispatch them.
+// Caller should ensure that StopProcessingEvents is called before display is
+// destroyed.
 class WaylandDisplayPollThread : public base::Thread {
  public:
   explicit WaylandDisplayPollThread(wl_display* display);

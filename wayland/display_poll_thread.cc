@@ -96,7 +96,7 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
     return;
   }
 
-  ep[0].events = EPOLLIN | EPOLLOUT;
+  ep[0].events = EPOLLIN;
   ep[0].data.ptr = 0;
   if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, display_fd, &ep[0]) < 0) {
     close(epoll_fd);
@@ -112,22 +112,6 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
     wl_display_dispatch_pending(data->display_);
-    if (wl_display_flush(data->display_) < 0) {
-      if (errno != EAGAIN) {
-        LOG(ERROR) << "wl_display_flush failed with an error." << errno;
-        epoll_err = true;
-      } else {
-        ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
-        if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &ep[0]) < 0) {
-          LOG(ERROR) << "epoll_ctl Mod failed";
-          epoll_err = true;
-        }
-      }
-
-      if (epoll_err)
-        break;
-    }
-
     // StopProcessingEvents has been called or we have been asked to stop
     // polling. Break from the loop.
     if (data->stop_polling_.IsSignaled())
@@ -147,7 +131,7 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
       // We can have cases where EPOLLIN and EPOLLHUP are both set for
       // example. Don't break if both flags are set.
       if ((event & EPOLLERR || event & EPOLLHUP) &&
-             !(event & EPOLLIN || event & EPOLLOUT)) {
+             !(event & EPOLLIN)) {
         epoll_err = true;
         break;
       }
@@ -156,21 +140,6 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
         ret = wl_display_dispatch(data->display_);
         if (ret == -1) {
           LOG(ERROR) << "wl_display_dispatch failed with an error." << errno;
-          epoll_err = true;
-          break;
-        }
-      }
-
-      if (event & EPOLLOUT) {
-        ret = wl_display_flush(data->display_);
-        if (ret == 0) {
-          struct epoll_event eps;
-          memset(&eps, 0, sizeof(eps));
-
-          eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-          epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &eps);
-        } else if (ret == -1 && errno != EAGAIN) {
-          LOG(ERROR) << "wl_display_flush failed with an error." << errno;
           epoll_err = true;
           break;
         }
