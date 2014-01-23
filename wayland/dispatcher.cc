@@ -17,6 +17,7 @@
 
 namespace ozonewayland {
 WaylandDispatcher* WaylandDispatcher::instance_ = NULL;
+const int MAX_EVENTS = 16;
 
 // os-compatibility
 extern "C" {
@@ -149,7 +150,7 @@ WaylandDispatcher::WaylandDispatcher(int fd)
   if (display_fd_) {
     epoll_fd_ = osEpollCreateCloExec();
     struct epoll_event ep;
-    ep.events = EPOLLIN | EPOLLOUT;
+    ep.events = EPOLLIN;
     ep.data.ptr = 0;
     epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, display_fd_, &ep);
   }
@@ -187,55 +188,61 @@ void WaylandDispatcher::HandleFlush() {
 }
 
 void  WaylandDispatcher::DisplayRun(WaylandDispatcher* data) {
-  struct epoll_event ep[16];
-  int i, count, ret;
+  struct epoll_event ep[MAX_EVENTS];
+  int i, ret, count = 0;
+  uint32_t event = 0;
+  bool epoll_err = false;
+
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
     wl_display* waylandDisp = WaylandDisplay::GetInstance()->display();
     wl_display_dispatch_pending(waylandDisp);
-
-    if (!data->active_)
-      break;
-
     ret = wl_display_flush(waylandDisp);
     if (ret < 0 && errno == EAGAIN) {
       ep[0].events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
       epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &ep[0]);
     } else if (ret < 0) {
+      epoll_err = true;
       break;
     }
 
-    count = epoll_wait(data->epoll_fd_, ep, 16, -1);
+    // StopProcessingEvents has been called or we have been asked to stop
+    // polling. Break from the loop.
     if (!data->active_)
       break;
 
-    for (i = 0; i < count; i++) {
-      int ret;
-      uint32_t event = ep[i].events;
+    count = epoll_wait(data->epoll_fd_, ep, MAX_EVENTS, -1);
+    // Break if epoll wait returned value less than 0 and we aren't interrupted
+    // by a signal.
+    if (count < 0 && errno != EINTR) {
+      LOG(ERROR) << "epoll_wait returned an error." << errno;
+      epoll_err = true;
+      break;
+    }
 
-      if (event & EPOLLERR || event & EPOLLHUP)
-        return;
+    for (i = 0; i < count; i++) {
+      event = ep[i].events;
+      // We can have cases where EPOLLIN and EPOLLHUP are both set for
+      // example. Don't break if both flags are set.
+      if ((event & EPOLLERR || event & EPOLLHUP) &&
+             !(event & EPOLLIN)) {
+        epoll_err = true;
+        break;
+      }
 
       if (event & EPOLLIN) {
         ret = wl_display_dispatch(waylandDisp);
-        if (ret == -1)
-          return;
-      }
-
-      if (event & EPOLLOUT) {
-        ret = wl_display_flush(waylandDisp);
-        if (ret == 0) {
-          struct epoll_event eps;
-          memset(&eps, 0, sizeof(eps));
-
-          eps.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-          epoll_ctl(data->epoll_fd_, EPOLL_CTL_MOD, data->display_fd_, &eps);
-        } else if (ret == -1 && errno != EAGAIN) {
-          return;
+        if (ret == -1) {
+          LOG(ERROR) << "wl_display_dispatch failed with an error." << errno;
+          epoll_err = true;
+          break;
         }
       }
     }
+
+    if (epoll_err)
+      break;
   }
 }
 
