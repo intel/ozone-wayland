@@ -58,6 +58,9 @@ class WaylandDisplay {
   // Destroys WaylandWindow whose handle is w.
   void DestroyWindow(unsigned w);
 
+  // Flush Display.
+  void FlushDisplay();
+
  private:
   enum RegistrationType {
     RegisterAsNeeded,  // Handles all the required registrations.

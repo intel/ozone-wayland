@@ -29,6 +29,10 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
   widget_map_.erase(w);
 }
 
+void WaylandDisplay::FlushDisplay() {
+  wl_display_flush(display_);
+}
+
 WaylandDisplay::WaylandDisplay(RegistrationType type) : compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
