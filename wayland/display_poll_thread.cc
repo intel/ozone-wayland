@@ -112,6 +112,14 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
   while (1) {
     wl_display_dispatch_pending(data->display_);
+    ret = wl_display_flush(data->display_);
+    if (ret < 0 && errno == EAGAIN) {
+      ep[0].events = EPOLLIN | EPOLLERR | EPOLLHUP;
+      epoll_ctl(epoll_fd, EPOLL_CTL_MOD, display_fd, &ep[0]);
+    } else if (ret < 0) {
+      epoll_err = true;
+      break;
+    }
     // StopProcessingEvents has been called or we have been asked to stop
     // polling. Break from the loop.
     if (data->stop_polling_.IsSignaled())
