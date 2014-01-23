@@ -11,6 +11,7 @@
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/event_factory_wayland.h"
+#include "ozone/impl/vsync_provider_wayland.h"
 #include "ozone/impl/ipc/browser_process_dispatcher_delegate.h"
 #include "ozone/impl/ipc/child_process_observer.h"
 #include "ozone/impl/ipc/display_channel.h"
@@ -179,7 +180,7 @@ bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
 }
 
 gfx::VSyncProvider* OzoneDisplay::GetVSyncProvider(gfx::AcceleratedWidget w) {
-  return 0;
+  return new WaylandSyncProvider();
 }
 
 bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
