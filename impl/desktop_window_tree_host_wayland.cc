@@ -315,6 +315,8 @@ void DesktopWindowTreeHostWayland::ShowWindowWithState(
   }
 
   Show();
+  // Set initial focus for root window.
+  native_widget_delegate_->AsWidget()->SetInitialFocus(show_state);
 }
 
 void DesktopWindowTreeHostWayland::ShowMaximizedWithBounds(
@@ -420,9 +422,6 @@ void DesktopWindowTreeHostWayland::Activate() {
     return;
 
   state_ |= Active;
-  // Set initial focus for root window.
-  if (!window_parent_)
-    native_widget_delegate_->AsWidget()->SetInitialFocus();
   OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Active);
 }
 
