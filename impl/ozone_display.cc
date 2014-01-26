@@ -219,18 +219,6 @@ const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
   return EGLWindow::GetEGLConfigAttribs();
 }
 
-void OzoneDisplay::WillDestroyCurrentMessageLoop() {
-  if (!child_process_observer_)
-    return;
-
-  DCHECK(base::MessageLoop::current());
-
-  if (child_process_observer_)
-    child_process_observer_->WillDestroyCurrentMessageLoop();
-
-  base::MessageLoop::current()->RemoveDestructionObserver(this);
-}
-
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
   if (spec_)
     base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
@@ -310,10 +298,8 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
       const std::map<unsigned, WaylandWindow*> widget_map =
           display_->GetWindowList();
 
-      if (widget_map.empty()) {
-        WillDestroyCurrentMessageLoop();
+      if (widget_map.empty())
         display_->StopProcessingEvents();
-      }
       break;
     }
     default:
@@ -443,7 +429,6 @@ void OzoneDisplay::InitializeDispatcher(int fd) {
   } else {
     event_converter_ = new EventConverterInProcess();
     event_converter_->SetOutputChangeObserver(this);
-    base::MessageLoop::current()->AddDestructionObserver(this);
   }
 
   if (display_) {

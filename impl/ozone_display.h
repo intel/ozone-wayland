@@ -25,7 +25,6 @@ class WindowChangeObserver;
 
 class OZONE_WAYLAND_EXPORT OzoneDisplay
     : public gfx::SurfaceFactoryOzone,
-      public base::MessageLoop::DestructionObserver,
       public OutputChangeObserver {
  public:
   enum {
@@ -85,8 +84,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   virtual const int32* GetEGLSurfaceProperties(
       const int32* desired_list) OVERRIDE;
 
-  // MessageLoop::DestructionObserver overrides.
-  virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
   // OutputChangeObserver overrides.
   virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
 

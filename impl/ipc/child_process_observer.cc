@@ -12,6 +12,7 @@ namespace ozonewayland {
 OzoneProcessObserver::OzoneProcessObserver(OzoneDisplay* observer)
     : observer_(observer) {
   BrowserChildProcessObserver::Add(this);
+  base::MessageLoop::current()->AddDestructionObserver(this);
 }
 
 OzoneProcessObserver::~OzoneProcessObserver() {
@@ -24,7 +25,9 @@ void OzoneProcessObserver::BrowserChildProcessHostConnected(
 }
 
 void OzoneProcessObserver::WillDestroyCurrentMessageLoop() {
+  DCHECK(base::MessageLoop::current());
   BrowserChildProcessObserver::Remove(this);
+  base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
 
 }  // namespace ozonewayland
