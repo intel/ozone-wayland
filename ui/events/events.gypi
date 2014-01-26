@@ -15,6 +15,8 @@
     'remote_event_dispatcher.h',
     'remote_event_dispatcher.cc',
     'window_constants.h',
+    'window_state_change_handler.h',
+    'window_state_change_handler.cc',
   ],
 }
 
