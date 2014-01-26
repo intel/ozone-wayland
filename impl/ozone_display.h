@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
+#include "ozone/ui/events/output_change_observer.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
@@ -24,7 +25,8 @@ class WindowChangeObserver;
 
 class OZONE_WAYLAND_EXPORT OzoneDisplay
     : public gfx::SurfaceFactoryOzone,
-      public base::MessageLoop::DestructionObserver {
+      public base::MessageLoop::DestructionObserver,
+      public OutputChangeObserver {
  public:
   enum {
     Create = 1,  // Create a new Widget
@@ -85,6 +87,8 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   // MessageLoop::DestructionObserver overrides.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
+  // OutputChangeObserver overrides.
+  virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
 
   const DesktopScreenWayland* GetPrimaryScreen() const;
 
@@ -109,7 +113,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
                                  unsigned x,
                                  unsigned y,
                                  WidgetType type);
-  void OnOutputSizeChanged(unsigned width, unsigned height);
   void SetWindowChangeObserver(WindowChangeObserver* observer);
 
   // EstablishChannel is called by OzoneProcessObserver (i.e. on BrowserProcess
@@ -134,7 +137,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   typedef unsigned CurrentState;
 
-  void OnOutputSizeChanged(WaylandScreen* screen, int width, int height);
   void CreateWidget(unsigned w);
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
@@ -157,8 +159,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   EventConverterOzoneWayland* event_converter_;
   char* spec_;
   static OzoneDisplay* instance_;
-
-  friend class WaylandScreen;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
 

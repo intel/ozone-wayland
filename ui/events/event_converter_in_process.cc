@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "ozone/ui/events/keyboard_code_conversion_ozone.h"
+#include "ozone/ui/events/output_change_observer.h"
 #include "ozone/wayland/window_change_observer.h"
 
 namespace ozonewayland {
@@ -120,9 +121,20 @@ void EventConverterInProcess::CloseWidget(unsigned handle) {
       &EventConverterInProcess::NotifyCloseWidget, this, handle));
 }
 
+void EventConverterInProcess::OutputSizeChanged(unsigned width,
+                                                unsigned height) {
+  PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyOutputSizeChanged, this, width, height));
+}
+
 void EventConverterInProcess::SetWindowChangeObserver(
     WindowChangeObserver* observer) {
   observer_ = observer;
+}
+
+void EventConverterInProcess::SetOutputChangeObserver(
+    OutputChangeObserver* observer) {
+  output_observer_ = observer;
 }
 
 void EventConverterInProcess::NotifyPointerEnter(
@@ -147,6 +159,14 @@ void EventConverterInProcess::NotifyCloseWidget(
     EventConverterInProcess* data, unsigned handle) {
   if (data->observer_)
     data->observer_->OnWindowClose(handle);
+}
+
+void
+EventConverterInProcess::NotifyOutputSizeChanged(EventConverterInProcess* data,
+                                                 unsigned width,
+                                                 unsigned height) {
+  if (data->output_observer_)
+    data->output_observer_->OnOutputSizeChanged(width, height);
 }
 
 void EventConverterInProcess::DispatchEventHelper(

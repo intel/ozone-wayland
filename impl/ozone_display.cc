@@ -50,6 +50,20 @@ OzoneDisplay::~OzoneDisplay() {
 }
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
+  if (!spec_) {
+    spec_ = new char[kMaxDisplaySize_];
+    if (desktop_screen_ && !desktop_screen_->geometry().size().IsEmpty())  {
+      gfx::Rect rect(desktop_screen_->geometry());
+      base::snprintf(spec_,
+                     kMaxDisplaySize_,
+                     "%dx%d*2",
+                     rect.width(),
+                     rect.height());
+    } else {
+      spec_[0] = '\0';
+    }
+  }
+
   if (spec_[0] == '\0')
     NOTREACHED() <<
         "OutputHandleMode should come from Wayland compositor first";
@@ -217,6 +231,13 @@ void OzoneDisplay::WillDestroyCurrentMessageLoop() {
   base::MessageLoop::current()->RemoveDestructionObserver(this);
 }
 
+void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
+  if (spec_)
+    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
+  if (desktop_screen_)
+    desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
+}
+
 const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
   // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
   // after multi screen support is added.
@@ -353,13 +374,6 @@ void OzoneDisplay::OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
   }
 }
 
-void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
-  if (spec_)
-    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
-  if (desktop_screen_)
-    desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
-}
-
 void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer) {
   DCHECK(event_converter_);
   event_converter_->SetWindowChangeObserver(observer);
@@ -388,23 +402,6 @@ void OzoneDisplay::OnChannelHostDestroyed() {
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
   display->channel_ = new OzoneDisplayChannel();
   display->channel_->Register();
-}
-
-void OzoneDisplay::OnOutputSizeChanged(WaylandScreen* screen,
-                                       int width,
-                                       int height) {
-  if (!(state_ & Initialized))
-    return;
-
-  if (screen != display_->PrimaryScreen()) {
-    NOTIMPLEMENTED() << "Multiple screens are not implemented";
-    return;
-  }
-
-  if (channel_ && (state_ & ChannelConnected))
-    event_converter_->OutputSizeChanged(width, height);
-  else
-    OnOutputSizeChanged(width, height);
 }
 
 void OzoneDisplay::CreateWidget(unsigned w) {
@@ -445,11 +442,9 @@ void OzoneDisplay::InitializeDispatcher(int fd) {
     event_converter_ = new RemoteEventDispatcher();
   } else {
     event_converter_ = new EventConverterInProcess();
-    spec_ = new char[kMaxDisplaySize_];
-    spec_[0] = '\0';
+    event_converter_->SetOutputChangeObserver(this);
     base::MessageLoop::current()->AddDestructionObserver(this);
   }
-
 
   if (display_) {
     display_->StartProcessingEvents();

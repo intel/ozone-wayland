@@ -11,6 +11,7 @@
     'keyboard_codes_ozone.h',
     'keyboard_code_conversion_ozone.h',
     'keyboard_code_conversion_ozone.cc',
+    'output_change_observer.h',
     'remote_event_dispatcher.h',
     'remote_event_dispatcher.cc',
   ],

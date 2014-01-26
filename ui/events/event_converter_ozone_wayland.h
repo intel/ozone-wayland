@@ -11,6 +11,7 @@
 namespace ozonewayland {
 
 class WindowChangeObserver;
+class OutputChangeObserver;
 
 // In OzoneWayland, Chrome relies on Wayland protocol to recieve callback of
 // any input/surface events. This class is responsible for the following:
@@ -41,10 +42,12 @@ class EventConverterOzoneWayland {
                          unsigned code,
                          unsigned modifiers) = 0;
 
-  virtual void OutputSizeChanged(unsigned width, unsigned height);
+  virtual void OutputSizeChanged(unsigned width, unsigned height) = 0;
   virtual void CloseWidget(unsigned handle) = 0;
   // Sets the window change observer. Ownership is retained by the caller.
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
+  // Sets the output change observer. Ownership is retained by the caller.
+  virtual void SetOutputChangeObserver(OutputChangeObserver* observer);
 
   protected:
   // Posts task to main loop of the thread on which Dispatcher was initialized.

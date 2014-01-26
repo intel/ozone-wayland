@@ -153,6 +153,9 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
         wl_registry_bind(registry, name, &wl_compositor_interface, 1));
   } else if (strcmp(interface, "wl_output") == 0) {
     WaylandScreen* screen = new WaylandScreen(disp, name);
+    if (!disp->screen_list_.empty())
+      NOTIMPLEMENTED() << "Multiple screens support is not implemented";
+
     disp->screen_list_.push_back(screen);
     // (kalyan) Support extended output.
     disp->primary_screen_ = disp->screen_list_.front();

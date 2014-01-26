@@ -130,7 +130,7 @@ void OzoneDisplayChannelHost::OnKeyNotify(ui::EventType type,
 
 void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
                                                   unsigned height) {
-  OzoneDisplay::GetInstance()->OnOutputSizeChanged(width, height);
+  dispatcher_->OutputSizeChanged(width, height);
 }
 
 void OzoneDisplayChannelHost::OnCloseWidget(unsigned handle) {

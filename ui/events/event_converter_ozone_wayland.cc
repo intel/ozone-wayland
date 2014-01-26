@@ -30,12 +30,12 @@ void EventConverterOzoneWayland::SetInstance(EventConverterOzoneWayland* impl) {
   impl_ = impl;
 }
 
-void EventConverterOzoneWayland::OutputSizeChanged(unsigned width,
-                                                   unsigned height) {
-}
-
 void EventConverterOzoneWayland::SetWindowChangeObserver(
     WindowChangeObserver* observer) {
+}
+
+void EventConverterOzoneWayland::SetOutputChangeObserver(
+    OutputChangeObserver* observer) {
 }
 
 void EventConverterOzoneWayland::PostTaskOnMainLoop(const base::Closure& task) {
