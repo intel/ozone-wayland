@@ -146,6 +146,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   CurrentState state_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
+  unsigned last_realized_widget_handle_;
   const int kMaxDisplaySize_;
 
   DesktopScreenWayland* desktop_screen_;

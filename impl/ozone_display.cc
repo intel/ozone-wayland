@@ -32,6 +32,7 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
 
 OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
+    last_realized_widget_handle_(0),
     kMaxDisplaySize_(20),
     desktop_screen_(NULL),
     display_(NULL),
@@ -121,6 +122,7 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
+  last_realized_widget_handle_ = w;
   widget->RealizeAcceleratedWidget();
   return (gfx::AcceleratedWidget)widget->egl_window();
 }
@@ -186,7 +188,13 @@ bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
 
 scoped_ptr<gfx::VSyncProvider>
 OzoneDisplay::CreateVSyncProvider(gfx::AcceleratedWidget w) {
-  return scoped_ptr<gfx::VSyncProvider>(new WaylandSyncProvider());
+  DCHECK(last_realized_widget_handle_);
+  // This is based on the fact that we realize accelerated widget and create
+  // its vsync provider immediately (right after widget is realized). This
+  // saves us going through list of realized widgets and finding the right one.
+  unsigned handle = last_realized_widget_handle_;
+  last_realized_widget_handle_ = 0;
+  return scoped_ptr<gfx::VSyncProvider>(new WaylandSyncProvider(handle));
 }
 
 bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {

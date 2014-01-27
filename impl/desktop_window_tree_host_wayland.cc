@@ -298,8 +298,6 @@ void DesktopWindowTreeHostWayland::CloseNow() {
   }
 
   desktop_native_widget_aura_->OnHostClosed();
-  OzoneDisplay::GetInstance()->SetWidgetState(widgetId,
-                                              OzoneDisplay::Destroyed);
 }
 
 aura::WindowTreeHost* DesktopWindowTreeHostWayland::AsWindowTreeHost() {
