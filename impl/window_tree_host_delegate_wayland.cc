@@ -6,6 +6,7 @@
 
 #include "ozone/impl/desktop_window_tree_host_wayland.h"
 #include "ozone/impl/ozone_display.h"
+#include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ui/events/event_utils.h"
 
 namespace ozonewayland {
@@ -21,7 +22,7 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
       aura_windows_(NULL) {
   DCHECK(base::MessagePumpOzone::Current());
   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
-  OzoneDisplay::GetInstance()->SetWindowChangeObserver(this);
+  EventConverterOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
 }
 
 WindowTreeHostDelegateWayland::~WindowTreeHostDelegateWayland() {
@@ -46,7 +47,7 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
 
     DCHECK(base::MessagePumpOzone::Current());
     base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
-    OzoneDisplay::GetInstance()->SetWindowChangeObserver(NULL);
+    EventConverterOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
   }
 
   if (aura_windows_) {

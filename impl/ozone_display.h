@@ -110,7 +110,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
                                  unsigned x,
                                  unsigned y,
                                  WidgetType type);
-  void SetWindowChangeObserver(WindowChangeObserver* observer);
 
   // EstablishChannel is called by OzoneProcessObserver (i.e. on BrowserProcess
   // side) when GPU Process is connected. This can be used to establish an IPC

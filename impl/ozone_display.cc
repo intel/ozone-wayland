@@ -360,11 +360,6 @@ void OzoneDisplay::OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
   }
 }
 
-void OzoneDisplay::SetWindowChangeObserver(WindowChangeObserver* observer) {
-  DCHECK(event_converter_);
-  event_converter_->SetWindowChangeObserver(observer);
-}
-
 void OzoneDisplay::EstablishChannel() {
   if (state_ & ChannelConnected)
     return;
