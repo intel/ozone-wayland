@@ -8,6 +8,7 @@
 #include "content/child/child_thread.h"
 #include "ozone/impl/ipc/messages.h"
 #include "ozone/impl/ozone_display.h"
+#include "ozone/ui/events/window_state_change_handler.h"
 
 namespace ozonewayland {
 // GpuChannelManager generates unique routeid for every new
@@ -61,15 +62,15 @@ void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
                                                WidgetState state,
                                                unsigned width,
                                                unsigned height) {
-  OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid,
-                                                    state,
-                                                    width,
-                                                    height);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(handleid,
+                                                          state,
+                                                          width,
+                                                          height);
 }
 
 void OzoneDisplayChannel::OnWidgetTitleChanged(unsigned widget,
                                                base::string16 title) {
-  OzoneDisplay::GetInstance()->OnWidgetTitleChanged(widget, title);
+  WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
 }
 
 void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
@@ -77,11 +78,11 @@ void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
                                                     unsigned x,
                                                     unsigned y,
                                                     WidgetType type) {
-  OzoneDisplay::GetInstance()->OnWidgetAttributesChanged(widget,
-                                                         parent,
-                                                         x,
-                                                         y,
-                                                         type);
+  WindowStateChangeHandler::GetInstance()->SetWidgetAttributes(widget,
+                                                               parent,
+                                                               x,
+                                                               y,
+                                                               type);
 }
 
 }  // namespace ozonewayland

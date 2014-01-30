@@ -122,7 +122,10 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
     InitializeDispatcher();
 
   opaque_handle++;
-  CreateWidget(opaque_handle);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
+                                                          CREATE,
+                                                          0,
+                                                          0);
 
   return (gfx::AcceleratedWidget)opaque_handle;
 }
@@ -188,17 +191,14 @@ bool OzoneDisplay::LoadEGLGLES2Bindings(
 
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
-  if (host_) {
-    host_->SendWidgetState(w, RESIZE, bounds.width(), bounds.height());
-    return true;
-  }
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
+                                                          RESIZE,
+                                                          bounds.width(),
+                                                          bounds.height());
 
-  DCHECK(display_);
-  WaylandWindow* window = GetWidget(w);
-  DCHECK(window);
-
-  return window->SetBounds(bounds);
+  return true;
 }
+
 
 scoped_ptr<gfx::VSyncProvider>
 OzoneDisplay::CreateVSyncProvider(gfx::AcceleratedWidget w) {

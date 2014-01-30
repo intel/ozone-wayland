@@ -10,6 +10,7 @@
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/window_tree_host_delegate_wayland.h"
+#include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
@@ -132,6 +133,8 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
   }
 
   bounds_ = params.bounds;
+  WindowStateChangeHandler* state_handler =
+      WindowStateChangeHandler::GetInstance();
   switch (params.type) {
     case Widget::InitParams::TYPE_TOOLTIP:
     case Widget::InitParams::TYPE_POPUP:
@@ -158,19 +161,19 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
       // menu type of window is opened. I.e. both pointer clicks and movements
       // will be routed only to the newly created window (grab installed). For
       // more information please refer to the Wayland protocol.
-      OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
-                                                       parent->window_,
-                                                       transientPos.x(),
-                                                       transientPos.y(),
-                                                       POPUP);
+      state_handler->SetWidgetAttributes(window_,
+                                         parent->window_,
+                                         transientPos.x(),
+                                         transientPos.y(),
+                                         POPUP);
       break;
     }
     case Widget::InitParams::TYPE_WINDOW:
-      OzoneDisplay::GetInstance()->SetWidgetAttributes(window_,
-                                                       0,
-                                                       0,
-                                                       0,
-                                                       WINDOW);
+      state_handler->SetWidgetAttributes(window_,
+                                         0,
+                                         0,
+                                         0,
+                                         WINDOW);
       break;
     case Widget::InitParams::TYPE_WINDOW_FRAMELESS:
       NOTIMPLEMENTED();
@@ -421,7 +424,7 @@ void DesktopWindowTreeHostWayland::Activate() {
     return;
 
   state_ |= Active;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, ACTIVE);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, ACTIVE);
 }
 
 void DesktopWindowTreeHostWayland::Deactivate() {
@@ -429,7 +432,7 @@ void DesktopWindowTreeHostWayland::Deactivate() {
     return;
 
   state_ &= ~Active;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, INACTIVE);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, INACTIVE);
 }
 
 bool DesktopWindowTreeHostWayland::IsActive() const {
@@ -443,7 +446,7 @@ void DesktopWindowTreeHostWayland::Maximize() {
   state_ |= Maximized;
   state_ &= ~Minimized;
   state_ &= ~Normal;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, MAXIMIZED);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, MAXIMIZED);
 }
 
 void DesktopWindowTreeHostWayland::Minimize() {
@@ -453,7 +456,7 @@ void DesktopWindowTreeHostWayland::Minimize() {
   state_ &= ~Maximized;
   state_ |= Minimized;
   state_ &= ~Normal;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, MINIMIZED);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, MINIMIZED);
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
@@ -463,7 +466,7 @@ void DesktopWindowTreeHostWayland::Restore() {
   state_ &= ~Maximized;
   state_ &= ~Minimized;
   state_ |= Normal;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, RESTORE);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, RESTORE);
 }
 
 bool DesktopWindowTreeHostWayland::IsMaximized() const {
@@ -495,7 +498,7 @@ void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
 
 bool DesktopWindowTreeHostWayland::SetWindowTitle(const base::string16& title) {
   if (title.compare(title_)) {
-    OzoneDisplay::GetInstance()->SetWidgetTitle(window_, title);
+    WindowStateChangeHandler::GetInstance()->SetWidgetTitle(window_, title);
     title_ = title;
     return true;
   }
@@ -567,10 +570,10 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
   // attributes already here, ensures that wl_egl_window_resize is resized
   // before eglsurface is resized. This doesn't add any extra overhead as the
   // IPC call needs to be done.
-  OzoneDisplay::GetInstance()->SetWidgetState(window_,
-                                              FULLSCREEN,
-                                              rect.width(),
-                                              rect.height());
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                          FULLSCREEN,
+                                                          rect.width(),
+                                                          rect.height());
   NotifyHostResized(rect.size());
 }
 
@@ -642,7 +645,7 @@ void DesktopWindowTreeHostWayland::Show() {
   state_ |= Visible;
   // Window is being shown, set the state as active to be able to handle events.
   Activate();
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, SHOW);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, SHOW);
 }
 
 void DesktopWindowTreeHostWayland::Hide() {
@@ -650,7 +653,7 @@ void DesktopWindowTreeHostWayland::Hide() {
     return;
 
   state_ &= ~Visible;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, HIDE);
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, HIDE);
 }
 
 void DesktopWindowTreeHostWayland::ToggleFullScreen() {
@@ -670,10 +673,10 @@ void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   if (size_changed) {
-    OzoneDisplay::GetInstance()->SetWidgetState(window_,
-                                                RESIZE,
-                                                bounds.width(),
-                                                bounds.height());
+    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                            RESIZE,
+                                                            bounds.width(),
+                                                            bounds.height());
     NotifyHostResized(bounds.size());
   } else {
     compositor()->ScheduleRedrawRect(bounds);
