@@ -37,52 +37,6 @@ void OzoneDisplayChannelHost::EstablishChannel() {
           this));
 }
 
-void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
-                                              WidgetState state,
-                                              unsigned width,
-                                              unsigned height) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::SendWidgetState,
-            base::Unretained(this), w, state, width, height));
-    return;
-  }
-
-  Send(new WaylandWindow_State(CHANNEL_ROUTE_ID, w, state, width, height));
-}
-
-void OzoneDisplayChannelHost::SendWidgetAttributes(unsigned widget,
-                                                   unsigned parent,
-                                                   unsigned x,
-                                                   unsigned y,
-                                                   WidgetType type) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::SendWidgetAttributes,
-            base::Unretained(this), widget, parent, x, y, type));
-    return;
-  }
-
-  Send(new WaylandWindow_Attributes(CHANNEL_ROUTE_ID,
-                                    widget,
-                                    parent,
-                                    x,
-                                    y,
-                                    type));
-}
-
-void OzoneDisplayChannelHost::SendWidgetTitle(
-    unsigned w, const base::string16& title) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::SendWidgetTitle,
-            base::Unretained(this), w, title));
-    return;
-  }
-
-  Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
-}
-
 void OzoneDisplayChannelHost::SetWidgetState(unsigned w,
                                              WidgetState state,
                                              unsigned width,

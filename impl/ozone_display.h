@@ -6,10 +6,8 @@
 #define OZONE_IMPL_OZONE_DISPLAY_H_
 
 #include "base/compiler_specific.h"
-#include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/output_change_observer.h"
-#include "ozone/ui/events/window_constants.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
@@ -21,7 +19,6 @@ class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
 class WaylandDisplay;
 class WaylandWindow;
-class WaylandScreen;
 class WindowChangeObserver;
 
 class OZONE_WAYLAND_EXPORT OzoneDisplay
@@ -64,28 +61,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   const DesktopScreenWayland* GetPrimaryScreen() const;
 
-  void SetWidgetState(gfx::AcceleratedWidget w,
-                      WidgetState state,
-                      unsigned width = 0,
-                      unsigned height = 0);
-  void OnWidgetStateChanged(gfx::AcceleratedWidget w,
-                            WidgetState state,
-                            unsigned width,
-                            unsigned height);
-  void SetWidgetTitle(gfx::AcceleratedWidget w, const base::string16& title);
-  void OnWidgetTitleChanged(gfx::AcceleratedWidget w,
-                            const base::string16& title);
-  void SetWidgetAttributes(gfx::AcceleratedWidget widget,
-                           gfx::AcceleratedWidget parent,
-                           unsigned x,
-                           unsigned y,
-                           WidgetType type);
-  void OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
-                                 gfx::AcceleratedWidget parent,
-                                 unsigned x,
-                                 unsigned y,
-                                 WidgetType type);
-
   // EstablishChannel is called by OzoneProcessObserver (i.e. on BrowserProcess
   // side) when GPU Process is connected. This can be used to establish an IPC
   // channel between DisplayChannelHost and DisplayChannel.
@@ -108,7 +83,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   typedef unsigned CurrentState;
 
-  void CreateWidget(unsigned w);
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
   void Terminate();

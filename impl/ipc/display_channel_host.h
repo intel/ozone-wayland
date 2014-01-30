@@ -32,16 +32,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
 
   void EstablishChannel();
 
-  void SendWidgetState(unsigned w,
-                       WidgetState state,
-                       unsigned width,
-                       unsigned height);
-  void SendWidgetTitle(unsigned w, const base::string16& title);
-  void SendWidgetAttributes(unsigned widget,
-                            unsigned parent,
-                            unsigned x,
-                            unsigned y,
-                            WidgetType type);
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               WidgetState state,
