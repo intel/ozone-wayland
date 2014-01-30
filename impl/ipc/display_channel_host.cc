@@ -13,13 +13,14 @@
 namespace ozonewayland {
 
 // This should be same as defined in display_channel.
-#define CHANNEL_ROUTE_ID -0x1
+const int CHANNEL_ROUTE_ID = -0x1;
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : IPC::ChannelProxy::MessageFilter(),
       dispatcher_(EventConverterOzoneWayland::GetInstance()),
       channel_(NULL),
       deferred_messages_() {
+  WindowStateChangeHandler::SetInstance(this);
 }
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
@@ -81,6 +82,53 @@ void OzoneDisplayChannelHost::SendWidgetTitle(
 
   Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
 }
+
+void OzoneDisplayChannelHost::SetWidgetState(unsigned w,
+                                             WidgetState state,
+                                             unsigned width,
+                                             unsigned height) {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::SetWidgetState,
+            base::Unretained(this), w, state, width, height));
+    return;
+  }
+
+  Send(new WaylandWindow_State(CHANNEL_ROUTE_ID, w, state, width, height));
+}
+
+void OzoneDisplayChannelHost::SetWidgetTitle(unsigned w,
+                                             const base::string16& title) {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::SetWidgetTitle,
+            base::Unretained(this), w, title));
+    return;
+  }
+
+  Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
+}
+
+void OzoneDisplayChannelHost::SetWidgetAttributes(unsigned widget,
+                                                  unsigned parent,
+                                                  unsigned x,
+                                                  unsigned y,
+                                                  WidgetType type) {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::SetWidgetAttributes,
+            base::Unretained(this), widget, parent, x, y, type));
+    return;
+  }
+
+  Send(new WaylandWindow_Attributes(CHANNEL_ROUTE_ID,
+                                    widget,
+                                    parent,
+                                    x,
+                                    y,
+                                    type));
+}
+
 
 void OzoneDisplayChannelHost::OnChannelEstablished() {
   DCHECK(channel_);

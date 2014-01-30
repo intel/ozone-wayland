@@ -8,7 +8,7 @@
 #include <queue>
 
 #include "content/browser/gpu/gpu_process_host.h"
-#include "ozone/ui/events/window_constants.h"
+#include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/events/event_constants.h"
 
 namespace IPC {
@@ -24,7 +24,8 @@ class EventConverterOzoneWayland;
 // always be only one OzoneDisplayChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
+class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
+                                public WindowStateChangeHandler {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
@@ -41,6 +42,18 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter {
                             unsigned x,
                             unsigned y,
                             WidgetType type);
+  // WindowStateChangeHandler implementation:
+  virtual void SetWidgetState(unsigned widget,
+                              WidgetState state,
+                              unsigned width = 0,
+                              unsigned height = 0) OVERRIDE;
+  virtual void SetWidgetTitle(unsigned w,
+                              const base::string16& title) OVERRIDE;
+  virtual void SetWidgetAttributes(unsigned widget,
+                                   unsigned parent,
+                                   unsigned x,
+                                   unsigned y,
+                                   WidgetType type) OVERRIDE;
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle,
                       ui::EventType type,

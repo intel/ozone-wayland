@@ -50,6 +50,106 @@ void WaylandDisplay::FlushDisplay() {
   wl_display_flush(display_);
 }
 
+void WaylandDisplay::SetWidgetState(unsigned w,
+                                    WidgetState state,
+                                    unsigned width,
+                                    unsigned height) {
+  switch (state) {
+    case CREATE:
+    {
+      CreateAcceleratedSurface(w);
+      break;
+    }
+    case FULLSCREEN:
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->ToggleFullscreen();
+      widget->SetBounds(gfx::Rect(0, 0, width, height));
+      break;
+    }
+    case MAXIMIZED:
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Maximize();
+      break;
+    }
+    case MINIMIZED:
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Minimize();
+      break;
+    }
+    case RESTORE:
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Restore();
+      break;
+    }
+    case ACTIVE:
+      NOTIMPLEMENTED();
+      break;
+    case INACTIVE:
+      NOTIMPLEMENTED();
+      break;
+    case SHOW:
+      NOTIMPLEMENTED();
+      break;
+    case HIDE:
+      NOTIMPLEMENTED();
+      break;
+    case RESIZE:
+    {
+      WaylandWindow* window = GetWidget(w);
+      DCHECK(window);
+      window->SetBounds(gfx::Rect(0, 0, width, height));
+      break;
+    }
+    case DESTROYED:
+    {
+      DestroyWindow(w);
+      if (widget_map_.empty())
+        StopProcessingEvents();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+void WaylandDisplay::SetWidgetTitle(unsigned w,
+                                    const base::string16& title) {
+  WaylandWindow* widget = GetWidget(w);
+  DCHECK(widget);
+  widget->SetWindowTitle(title);
+}
+
+void WaylandDisplay::SetWidgetAttributes(unsigned widget,
+                                         unsigned parent,
+                                         unsigned x,
+                                         unsigned y,
+                                         WidgetType type) {
+  WaylandWindow* window = GetWidget(widget);
+  WaylandWindow* parent_window = GetWidget(parent);
+  DCHECK(window);
+  switch (type) {
+  case WINDOW:
+    window->SetShellAttributes(WaylandWindow::TOPLEVEL);
+    break;
+  case WINDOWFRAMELESS:
+    NOTIMPLEMENTED();
+    break;
+  case POPUP:
+    DCHECK(parent_window);
+    window->SetShellAttributes(WaylandWindow::POPUP,
+                               parent_window->ShellSurface(),
+                               x,
+                               y);
+    break;
+  default:
+    break;
+  }
+}
+
 WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     registry_(NULL),
     compositor_(NULL),
@@ -83,8 +183,10 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
 
   if (wl_display_roundtrip(display_) < 0)
     terminate();
-  else if (type == RegisterAsNeeded)
+  else if (type == RegisterAsNeeded) {
+    WindowStateChangeHandler::SetInstance(this);
     display_poll_thread_ = new WaylandDisplayPollThread(display_);
+  }
 }
 
 WaylandDisplay::~WaylandDisplay() {
@@ -138,6 +240,12 @@ void WaylandDisplay::terminate() {
 void WaylandDisplay::SyncDisplay() {
   wl_display_roundtrip(display_);
 }
+
+WaylandWindow* WaylandDisplay::GetWidget(unsigned w) {
+  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
+  return it == widget_map_.end() ? NULL : it->second;
+}
+
 
 // static
 void WaylandDisplay::DisplayHandleGlobal(void *data,

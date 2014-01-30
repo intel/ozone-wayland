@@ -15,6 +15,7 @@
 #include <map>
 
 #include "base/basictypes.h"
+#include "ozone/ui/events/window_state_change_handler.h"
 
 namespace ozonewayland {
 
@@ -29,7 +30,7 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
-class WaylandDisplay {
+class WaylandDisplay : public WindowStateChangeHandler {
  public:
   static WaylandDisplay* GetInstance() { return instance_; }
   // Returns a pointer to wl_display.
@@ -72,6 +73,18 @@ class WaylandDisplay {
   void StopProcessingEvents();
   // Flush Display.
   void FlushDisplay();
+  // WindowStateChangeHandler implementation:
+  virtual void SetWidgetState(unsigned widget,
+                              WidgetState state,
+                              unsigned width = 0,
+                              unsigned height = 0) OVERRIDE;
+  virtual void SetWidgetTitle(unsigned w,
+                              const base::string16& title) OVERRIDE;
+  virtual void SetWidgetAttributes(unsigned widget,
+                                   unsigned parent,
+                                   unsigned x,
+                                   unsigned y,
+                                   WidgetType type) OVERRIDE;
 
  private:
   enum RegistrationType {
@@ -80,9 +93,10 @@ class WaylandDisplay {
   };
 
   explicit WaylandDisplay(RegistrationType type);
-  ~WaylandDisplay();
+  virtual ~WaylandDisplay();
   void terminate();
   void SyncDisplay();
+  WaylandWindow* GetWidget(unsigned w);
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
