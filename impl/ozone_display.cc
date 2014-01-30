@@ -189,7 +189,7 @@ bool OzoneDisplay::LoadEGLGLES2Bindings(
 bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                     const gfx::Rect& bounds) {
   if (host_) {
-    host_->SendWidgetState(w, Resize, bounds.width(), bounds.height());
+    host_->SendWidgetState(w, RESIZE, bounds.width(), bounds.height());
     return true;
   }
 
@@ -247,52 +247,52 @@ void OzoneDisplay::OnWidgetStateChanged(gfx::AcceleratedWidget w,
                                        unsigned width,
                                        unsigned height) {
   switch (state) {
-    case Create:
+    case CREATE:
     {
       CreateWidget(w);
       break;
     }
-    case FullScreen:
+    case FULLSCREEN:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->ToggleFullscreen();
       widget->SetBounds(gfx::Rect(0, 0, width, height));
       break;
     }
-    case Maximized:
+    case MAXIMIZED:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Maximize();
       break;
     }
-    case Minimized:
+    case MINIMIZED:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Minimize();
       break;
     }
-    case Restore:
+    case RESTORE:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Restore();
       break;
     }
-    case Active:
+    case ACTIVE:
       NOTIMPLEMENTED();
       break;
-    case InActive:
+    case INACTIVE:
       NOTIMPLEMENTED();
       break;
-    case Show:
+    case SHOW:
       NOTIMPLEMENTED();
       break;
-    case Hide:
+    case HIDE:
       NOTIMPLEMENTED();
       break;
-    case Resize:
+    case RESIZE:
       AttemptToResizeAcceleratedWidget(w, gfx::Rect(0, 0, width, height));
       break;
-    case Destroyed:
+    case DESTROYED:
     {
       display_->DestroyWindow(w);
       const std::map<unsigned, WaylandWindow*> widget_map =
@@ -342,13 +342,13 @@ void OzoneDisplay::OnWidgetAttributesChanged(gfx::AcceleratedWidget widget,
   WaylandWindow* parent_window = GetWidget(parent);
   DCHECK(window);
   switch (type) {
-  case Window:
+  case WINDOW:
     window->SetShellAttributes(WaylandWindow::TOPLEVEL);
     break;
-  case WindowFrameLess:
+  case WINDOWFRAMELESS:
     NOTIMPLEMENTED();
     break;
-  case Popup:
+  case POPUP:
     DCHECK(parent_window);
     window->SetShellAttributes(WaylandWindow::POPUP,
                                parent_window->ShellSurface(),
@@ -390,7 +390,7 @@ void OzoneDisplay::CreateWidget(unsigned w) {
   if (display_)
     display_->CreateAcceleratedSurface(w);
   else
-    host_->SendWidgetState(w, Create, 0, 0);
+    host_->SendWidgetState(w, CREATE, 0, 0);
 }
 
 WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {

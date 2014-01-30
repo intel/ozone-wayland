@@ -162,7 +162,7 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
                                                        parent->window_,
                                                        transientPos.x(),
                                                        transientPos.y(),
-                                                       OzoneDisplay::Popup);
+                                                       POPUP);
       break;
     }
     case Widget::InitParams::TYPE_WINDOW:
@@ -170,7 +170,7 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
                                                        0,
                                                        0,
                                                        0,
-                                                       OzoneDisplay::Window);
+                                                       WINDOW);
       break;
     case Widget::InitParams::TYPE_WINDOW_FRAMELESS:
       NOTIMPLEMENTED();
@@ -421,7 +421,7 @@ void DesktopWindowTreeHostWayland::Activate() {
     return;
 
   state_ |= Active;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Active);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, ACTIVE);
 }
 
 void DesktopWindowTreeHostWayland::Deactivate() {
@@ -429,7 +429,7 @@ void DesktopWindowTreeHostWayland::Deactivate() {
     return;
 
   state_ &= ~Active;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::InActive);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, INACTIVE);
 }
 
 bool DesktopWindowTreeHostWayland::IsActive() const {
@@ -443,7 +443,7 @@ void DesktopWindowTreeHostWayland::Maximize() {
   state_ |= Maximized;
   state_ &= ~Minimized;
   state_ &= ~Normal;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Maximized);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, MAXIMIZED);
 }
 
 void DesktopWindowTreeHostWayland::Minimize() {
@@ -453,7 +453,7 @@ void DesktopWindowTreeHostWayland::Minimize() {
   state_ &= ~Maximized;
   state_ |= Minimized;
   state_ &= ~Normal;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Minimized);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, MINIMIZED);
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
@@ -463,7 +463,7 @@ void DesktopWindowTreeHostWayland::Restore() {
   state_ &= ~Maximized;
   state_ &= ~Minimized;
   state_ |= Normal;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Restore);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, RESTORE);
 }
 
 bool DesktopWindowTreeHostWayland::IsMaximized() const {
@@ -568,7 +568,7 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
   // before eglsurface is resized. This doesn't add any extra overhead as the
   // IPC call needs to be done.
   OzoneDisplay::GetInstance()->SetWidgetState(window_,
-                                              OzoneDisplay::FullScreen,
+                                              FULLSCREEN,
                                               rect.width(),
                                               rect.height());
   NotifyHostResized(rect.size());
@@ -642,7 +642,7 @@ void DesktopWindowTreeHostWayland::Show() {
   state_ |= Visible;
   // Window is being shown, set the state as active to be able to handle events.
   Activate();
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Show);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, SHOW);
 }
 
 void DesktopWindowTreeHostWayland::Hide() {
@@ -650,7 +650,7 @@ void DesktopWindowTreeHostWayland::Hide() {
     return;
 
   state_ &= ~Visible;
-  OzoneDisplay::GetInstance()->SetWidgetState(window_, OzoneDisplay::Hide);
+  OzoneDisplay::GetInstance()->SetWidgetState(window_, HIDE);
 }
 
 void DesktopWindowTreeHostWayland::ToggleFullScreen() {
@@ -671,7 +671,7 @@ void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   if (size_changed) {
     OzoneDisplay::GetInstance()->SetWidgetState(window_,
-                                                OzoneDisplay::Resize,
+                                                RESIZE,
                                                 bounds.width(),
                                                 bounds.height());
     NotifyHostResized(bounds.size());

@@ -12,9 +12,11 @@ namespace ozonewayland {
 // etc.
 class OutputChangeObserver {
  public:
-  virtual ~OutputChangeObserver() {}
   // Called when the current output size has changed.
   virtual void OnOutputSizeChanged(unsigned width, unsigned height) = 0;
+
+ protected:
+  virtual ~OutputChangeObserver() {}
 };
 
 }  // namespace ozonewayland

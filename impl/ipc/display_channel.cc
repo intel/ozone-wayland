@@ -58,7 +58,7 @@ void OzoneDisplayChannel::Register() {
 }
 
 void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
-                                               unsigned state,
+                                               WidgetState state,
                                                unsigned width,
                                                unsigned height) {
   OzoneDisplay::GetInstance()->OnWidgetStateChanged(handleid,
@@ -76,7 +76,7 @@ void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
                                                     unsigned parent,
                                                     unsigned x,
                                                     unsigned y,
-                                                    unsigned type) {
+                                                    WidgetType type) {
   OzoneDisplay::GetInstance()->OnWidgetAttributesChanged(widget,
                                                          parent,
                                                          x,

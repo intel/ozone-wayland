@@ -7,6 +7,7 @@
 
 #include "base/strings/string16.h"
 #include "ipc/ipc_listener.h"
+#include "ozone/ui/events/window_constants.h"
 
 namespace ozonewayland {
 
@@ -25,7 +26,7 @@ class OzoneDisplayChannel : public IPC::Listener {
   void OnEstablishChannel();
   void Register();
   void OnWidgetStateChanged(unsigned handleid,
-                            unsigned state,
+                            WidgetState state,
                             unsigned width,
                             unsigned height);
   void OnWidgetTitleChanged(unsigned widget, base::string16 title);
@@ -33,7 +34,7 @@ class OzoneDisplayChannel : public IPC::Listener {
                                  unsigned parent,
                                  unsigned x,
                                  unsigned y,
-                                 unsigned type);
+                                 WidgetType type);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);

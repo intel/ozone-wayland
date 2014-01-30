@@ -37,7 +37,7 @@ void OzoneDisplayChannelHost::EstablishChannel() {
 }
 
 void OzoneDisplayChannelHost::SendWidgetState(unsigned w,
-                                              unsigned state,
+                                              WidgetState state,
                                               unsigned width,
                                               unsigned height) {
   if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
@@ -54,7 +54,7 @@ void OzoneDisplayChannelHost::SendWidgetAttributes(unsigned widget,
                                                    unsigned parent,
                                                    unsigned x,
                                                    unsigned y,
-                                                   unsigned type) {
+                                                   WidgetType type) {
   if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
     content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
         base::Bind(&OzoneDisplayChannelHost::SendWidgetAttributes,

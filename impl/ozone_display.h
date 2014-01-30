@@ -9,6 +9,7 @@
 #include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/output_change_observer.h"
+#include "ozone/ui/events/window_constants.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
@@ -27,32 +28,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
     : public gfx::SurfaceFactoryOzone,
       public OutputChangeObserver {
  public:
-  enum {
-    Create = 1,  // Create a new Widget
-    Show = 2,  // Widget is visible.
-    Hide = 3,  // Widget is hidden.
-    FullScreen = 4,  // Widget is in fullscreen mode.
-    Maximized = 5,  // Widget is maximized,
-    Minimized = 6,  // Widget is minimized.
-    Restore = 7,  // Restore Widget.
-    Active = 8,  // Widget is Activated.
-    InActive = 9,  // Widget is DeActivated.
-    Resize = 10,  // Widget is Resized.
-    Destroyed = 11  // Widget is Destroyed.
-  };
-
-  typedef unsigned WidgetState;
-
-  enum {
-    Window = 1,  // A decorated Window.
-    WindowFrameLess = 2,  // An undecorated Window.
-    Popup = 3 // An undecorated Window, with transient positioning relative to
-              // its parent and in which the input pointer is implicit grabbed
-              // (i.e. Wayland install the grab) by the Window.
-  };
-
-  typedef unsigned WidgetType;
-
   static OzoneDisplay* GetInstance();
 
   OzoneDisplay();
