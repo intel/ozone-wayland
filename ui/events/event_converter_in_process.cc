@@ -33,10 +33,10 @@ void EventConverterInProcess::MotionNotify(float x, float y) {
 }
 
 void EventConverterInProcess::ButtonNotify(unsigned handle,
-                                                ui::EventType type,
-                                                ui::EventFlags flags,
-                                                float x,
-                                                float y) {
+                                           ui::EventType type,
+                                           ui::EventFlags flags,
+                                           float x,
+                                           float y) {
   gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(type,
                                                         position,
@@ -53,9 +53,9 @@ void EventConverterInProcess::ButtonNotify(unsigned handle,
 }
 
 void EventConverterInProcess::AxisNotify(float x,
-                                              float y,
-                                              int xoffset,
-                                              int yoffset) {
+                                         float y,
+                                         int xoffset,
+                                         int yoffset) {
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
 
@@ -69,8 +69,8 @@ void EventConverterInProcess::AxisNotify(float x,
 }
 
 void EventConverterInProcess::PointerEnter(unsigned handle,
-                                                float x,
-                                                float y) {
+                                           float x,
+                                           float y) {
   gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
                                                         position,
@@ -86,8 +86,8 @@ void EventConverterInProcess::PointerEnter(unsigned handle,
 }
 
 void EventConverterInProcess::PointerLeave(unsigned handle,
-                                                float x,
-                                                float y) {
+                                           float x,
+                                           float y) {
   gfx::Point position(x, y);
   scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_EXITED,
                                                         position,
@@ -104,8 +104,8 @@ void EventConverterInProcess::PointerLeave(unsigned handle,
 }
 
 void EventConverterInProcess::KeyNotify(ui::EventType type,
-                                             unsigned code,
-                                             unsigned modifiers) {
+                                        unsigned code,
+                                        unsigned modifiers) {
   scoped_ptr<ui::KeyEvent> keyev(new ui::KeyEvent(type,
       KeyboardCodeFromNativeKeysym(code), modifiers, true));
 
