@@ -8,7 +8,6 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/process_type.h"
 #include "ozone/impl/ipc/messages.h"
-#include "ozone/impl/ozone_display.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 
 namespace ozonewayland {
@@ -28,7 +27,6 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
   DCHECK(deferred_messages_.empty());
-  OzoneDisplay::GetInstance()->OnChannelHostDestroyed();
   BrowserChildProcessObserver::Remove(this);
 }
 

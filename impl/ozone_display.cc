@@ -230,23 +230,8 @@ const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
   return desktop_screen_;
 }
 
-void OzoneDisplay::EstablishChannel() {
-  if (state_ & ChannelConnected)
-    return;
-
-  if (!host_)
-    host_ = new OzoneDisplayChannelHost();
-
-  state_ |= ChannelConnected;
-}
-
 void OzoneDisplay::OnChannelEstablished() {
   state_ |= ChannelConnected;
-}
-
-void OzoneDisplay::OnChannelHostDestroyed() {
-  state_ &= ~ChannelConnected;
-  host_ = NULL;
 }
 
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
@@ -289,7 +274,8 @@ void OzoneDisplay::InitializeDispatcher(int fd) {
   if (display_) {
     display_->StartProcessingEvents();
   } else {
-    EstablishChannel();
+    DCHECK(!host_);
+    host_ = new OzoneDisplayChannelHost();
   }
 }
 
