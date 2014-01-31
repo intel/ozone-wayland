@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" package="chromium" version="@VERSION@" install-location="internal-only">
+	<label>Chromium Browser</label>
+	<author href="https://01.org/ozone-wayland">Ozone Wayland Authors</author>
+	<description>Chromium Browser</description>
+	<ui-application appid="chromium-browser" exec="/usr/lib/chromium/chrome" nodisplay="false" multiple="false" type="capp" taskmanage="true">
+		<label>Chromium Browser</label>
+		<icon>chromium.png</icon>
+	</ui-application>
+</manifest>
