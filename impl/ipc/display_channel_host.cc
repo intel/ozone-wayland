@@ -23,6 +23,7 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
       deferred_messages_() {
   WindowStateChangeHandler::SetInstance(this);
   BrowserChildProcessObserver::Add(this);
+  EstablishChannel();
 }
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {

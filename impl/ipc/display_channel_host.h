@@ -33,8 +33,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
   typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
 
-  void EstablishChannel();
-
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               WidgetState state,
@@ -73,6 +71,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
 
  private:
   virtual ~OzoneDisplayChannelHost();
+  void EstablishChannel();
   void OnChannelEstablished();
   void UpdateConnection();
   EventConverterOzoneWayland* dispatcher_;

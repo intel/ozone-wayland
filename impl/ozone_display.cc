@@ -237,7 +237,6 @@ void OzoneDisplay::EstablishChannel() {
   if (!host_)
     host_ = new OzoneDisplayChannelHost();
 
-  host_->EstablishChannel();
   state_ |= ChannelConnected;
 }
 
