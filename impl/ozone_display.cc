@@ -11,7 +11,6 @@
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/vsync_provider_wayland.h"
-#include "ozone/impl/ipc/child_process_observer.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
 #include "ozone/ui/events/event_converter_in_process.h"
@@ -36,7 +35,6 @@ OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
     kMaxDisplaySize_(20),
     desktop_screen_(NULL),
     display_(NULL),
-    child_process_observer_(NULL),
     channel_(NULL),
     host_(NULL),
     event_converter_(NULL),
@@ -275,7 +273,6 @@ void OzoneDisplay::Terminate() {
     delete[] spec_;
 
   delete channel_;
-  delete child_process_observer_;
   delete desktop_screen_;
   delete display_;
   delete event_converter_;
@@ -293,7 +290,6 @@ void OzoneDisplay::InitializeDispatcher(int fd) {
   if (display_) {
     display_->StartProcessingEvents();
   } else {
-    child_process_observer_ = new OzoneProcessObserver(this);
     EstablishChannel();
   }
 }

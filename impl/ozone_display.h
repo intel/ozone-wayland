@@ -14,7 +14,6 @@ namespace ozonewayland {
 
 class DesktopScreenWayland;
 class EventConverterOzoneWayland;
-class OzoneProcessObserver;
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
 class WaylandDisplay;
@@ -98,7 +97,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   DesktopScreenWayland* desktop_screen_;
   WaylandDisplay* display_;
-  OzoneProcessObserver* child_process_observer_;
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;
   EventConverterOzoneWayland* event_converter_;

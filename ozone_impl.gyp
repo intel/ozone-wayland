@@ -38,8 +38,6 @@
         'impl/vsync_provider_wayland.h',
         'impl/window_tree_host_delegate_wayland.cc',
         'impl/window_tree_host_delegate_wayland.h',
-        'impl/ipc/child_process_observer.h',
-        'impl/ipc/child_process_observer.cc',
         'impl/ipc/display_channel.h',
         'impl/ipc/display_channel.cc',
         'impl/ipc/display_channel_host.h',
