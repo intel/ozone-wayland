@@ -8,6 +8,8 @@
 #include <queue>
 
 #include "content/browser/gpu/gpu_process_host.h"
+#include "content/public/browser/browser_child_process_observer.h"
+#include "content/public/browser/child_process_data.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/events/event_constants.h"
 
@@ -25,6 +27,7 @@ class EventConverterOzoneWayland;
 // to these messages in IO thread.
 
 class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
+                                public content::BrowserChildProcessObserver,
                                 public WindowStateChangeHandler {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
@@ -61,6 +64,10 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   virtual void OnFilterAdded(IPC::Channel* channel) OVERRIDE;
   virtual void OnChannelClosing() OVERRIDE;
+
+  // Implement |BrowserChildProcessObserver|.
+  virtual void BrowserChildProcessHostConnected(
+    const content::ChildProcessData& data) OVERRIDE;
 
   bool Send(IPC::Message* message);
 

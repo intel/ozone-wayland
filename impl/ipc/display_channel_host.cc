@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/process_type.h"
 #include "ozone/impl/ipc/messages.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
@@ -21,11 +22,13 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
       channel_(NULL),
       deferred_messages_() {
   WindowStateChangeHandler::SetInstance(this);
+  BrowserChildProcessObserver::Add(this);
 }
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
-  OzoneDisplay::GetInstance()->OnChannelHostDestroyed();
   DCHECK(deferred_messages_.empty());
+  OzoneDisplay::GetInstance()->OnChannelHostDestroyed();
+  BrowserChildProcessObserver::Remove(this);
 }
 
 void OzoneDisplayChannelHost::EstablishChannel() {
@@ -167,6 +170,15 @@ void OzoneDisplayChannelHost::OnChannelClosing() {
   channel_ = NULL;
 }
 
+void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
+  const content::ChildProcessData& data) {
+  // we observe GPU process being forked or re-spawned for adding ourselves as
+  // an ipc filter and listen to any relevant messages coming from GpuProcess
+  // side.
+  if (data.process_type == content::PROCESS_TYPE_GPU)
+    EstablishChannel();
+}
+
 bool OzoneDisplayChannelHost::Send(IPC::Message* message) {
   if (!channel_) {
     deferred_messages_.push(message);
@@ -181,6 +193,7 @@ bool OzoneDisplayChannelHost::Send(IPC::Message* message) {
 }
 
 void OzoneDisplayChannelHost::UpdateConnection() {
+  DCHECK(!channel_);
   content::GpuProcessHost* host = content::GpuProcessHost::Get(
       content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
       content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
