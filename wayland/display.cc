@@ -15,6 +15,49 @@
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
+WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
+    registry_(NULL),
+    compositor_(NULL),
+    shell_(NULL),
+    shm_(NULL),
+    primary_screen_(NULL),
+    primary_input_(NULL),
+    display_poll_thread_(NULL),
+    screen_list_(),
+    input_list_(),
+    widget_map_(),
+    serial_(0) {
+  display_ = wl_display_connect(NULL);
+  if (!display_)
+    return;
+
+  instance_ = this;
+  static const struct wl_registry_listener registry_all = {
+    WaylandDisplay::DisplayHandleGlobal
+  };
+
+  static const struct wl_registry_listener registry_output = {
+    WaylandDisplay::DisplayHandleOutputOnly
+  };
+
+  registry_ = wl_display_get_registry(display_);
+  if (type == RegisterAsNeeded)
+    wl_registry_add_listener(registry_, &registry_all, this);
+  else
+    wl_registry_add_listener(registry_, &registry_output, this);
+
+  if (wl_display_roundtrip(display_) < 0)
+    terminate();
+  else if (type == RegisterAsNeeded) {
+    WindowStateChangeHandler::SetInstance(this);
+    display_poll_thread_ = new WaylandDisplayPollThread(display_);
+  }
+}
+
+WaylandDisplay::~WaylandDisplay() {
+  terminate();
+}
+
 const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
   return screen_list_;
 }
@@ -48,6 +91,10 @@ void WaylandDisplay::StopProcessingEvents() {
 
 void WaylandDisplay::FlushDisplay() {
   wl_display_flush(display_);
+}
+
+void WaylandDisplay::SyncDisplay() {
+  wl_display_roundtrip(display_);
 }
 
 void WaylandDisplay::SetWidgetState(unsigned w,
@@ -150,49 +197,6 @@ void WaylandDisplay::SetWidgetAttributes(unsigned widget,
   }
 }
 
-WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
-    registry_(NULL),
-    compositor_(NULL),
-    shell_(NULL),
-    shm_(NULL),
-    primary_screen_(NULL),
-    primary_input_(NULL),
-    display_poll_thread_(NULL),
-    screen_list_(),
-    input_list_(),
-    widget_map_(),
-    serial_(0) {
-  display_ = wl_display_connect(NULL);
-  if (!display_)
-    return;
-
-  instance_ = this;
-  static const struct wl_registry_listener registry_all = {
-    WaylandDisplay::DisplayHandleGlobal
-  };
-
-  static const struct wl_registry_listener registry_output = {
-    WaylandDisplay::DisplayHandleOutputOnly
-  };
-
-  registry_ = wl_display_get_registry(display_);
-  if (type == RegisterAsNeeded)
-    wl_registry_add_listener(registry_, &registry_all, this);
-  else
-    wl_registry_add_listener(registry_, &registry_output, this);
-
-  if (wl_display_roundtrip(display_) < 0)
-    terminate();
-  else if (type == RegisterAsNeeded) {
-    WindowStateChangeHandler::SetInstance(this);
-    display_poll_thread_ = new WaylandDisplayPollThread(display_);
-  }
-}
-
-WaylandDisplay::~WaylandDisplay() {
-  terminate();
-}
-
 void WaylandDisplay::terminate() {
   if (!widget_map_.empty()) {
     STLDeleteValues(&widget_map_);
@@ -235,10 +239,6 @@ void WaylandDisplay::terminate() {
   }
 
   instance_ = NULL;
-}
-
-void WaylandDisplay::SyncDisplay() {
-  wl_display_roundtrip(display_);
 }
 
 WaylandWindow* WaylandDisplay::GetWidget(unsigned w) {

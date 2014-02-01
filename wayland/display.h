@@ -23,7 +23,6 @@ class WaylandDisplayPollThread;
 class WaylandInputDevice;
 class WaylandScreen;
 class WaylandWindow;
-class OzoneDisplay;
 
 typedef std::map<unsigned, WaylandWindow*> WindowMap;
 
@@ -32,6 +31,15 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay : public WindowStateChangeHandler {
  public:
+ enum RegistrationType {
+   RegisterAsNeeded,  // Handles all the required registrations.
+   RegisterOutputOnly // Only screen registration.
+  };
+
+  explicit WaylandDisplay(RegistrationType type);
+  virtual ~WaylandDisplay();
+
+  // Ownership is not passed to the caller.
   static WaylandDisplay* GetInstance() { return instance_; }
   // Returns a pointer to wl_display.
   wl_display* display() const { return display_; }
@@ -73,6 +81,9 @@ class WaylandDisplay : public WindowStateChangeHandler {
   void StopProcessingEvents();
   // Flush Display.
   void FlushDisplay();
+  // Does a round trip to Wayland server. This call blocks the current thread
+  // until all pending request are processed by the server.
+  void SyncDisplay();
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               WidgetState state,
@@ -87,15 +98,7 @@ class WaylandDisplay : public WindowStateChangeHandler {
                                    WidgetType type) OVERRIDE;
 
  private:
-  enum RegistrationType {
-    RegisterAsNeeded,  // Handles all the required registrations.
-    RegisterOutputOnly  // Only screen registration.
-  };
-
-  explicit WaylandDisplay(RegistrationType type);
-  virtual ~WaylandDisplay();
   void terminate();
-  void SyncDisplay();
   WaylandWindow* GetWidget(unsigned w);
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
@@ -129,8 +132,6 @@ class WaylandDisplay : public WindowStateChangeHandler {
   WindowMap widget_map_;
   unsigned serial_;
   static WaylandDisplay* instance_;
-
-  friend class OzoneDisplay;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };
 
