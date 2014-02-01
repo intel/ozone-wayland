@@ -63,10 +63,6 @@ IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandInput_CloseWidget,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/)
 
-// Response from DisplayChannelHost to DisplayChannel as an ack to connection
-// request.
-IPC_MESSAGE_ROUTED0(WaylandMsg_DisplayChannelEstablished)  // NOLINT
-
 IPC_MESSAGE_ROUTED4(WaylandWindow_State,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,
                     ozonewayland::WidgetState /*state*/,

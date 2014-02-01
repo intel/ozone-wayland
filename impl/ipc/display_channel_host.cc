@@ -88,7 +88,6 @@ void OzoneDisplayChannelHost::SetWidgetAttributes(unsigned widget,
 
 void OzoneDisplayChannelHost::OnChannelEstablished() {
   DCHECK(channel_);
-  Send(new WaylandMsg_DisplayChannelEstablished(CHANNEL_ROUTE_ID));
   while (!deferred_messages_.empty()) {
     Send(deferred_messages_.front());
     deferred_messages_.pop();

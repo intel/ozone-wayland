@@ -39,7 +39,6 @@ bool OzoneDisplayChannel::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannel, message)
-  IPC_MESSAGE_HANDLER(WaylandMsg_DisplayChannelEstablished, OnEstablishChannel)
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Attributes, OnWidgetAttributesChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
@@ -47,10 +46,6 @@ bool OzoneDisplayChannel::OnMessageReceived(
   IPC_END_MESSAGE_MAP()
 
   return handled;
-}
-
-void OzoneDisplayChannel::OnEstablishChannel() {
-  OzoneDisplay::GetInstance()->OnChannelEstablished();
 }
 
 void OzoneDisplayChannel::Register() {

@@ -23,7 +23,6 @@ class OzoneDisplayChannel : public IPC::Listener {
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void OnEstablishChannel();
   void Register();
   void OnWidgetStateChanged(unsigned handleid,
                             WidgetState state,

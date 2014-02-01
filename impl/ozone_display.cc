@@ -29,7 +29,7 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
   return instance_;
 }
 
-OzoneDisplay::OzoneDisplay() : state_(UnInitialized),
+OzoneDisplay::OzoneDisplay() : initialized_(false),
     initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
     last_realized_widget_handle_(0),
     kMaxDisplaySize_(20),
@@ -79,10 +79,10 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
 }
 
 gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware() {
-  if (state_ & Initialized)
+  if (initialized_)
     return initialized_state_;
 
-  state_ |= Initialized;
+  initialized_ = true;
   display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
   initialized_state_ =
       display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
@@ -230,10 +230,6 @@ const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
   return desktop_screen_;
 }
 
-void OzoneDisplay::OnChannelEstablished() {
-  state_ |= ChannelConnected;
-}
-
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
   display->channel_ = new OzoneDisplayChannel();
   display->channel_->Register();
@@ -249,17 +245,23 @@ WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {
 }
 
 void OzoneDisplay::Terminate() {
-  if (!(state_ & Initialized))
+  if (!event_converter_ && !desktop_screen_)
     return;
 
-  state_ &= ~Initialized;
   if (spec_)
     delete[] spec_;
 
   delete channel_;
-  delete desktop_screen_;
+  if (desktop_screen_) {
+    delete desktop_screen_;
+    desktop_screen_ = NULL;
+  }
+
   delete display_;
-  delete event_converter_;
+  if (event_converter_) {
+    delete event_converter_;
+    event_converter_ = NULL;
+  }
 }
 
 void OzoneDisplay::InitializeDispatcher(int fd) {

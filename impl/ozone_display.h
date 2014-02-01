@@ -60,20 +60,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   const DesktopScreenWayland* GetPrimaryScreen() const;
 
-  // OnChannelEstablished is called by DisplayChannel (i.e. on GPUProcess side)
-  // when the IPC Channel connection between itself and DisplayChannelHost is
-  // established successfully.
-  void OnChannelEstablished();
-
  private:
-  enum State {
-    UnInitialized = 0x00,
-    Initialized = 0x01,
-    ChannelConnected = 0x02
-  };
-
-  typedef unsigned CurrentState;
-
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
   void Terminate();
@@ -82,7 +69,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
 
   static void DelayedInitialization(OzoneDisplay* display);
 
-  CurrentState state_;
+  bool initialized_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   unsigned last_realized_widget_handle_;
   const int kMaxDisplaySize_;
