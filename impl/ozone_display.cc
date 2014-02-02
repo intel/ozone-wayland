@@ -4,22 +4,15 @@
 
 #include "ozone/impl/ozone_display.h"
 
-#include <map>
-#include <string>
-
-#include "base/native_library.h"
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
-#include "ozone/impl/vsync_provider_wayland.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
 #include "ozone/ui/events/event_converter_in_process.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/egl/egl_window.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/window.h"
-#include "ui/gl/sync_control_vsync_provider.h"
 
 namespace ozonewayland {
 
@@ -30,10 +23,7 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
   return instance_;
 }
 
-OzoneDisplay::OzoneDisplay() : initialized_(false),
-    initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
-    last_realized_widget_handle_(0),
-    desktop_screen_(NULL),
+OzoneDisplay::OzoneDisplay() : desktop_screen_(NULL),
     display_(NULL),
     channel_(NULL),
     host_(NULL),
@@ -69,28 +59,10 @@ const char* OzoneDisplay::DefaultDisplaySpec() {
   return spec_;
 }
 
-gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
-  if (!desktop_screen_) {
-    desktop_screen_ = new DesktopScreenWayland;
-    LookAheadOutputGeometry();
-  }
-
-  return desktop_screen_;
-}
-
-gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware() {
-  if (initialized_)
-    return initialized_state_;
-
-  initialized_ = true;
+bool OzoneDisplay::InitializeHardware() {
   display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
-  initialized_state_ =
-      display_->display() ? gfx::SurfaceFactoryOzone::INITIALIZED
-                          : gfx::SurfaceFactoryOzone::FAILED;
-
-  if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
-    LOG(ERROR) << "OzoneDisplay failed to initialize hardware";
-  else if (!content::ChildProcess::current()) {
+  bool initialized_hardware = display_->display() ? true : false;
+  if (initialized_hardware && !content::ChildProcess::current()) {
     // In the multi-process mode, DisplayChannel (in GPU process side) is in
     // charge of establishing an IPC channel with DisplayChannelHost (in
     // Browser Process side). At this moment the GPU process is still
@@ -102,15 +74,30 @@ gfx::SurfaceFactoryOzone::HardwareState OzoneDisplay::InitializeHardware() {
         FROM_HERE, base::Bind(&OzoneDisplay::DelayedInitialization, this));
   }
 
-  return initialized_state_;
+  return initialized_hardware;
+}
+
+void OzoneDisplay::ShutdownHardware() {
+  Terminate();
 }
 
 intptr_t OzoneDisplay::GetNativeDisplay() {
   return (intptr_t)display_->display();
 }
 
-void OzoneDisplay::ShutdownHardware() {
-  Terminate();
+gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
+  if (!desktop_screen_) {
+    desktop_screen_ = new DesktopScreenWayland;
+    LookAheadOutputGeometry();
+  }
+
+  return desktop_screen_;
+}
+
+const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
+  // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
+  // after multi screen support is added.
+  return desktop_screen_;
 }
 
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
@@ -139,7 +126,7 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
-   DCHECK(display_);
+  DCHECK(display_);
   // Event Converter should be already initialized unless we are in gpu process
   // side.
   if (!event_converter_) {
@@ -149,84 +136,8 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
-  last_realized_widget_handle_ = w;
   widget->RealizeAcceleratedWidget();
   return (gfx::AcceleratedWidget)widget->egl_window();
-}
-
-bool OzoneDisplay::LoadEGLGLES2Bindings(
-    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback setprocaddress) {
-  // The variable EGL_PLATFORM specifies native platform to be used by the
-  // drivers (atleast on Mesa). When the variable is not set, Mesa uses the
-  // first platform listed in --with-egl-platforms during compilation. Thus, we
-  // ensure here that wayland is set as the native platform. However, we don't
-  // override the EGL_PLATFORM value in case it has already been set.
-  setenv("EGL_PLATFORM", "wayland", 0);
-  std::string error;
-  base::NativeLibrary gles_library = base::LoadNativeLibrary(
-    base::FilePath("libGLESv2.so.2"), &error);
-
-  if (!gles_library) {
-    LOG(WARNING) << "Failed to load GLES library: " << error;
-    return false;
-  }
-
-  base::NativeLibrary egl_library = base::LoadNativeLibrary(
-    base::FilePath("libEGL.so.1"), &error);
-
-  if (!egl_library) {
-    LOG(WARNING) << "Failed to load EGL library: " << error;
-    base::UnloadNativeLibrary(gles_library);
-    return false;
-  }
-
-  GLGetProcAddressProc get_proc_address =
-      reinterpret_cast<GLGetProcAddressProc>(
-          base::GetFunctionPointerFromNativeLibrary(
-              egl_library, "eglGetProcAddress"));
-
-  if (!get_proc_address) {
-    LOG(ERROR) << "eglGetProcAddress not found.";
-    base::UnloadNativeLibrary(egl_library);
-    base::UnloadNativeLibrary(gles_library);
-    return false;
-  }
-
-  setprocaddress.Run(get_proc_address);
-  add_gl_library.Run(egl_library);
-  add_gl_library.Run(gles_library);
-  return true;
-}
-
-bool OzoneDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
-                                                    const gfx::Rect& bounds) {
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
-                                                          RESIZE,
-                                                          bounds.width(),
-                                                          bounds.height());
-
-  return true;
-}
-
-
-scoped_ptr<gfx::VSyncProvider>
-OzoneDisplay::CreateVSyncProvider(gfx::AcceleratedWidget w) {
-  DCHECK(last_realized_widget_handle_);
-  // This is based on the fact that we realize accelerated widget and create
-  // its vsync provider immediately (right after widget is realized). This
-  // saves us going through list of realized widgets and finding the right one.
-  unsigned handle = last_realized_widget_handle_;
-  last_realized_widget_handle_ = 0;
-  return scoped_ptr<gfx::VSyncProvider>(new WaylandSyncProvider(handle));
-}
-
-bool OzoneDisplay::SchedulePageFlip(gfx::AcceleratedWidget w) {
-  return true;
-}
-
-const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
-  return EGLWindow::GetEGLConfigAttribs();
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
@@ -236,19 +147,12 @@ void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
     desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
 
-const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
-  // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
-  // after multi screen support is added.
-  return desktop_screen_;
-}
-
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
   display->channel_ = new OzoneDisplayChannel();
   display->channel_->Register();
 }
 
 WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {
-  DCHECK(display_);
   const std::map<unsigned, WaylandWindow*> widget_map =
       display_->GetWindowList();
 
