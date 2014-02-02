@@ -72,7 +72,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   bool initialized_;
   gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   unsigned last_realized_widget_handle_;
-  const int kMaxDisplaySize_;
 
   DesktopScreenWayland* desktop_screen_;
   WaylandDisplay* display_;

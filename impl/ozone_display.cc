@@ -24,6 +24,7 @@
 namespace ozonewayland {
 
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
+const int kMaxDisplaySize = 20;
 
 OzoneDisplay* OzoneDisplay::GetInstance() {
   return instance_;
@@ -32,7 +33,6 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
 OzoneDisplay::OzoneDisplay() : initialized_(false),
     initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
     last_realized_widget_handle_(0),
-    kMaxDisplaySize_(20),
     desktop_screen_(NULL),
     display_(NULL),
     channel_(NULL),
@@ -49,11 +49,11 @@ OzoneDisplay::~OzoneDisplay() {
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
   if (!spec_) {
-    spec_ = new char[kMaxDisplaySize_];
+    spec_ = new char[kMaxDisplaySize];
     if (desktop_screen_ && !desktop_screen_->geometry().size().IsEmpty())  {
       gfx::Rect rect(desktop_screen_->geometry());
       base::snprintf(spec_,
-                     kMaxDisplaySize_,
+                     kMaxDisplaySize,
                      "%dx%d*2",
                      rect.width(),
                      rect.height());
@@ -219,7 +219,7 @@ const int32* OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
   if (spec_)
-    base::snprintf(spec_, kMaxDisplaySize_, "%dx%d*2", width, height);
+    base::snprintf(spec_, kMaxDisplaySize, "%dx%d*2", width, height);
   if (desktop_screen_)
     desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
