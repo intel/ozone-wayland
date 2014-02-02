@@ -64,7 +64,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
 
   void Terminate();
-  void InitializeDispatcher(int fd = 0);
   void LookAheadOutputGeometry();
 
   static void DelayedInitialization(OzoneDisplay* display);

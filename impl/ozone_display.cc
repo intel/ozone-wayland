@@ -116,8 +116,17 @@ void OzoneDisplay::ShutdownHardware() {
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
   // Ensure Event Converter is initialized.
-  if (!event_converter_)
-    InitializeDispatcher();
+  if (!event_converter_) {
+    event_converter_ = new EventConverterInProcess();
+    event_converter_->SetOutputChangeObserver(this);
+
+    if (display_) {
+      display_->StartProcessingEvents();
+    } else {
+      DCHECK(!host_);
+      host_ = new OzoneDisplayChannelHost();
+    }
+  }
 
   opaque_handle++;
   WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
@@ -130,10 +139,13 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
 
 gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
+   DCHECK(display_);
   // Event Converter should be already initialized unless we are in gpu process
   // side.
-  if (!event_converter_)
-    InitializeDispatcher(display_->GetDisplayFd());
+  if (!event_converter_) {
+    event_converter_ = new RemoteEventDispatcher();
+    display_->StartProcessingEvents();
+  }
 
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
@@ -261,23 +273,6 @@ void OzoneDisplay::Terminate() {
   if (event_converter_) {
     delete event_converter_;
     event_converter_ = NULL;
-  }
-}
-
-void OzoneDisplay::InitializeDispatcher(int fd) {
-  DCHECK(base::MessageLoop::current() && !event_converter_);
-  if (fd) {
-    event_converter_ = new RemoteEventDispatcher();
-  } else {
-    event_converter_ = new EventConverterInProcess();
-    event_converter_->SetOutputChangeObserver(this);
-  }
-
-  if (display_) {
-    display_->StartProcessingEvents();
-  } else {
-    DCHECK(!host_);
-    host_ = new OzoneDisplayChannelHost();
   }
 }
 
