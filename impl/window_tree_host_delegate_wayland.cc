@@ -134,7 +134,7 @@ WindowTreeHostDelegateWayland::GetAllOpenWindows() {
 void WindowTreeHostDelegateWayland::DispatchMouseEvent(
          ui::MouseEvent* event) {
   if (handle_event_)
-    current_dispatcher_->delegate_->OnHostMouseEvent(event);
+    SendEventToProcessor(event);
   else if (event->type() == ui::ET_MOUSE_PRESSED)
     SetCapture(NULL);
 
@@ -153,6 +153,10 @@ WindowTreeHostDelegateWayland::open_windows() {
   return *open_windows_;
 }
 
+ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
+  return current_dispatcher_->delegate_->GetEventProcessor();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, MessagePumpDispatcher implementation:
 bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
@@ -165,17 +169,17 @@ bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
     case ui::ET_TOUCH_CANCELLED:
     case ui::ET_TOUCH_RELEASED: {
       ui::TouchEvent* touchev = static_cast<ui::TouchEvent*>(ne);
-      current_dispatcher_->delegate_->OnHostTouchEvent(touchev);
+      SendEventToProcessor(touchev);
       break;
     }
     case ui::ET_KEY_PRESSED: {
       ui::KeyEvent* keydown_event = static_cast<ui::KeyEvent*>(ne);
-      current_dispatcher_->delegate_->OnHostKeyEvent(keydown_event);
+      SendEventToProcessor(keydown_event);
       break;
     }
     case ui::ET_KEY_RELEASED: {
       ui::KeyEvent* keyup_event = static_cast<ui::KeyEvent*>(ne);
-      current_dispatcher_->delegate_->OnHostKeyEvent(keyup_event);
+      SendEventToProcessor(keyup_event);
       break;
     }
     case ui::ET_MOUSEWHEEL: {
@@ -197,7 +201,7 @@ bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
     case ui::ET_SCROLL_FLING_CANCEL:
     case ui::ET_SCROLL: {
       ui::ScrollEvent* scrollev = static_cast<ui::ScrollEvent*>(ne);
-      current_dispatcher_->delegate_->OnHostScrollEvent(scrollev);
+      SendEventToProcessor(scrollev);
       break;
     }
     case ui::ET_UMA_DATA:

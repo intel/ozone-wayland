@@ -12,6 +12,7 @@
 #include "base/message_loop/message_loop.h"
 #include "ozone/wayland/window_change_observer.h"
 #include "ui/events/event.h"
+#include "ui/events/event_source.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace ozonewayland {
@@ -22,6 +23,7 @@ class DesktopWindowTreeHostWayland;
 // and basic window management.
 class WindowTreeHostDelegateWayland
     : public base::MessagePumpDispatcher,
+      public ui::EventSource,
       public WindowChangeObserver {
  public:
   WindowTreeHostDelegateWayland();
@@ -37,6 +39,9 @@ class WindowTreeHostDelegateWayland
   DesktopWindowTreeHostWayland* GetCurrentCapture() const;
 
   const std::vector<aura::Window*>& GetAllOpenWindows();
+
+  // Overridden frm ui::EventSource
+  virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
  private:
   // Overridden from Dispatcher:
   virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
