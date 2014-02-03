@@ -34,6 +34,8 @@
         'impl/fullscreen_wayland.cc',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
+        'impl/surface_factory_wayland.cc',
+        'impl/surface_factory_wayland.h',
         'impl/vsync_provider_wayland.cc',
         'impl/vsync_provider_wayland.h',
         'impl/window_tree_host_delegate_wayland.cc',
