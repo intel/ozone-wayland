@@ -7,6 +7,7 @@
 
 #include <wayland-client.h>
 #include "base/basictypes.h"
+#include "ozone/ui/ime/ime_state_change_handler.h"
 
 namespace ozonewayland {
 
@@ -14,7 +15,7 @@ class WaylandKeyboard;
 class WaylandPointer;
 class WaylandDisplay;
 
-class WaylandInputDevice {
+class WaylandInputDevice : public IMEStateChangeHandler {
  public:
   WaylandInputDevice(WaylandDisplay* display, uint32_t id);
   ~WaylandInputDevice();
@@ -27,6 +28,9 @@ class WaylandInputDevice {
   uint32_t GetGrabButton() const { return grab_button_; }
   void SetFocusWindowHandle(unsigned windowhandle);
   void SetGrabWindowHandle(unsigned windowhandle, uint32_t button);
+
+  virtual void ResetIme() OVERRIDE;
+  virtual void ImeCaretBoundsChanged(gfx::Rect rect) OVERRIDE;
 
  private:
   static void OnSeatCapabilities(void *data,

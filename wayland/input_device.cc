@@ -20,6 +20,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
       input_seat_(NULL),
       input_keyboard_(NULL),
       input_pointer_(NULL) {
+  IMEStateChangeHandler::SetInstance(this);
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
   };
@@ -70,6 +71,14 @@ void WaylandInputDevice::SetGrabWindowHandle(unsigned windowhandle,
                                              uint32_t button) {
   grab_window_handle_ = windowhandle;
   grab_button_ = button;
+}
+
+void WaylandInputDevice::ResetIme() {
+  NOTIMPLEMENTED();
+}
+
+void WaylandInputDevice::ImeCaretBoundsChanged(gfx::Rect rect) {
+  NOTIMPLEMENTED();
 }
 
 }  // namespace ozonewayland

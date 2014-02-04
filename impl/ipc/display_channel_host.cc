@@ -21,6 +21,7 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
       channel_(NULL),
       deferred_messages_() {
   WindowStateChangeHandler::SetInstance(this);
+  IMEStateChangeHandler::SetInstance(this);
   BrowserChildProcessObserver::Add(this);
   EstablishChannel();
 }
@@ -85,6 +86,27 @@ void OzoneDisplayChannelHost::SetWidgetAttributes(unsigned widget,
                                     type));
 }
 
+void OzoneDisplayChannelHost::ResetIme() {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::ResetIme,
+            base::Unretained(this)));
+    return;
+  }
+
+  Send(new WaylandWindow_ImeReset(CHANNEL_ROUTE_ID));
+}
+
+void OzoneDisplayChannelHost::ImeCaretBoundsChanged(gfx::Rect rect) {
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
+    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&OzoneDisplayChannelHost::ImeCaretBoundsChanged,
+            base::Unretained(this), rect));
+    return;
+  }
+
+  Send(new WaylandWindow_ImeCaretBoundsChanged(CHANNEL_ROUTE_ID, rect));
+}
 
 void OzoneDisplayChannelHost::OnChannelEstablished() {
   DCHECK(channel_);

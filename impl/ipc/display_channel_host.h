@@ -10,6 +10,7 @@
 #include "content/browser/gpu/gpu_process_host.h"
 #include "content/public/browser/browser_child_process_observer.h"
 #include "content/public/browser/child_process_data.h"
+#include "ozone/ui/ime/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/events/event_constants.h"
 
@@ -28,7 +29,8 @@ class EventConverterOzoneWayland;
 
 class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
                                 public content::BrowserChildProcessObserver,
-                                public WindowStateChangeHandler {
+                                public WindowStateChangeHandler,
+                                public IMEStateChangeHandler {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
@@ -45,6 +47,9 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
                                    unsigned x,
                                    unsigned y,
                                    WidgetType type) OVERRIDE;
+  virtual void ResetIme() OVERRIDE;
+  virtual void ImeCaretBoundsChanged(gfx::Rect rect) OVERRIDE;
+
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle,
                       ui::EventType type,

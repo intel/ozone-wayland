@@ -5,6 +5,7 @@
 #include "ozone/ui/ime/input_method_context_impl_wayland.h"
 
 #include "base/logging.h"
+#include "ozone/ui/ime/ime_state_change_handler.h"
 
 namespace ozonewayland {
 
@@ -25,7 +26,7 @@ bool InputMethodContextImplWayland::DispatchKeyEvent(
 }
 
 void InputMethodContextImplWayland::Reset() {
-  NOTIMPLEMENTED();
+  IMEStateChangeHandler::GetInstance()->ResetIme();
 }
 
 void InputMethodContextImplWayland::OnTextInputTypeChanged(
@@ -35,7 +36,7 @@ void InputMethodContextImplWayland::OnTextInputTypeChanged(
 
 void InputMethodContextImplWayland::OnCaretBoundsChanged(
     const gfx::Rect& caret_bounds) {
-  NOTIMPLEMENTED();
+  IMEStateChangeHandler::GetInstance()->ImeCaretBoundsChanged(caret_bounds);
 }
 
 }  // namespace ozonewayland
