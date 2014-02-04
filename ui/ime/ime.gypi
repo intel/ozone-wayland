@@ -4,6 +4,8 @@
 
 {
   'sources': [
+    'ime_state_change_handler.h',
+    'ime_state_change_handler.cc',
     'input_method_context_factory_wayland.h',
     'input_method_context_factory_wayland.cc',
     'input_method_context_impl_wayland.h',
