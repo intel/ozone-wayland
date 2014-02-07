@@ -14,23 +14,24 @@ namespace ozonewayland {
 // Aura to Wayland.
 class IMEStateChangeHandler {
  public:
- IMEStateChangeHandler();
- virtual ~IMEStateChangeHandler();
+  IMEStateChangeHandler();
+  virtual ~IMEStateChangeHandler();
 
- // Returns the static instance last set using SetInstance().
- static IMEStateChangeHandler* GetInstance();
+  // Returns the static instance last set using SetInstance().
+  static IMEStateChangeHandler* GetInstance();
 
- // Sets the implementation delegate. Ownership is retained by the caller.
- static void SetInstance(IMEStateChangeHandler* instance);
+  // Sets the implementation delegate. Ownership is retained by the caller.
+  static void SetInstance(IMEStateChangeHandler* instance);
 
- // This is called with IMEContext needs to be reset.
- virtual void ResetIme() = 0;
+  // This is called with IMEContext needs to be reset.
+  virtual void ResetIme() = 0;
 
- // Notifies the context that the caret bounds have changed.  |rect| is
- // relative to screen coordinates.
- virtual void ImeCaretBoundsChanged(gfx::Rect rect) = 0;
+  // Notifies the context that the caret bounds have changed.  |rect| is
+  // relative to screen coordinates.
+  virtual void ImeCaretBoundsChanged(gfx::Rect rect) = 0;
+
  private:
- static IMEStateChangeHandler* impl_;  // not owned
+  static IMEStateChangeHandler* impl_;  // not owned
 };
 
 }  // namespace ozonewayland

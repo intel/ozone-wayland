@@ -19,32 +19,33 @@ namespace ozonewayland {
 // Aura to Wayland.
 class WindowStateChangeHandler {
  public:
- WindowStateChangeHandler();
- virtual ~WindowStateChangeHandler();
+  WindowStateChangeHandler();
+  virtual ~WindowStateChangeHandler();
 
- // Returns the static instance last set using SetInstance().
- static WindowStateChangeHandler* GetInstance();
+  // Returns the static instance last set using SetInstance().
+  static WindowStateChangeHandler* GetInstance();
 
- // Sets the implementation delegate. Ownership is retained by the caller.
- static void SetInstance(WindowStateChangeHandler* instance);
+  // Sets the implementation delegate. Ownership is retained by the caller.
+  static void SetInstance(WindowStateChangeHandler* instance);
 
- // Called when AcceleratedWidget widget state has changed.
- virtual void SetWidgetState(unsigned widget,
-                             WidgetState state,
-                             unsigned width = 0,
-                             unsigned height = 0) = 0;
+  // Called when AcceleratedWidget widget state has changed.
+  virtual void SetWidgetState(unsigned widget,
+                              WidgetState state,
+                              unsigned width = 0,
+                              unsigned height = 0) = 0;
 
- // Called when AcceleratedWidget widget title has changed.
- virtual void SetWidgetTitle(unsigned widget, const base::string16& title) = 0;
+  // Called when AcceleratedWidget widget title has changed.
+  virtual void SetWidgetTitle(unsigned widget, const base::string16& title) = 0;
 
- // This is called when we want to create an AcceleratedWidget widget.
- virtual void SetWidgetAttributes(unsigned widget,
-                                  unsigned parent,
-                                  unsigned x,
-                                  unsigned y,
-                                  WidgetType type) = 0;
+  // This is called when we want to create an AcceleratedWidget widget.
+  virtual void SetWidgetAttributes(unsigned widget,
+                                   unsigned parent,
+                                   unsigned x,
+                                   unsigned y,
+                                   WidgetType type) = 0;
+
  private:
- static WindowStateChangeHandler* impl_;  // not owned
+  static WindowStateChangeHandler* impl_;  // not owned
 };
 
 }  // namespace ozonewayland

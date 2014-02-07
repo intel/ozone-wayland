@@ -4,6 +4,7 @@
 
 #include "ozone/impl/ozone_display.h"
 
+#include <map>
 #include "content/child/child_process.h"
 #include "ozone/impl/desktop_screen_wayland.h"
 #include "ozone/impl/ipc/display_channel.h"

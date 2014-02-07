@@ -21,7 +21,7 @@ extern "C" {
 int osEpollCreateCloExec(void);
 
 static int setCloExecOrClose(int fd) {
-  long flags;
+  int flags;
 
   if (fd == -1)
     return -1;
@@ -91,7 +91,7 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   bool epoll_err = false;
   unsigned display_fd = wl_display_get_fd(data->display_);
   int epoll_fd = osEpollCreateCloExec();
-  if (epoll_fd < 0 ) {
+  if (epoll_fd < 0) {
     LOG(ERROR) << "Epoll creation failed.";
     return;
   }

@@ -31,9 +31,9 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay : public WindowStateChangeHandler {
  public:
- enum RegistrationType {
-   RegisterAsNeeded,  // Handles all the required registrations.
-   RegisterOutputOnly // Only screen registration.
+  enum RegistrationType {
+    RegisterAsNeeded,  // Handles all the required registrations.
+    RegisterOutputOnly  // Only screen registration.
   };
 
   explicit WaylandDisplay(RegistrationType type);

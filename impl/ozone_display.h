@@ -28,7 +28,7 @@ class OzoneDisplay : public OutputChangeObserver {
   OzoneDisplay();
   virtual ~OzoneDisplay();
 
-  const char* DefaultDisplaySpec() ;
+  const char* DefaultDisplaySpec();
   bool InitializeHardware();
   void ShutdownHardware();
   intptr_t GetNativeDisplay();

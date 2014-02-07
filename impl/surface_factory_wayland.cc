@@ -4,6 +4,7 @@
 
 #include "ozone/impl/surface_factory_wayland.h"
 
+#include <string>
 #include "base/native_library.h"
 #include "base/files/file_path.h"
 #include "ozone/impl/ozone_display.h"
