@@ -6,6 +6,7 @@
 
 #include "base/basictypes.h"
 #include "base/strings/string16.h"
+#include "content/public/common/common_param_traits.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_utils.h"
 #include "ipc/ipc_param_traits.h"
@@ -79,3 +80,8 @@ IPC_MESSAGE_ROUTED5(WaylandWindow_Attributes,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_ROUTED2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,
                     base::string16 /* window title */)
+
+IPC_MESSAGE_ROUTED0(WaylandWindow_ImeReset)  // NOLINT(readability/fn_size)
+
+IPC_MESSAGE_ROUTED1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/
+                    gfx::Rect /* ImeCaretBoundsChanged */)  //     fn_size)
