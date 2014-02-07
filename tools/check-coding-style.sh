@@ -18,7 +18,7 @@ cd $SELF_DIR/..
 
 # TODO(vignatti): maybe we should remove the OZONE_ prefix from all header
 # guards and activate
-FILTERS="-build/header_guard"
+FILTERS="+build,-build/header_guard,+whitespace,+readability,+legal,+runtime"
 
 cpplint.py --filter="$FILTERS" $(find \
                                \( -name '*.h' -o -name '*.cc' \) )
