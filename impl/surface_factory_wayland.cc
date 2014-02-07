@@ -5,8 +5,8 @@
 #include "ozone/impl/surface_factory_wayland.h"
 
 #include <string>
-#include "base/native_library.h"
 #include "base/files/file_path.h"
+#include "base/native_library.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/vsync_provider_wayland.h"
 #include "ozone/wayland/egl/egl_window.h"
