@@ -424,7 +424,8 @@ void DesktopWindowTreeHostWayland::Activate() {
     return;
 
   state_ |= Active;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, ACTIVE);
+  if (state_ & Visible)
+    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, ACTIVE);
 }
 
 void DesktopWindowTreeHostWayland::Deactivate() {
@@ -642,9 +643,10 @@ void DesktopWindowTreeHostWayland::Show() {
   if (state_ & Visible)
     return;
 
-  state_ |= Visible;
   // Window is being shown, set the state as active to be able to handle events.
   Activate();
+
+  state_ |= Visible;
   WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, SHOW);
 }
 
