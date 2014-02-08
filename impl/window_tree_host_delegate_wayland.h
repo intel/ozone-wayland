@@ -10,7 +10,7 @@
 
 #include "base/basictypes.h"
 #include "base/message_loop/message_loop.h"
-#include "ozone/wayland/window_change_observer.h"
+#include "ozone/ui/events/window_change_observer.h"
 #include "ui/events/event.h"
 #include "ui/events/event_source.h"
 #include "ui/gfx/native_widget_types.h"

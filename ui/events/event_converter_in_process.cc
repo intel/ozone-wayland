@@ -7,7 +7,7 @@
 #include "base/bind.h"
 #include "ozone/ui/events/keyboard_code_conversion_ozone.h"
 #include "ozone/ui/events/output_change_observer.h"
-#include "ozone/wayland/window_change_observer.h"
+#include "ozone/ui/events/window_change_observer.h"
 
 namespace ozonewayland {
 

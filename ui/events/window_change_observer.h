@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WINDOW_CHANGE_OBSERVER_H_
-#define WINDOW_CHANGE_OBSERVER_H_
+#ifndef OZONE_UI_EVENTS_WINDOW_CHANGE_OBSERVER_H_
+#define OZONE_UI_EVENTS_WINDOW_CHANGE_OBSERVER_H_
 
 namespace ozonewayland {
 
@@ -32,4 +32,4 @@ class WindowChangeObserver {
 
 }  // namespace ozonewayland
 
-#endif  // WINDOW_CHANGE_OBSERVER_H_
+#endif  // OZONE_UI_EVENTS_WINDOW_CHANGE_OBSERVER_H_
