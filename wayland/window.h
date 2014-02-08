@@ -58,7 +58,8 @@ class WaylandWindow {
   // Returns pointer to Wayland Surface associated with the window.
   struct wl_surface* GetSurface() const;
 
-  bool SetBounds(const gfx::Rect& new_bounds);
+  // Immediately Resizes window and flushes Wayland Display.
+  void Resize(unsigned width, unsigned height);
   gfx::Rect GetBounds() const { return allocation_; }
 
  private:

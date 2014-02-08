@@ -103,14 +103,18 @@ struct wl_surface* WaylandWindow::GetSurface() const {
   return shell_surface_->Surface()->wlSurface();
 }
 
-bool WaylandWindow::SetBounds(const gfx::Rect& new_bounds) {
-  int width = new_bounds.width();
-  int height = new_bounds.height();
+void WaylandWindow::Resize(unsigned width, unsigned height) {
+  if ((allocation_.width() == width) && (allocation_.height() == height))
+    return;
+
   allocation_ = gfx::Rect(allocation_.x(), allocation_.y(), width, height);
   if (!shell_surface_ || !window_)
-    return false;
+    return;
 
-  return window_->Resize(shell_surface_->Surface(), width, height);
+  window_->Resize(shell_surface_->Surface(), width, height);
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  DCHECK(display);
+  display->FlushDisplay();
 }
 
 }  // namespace ozonewayland

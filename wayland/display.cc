@@ -111,7 +111,7 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     {
       WaylandWindow* widget = GetWidget(w);
       widget->SetFullscreen();
-      widget->SetBounds(gfx::Rect(0, 0, width, height));
+      widget->Resize(width, height);
       break;
     }
     case MAXIMIZED:
@@ -149,7 +149,7 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     {
       WaylandWindow* window = GetWidget(w);
       DCHECK(window);
-      window->SetBounds(gfx::Rect(0, 0, width, height));
+      window->Resize(width, height);
       break;
     }
     case DESTROYED:
