@@ -40,6 +40,7 @@ WaylandShellSurface::WaylandShellSurface(WaylandWindow* window)
 WaylandShellSurface::~WaylandShellSurface() {
   wl_shell_surface_destroy(shell_surface_);
   delete surface_;
+  FlushDisplay();
 }
 
 void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
@@ -75,10 +76,13 @@ void WaylandShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
     default:
       break;
   }
+
+  FlushDisplay();
 }
 
 void WaylandShellSurface::SetWindowTitle(const base::string16& title) {
   wl_shell_surface_set_title(shell_surface_, UTF16ToUTF8(title).c_str());
+  FlushDisplay();
 }
 
 void WaylandShellSurface::HandleConfigure(void *data,
@@ -104,6 +108,12 @@ void WaylandShellSurface::HandlePing(void *data,
                                      struct wl_shell_surface *shell_surface,
                                      uint32_t serial) {
   wl_shell_surface_pong(shell_surface, serial);
+}
+
+void WaylandShellSurface::FlushDisplay() const {
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  DCHECK(display);
+  display->FlushDisplay();
 }
 
 }  // namespace ozonewayland

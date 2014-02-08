@@ -39,6 +39,8 @@ class WaylandShellSurface {
                          uint32_t serial);
 
  private:
+  void FlushDisplay() const;
+
   WaylandSurface* surface_;
   wl_shell_surface* shell_surface_;
   DISALLOW_COPY_AND_ASSIGN(WaylandShellSurface);
