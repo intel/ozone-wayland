@@ -21,6 +21,10 @@ class WindowChangeObserver {
   virtual void OnWindowLeave(unsigned windowhandle) = 0;
   // Called when a window is closed.
   virtual void OnWindowClose(unsigned windowhandle) = 0;
+  // Called when a window is resized by server.
+  virtual void OnWindowResized(unsigned windowhandle,
+                               unsigned width,
+                               unsigned height) = 0;
 
  protected:
   virtual ~WindowChangeObserver() {}

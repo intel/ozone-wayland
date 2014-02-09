@@ -51,6 +51,7 @@ namespace ozonewayland {
 
 using views::Widget;
 using views::NonClientFrameView;
+using views::NonClientView;
 
 WindowTreeHostDelegateWayland*
     DesktopWindowTreeHostWayland::g_delegate_ozone_wayland_ = NULL;
@@ -758,6 +759,28 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
+}
+
+void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
+                                                      unsigned height) {
+  if ((bounds_.width() == width) && (bounds_.height() == height)) {
+    compositor()->ScheduleRedrawRect(bounds_);
+  } else {
+    bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);
+    NotifyHostResized(bounds_.size());
+    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                            RESIZE,
+                                                            bounds_.width(),
+                                                            bounds_.height());
+    Widget* widget = native_widget_delegate_->AsWidget();
+    NonClientView* non_client_view = widget->non_client_view();
+    // non_client_view may be NULL, especially during creation.
+    if (non_client_view) {
+      non_client_view->client_view()->InvalidateLayout();
+      non_client_view->InvalidateLayout();
+    }
+    widget->GetRootView()->Layout();
+  }
 }
 
 }  // namespace ozonewayland

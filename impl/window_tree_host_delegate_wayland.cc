@@ -263,4 +263,13 @@ void WindowTreeHostDelegateWayland::OnWindowClose(unsigned handle) {
   window->Close();
 }
 
+void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
+                                                    unsigned width,
+                                                    unsigned height) {
+  DesktopWindowTreeHostWayland* window =
+      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  DCHECK(window);
+  window->HandleWindowResize(width, height);
+}
+
 }  // namespace ozonewayland

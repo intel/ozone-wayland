@@ -127,6 +127,14 @@ void EventConverterInProcess::OutputSizeChanged(unsigned width,
       &EventConverterInProcess::NotifyOutputSizeChanged, this, width, height));
 }
 
+void EventConverterInProcess::WindowResized(unsigned handle,
+                                            unsigned width,
+                                            unsigned height) {
+  PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyWindowResized, this, handle, width,
+          height));
+}
+
 void EventConverterInProcess::SetWindowChangeObserver(
     WindowChangeObserver* observer) {
   observer_ = observer;
@@ -167,6 +175,15 @@ EventConverterInProcess::NotifyOutputSizeChanged(EventConverterInProcess* data,
                                                  unsigned height) {
   if (data->output_observer_)
     data->output_observer_->OnOutputSizeChanged(width, height);
+}
+
+void
+EventConverterInProcess::NotifyWindowResized(EventConverterInProcess* data,
+                                             unsigned handle,
+                                             unsigned width,
+                                             unsigned height) {
+  if (data->observer_)
+    data->observer_->OnWindowResized(handle, width, height);
 }
 
 void EventConverterInProcess::DispatchEventHelper(

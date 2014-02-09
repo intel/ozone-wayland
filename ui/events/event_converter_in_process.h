@@ -34,6 +34,9 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
   virtual void CloseWidget(unsigned handle) OVERRIDE;
 
   virtual void OutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
+  virtual void WindowResized(unsigned windowhandle,
+                             unsigned width,
+                             unsigned height) OVERRIDE;
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer) OVERRIDE;
   virtual void SetOutputChangeObserver(OutputChangeObserver* observer) OVERRIDE;
 
@@ -49,6 +52,10 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
   static void NotifyOutputSizeChanged(EventConverterInProcess* data,
                                       unsigned width,
                                       unsigned height);
+  static void NotifyWindowResized(EventConverterInProcess* data,
+                                  unsigned handle,
+                                  unsigned width,
+                                  unsigned height);
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
   WindowChangeObserver* observer_;
   OutputChangeObserver* output_observer_;

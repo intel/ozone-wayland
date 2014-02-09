@@ -91,6 +91,13 @@ void RemoteEventDispatcher::OutputSizeChanged(unsigned width,
       &RemoteEventDispatcher::SendOutputSizeChanged, width, height));
 }
 
+void RemoteEventDispatcher::WindowResized(unsigned handle,
+                                          unsigned width,
+                                          unsigned height) {
+  PostTaskOnMainLoop(base::Bind(
+      &RemoteEventDispatcher::SendWindowResized, handle, width, height));
+}
+
 void RemoteEventDispatcher::CloseWidget(unsigned handle) {
   PostTaskOnMainLoop(base::Bind(
       &RemoteEventDispatcher::SendCloseWidget, handle));
@@ -136,6 +143,12 @@ void RemoteEventDispatcher::SendKeyNotify(ui::EventType type,
 void RemoteEventDispatcher::SendOutputSizeChanged(unsigned width,
                                                   unsigned height) {
   Send(new WaylandInput_OutputSize(width, height));
+}
+
+void RemoteEventDispatcher::SendWindowResized(unsigned handle,
+                                              unsigned width,
+                                              unsigned height) {
+  Send(new WaylandWindow_Resized(handle, width, height));
 }
 
 void RemoteEventDispatcher::SendCloseWidget(unsigned handle) {

@@ -165,6 +165,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void PrepareForShutdown() OVERRIDE;
 
   void HandleNativeWidgetActivationChanged(bool active);
+  void HandleWindowResize(unsigned width, unsigned height);
 
   RootWindowState state_;
 

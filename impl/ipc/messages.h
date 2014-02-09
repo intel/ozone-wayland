@@ -64,6 +64,11 @@ IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandInput_CloseWidget,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/)
 
+IPC_MESSAGE_CONTROL3(WaylandWindow_Resized,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     unsigned /* width */,
+                     unsigned /* height */)
+
 IPC_MESSAGE_ROUTED4(WaylandWindow_State,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,
                     ozonewayland::WidgetState /*state*/,

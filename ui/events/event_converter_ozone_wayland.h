@@ -43,6 +43,9 @@ class EventConverterOzoneWayland {
                          unsigned modifiers) = 0;
 
   virtual void OutputSizeChanged(unsigned width, unsigned height) = 0;
+  virtual void WindowResized(unsigned windowhandle,
+                             unsigned width,
+                             unsigned height) = 0;
   virtual void CloseWidget(unsigned handle) = 0;
   // Sets the window change observer. Ownership is retained by the caller.
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
@@ -52,7 +55,6 @@ class EventConverterOzoneWayland {
   protected:
   // Posts task to main loop of the thread on which Dispatcher was initialized.
   virtual void PostTaskOnMainLoop(const base::Closure& task);
-
   base::MessageLoop* loop_;
   static EventConverterOzoneWayland* impl_;  // not owned
 };
