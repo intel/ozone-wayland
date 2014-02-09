@@ -70,14 +70,15 @@ void WaylandWindow::Minimize() {
 }
 
 void WaylandWindow::Restore() {
-  NOTIMPLEMENTED();
+  // If window is created as fullscreen, we don't set/restore any window states
+  // like Maximize etc.
+  if (type_ != FULLSCREEN)
+    shell_surface_->UpdateShellSurface(type_, NULL, 0, 0);
 }
 
-void WaylandWindow::ToggleFullscreen() {
-  if (type_ == FULLSCREEN)
-    SetShellAttributes(TOPLEVEL);
-  else
-    SetShellAttributes(FULLSCREEN);
+void WaylandWindow::SetFullscreen() {
+  if (type_ != FULLSCREEN)
+    shell_surface_->UpdateShellSurface(FULLSCREEN, NULL, 0, 0);
 }
 
 void WaylandWindow::RealizeAcceleratedWidget() {

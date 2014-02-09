@@ -468,7 +468,14 @@ void DesktopWindowTreeHostWayland::Restore() {
   state_ &= ~Maximized;
   state_ &= ~Minimized;
   state_ |= Normal;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, RESTORE);
+  bounds_ = previous_bounds_;
+  previous_bounds_ = gfx::Rect();
+  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                          RESTORE,
+                                                          bounds_.width(),
+                                                          bounds_.height());
+  native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
+  NotifyHostResized(bounds_.size());
 }
 
 bool DesktopWindowTreeHostWayland::IsMaximized() const {
@@ -551,32 +558,31 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
   if ((state_ & FullScreen) == fullscreen)
     return;
 
-  if (fullscreen)
+  if (fullscreen) {
     state_ |= FullScreen;
-  else
-    state_ &= ~FullScreen;
-
-  gfx::Rect rect = previous_bounds_;
-  if (!(state_ & FullScreen)) {
-    previous_bounds_ = gfx::Rect();
+    state_ &= ~Normal;
   } else {
-    previous_bounds_ = bounds_;
-    rect = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
+    state_ &= ~FullScreen;
   }
 
-  bounds_ = rect;
-  // We could use HandleConfigure in ShellSurface to set the correct bounds of
-  // egl window associated with this opaque handle. How ever, this would need to
-  // handle race conditions and ensure correct size is set for
-  // wl_egl_window_resize before eglsurface is resized. Passing window size
-  // attributes already here, ensures that wl_egl_window_resize is resized
-  // before eglsurface is resized. This doesn't add any extra overhead as the
-  // IPC call needs to be done.
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                          FULLSCREEN,
-                                                          rect.width(),
-                                                          rect.height());
-  NotifyHostResized(rect.size());
+  if (!(state_ & FullScreen)) {
+    Restore();
+  } else {
+    previous_bounds_ = bounds_;
+    bounds_ = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
+    // We could use HandleConfigure in ShellSurface to set the correct bounds of
+    // egl window associated with this opaque handle. How ever, this would need
+    // to handle race conditions and ensure correct size is set for
+    // wl_egl_window_resize before eglsurface is resized. Passing window size
+    // attributes already here, ensures that wl_egl_window_resize is resized
+    // before eglsurface is resized. This doesn't add any extra overhead as the
+    // IPC call needs to be done.
+    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                            FULLSCREEN,
+                                                            bounds_.width(),
+                                                            bounds_.height());
+    NotifyHostResized(bounds_.size());
+  }
 }
 
 bool DesktopWindowTreeHostWayland::IsFullscreen() const {

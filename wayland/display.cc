@@ -110,7 +110,7 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     case FULLSCREEN:
     {
       WaylandWindow* widget = GetWidget(w);
-      widget->ToggleFullscreen();
+      widget->SetFullscreen();
       widget->SetBounds(gfx::Rect(0, 0, width, height));
       break;
     }
@@ -130,6 +130,7 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Restore();
+      widget->Resize(width, height);
       break;
     }
     case ACTIVE:
