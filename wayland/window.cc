@@ -62,7 +62,8 @@ void WaylandWindow::SetWindowTitle(const base::string16& title) {
 }
 
 void WaylandWindow::Maximize() {
-  NOTIMPLEMENTED();
+  if (type_ != FULLSCREEN)
+    shell_surface_->Maximize();
 }
 
 void WaylandWindow::Minimize() {

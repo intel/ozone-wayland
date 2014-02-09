@@ -85,6 +85,11 @@ void WaylandShellSurface::SetWindowTitle(const base::string16& title) {
   FlushDisplay();
 }
 
+void WaylandShellSurface::Maximize() const {
+  wl_shell_surface_set_maximized(shell_surface_, NULL);
+  FlushDisplay();
+}
+
 void WaylandShellSurface::HandleConfigure(void *data,
                                           struct wl_shell_surface *surface,
                                           uint32_t edges,

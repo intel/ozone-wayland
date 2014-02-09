@@ -25,6 +25,7 @@ class WaylandShellSurface {
                           unsigned x,
                           unsigned y) const;
   void SetWindowTitle(const base::string16& title);
+  void Maximize() const;
   WaylandSurface* Surface() const { return surface_; }
 
   static void HandleConfigure(void *data,
