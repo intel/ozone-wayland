@@ -18,7 +18,7 @@ class WaylandDisplay;
 class WaylandInputDevice : public IMEStateChangeHandler {
  public:
   WaylandInputDevice(WaylandDisplay* display, uint32_t id);
-  ~WaylandInputDevice();
+  virtual ~WaylandInputDevice();
 
   wl_seat* GetInputSeat() const { return input_seat_; }
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
