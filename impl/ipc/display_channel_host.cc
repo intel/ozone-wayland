@@ -9,6 +9,7 @@
 #include "content/public/common/process_type.h"
 #include "ozone/impl/ipc/messages.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/remote_state_change_handler.h"
 
 namespace ozonewayland {
 
@@ -18,10 +19,9 @@ const int CHANNEL_ROUTE_ID = -0x1;
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : IPC::ChannelProxy::MessageFilter(),
       dispatcher_(EventConverterOzoneWayland::GetInstance()),
+      state_handler_(NULL),
       channel_(NULL),
       deferred_messages_() {
-  WindowStateChangeHandler::SetInstance(this);
-  IMEStateChangeHandler::SetInstance(this);
   BrowserChildProcessObserver::Add(this);
   EstablishChannel();
 }
@@ -29,15 +29,7 @@ OzoneDisplayChannelHost::OzoneDisplayChannelHost()
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
   DCHECK(deferred_messages_.empty());
   BrowserChildProcessObserver::Remove(this);
-}
-
-void OzoneDisplayChannelHost::EstablishChannel() {
-  if (channel_)
-    return;
-
-  content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-      base::Bind(base::IgnoreResult(&OzoneDisplayChannelHost::UpdateConnection),
-          this));
+  delete state_handler_;
 }
 
 void OzoneDisplayChannelHost::SetWidgetState(unsigned w,
@@ -204,6 +196,36 @@ void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
   // side.
   if (data.process_type == content::PROCESS_TYPE_GPU)
     EstablishChannel();
+}
+
+void OzoneDisplayChannelHost::BrowserChildProcessHostDisconnected(
+  const content::ChildProcessData& data) {
+  if (data.process_type == content::PROCESS_TYPE_GPU) {
+    if (state_handler_) {
+      delete state_handler_;
+      state_handler_ = NULL;
+    }
+  }
+}
+
+void OzoneDisplayChannelHost::BrowserChildProcessCrashed(
+  const content::ChildProcessData& data) {
+  if (data.process_type == content::PROCESS_TYPE_GPU) {
+    if (state_handler_) {
+      delete state_handler_;
+      state_handler_ = NULL;
+    }
+  }
+}
+
+void OzoneDisplayChannelHost::EstablishChannel() {
+  if (state_handler_)
+    return;
+
+  state_handler_ = new RemoteStateChangeHandler();
+  content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+      base::Bind(&OzoneDisplayChannelHost::UpdateConnection,
+          base::Unretained(this)));
 }
 
 bool OzoneDisplayChannelHost::Send(IPC::Message* message) {

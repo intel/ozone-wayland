@@ -21,6 +21,7 @@ class Channel;
 namespace ozonewayland {
 
 class EventConverterOzoneWayland;
+class RemoteStateChangeHandler;
 
 // OzoneDisplayChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
@@ -28,9 +29,7 @@ class EventConverterOzoneWayland;
 // to these messages in IO thread.
 
 class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
-                                public content::BrowserChildProcessObserver,
-                                public WindowStateChangeHandler,
-                                public IMEStateChangeHandler {
+                                public content::BrowserChildProcessObserver {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   OzoneDisplayChannelHost();
@@ -74,6 +73,10 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
   // Implement |BrowserChildProcessObserver|.
   virtual void BrowserChildProcessHostConnected(
     const content::ChildProcessData& data) OVERRIDE;
+  virtual void BrowserChildProcessHostDisconnected(
+      const content::ChildProcessData& data) OVERRIDE;
+  virtual void BrowserChildProcessCrashed(
+      const content::ChildProcessData& data) OVERRIDE;
 
   bool Send(IPC::Message* message);
 
@@ -83,6 +86,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
   void OnChannelEstablished();
   void UpdateConnection();
   EventConverterOzoneWayland* dispatcher_;
+  RemoteStateChangeHandler* state_handler_;
   IPC::Channel* channel_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.
