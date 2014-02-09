@@ -90,6 +90,10 @@ void WaylandShellSurface::HandleConfigure(void *data,
                                           uint32_t edges,
                                           int32_t width,
                                           int32_t height) {
+  WaylandWindow *window = static_cast<WaylandWindow*>(data);
+  EventConverterOzoneWayland* dispatcher =
+      EventConverterOzoneWayland::GetInstance();
+  dispatcher->WindowResized(window->Handle(), width, height);
 }
 
 void WaylandShellSurface::HandlePopupDone(void *data,
