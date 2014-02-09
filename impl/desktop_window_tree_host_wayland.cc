@@ -69,6 +69,7 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
       state_(Uninitialized),
       bounds_(0, 0, 0, 0),
       previous_bounds_(0, 0, 0, 0),
+      previous_maximize_bounds_(0, 0, 0, 0),
       window_(0),
       title_(base::string16()),
       close_widget_factory_(this),
@@ -324,10 +325,8 @@ void DesktopWindowTreeHostWayland::ShowWindowWithState(
 
 void DesktopWindowTreeHostWayland::ShowMaximizedWithBounds(
     const gfx::Rect& restored_bounds) {
-  // TODO(erg):
-  NOTIMPLEMENTED();
-
-  // TODO(erg): We shouldn't completely fall down here.
+  Maximize();
+  previous_bounds_ = restored_bounds;
   Show();
 }
 
@@ -448,6 +447,7 @@ void DesktopWindowTreeHostWayland::Maximize() {
   state_ |= Maximized;
   state_ &= ~Minimized;
   state_ &= ~Normal;
+  previous_bounds_ = bounds_;
   WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, MAXIMIZED);
 }
 
@@ -458,6 +458,7 @@ void DesktopWindowTreeHostWayland::Minimize() {
   state_ &= ~Maximized;
   state_ |= Minimized;
   state_ &= ~Normal;
+  previous_bounds_ = bounds_;
   WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, MINIMIZED);
 }
 
@@ -566,8 +567,18 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
   }
 
   if (!(state_ & FullScreen)) {
-    Restore();
+    if (state_ & Maximized) {
+      previous_bounds_ = previous_maximize_bounds_;
+      previous_maximize_bounds_ = gfx::Rect();
+      WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                              MAXIMIZED);
+    } else {
+      Restore();
+    }
   } else {
+    if (state_ & Maximized)
+      previous_maximize_bounds_ = previous_bounds_;
+
     previous_bounds_ = bounds_;
     bounds_ = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
     // We could use HandleConfigure in ShellSurface to set the correct bounds of

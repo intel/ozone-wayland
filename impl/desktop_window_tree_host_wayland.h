@@ -173,6 +173,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   gfx::Rect bounds_;
   // Original bounds of DRWH.
   gfx::Rect previous_bounds_;
+  gfx::Rect previous_maximize_bounds_;
   gfx::AcceleratedWidget window_;
   base::string16 title_;
 
