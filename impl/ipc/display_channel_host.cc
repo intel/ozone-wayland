@@ -5,6 +5,7 @@
 #include "ozone/impl/ipc/display_channel_host.h"
 
 #include "base/bind.h"
+#include "content/browser/gpu/browser_gpu_channel_host_factory.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/process_type.h"
 #include "ozone/impl/ipc/messages.h"
@@ -14,8 +15,7 @@
 namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : IPC::ChannelProxy::MessageFilter(),
-      dispatcher_(EventConverterOzoneWayland::GetInstance()),
+    : dispatcher_(EventConverterOzoneWayland::GetInstance()),
       state_handler_(NULL) {
   BrowserChildProcessObserver::Add(this);
   EstablishChannel();
@@ -78,27 +78,6 @@ void OzoneDisplayChannelHost::OnWindowResized(unsigned handle,
   dispatcher_->WindowResized(handle, width, height);
 }
 
-bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
-  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) <<
-      "Must handle messages that were dispatched to another thread!";
-
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannelHost, message)
-  IPC_MESSAGE_HANDLER(WaylandInput_MotionNotify, OnMotionNotify)
-  IPC_MESSAGE_HANDLER(WaylandInput_ButtonNotify, OnButtonNotify)
-  IPC_MESSAGE_HANDLER(WaylandInput_AxisNotify, OnAxisNotify)
-  IPC_MESSAGE_HANDLER(WaylandInput_PointerEnter, OnPointerEnter)
-  IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, OnPointerLeave)
-  IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, OnKeyNotify)
-  IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
-  IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Resized, OnWindowResized)
-  IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-
-  return handled;
-}
-
 void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
   const content::ChildProcessData& data) {
   // we observe GPU process being forked or re-spawned for adding ourselves as
@@ -128,6 +107,23 @@ void OzoneDisplayChannelHost::BrowserChildProcessCrashed(
   }
 }
 
+void OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) <<
+      "Must handle messages that were dispatched to another thread!";
+
+  IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannelHost, message)
+  IPC_MESSAGE_HANDLER(WaylandInput_MotionNotify, OnMotionNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_ButtonNotify, OnButtonNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_AxisNotify, OnAxisNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_PointerEnter, OnPointerEnter)
+  IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, OnPointerLeave)
+  IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, OnKeyNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Resized, OnWindowResized)
+  IPC_END_MESSAGE_MAP()
+}
+
 void OzoneDisplayChannelHost::EstablishChannel() {
   if (state_handler_)
     return;
@@ -139,12 +135,24 @@ void OzoneDisplayChannelHost::EstablishChannel() {
 }
 
 void OzoneDisplayChannelHost::UpdateConnection() {
-  content::GpuProcessHost* host = content::GpuProcessHost::Get(
-      content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
-      content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
-
-  DCHECK(host);
-  host->AddFilter(this);
+  content::BrowserGpuChannelHostFactory* hostFactory =
+      content::BrowserGpuChannelHostFactory::instance();
+  DCHECK(hostFactory);
+  const uint32 kMessagesToFilter[] = { WaylandInput_MotionNotify::ID,
+                                       WaylandInput_ButtonNotify::ID,
+                                       WaylandInput_AxisNotify::ID,
+                                       WaylandInput_PointerEnter::ID,
+                                       WaylandInput_PointerLeave::ID,
+                                       WaylandInput_KeyNotify::ID,
+                                       WaylandInput_OutputSize::ID,
+                                       WaylandInput_CloseWidget::ID,
+                                       WaylandWindow_Resized::ID };
+  scoped_refptr<base::SingleThreadTaskRunner> compositor_thread_task_runner =
+      base::MessageLoopProxy::current();
+  hostFactory->SetHandlerForControlMessages(
+      kMessagesToFilter, arraysize(kMessagesToFilter),
+          base::Bind(&OzoneDisplayChannelHost::OnMessageReceived,
+              base::Unretained(this)), compositor_thread_task_runner.get());
 }
 
 }  // namespace ozonewayland

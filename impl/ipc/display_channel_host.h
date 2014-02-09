@@ -20,10 +20,10 @@ class RemoteStateChangeHandler;
 // always be only one OzoneDisplayChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
-                                public content::BrowserChildProcessObserver {
+class OzoneDisplayChannelHost : public content::BrowserChildProcessObserver {
  public:
   OzoneDisplayChannelHost();
+  virtual ~OzoneDisplayChannelHost();
 
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle,
@@ -41,9 +41,6 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
                        unsigned width,
                        unsigned height);
 
-  // IPC::ChannelProxy::MessageFilter implementation:
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-
   // Implement |BrowserChildProcessObserver|.
   virtual void BrowserChildProcessHostConnected(
     const content::ChildProcessData& data) OVERRIDE;
@@ -53,7 +50,7 @@ class OzoneDisplayChannelHost : public IPC::ChannelProxy::MessageFilter,
       const content::ChildProcessData& data) OVERRIDE;
 
  private:
-  virtual ~OzoneDisplayChannelHost();
+  void OnMessageReceived(const IPC::Message& message);
   void EstablishChannel();
   void UpdateConnection();
   EventConverterOzoneWayland* dispatcher_;
