@@ -13,99 +13,17 @@
 
 namespace ozonewayland {
 
-// This should be same as defined in display_channel.
-const int CHANNEL_ROUTE_ID = -0x1;
-
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : IPC::ChannelProxy::MessageFilter(),
       dispatcher_(EventConverterOzoneWayland::GetInstance()),
-      state_handler_(NULL),
-      channel_(NULL),
-      deferred_messages_() {
+      state_handler_(NULL) {
   BrowserChildProcessObserver::Add(this);
   EstablishChannel();
 }
 
 OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
-  DCHECK(deferred_messages_.empty());
   BrowserChildProcessObserver::Remove(this);
   delete state_handler_;
-}
-
-void OzoneDisplayChannelHost::SetWidgetState(unsigned w,
-                                             WidgetState state,
-                                             unsigned width,
-                                             unsigned height) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::SetWidgetState,
-            base::Unretained(this), w, state, width, height));
-    return;
-  }
-
-  Send(new WaylandWindow_State(CHANNEL_ROUTE_ID, w, state, width, height));
-}
-
-void OzoneDisplayChannelHost::SetWidgetTitle(unsigned w,
-                                             const base::string16& title) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::SetWidgetTitle,
-            base::Unretained(this), w, title));
-    return;
-  }
-
-  Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
-}
-
-void OzoneDisplayChannelHost::SetWidgetAttributes(unsigned widget,
-                                                  unsigned parent,
-                                                  unsigned x,
-                                                  unsigned y,
-                                                  WidgetType type) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::SetWidgetAttributes,
-            base::Unretained(this), widget, parent, x, y, type));
-    return;
-  }
-
-  Send(new WaylandWindow_Attributes(CHANNEL_ROUTE_ID,
-                                    widget,
-                                    parent,
-                                    x,
-                                    y,
-                                    type));
-}
-
-void OzoneDisplayChannelHost::ResetIme() {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::ResetIme,
-            base::Unretained(this)));
-    return;
-  }
-
-  Send(new WaylandWindow_ImeReset(CHANNEL_ROUTE_ID));
-}
-
-void OzoneDisplayChannelHost::ImeCaretBoundsChanged(gfx::Rect rect) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
-        base::Bind(&OzoneDisplayChannelHost::ImeCaretBoundsChanged,
-            base::Unretained(this), rect));
-    return;
-  }
-
-  Send(new WaylandWindow_ImeCaretBoundsChanged(CHANNEL_ROUTE_ID, rect));
-}
-
-void OzoneDisplayChannelHost::OnChannelEstablished() {
-  DCHECK(channel_);
-  while (!deferred_messages_.empty()) {
-    Send(deferred_messages_.front());
-    deferred_messages_.pop();
-  }
 }
 
 void OzoneDisplayChannelHost::OnMotionNotify(float x, float y) {
@@ -181,14 +99,6 @@ bool OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void OzoneDisplayChannelHost::OnFilterAdded(IPC::Channel* channel) {
-  channel_ = channel;
-}
-
-void OzoneDisplayChannelHost::OnChannelClosing() {
-  channel_ = NULL;
-}
-
 void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
   const content::ChildProcessData& data) {
   // we observe GPU process being forked or re-spawned for adding ourselves as
@@ -228,28 +138,13 @@ void OzoneDisplayChannelHost::EstablishChannel() {
           base::Unretained(this)));
 }
 
-bool OzoneDisplayChannelHost::Send(IPC::Message* message) {
-  if (!channel_) {
-    deferred_messages_.push(message);
-    return true;
-  }
-
-  // The GPU process never sends synchronous IPC, so clear the unblock flag.
-  // This ensures the message is treated as a synchronous one and helps preserve
-  // order. Check set_unblock in ipc_messages.h for explanation.
-  message->set_unblock(true);
-  return channel_->Send(message);
-}
-
 void OzoneDisplayChannelHost::UpdateConnection() {
-  DCHECK(!channel_);
   content::GpuProcessHost* host = content::GpuProcessHost::Get(
       content::GpuProcessHost::GPU_PROCESS_KIND_SANDBOXED,
       content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
 
   DCHECK(host);
   host->AddFilter(this);
-  OnChannelEstablished();
 }
 
 }  // namespace ozonewayland

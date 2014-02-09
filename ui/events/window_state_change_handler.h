@@ -9,10 +9,6 @@
 #include "base/strings/string16.h"
 #include "ozone/ui/events/window_constants.h"
 
-namespace IPC {
-class Channel;
-}
-
 namespace ozonewayland {
 
 // A simple interface for passing Window state change notifications coming from
