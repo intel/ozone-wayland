@@ -21,15 +21,13 @@ typedef unsigned WaylandWindowId;
 
 class WaylandWindow {
  public:
-  enum Shell {
+  enum ShellType {
     None,
     TOPLEVEL,
     FULLSCREEN,
     POPUP,
     CUSTOM
   };
-
-  typedef unsigned ShellType;
 
   // Creates a window and maps it to handle.
   explicit WaylandWindow(unsigned handle);
