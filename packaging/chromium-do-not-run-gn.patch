@@ -1,0 +1,35 @@
+Author: Joone Hur <joone.hur@intel.com>
+
+Make is used to build chromium instead of ninja when creating rpm packages using gbs 
+because depot_tools needs to be copied manually to chroot environment. However, 
+gyp_chromium still runs GN even if we do not use ninja, which requires Gtk+2, but 
+Tizen IVI does not provide Gtk+2 packages.
+
+This patch allows only to run GN when ninja is used.
+
+For your information, GN is a meta-build system that generates ninja files.
+
+--- src/build/gyp_chromium
++++ src/build/gyp_chromium
+@@ -39,7 +39,8 @@ sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'liblouis'))
+ sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
+     'Source', 'build', 'scripts'))
+ 
+-import find_depot_tools
++if os.environ.get('GYP_GENERATORS') != 'make':
++  import find_depot_tools
+ 
+ # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
+ # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70
+@@ -475,8 +476,9 @@ if __name__ == '__main__':
+     args.append('--check')
+ 
+   supplemental_includes = GetSupplementalFiles()
+-  if not RunGN(supplemental_includes):
+-    sys.exit(1)
++  if os.environ.get('GYP_GENERATORS') != 'make':
++    if not RunGN(supplemental_includes):
++      sys.exit(1)
+   args.extend(
+       ['-I' + i for i in additional_include_files(supplemental_includes, args)])
+ 
