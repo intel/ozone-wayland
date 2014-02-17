@@ -1,0 +1,53 @@
+========================================================================
+Milestone Valentine.
+Release Date: 17 Feb 2013.
+========================================================================
+
+Based on Chromium-
+Version: 34.0.1809.2.
+Channel: Beta.
+Revision: f9d72a2c6700e0e4a4fb7d17ca5b9203f5500bcd.
+
+---------------------------------------------------------------------
+
+New Features enabled in this release:
+1) Resizing Window.
+2) Maximize Window.
+
+---------------------------------------------------------------------
+
+Fixed Issues:
+Full list can be found here: 
+https://github.com/01org/ozone-wayland/issues?milestone=2&page=1&state=closed
+
+---------------------------------------------------------------------
+
+Known Issues:
+1) Dialogs are not supported.(i.e. File picker)
+2) Missing Drag and Drop support.
+
+---------------------------------------------------------------------
+
+The release has been tested on Ubuntu 12.04, x86-64 against the following
+dependencies:
+
+1) Wayland and Weston.
+   Version: 1.3
+   Wayland Revision: 84247b7513abd03720438192c0cd2a815a294dec
+   Weston Revision: 5e3ff49c7d4ed46c1678e640ec11f6938369c0bc
+2) Mesa.
+   Version: 10.0
+   Revision: b160fea306b1f922d7699bf1c91f39e0a2797734
+3) DRM.
+   Revision: 4c5de721c4ef96ef412fd6af4cb415f04a7515f6
+4) GLProto.
+   Revision: 7adf6d08b7d9fe1304f8c37f5a9152df97a6344d
+5) libunwind.
+   Revision: 2c3444d0f4821b159d60290c514a8aeba8d9061f
+6) libxkbcommon.
+   Revision: 9a3c115be045189aa8b688d1cf9468488df4a491
+7) Cairo.
+   Revision: dcbe16eb40b488f89f2398181f4c3f8a65f84b52
+8) Pixman.
+   Revision: 9ba3a34797399b286dbfe21c7b213a7547abf577
+
