@@ -134,16 +134,16 @@ void WaylandDisplay::SetWidgetState(unsigned w,
       break;
     }
     case ACTIVE:
-      NOTIMPLEMENTED();
+      NOTIMPLEMENTED() << " ACTIVE " << w;
       break;
     case INACTIVE:
-      NOTIMPLEMENTED();
+      NOTIMPLEMENTED() << " INACTIVE " << w;
       break;
     case SHOW:
-      NOTIMPLEMENTED();
+      NOTIMPLEMENTED() << " SHOW " << w;
       break;
     case HIDE:
-      NOTIMPLEMENTED();
+      NOTIMPLEMENTED() << " HIDE " << w;
       break;
     case RESIZE:
     {
