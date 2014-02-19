@@ -13,7 +13,8 @@ namespace ozonewayland {
 
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
-      observer_(NULL) {
+      observer_(NULL),
+      output_observer_(NULL) {
 }
 
 EventConverterInProcess::~EventConverterInProcess() {
