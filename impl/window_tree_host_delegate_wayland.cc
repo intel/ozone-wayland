@@ -87,7 +87,7 @@ void WindowTreeHostDelegateWayland::SetActiveWindow(
   unsigned window_handle = current_active_window_->window_;
   if (windows.front() != window_handle) {
     windows.remove(window_handle);
-    windows.insert(open_windows().begin(), window_handle);
+    windows.insert(windows.begin(), window_handle);
   }
 
   current_active_window_->Activate();
