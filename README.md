@@ -82,6 +82,10 @@ That's all. At this point you should be able to connect Chromium on Weston using
   $ ~/git/weston/src/weston &
   $ ./out/Debug/chrome --no-sandbox
   ```
+  
+###Working with Ozone-Wayland Release branch:
+
+Instructions can be found here: https://github.com/01org/ozone-wayland/wiki/Releasing#wiki-releasebranch
 
 ## Gardening
 
