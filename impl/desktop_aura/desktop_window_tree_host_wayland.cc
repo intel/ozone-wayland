@@ -170,6 +170,7 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
                                          POPUP);
       break;
     }
+    case Widget::InitParams::TYPE_BUBBLE:
     case Widget::InitParams::TYPE_WINDOW:
       state_handler->SetWidgetAttributes(window_,
                                          0,
@@ -238,8 +239,10 @@ void DesktopWindowTreeHostWayland::OnRootWindowCreated(
   g_delegate_ozone_wayland_->OnRootWindowCreated(window_);
 
   // Add DesktopWindowTreeHostWayland as dispatcher.
-  bool root_window = params.type == Widget::InitParams::TYPE_WINDOW ||
-                      params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
+  bool root_window = params.type == Widget::InitParams::TYPE_BUBBLE ||
+      params.type == Widget::InitParams::TYPE_WINDOW ||
+      params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
+
   if (!window_parent_ && root_window)
     g_delegate_ozone_wayland_->SetActiveWindow(this);
 }
