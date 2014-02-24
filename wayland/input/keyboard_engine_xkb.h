@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_IME_KEYBOARD_ENGINE_XKB_H_
-#define OZONE_UI_IME_KEYBOARD_ENGINE_XKB_H_
+#ifndef OZONE_WAYLAND_INPUT_KEYBOARD_ENGINE_XKB_H_
+#define OZONE_WAYLAND_INPUT_KEYBOARD_ENGINE_XKB_H_
 
 #include <xkbcommon/xkbcommon.h>
 
@@ -53,4 +53,4 @@ class KeyboardEngineXKB {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_UI_IME_KEYBOARD_ENGINE_XKB_H_
+#endif  // OZONE_WAYLAND_INPUT_KEYBOARD_ENGINE_XKB_H_

@@ -50,9 +50,6 @@
       'include_dirs': [
         '../..',
       ],
-      'includes': [
-        '../ui/ime/ime.gypi',
-      ],
       'sources': [
         'display.cc',
         'display.h',
@@ -74,6 +71,8 @@
         'input/cursor.h',
         'input/keyboard.cc',
         'input/keyboard.h',
+        'input/keyboard_engine_xkb.h',
+        'input/keyboard_engine_xkb.cc',
         'input/pointer.cc',
         'input/pointer.h',
       ],

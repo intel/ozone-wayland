@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/ime/keyboard_engine_xkb.h"
+#include "ozone/wayland/input/keyboard_engine_xkb.h"
 
 #include <sys/mman.h>
 

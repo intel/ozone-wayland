@@ -5,7 +5,7 @@
 #include "ozone/wayland/input/keyboard.h"
 
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
-#include "ozone/ui/ime/keyboard_engine_xkb.h"
+#include "ozone/wayland/input/keyboard_engine_xkb.h"
 
 namespace ozonewayland {
 
