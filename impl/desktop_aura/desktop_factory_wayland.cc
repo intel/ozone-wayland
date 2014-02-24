@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/desktop_factory_wayland.h"
+#include "ozone/impl/desktop_aura/desktop_factory_wayland.h"
 
-#include "ozone/impl/desktop_window_tree_host_wayland.h"
+#include "ozone/impl/desktop_aura/desktop_window_tree_host_wayland.h"
 
 namespace ozonewayland {
 

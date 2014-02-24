@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_DESKTOP_SCREEN_WAYLAND_H__
-#define OZONE_IMPL_DESKTOP_SCREEN_WAYLAND_H__
+#ifndef OZONE_IMPL_DESKTOP_AURA_DESKTOP_SCREEN_WAYLAND_H__
+#define OZONE_IMPL_DESKTOP_AURA_DESKTOP_SCREEN_WAYLAND_H__
 
 #include <vector>
 
@@ -49,4 +49,4 @@ class DesktopScreenWayland : public gfx::Screen {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_DESKTOP_SCREEN_WAYLAND_H__
+#endif  // OZONE_IMPL_DESKTOP_AURA_DESKTOP_SCREEN_WAYLAND_H__

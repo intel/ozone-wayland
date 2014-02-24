@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
-#define OZONE_IMPL_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
+#ifndef OZONE_IMPL_DESKTOP_AURA_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
+#define OZONE_IMPL_DESKTOP_AURA_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
 
 #include "base/compiler_specific.h"
 #include "ui/aura/client/drag_drop_client.h"
@@ -38,4 +38,4 @@ class VIEWS_EXPORT DesktopDragDropClientWayland
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
+#endif  // OZONE_IMPL_DESKTOP_AURA_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_

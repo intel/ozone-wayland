@@ -32,7 +32,7 @@
       'conditions': [
         ['toolkit_views==1 and chromeos == 0', {
           'includes': [
-            'impl/impl_view.gypi',
+            'impl/desktop_aura/impl_view.gypi',
           ],
         }],
       ],

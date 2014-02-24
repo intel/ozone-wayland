@@ -3,13 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/desktop_window_tree_host_wayland.h"
+#include "ozone/impl/desktop_aura/desktop_window_tree_host_wayland.h"
 
 #include "base/bind.h"
-#include "ozone/impl/desktop_drag_drop_client_wayland.h"
-#include "ozone/impl/desktop_screen_wayland.h"
+#include "ozone/impl/desktop_aura/desktop_drag_drop_client_wayland.h"
+#include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
+#include "ozone/impl/desktop_aura/window_tree_host_delegate_wayland.h"
 #include "ozone/impl/ozone_display.h"
-#include "ozone/impl/window_tree_host_delegate_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"

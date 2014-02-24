@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
-#define OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
+#ifndef OZONE_IMPL_DESKTOP_AURA_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
+#define OZONE_IMPL_DESKTOP_AURA_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
 
 #include <list>
 #include <vector>
@@ -78,4 +78,4 @@ class WindowTreeHostDelegateWayland
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
+#endif  // OZONE_IMPL_DESKTOP_AURA_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_

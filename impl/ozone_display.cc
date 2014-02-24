@@ -6,7 +6,7 @@
 
 #include <map>
 #include "content/child/child_process.h"
-#include "ozone/impl/desktop_screen_wayland.h"
+#include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
 #include "ozone/ui/events/event_converter_in_process.h"
