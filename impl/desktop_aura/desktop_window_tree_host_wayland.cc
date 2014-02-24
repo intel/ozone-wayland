@@ -406,7 +406,7 @@ gfx::Rect DesktopWindowTreeHostWayland::GetRestoredBounds() const {
   if (!previous_bounds_.IsEmpty())
     return previous_bounds_;
 
-  return bounds_;
+  return GetWindowBoundsInScreen();
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetWorkAreaBoundsInScreen() const {
@@ -549,6 +549,10 @@ bool DesktopWindowTreeHostWayland::ShouldUseNativeFrame() {
 }
 
 void DesktopWindowTreeHostWayland::FrameTypeChanged() {
+  // Replace the frame and layout the contents. Even though we don't have a
+  // swapable glass frame like on Windows, we still replace the frame because
+  // the button assets don't update otherwise.
+  native_widget_delegate_->AsWidget()->non_client_view()->UpdateFrame();
 }
 
 NonClientFrameView* DesktopWindowTreeHostWayland::CreateNonClientFrameView() {
@@ -642,7 +646,6 @@ void DesktopWindowTreeHostWayland::OnNativeWidgetBlur() {
 }
 
 bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
-  NOTIMPLEMENTED();
   return false;
 }
 
