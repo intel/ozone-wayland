@@ -62,16 +62,6 @@ class WaylandDisplay : public WindowStateChangeHandler {
 
   const WindowMap& GetWindowList() const { return widget_map_; }
 
-  // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
-  // useful for callers to track a particular surface. By default the type of
-  // surface(i.e. toplevel, menu) is none. One needs to explicitly call
-  // WaylandWindow::SetShellAttributes to set this. The ownership of
-  // WaylandWindow is not passed to the caller.
-  WaylandWindow* CreateAcceleratedSurface(unsigned w);
-
-  // Destroys WaylandWindow whose handle is w.
-  void DestroyWindow(unsigned w);
-
   // Starts polling on display fd. This should be used when one needs to
   // continuously read pending events coming from Wayland compositor and
   // dispatch them. The polling is done completely on a separate thread and
@@ -98,6 +88,16 @@ class WaylandDisplay : public WindowStateChangeHandler {
                                    WidgetType type) OVERRIDE;
 
  private:
+  // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
+  // useful for callers to track a particular surface. By default the type of
+  // surface(i.e. toplevel, menu) is none. One needs to explicitly call
+  // WaylandWindow::SetShellAttributes to set this. The ownership of
+  // WaylandWindow is not passed to the caller.
+  WaylandWindow* CreateAcceleratedSurface(unsigned w);
+
+  // Destroys WaylandWindow whose handle is w.
+  void DestroyWindow(unsigned w);
+
   void terminate();
   WaylandWindow* GetWidget(unsigned w);
   // This handler resolves all server events used in initialization. It also

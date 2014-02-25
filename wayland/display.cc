@@ -62,21 +62,6 @@ const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
   return screen_list_;
 }
 
-WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
-  WaylandWindow* window = new WaylandWindow(w);
-  widget_map_[w] = window;
-
-  return window;
-}
-
-void WaylandDisplay::DestroyWindow(unsigned w) {
-  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
-  WaylandWindow* widget = it == widget_map_.end() ? NULL : it->second;
-  DCHECK(widget);
-  delete widget;
-  widget_map_.erase(w);
-}
-
 void WaylandDisplay::StartProcessingEvents() {
   DCHECK(display_poll_thread_);
   // Start polling for wayland events.
@@ -196,6 +181,21 @@ void WaylandDisplay::SetWidgetAttributes(unsigned widget,
   default:
     break;
   }
+}
+
+WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
+  WaylandWindow* window = new WaylandWindow(w);
+  widget_map_[w] = window;
+
+  return window;
+}
+
+void WaylandDisplay::DestroyWindow(unsigned w) {
+  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
+  WaylandWindow* widget = it == widget_map_.end() ? NULL : it->second;
+  DCHECK(widget);
+  delete widget;
+  widget_map_.erase(w);
 }
 
 void WaylandDisplay::terminate() {
