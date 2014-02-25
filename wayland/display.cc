@@ -82,6 +82,14 @@ void WaylandDisplay::SyncDisplay() {
   wl_display_roundtrip(display_);
 }
 
+wl_egl_window* WaylandDisplay::RealizeAcceleratedWidget(unsigned w) {
+  WaylandWindow* widget = GetWidget(w);
+  DCHECK(widget);
+  widget->RealizeAcceleratedWidget();
+
+  return widget->egl_window();
+}
+
 void WaylandDisplay::SetWidgetState(unsigned w,
                                     WidgetState state,
                                     unsigned width,

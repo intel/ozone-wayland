@@ -13,7 +13,6 @@
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/screen.h"
-#include "ozone/wayland/window.h"
 
 namespace ozonewayland {
 
@@ -116,23 +115,12 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     display_->StartProcessingEvents();
   }
 
-  WaylandWindow* widget = GetWidget(w);
-  DCHECK(widget);
-  widget->RealizeAcceleratedWidget();
-  return (gfx::AcceleratedWidget)widget->egl_window();
+  return (gfx::AcceleratedWidget)display_->RealizeAcceleratedWidget();
 }
 
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
   display->channel_ = new OzoneDisplayChannel();
   display->channel_->Register();
-}
-
-WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {
-  const std::map<unsigned, WaylandWindow*> widget_map =
-      display_->GetWindowList();
-
-  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map.find(w);
-    return it == widget_map.end() ? NULL : it->second;
 }
 
 void OzoneDisplay::Terminate() {

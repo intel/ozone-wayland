@@ -23,6 +23,7 @@ class WaylandDisplayPollThread;
 class WaylandInputDevice;
 class WaylandScreen;
 class WaylandWindow;
+struct wl_egl_window;
 
 typedef std::map<unsigned, WaylandWindow*> WindowMap;
 
@@ -74,6 +75,10 @@ class WaylandDisplay : public WindowStateChangeHandler {
   // Does a round trip to Wayland server. This call blocks the current thread
   // until all pending request are processed by the server.
   void SyncDisplay();
+  // Realizes an AcceleratedWidget so that the returned AcceleratedWidget
+  // can be used to to create a GLSurface. Ownership is not passed to the
+  // caller.
+  wl_egl_window* RealizeAcceleratedWidget(unsigned w);
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               WidgetState state,

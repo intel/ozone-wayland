@@ -18,7 +18,6 @@ class EventConverterOzoneWayland;
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
 class WaylandDisplay;
-class WaylandWindow;
 
 class OzoneDisplay {
  public:
@@ -38,7 +37,6 @@ class OzoneDisplay {
   gfx::AcceleratedWidget RealizeAcceleratedWidget(gfx::AcceleratedWidget w);
 
  private:
-  WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
   void Terminate();
   void LookAheadOutputGeometry();
 
