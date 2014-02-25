@@ -34,7 +34,6 @@ class OzoneDisplay : public OutputChangeObserver {
   intptr_t GetNativeDisplay();
 
   gfx::Screen* CreateDesktopScreen();
-  const DesktopScreenWayland* GetPrimaryScreen() const;
 
   gfx::AcceleratedWidget GetAcceleratedWidget();
   gfx::AcceleratedWidget RealizeAcceleratedWidget(gfx::AcceleratedWidget w);

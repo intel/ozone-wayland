@@ -95,12 +95,6 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   return desktop_screen_;
 }
 
-const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
-  // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
-  // after multi screen support is added.
-  return desktop_screen_;
-}
-
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
   // Ensure Event Converter is initialized.

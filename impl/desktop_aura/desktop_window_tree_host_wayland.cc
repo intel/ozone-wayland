@@ -414,7 +414,12 @@ gfx::Rect DesktopWindowTreeHostWayland::GetRestoredBounds() const {
 
 gfx::Rect DesktopWindowTreeHostWayland::GetWorkAreaBoundsInScreen() const {
   // TODO(kalyan): Take into account wm decorations. i.e Dock, panel etc.
-  return OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
+  gfx::Screen *screen = gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE);
+  if (!screen)
+    NOTREACHED() << "Unable to retrieve valid gfx::Screen";
+
+  gfx::Display display = screen->GetPrimaryDisplay();
+  return display.bounds();
 }
 
 void DesktopWindowTreeHostWayland::SetShape(gfx::NativeRegion native_region) {
@@ -587,7 +592,11 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
       previous_maximize_bounds_ = previous_bounds_;
 
     previous_bounds_ = bounds_;
-    bounds_ = OzoneDisplay::GetInstance()->GetPrimaryScreen()->geometry();
+    gfx::Screen *screen = gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE);
+    if (!screen)
+      NOTREACHED() << "Unable to retrieve valid gfx::Screen";
+
+    bounds_ = screen->GetPrimaryDisplay().bounds();
     // We could use HandleConfigure in ShellSurface to set the correct bounds of
     // egl window associated with this opaque handle. How ever, this would need
     // to handle race conditions and ensure correct size is set for
