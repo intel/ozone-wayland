@@ -31,7 +31,8 @@ void InputMethodContextImplWayland::Reset() {
 
 void InputMethodContextImplWayland::OnTextInputTypeChanged(
     ui::TextInputType text_input_type) {
-  NOTIMPLEMENTED();
+  // TODO(vignatti): this is recurrently called, disturbing the debug for being
+  // very verbose; so that's why NOTIMPLEMENTED() isn't used here instead.
 }
 
 void InputMethodContextImplWayland::OnCaretBoundsChanged(
