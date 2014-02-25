@@ -70,6 +70,9 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
 
 gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   if (!desktop_screen_) {
+    // TODO(Kalyan): Find a better way to handle this. Move all EventConverter
+    // initialization to EventFactoryOzone.
+    event_converter_ = new EventConverterInProcess();
     desktop_screen_ = new DesktopScreenWayland;
     LookAheadOutputGeometry();
   }
@@ -79,17 +82,19 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
 
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
-  // Ensure Event Converter is initialized.
-  if (!event_converter_) {
+  // Ensure Event Converter is initialized. This can be the case when support
+  // for toolkit_views is disabled and we didn't recieve any call to
+  // CreateDesktopScreen.
+  if (!event_converter_)
     event_converter_ = new EventConverterInProcess();
-    event_converter_->SetOutputChangeObserver(this);
 
-    if (display_) {
+  if (display_) {
+    // TODO(Kalyan): Find a better way to handle this. Move the logic to
+    // EventConverterOzone eventually.
+    if (opaque_handle == 0)
       display_->StartProcessingEvents();
-    } else {
-      DCHECK(!host_);
+  } else if (!host_) {
       host_ = new OzoneDisplayChannelHost();
-    }
   }
 
   opaque_handle++;
@@ -115,13 +120,6 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   DCHECK(widget);
   widget->RealizeAcceleratedWidget();
   return (gfx::AcceleratedWidget)widget->egl_window();
-}
-
-void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
-  if (spec_)
-    base::snprintf(spec_, kMaxDisplaySize, "%dx%d*2", width, height);
-  if (desktop_screen_)
-    desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
 
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
@@ -175,14 +173,20 @@ void OzoneDisplay::Terminate() {
 // Chrome tasks after GPU process is created.
 //
 void OzoneDisplay::LookAheadOutputGeometry() {
-  DCHECK(desktop_screen_);
+  DCHECK(event_converter_);
   WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
   CHECK(disp_.display()) << "Ozone: Wayland server connection not found.";
 
   while (disp_.PrimaryScreen()->Geometry().IsEmpty())
     disp_.SyncDisplay();
 
-  desktop_screen_->SetGeometry(disp_.PrimaryScreen()->Geometry());
+  EventConverterInProcess* coverter =
+      static_cast<EventConverterInProcess*>(event_converter_);
+  DCHECK(coverter->GetOutputChangeObserver());
+
+  unsigned width = disp_.PrimaryScreen()->Geometry().width();
+  unsigned height = disp_.PrimaryScreen()->Geometry().height();
+  coverter->GetOutputChangeObserver()->OnOutputSizeChanged(width, height);
 }
 
 }  // namespace ozonewayland

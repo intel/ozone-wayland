@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "ozone/ui/events/output_change_observer.h"
 #include "ui/gfx/screen.h"
 
 namespace aura {
@@ -15,12 +16,13 @@ class Window;
 
 namespace ozonewayland {
 
-class DesktopScreenWayland : public gfx::Screen {
+class DesktopScreenWayland : public gfx::Screen,
+                             public OutputChangeObserver {
  public:
   DesktopScreenWayland();
   virtual ~DesktopScreenWayland();
+
   void SetGeometry(const gfx::Rect& geometry);
-  const gfx::Rect geometry() const { return rect_; }
 
  private:
   // Overridden from gfx::Screen:
@@ -40,6 +42,8 @@ class DesktopScreenWayland : public gfx::Screen {
   virtual gfx::Display GetPrimaryDisplay() const OVERRIDE;
   virtual void AddObserver(gfx::DisplayObserver* observer) OVERRIDE;
   virtual void RemoveObserver(gfx::DisplayObserver* observer) OVERRIDE;
+  // OutputChangeObserver overrides.
+  virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
 
   gfx::Rect rect_;
   // The display objects we present to chrome.

@@ -146,6 +146,10 @@ void EventConverterInProcess::SetOutputChangeObserver(
   output_observer_ = observer;
 }
 
+OutputChangeObserver* EventConverterInProcess::GetOutputChangeObserver() const {
+  return output_observer_;
+}
+
 void EventConverterInProcess::NotifyPointerEnter(
     EventConverterInProcess* data, unsigned handle) {
   if (data->observer_)

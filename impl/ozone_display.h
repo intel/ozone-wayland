@@ -5,7 +5,6 @@
 #ifndef OZONE_IMPL_OZONE_DISPLAY_H_
 #define OZONE_IMPL_OZONE_DISPLAY_H_
 
-#include "ozone/ui/events/output_change_observer.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
@@ -21,7 +20,7 @@ class OzoneDisplayChannelHost;
 class WaylandDisplay;
 class WaylandWindow;
 
-class OzoneDisplay : public OutputChangeObserver {
+class OzoneDisplay {
  public:
   static OzoneDisplay* GetInstance();
 
@@ -37,9 +36,6 @@ class OzoneDisplay : public OutputChangeObserver {
 
   gfx::AcceleratedWidget GetAcceleratedWidget();
   gfx::AcceleratedWidget RealizeAcceleratedWidget(gfx::AcceleratedWidget w);
-
-  // OutputChangeObserver overrides.
-  virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
 
  private:
   WaylandWindow* GetWidget(gfx::AcceleratedWidget w);
