@@ -9,6 +9,7 @@
 #include "base/native_library.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/vsync_provider_wayland.h"
+#include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/wayland/egl/egl_window.h"
 
 namespace ozonewayland {

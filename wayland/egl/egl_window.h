@@ -5,7 +5,9 @@
 #ifndef OZONE_WAYLAND_EGL_EGL_WINDOW_H_
 #define OZONE_WAYLAND_EGL_EGL_WINDOW_H_
 
-#include "ozone/wayland/display.h"
+#include <wayland-client.h>
+
+#include "base/basictypes.h"
 
 struct wl_egl_window;
 

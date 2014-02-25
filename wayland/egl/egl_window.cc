@@ -7,6 +7,7 @@
 #include <EGL/egl.h>
 #include <wayland-egl.h>
 
+#include "ozone/wayland/display.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
