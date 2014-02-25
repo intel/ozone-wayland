@@ -39,24 +39,6 @@ OzoneDisplay::~OzoneDisplay() {
 }
 
 const char* OzoneDisplay::DefaultDisplaySpec() {
-  if (!spec_) {
-    spec_ = new char[kMaxDisplaySize];
-    if (desktop_screen_ && !desktop_screen_->geometry().size().IsEmpty())  {
-      gfx::Rect rect(desktop_screen_->geometry());
-      base::snprintf(spec_,
-                     kMaxDisplaySize,
-                     "%dx%d*2",
-                     rect.width(),
-                     rect.height());
-    } else {
-      spec_[0] = '\0';
-    }
-  }
-
-  if (spec_[0] == '\0')
-    NOTREACHED() <<
-        "OutputHandleMode should come from Wayland compositor first";
-
   return spec_;
 }
 
