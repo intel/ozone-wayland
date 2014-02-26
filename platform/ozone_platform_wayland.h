@@ -9,8 +9,8 @@
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/surface_factory_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
-#include "ui/events/ozone/event_factory_ozone.h"
 #include "ui/ozone/ozone_platform.h"
 
 namespace ui {
@@ -33,7 +33,7 @@ class OzonePlatformWayland : public OzonePlatform {
   ozonewayland::SurfaceFactoryWayland surface_factory_ozone_;
 
   // TODO(kalyan): Use EventFactoryOzone. This is a stub that does nothing.
-  ui::EventFactoryOzone event_factory_ozone_;
+  ozonewayland::EventFactoryOzoneWayland event_factory_ozone_;
 
   ozonewayland::InputMethodContextFactoryWayland input_method_context_factory_;
 
