@@ -26,7 +26,8 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     screen_list_(),
     input_list_(),
     widget_map_(),
-    serial_(0) {
+    serial_(0),
+    processing_events_(false) {
   display_ = wl_display_connect(NULL);
   if (!display_)
     return;
@@ -65,13 +66,19 @@ const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
 void WaylandDisplay::StartProcessingEvents() {
   DCHECK(display_poll_thread_);
   // Start polling for wayland events.
-  display_poll_thread_->StartProcessingEvents();
+  if (!processing_events_) {
+    display_poll_thread_->StartProcessingEvents();
+    processing_events_ = true;
+  }
 }
 
 void WaylandDisplay::StopProcessingEvents() {
   DCHECK(display_poll_thread_);
   // Start polling for wayland events.
-  display_poll_thread_->StopProcessingEvents();
+  if (processing_events_) {
+    display_poll_thread_->StopProcessingEvents();
+    processing_events_ = false;
+  }
 }
 
 void WaylandDisplay::FlushDisplay() {
@@ -83,6 +90,8 @@ void WaylandDisplay::SyncDisplay() {
 }
 
 wl_egl_window* WaylandDisplay::RealizeAcceleratedWidget(unsigned w) {
+  // Ensure we are processing wayland event requests.
+  StartProcessingEvents();
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
   widget->RealizeAcceleratedWidget();

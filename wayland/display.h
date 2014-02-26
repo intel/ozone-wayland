@@ -136,6 +136,7 @@ class WaylandDisplay : public WindowStateChangeHandler {
   std::list<WaylandInputDevice*> input_list_;
   WindowMap widget_map_;
   unsigned serial_;
+  bool processing_events_;
   static WaylandDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };
