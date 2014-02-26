@@ -63,24 +63,6 @@ const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
   return screen_list_;
 }
 
-void WaylandDisplay::StartProcessingEvents() {
-  DCHECK(display_poll_thread_);
-  // Start polling for wayland events.
-  if (!processing_events_) {
-    display_poll_thread_->StartProcessingEvents();
-    processing_events_ = true;
-  }
-}
-
-void WaylandDisplay::StopProcessingEvents() {
-  DCHECK(display_poll_thread_);
-  // Start polling for wayland events.
-  if (processing_events_) {
-    display_poll_thread_->StopProcessingEvents();
-    processing_events_ = false;
-  }
-}
-
 void WaylandDisplay::FlushDisplay() {
   wl_display_flush(display_);
 }
@@ -213,6 +195,24 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
   DCHECK(widget);
   delete widget;
   widget_map_.erase(w);
+}
+
+void WaylandDisplay::StartProcessingEvents() {
+  DCHECK(display_poll_thread_);
+  // Start polling for wayland events.
+  if (!processing_events_) {
+    display_poll_thread_->StartProcessingEvents();
+    processing_events_ = true;
+  }
+}
+
+void WaylandDisplay::StopProcessingEvents() {
+  DCHECK(display_poll_thread_);
+  // Start polling for wayland events.
+  if (processing_events_) {
+    display_poll_thread_->StopProcessingEvents();
+    processing_events_ = false;
+  }
 }
 
 void WaylandDisplay::terminate() {

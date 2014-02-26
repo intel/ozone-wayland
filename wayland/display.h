@@ -63,13 +63,6 @@ class WaylandDisplay : public WindowStateChangeHandler {
 
   const WindowMap& GetWindowList() const { return widget_map_; }
 
-  // Starts polling on display fd. This should be used when one needs to
-  // continuously read pending events coming from Wayland compositor and
-  // dispatch them. The polling is done completely on a separate thread and
-  // doesn't block the thread from which this is called.
-  void StartProcessingEvents();
-  // Stops polling on display fd.
-  void StopProcessingEvents();
   // Flush Display.
   void FlushDisplay();
   // Does a round trip to Wayland server. This call blocks the current thread
@@ -102,6 +95,14 @@ class WaylandDisplay : public WindowStateChangeHandler {
 
   // Destroys WaylandWindow whose handle is w.
   void DestroyWindow(unsigned w);
+
+  // Starts polling on display fd. This should be used when one needs to
+  // continuously read pending events coming from Wayland compositor and
+  // dispatch them. The polling is done completely on a separate thread and
+  // doesn't block the thread from which this is called.
+  void StartProcessingEvents();
+  // Stops polling on display fd.
+  void StopProcessingEvents();
 
   void terminate();
   WaylandWindow* GetWidget(unsigned w);
