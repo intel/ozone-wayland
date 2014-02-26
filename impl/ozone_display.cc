@@ -115,7 +115,7 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
     display_->StartProcessingEvents();
   }
 
-  return (gfx::AcceleratedWidget)display_->RealizeAcceleratedWidget();
+  return (gfx::AcceleratedWidget)display_->RealizeAcceleratedWidget(w);
 }
 
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
