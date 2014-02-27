@@ -5,7 +5,7 @@
 #include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 
 #include "ozone/impl/desktop_aura/desktop_window_tree_host_wayland.h"
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
 
 namespace ozonewayland {
@@ -14,7 +14,7 @@ DesktopScreenWayland::DesktopScreenWayland()
     : gfx::Screen(),
       rect_(0, 0, 0, 0),
       displays_() {
-  EventConverterOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
+  EventFactoryOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {

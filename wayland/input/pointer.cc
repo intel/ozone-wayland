@@ -6,7 +6,7 @@
 
 #include <linux/input.h>
 
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/window.h"
@@ -36,7 +36,7 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   if (!cursor_)
     cursor_ = new WaylandCursor(WaylandDisplay::GetInstance()->shm());
 
-  dispatcher_ = EventConverterOzoneWayland::GetInstance();
+  dispatcher_ = EventFactoryOzoneWayland::GetInstance()->EventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !cursor_->GetInputPointer()) {
     wl_pointer* input_pointer = wl_seat_get_pointer(seat);

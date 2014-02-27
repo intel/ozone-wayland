@@ -7,7 +7,7 @@
 
 #include <wayland-client.h>
 
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 
 namespace ozonewayland {
@@ -61,8 +61,8 @@ void WaylandScreen::OutputHandleMode(void* data,
     // Dont Send OutputSizeChanged notification in case a dummy display is
     // created to get current output size at start up.
     if (WaylandDisplay::GetInstance()->GetCompositor())
-      EventConverterOzoneWayland::GetInstance()->OutputSizeChanged(width,
-                                                                   height);
+      EventFactoryOzoneWayland::GetInstance()->EventConverter()->
+          OutputSizeChanged(width, height);
   }
 }
 

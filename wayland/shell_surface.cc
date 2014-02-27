@@ -7,7 +7,7 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/surface.h"
@@ -97,7 +97,7 @@ void WaylandShellSurface::HandleConfigure(void *data,
                                           int32_t height) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
   EventConverterOzoneWayland* dispatcher =
-      EventConverterOzoneWayland::GetInstance();
+      EventFactoryOzoneWayland::GetInstance()->EventConverter();
   dispatcher->WindowResized(window->Handle(), width, height);
 }
 
@@ -105,7 +105,7 @@ void WaylandShellSurface::HandlePopupDone(void *data,
                                           struct wl_shell_surface *surface) {
   WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
   EventConverterOzoneWayland* dispatcher =
-      EventConverterOzoneWayland::GetInstance();
+      EventFactoryOzoneWayland::GetInstance()->EventConverter();
 
   if (!input->GetGrabWindowHandle())
     return;

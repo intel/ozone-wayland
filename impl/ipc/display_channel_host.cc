@@ -9,13 +9,13 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/process_type.h"
 #include "ozone/impl/ipc/messages.h"
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
 
 namespace ozonewayland {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
-    : dispatcher_(EventConverterOzoneWayland::GetInstance()),
+    : dispatcher_(EventFactoryOzoneWayland::GetInstance()->EventConverter()),
       state_handler_(NULL) {
   BrowserChildProcessObserver::Add(this);
   EstablishChannel();
