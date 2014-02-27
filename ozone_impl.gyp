@@ -33,6 +33,8 @@
         'impl/desktop_screen_wayland.h',
         'impl/ozone_display.cc',
         'impl/ozone_display.h',
+        'impl/ozone_util.cc',
+        'impl/ozone_util.h',
         'impl/surface_factory_wayland.cc',
         'impl/surface_factory_wayland.h',
         'impl/vsync_provider_wayland.cc',
