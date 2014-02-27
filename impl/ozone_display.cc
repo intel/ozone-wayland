@@ -9,8 +9,7 @@
 #include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
-#include "ozone/ui/events/event_converter_in_process.h"
-#include "ozone/ui/events/remote_event_dispatcher.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/screen.h"
 
@@ -25,8 +24,7 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
 OzoneDisplay::OzoneDisplay() : desktop_screen_(NULL),
     display_(NULL),
     channel_(NULL),
-    host_(NULL),
-    event_converter_(NULL) {
+    host_(NULL) {
   instance_ = this;
 }
 
@@ -63,9 +61,6 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
 
 gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   if (!desktop_screen_) {
-    // TODO(Kalyan): Find a better way to handle this. Move all EventConverter
-    // initialization to EventFactoryOzone.
-    event_converter_ = new EventConverterInProcess();
     desktop_screen_ = new DesktopScreenWayland;
     LookAheadOutputGeometry();
   }
@@ -75,12 +70,6 @@ gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
 
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
-  // Ensure Event Converter is initialized. This can be the case when support
-  // for toolkit_views is disabled and we didn't recieve any call to
-  // CreateDesktopScreen.
-  if (!event_converter_)
-    event_converter_ = new EventConverterInProcess();
-
   if (!display_ && !host_)
     host_ = new OzoneDisplayChannelHost();
 
@@ -112,7 +101,7 @@ void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
 }
 
 void OzoneDisplay::Terminate() {
-  if (!event_converter_ && !desktop_screen_)
+  if (!desktop_screen_)
     return;
 
   delete channel_;
@@ -122,10 +111,6 @@ void OzoneDisplay::Terminate() {
   }
 
   delete display_;
-  if (event_converter_) {
-    delete event_converter_;
-    event_converter_ = NULL;
-  }
 }
 
 // TODO(vignatti): GPU process conceptually is the one that deals with hardware
@@ -146,20 +131,19 @@ void OzoneDisplay::Terminate() {
 // Chrome tasks after GPU process is created.
 //
 void OzoneDisplay::LookAheadOutputGeometry() {
-  DCHECK(event_converter_);
   WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
   CHECK(disp_.display()) << "Ozone: Wayland server connection not found.";
 
   while (disp_.PrimaryScreen()->Geometry().IsEmpty())
     disp_.SyncDisplay();
 
-  EventConverterInProcess* coverter =
-      static_cast<EventConverterInProcess*>(event_converter_);
-  DCHECK(coverter->GetOutputChangeObserver());
+  EventFactoryOzoneWayland* event_factory =
+      EventFactoryOzoneWayland::GetInstance();
+  DCHECK(event_factory->GetOutputChangeObserver());
 
   unsigned width = disp_.PrimaryScreen()->Geometry().width();
   unsigned height = disp_.PrimaryScreen()->Geometry().height();
-  coverter->GetOutputChangeObserver()->OnOutputSizeChanged(width, height);
+  event_factory->GetOutputChangeObserver()->OnOutputSizeChanged(width, height);
 }
 
 }  // namespace ozonewayland

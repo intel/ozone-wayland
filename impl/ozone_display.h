@@ -14,7 +14,6 @@ class Screen;
 namespace ozonewayland {
 
 class DesktopScreenWayland;
-class EventConverterOzoneWayland;
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
 class WaylandDisplay;
@@ -45,7 +44,6 @@ class OzoneDisplay {
   WaylandDisplay* display_;
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;
-  EventConverterOzoneWayland* event_converter_;
   static OzoneDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
