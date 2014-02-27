@@ -36,7 +36,6 @@ class OzoneDisplay {
 
  private:
   void Terminate();
-  void LookAheadOutputGeometry();
 
   static void DelayedInitialization(OzoneDisplay* display);
 

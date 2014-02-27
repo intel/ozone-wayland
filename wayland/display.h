@@ -42,6 +42,7 @@ class WaylandDisplay : public WindowStateChangeHandler {
 
   // Ownership is not passed to the caller.
   static WaylandDisplay* GetInstance() { return instance_; }
+  static void LookAheadOutputGeometry();
   // Returns a pointer to wl_display.
   wl_display* display() const { return display_; }
 

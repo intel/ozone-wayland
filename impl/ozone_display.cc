@@ -11,7 +11,6 @@
 #include "ozone/impl/ipc/display_channel_host.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/screen.h"
 
 namespace ozonewayland {
 
@@ -62,7 +61,7 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
 gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   if (!desktop_screen_) {
     desktop_screen_ = new DesktopScreenWayland;
-    LookAheadOutputGeometry();
+    WaylandDisplay::LookAheadOutputGeometry();
   }
 
   return desktop_screen_;
@@ -111,39 +110,6 @@ void OzoneDisplay::Terminate() {
   }
 
   delete display_;
-}
-
-// TODO(vignatti): GPU process conceptually is the one that deals with hardware
-// details and therefore we assume that the window system connection should
-// happen in there only. There's a glitch with Chrome though, that creates its
-// frame contents requiring access to the window system, before the GPU process
-// even exists. In other words, Chrome runs
-// BrowserMainLoop::PreMainMessageLoopRun before GpuProcessHost::Get. If the
-// assumption of window system connection belongs to the GPU process is valid,
-// then I believe this Chrome behavior needs to be addressed upstream.
-//
-// For now, we create another window system connection to look ahead the needed
-// output properties that Chrome (among others) need and then close right after
-// that. I haven't measured how long it takes to open a Wayland connection,
-// listen all the interface the compositor sends and close it, but _for_ _sure_
-// it slows down the overall initialization time of Chromium targets.
-// Therefore, this is something that has to be solved in the future, moving all
-// Chrome tasks after GPU process is created.
-//
-void OzoneDisplay::LookAheadOutputGeometry() {
-  WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
-  CHECK(disp_.display()) << "Ozone: Wayland server connection not found.";
-
-  while (disp_.PrimaryScreen()->Geometry().IsEmpty())
-    disp_.SyncDisplay();
-
-  EventFactoryOzoneWayland* event_factory =
-      EventFactoryOzoneWayland::GetInstance();
-  DCHECK(event_factory->GetOutputChangeObserver());
-
-  unsigned width = disp_.PrimaryScreen()->Geometry().width();
-  unsigned height = disp_.PrimaryScreen()->Geometry().height();
-  event_factory->GetOutputChangeObserver()->OnOutputSizeChanged(width, height);
 }
 
 }  // namespace ozonewayland
