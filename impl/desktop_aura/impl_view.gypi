@@ -11,6 +11,8 @@
     'desktop_screen_wayland.h',
     'desktop_window_tree_host_wayland.cc',
     'desktop_window_tree_host_wayland.h',
+    'ozone_util.cc',
+    'ozone_util.h',
     'window_tree_host_delegate_wayland.cc',
     'window_tree_host_delegate_wayland.h',
   ],
