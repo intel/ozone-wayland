@@ -81,14 +81,8 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   if (!event_converter_)
     event_converter_ = new EventConverterInProcess();
 
-  if (display_) {
-    // TODO(Kalyan): Find a better way to handle this. Move the logic to
-    // EventConverterOzone eventually.
-    if (opaque_handle == 0)
-      display_->StartProcessingEvents();
-  } else if (!host_) {
-      host_ = new OzoneDisplayChannelHost();
-  }
+  if (!display_ && !host_)
+    host_ = new OzoneDisplayChannelHost();
 
   opaque_handle++;
   WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
@@ -104,10 +98,8 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   DCHECK(display_);
   // Event Converter should be already initialized unless we are in gpu process
   // side.
-  if (!event_converter_) {
+  if (!event_converter_)
     event_converter_ = new RemoteEventDispatcher();
-    display_->StartProcessingEvents();
-  }
 
   return (gfx::AcceleratedWidget)display_->RealizeAcceleratedWidget(w);
 }
