@@ -11,7 +11,7 @@
 
 #include "base/basictypes.h"
 #include "ui/aura/window_tree_host.h"
-#include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 
 namespace views {
 namespace corewm {
@@ -67,10 +67,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // initialization related to talking to the Ozone server.
   void InitWaylandWindow(const views::Widget::InitParams& params);
 
-  // Creates an aura::RootWindow to contain the |content_window|, along with
-  // all aura client objects that direct behavior.
-  aura::RootWindow* InitRootWindow(const views::Widget::InitParams& params);
-
   // Returns true if there's an X window manager present... in most cases.  Some
   // window managers (notably, ion3) don't implement enough of ICCCM for us to
   // detect that they're there.
@@ -81,11 +77,13 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   void OnCaptureReleased();
 
   // Overridden from DesktopWindowTreeHost:
-  virtual void Init(aura::Window* content_window,
-                    const views::Widget::InitParams& params,
-                    aura::RootWindow::CreateParams* rw_create_params) OVERRIDE;
+  virtual void Init(
+      aura::Window* content_window,
+      const views::Widget::InitParams& params,
+      aura::WindowEventDispatcher::CreateParams* rw_create_params) OVERRIDE;
   virtual void OnRootWindowCreated(
-      aura::RootWindow* root, const views::Widget::InitParams& params) OVERRIDE;
+      aura::WindowEventDispatcher* dispatcher,
+      const views::Widget::InitParams& params) OVERRIDE;
   virtual scoped_ptr<views::corewm::Tooltip> CreateTooltip() OVERRIDE;
   virtual scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
       views::DesktopNativeCursorManager* cursor_manager) OVERRIDE;
@@ -117,6 +115,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual bool IsMinimized() const OVERRIDE;
   virtual bool HasCapture() const OVERRIDE;
   virtual bool IsAlwaysOnTop() const OVERRIDE;
+  virtual void SetVisibleOnAllWorkspaces(bool always_visible) OVERRIDE;
   virtual void SetAlwaysOnTop(bool always_on_top) OVERRIDE;
   virtual bool SetWindowTitle(const base::string16& title) OVERRIDE;
   virtual void ClearNativeFocus() OVERRIDE;
@@ -126,7 +125,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
       views::Widget::MoveLoopEscapeBehavior escape_behavior) OVERRIDE;
   virtual void EndMoveLoop() OVERRIDE;
   virtual void SetVisibilityChangedAnimationsEnabled(bool value) OVERRIDE;
-  virtual bool ShouldUseNativeFrame() OVERRIDE;
+  virtual bool ShouldUseNativeFrame() const OVERRIDE;
+  virtual bool ShouldWindowContentsBeTransparent() const OVERRIDE;
   virtual void FrameTypeChanged() OVERRIDE;
   virtual views::NonClientFrameView* CreateNonClientFrameView() OVERRIDE;
   virtual void SetFullscreen(bool fullscreen) OVERRIDE;
@@ -142,7 +142,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual bool IsAnimatingClosed() const OVERRIDE;
 
   // Overridden from aura::WindowTreeHost:
-  virtual aura::RootWindow* GetRootWindow() OVERRIDE;
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual void Show() OVERRIDE;
   virtual void Hide() OVERRIDE;
@@ -154,12 +153,12 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual gfx::Point GetLocationOnNativeScreen() const OVERRIDE;
   virtual void SetCapture() OVERRIDE;
   virtual void ReleaseCapture() OVERRIDE;
-  virtual void SetCursor(gfx::NativeCursor cursor) OVERRIDE;
+  virtual void SetCursorNative(gfx::NativeCursor cursor) OVERRIDE;
   virtual bool QueryMouseLocation(gfx::Point* location_return) OVERRIDE;
   virtual bool ConfineCursorToRootWindow() OVERRIDE;
   virtual void UnConfineCursor() OVERRIDE;
-  virtual void OnCursorVisibilityChanged(bool show) OVERRIDE;
-  virtual void MoveCursorTo(const gfx::Point& location) OVERRIDE;
+  virtual void OnCursorVisibilityChangedNative(bool show) OVERRIDE;
+  virtual void MoveCursorToNative(const gfx::Point& location) OVERRIDE;
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
   virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE;
   virtual void PrepareForShutdown() OVERRIDE;
@@ -179,8 +178,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
 
   base::WeakPtrFactory<DesktopWindowTreeHostWayland> close_widget_factory_;
 
-  // We are owned by the RootWindow, but we have to have a back pointer to it.
-  aura::RootWindow* root_window_;
+  // We are owned by the Dispatcher, but we have to have a back pointer to it.
+  aura::WindowEventDispatcher* dispatcher_;
 
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;

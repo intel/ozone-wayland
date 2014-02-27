@@ -1,6 +1,6 @@
-From 3f921877e5102e524f75e8633d198015d360c84c Mon Sep 17 00:00:00 2001
+From 11400beb9a86b54f354b6a8ee1e1438f23990186 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Sun, 12 Jan 2014 12:02:08 +0200
+Date: Thu, 27 Feb 2014 10:28:33 +0200
 Subject: [PATCH] browser: Support Desktop Aura creation on Ozone
 
 This CL creates BrowserDesktopRootWindowHostOzone and gives support for Aura
@@ -84,7 +84,7 @@ index 0000000..794524a
 +}
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 new file mode 100644
-index 0000000..b0c1584
+index 0000000..bbfb0c5
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 @@ -0,0 +1,42 @@
@@ -96,8 +96,8 @@ index 0000000..b0c1584
 +#define CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 +
 +#include "ui/aura/window_tree_host.h"
-+#include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
-+#include "chrome/browser/ui/views/frame/browser_desktop_root_window_host.h"
++#include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
++#include "chrome/browser/ui/views/frame/browser_desktop_window_tree_host.h"
 +
 +class BrowserFrame;
 +class BrowserView;
@@ -131,18 +131,18 @@ index 0000000..b0c1584
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 3c9f144..34f2adc 100644
+index b1a2d4e..58bbe9f 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1873,6 +1873,8 @@
+@@ -1901,6 +1901,8 @@
          'browser/ui/views/frame/desktop_user_action_handler_aura.cc',
          'browser/ui/views/frame/desktop_user_action_handler_aura.h',
-         'browser/ui/views/frame/browser_desktop_root_window_host.h',
+         'browser/ui/views/frame/browser_desktop_window_tree_host.h',
 +        'browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc',
 +        'browser/ui/views/frame/browser_desktop_root_window_host_ozone.h',
-         'browser/ui/views/frame/browser_desktop_root_window_host_win.cc',
-         'browser/ui/views/frame/browser_desktop_root_window_host_win.h',
-         'browser/ui/views/frame/browser_desktop_root_window_host_x11.cc',
+         'browser/ui/views/frame/browser_desktop_window_tree_host_win.cc',
+         'browser/ui/views/frame/browser_desktop_window_tree_host_win.h',
+         'browser/ui/views/frame/browser_desktop_window_tree_host_x11.cc',
 -- 
 1.7.9.5
 

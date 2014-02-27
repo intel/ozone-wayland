@@ -14,7 +14,6 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
-#include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
 #include "ui/events/event_utils.h"
@@ -73,7 +72,7 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
       window_(0),
       title_(base::string16()),
       close_widget_factory_(this),
-      root_window_(NULL),
+      dispatcher_(NULL),
       drag_drop_client_(NULL),
       native_widget_delegate_(native_widget_delegate),
       content_window_(NULL),
@@ -83,16 +82,19 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
 }
 
 DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
-  root_window_->window()->ClearProperty(kHostForRootWindow);
-  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(root_window_);
+  dispatcher_->window()->ClearProperty(kHostForRootWindow);
+  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(dispatcher_);
 }
 
 // static
 DesktopWindowTreeHostWayland*
 DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
-  aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
-  return root ? root->window()->GetProperty(kHostForRootWindow) : NULL;
+  aura::WindowEventDispatcher* dispatcher =
+      aura::WindowEventDispatcher::GetForAcceleratedWidget(widget);
+
+  return dispatcher ?
+      dispatcher->window()->GetProperty(kHostForRootWindow) : NULL;
 }
 
 // static
@@ -106,8 +108,11 @@ DesktopWindowTreeHostWayland::GetAllOpenWindows() {
 aura::Window*
 DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
-  aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(widget);
-  return root ? root->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
+  aura::WindowEventDispatcher* dispatcher =
+      aura::WindowEventDispatcher::GetForAcceleratedWidget(widget);
+
+  return dispatcher ?
+      dispatcher->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
@@ -198,8 +203,8 @@ bool DesktopWindowTreeHostWayland::IsWindowManagerPresent() {
 
 void DesktopWindowTreeHostWayland::Init(
     aura::Window* content_window,
-    const Widget::InitParams& params,
-    aura::RootWindow::CreateParams* rw_create_params) {
+    const views::Widget::InitParams& params,
+    aura::WindowEventDispatcher::CreateParams* rw_create_params) {
   content_window_ = content_window;
   // In some situations, views tries to make a zero sized window, and that
   // makes us crash. Make sure we have valid sizes.
@@ -216,14 +221,14 @@ void DesktopWindowTreeHostWayland::Init(
 }
 
 void DesktopWindowTreeHostWayland::OnRootWindowCreated(
-    aura::RootWindow* root,
+    aura::WindowEventDispatcher* dispatcher,
     const Widget::InitParams& params) {
-  root_window_ = root;
+  dispatcher_ = dispatcher;
 
-  root_window_->window()->SetProperty(
+  dispatcher_->window()->SetProperty(
       kViewsWindowForRootWindow, content_window_);
-  root_window_->window()->SetProperty(kHostForRootWindow, this);
-  delegate_ = root_window_;
+  dispatcher_->window()->SetProperty(kHostForRootWindow, this);
+  delegate_ = dispatcher_;
 
   // If we're given a parent, we need to mark ourselves as transient to another
   // window. Otherwise activation gets screwy.
@@ -242,7 +247,6 @@ void DesktopWindowTreeHostWayland::OnRootWindowCreated(
   bool root_window = params.type == Widget::InitParams::TYPE_BUBBLE ||
       params.type == Widget::InitParams::TYPE_WINDOW ||
       params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
-
   if (!window_parent_ && root_window)
     g_delegate_ozone_wayland_->SetActiveWindow(this);
 }
@@ -256,7 +260,7 @@ DesktopWindowTreeHostWayland::CreateTooltip() {
 scoped_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostWayland::CreateDragDropClient(
     views::DesktopNativeCursorManager* cursor_manager) {
-  drag_drop_client_ = new DesktopDragDropClientWayland(root_window_->window());
+  drag_drop_client_ = new DesktopDragDropClientWayland(dispatcher_->window());
   return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
 }
 
@@ -509,6 +513,11 @@ bool DesktopWindowTreeHostWayland::IsAlwaysOnTop() const {
   return false;
 }
 
+void DesktopWindowTreeHostWayland::SetVisibleOnAllWorkspaces(
+    bool always_visible) {
+  NOTIMPLEMENTED();
+}
+
 void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
   // TODO(erg):
   NOTIMPLEMENTED();
@@ -552,7 +561,11 @@ void DesktopWindowTreeHostWayland::SetVisibilityChangedAnimationsEnabled(
   // Much like the previous NativeWidgetGtk, we don't have anything to do here.
 }
 
-bool DesktopWindowTreeHostWayland::ShouldUseNativeFrame() {
+bool DesktopWindowTreeHostWayland::ShouldUseNativeFrame() const {
+  return false;
+}
+
+bool DesktopWindowTreeHostWayland::ShouldWindowContentsBeTransparent() const {
   return false;
 }
 
@@ -664,10 +677,6 @@ bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
 
-aura::RootWindow* DesktopWindowTreeHostWayland::GetRootWindow() {
-  return root_window_;
-}
-
 gfx::AcceleratedWidget DesktopWindowTreeHostWayland::GetAcceleratedWidget() {
   return window_;
 }
@@ -737,7 +746,7 @@ void DesktopWindowTreeHostWayland::ReleaseCapture() {
   g_delegate_ozone_wayland_->SetCapture(NULL);
 }
 
-void DesktopWindowTreeHostWayland::SetCursor(gfx::NativeCursor cursor) {
+void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
   NOTIMPLEMENTED();
 }
 
@@ -756,12 +765,13 @@ void DesktopWindowTreeHostWayland::UnConfineCursor() {
   NOTIMPLEMENTED();
 }
 
-void DesktopWindowTreeHostWayland::OnCursorVisibilityChanged(bool show) {
+void DesktopWindowTreeHostWayland::OnCursorVisibilityChangedNative(bool show) {
   // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
   // the same tap-to-click disabling here that chromeos does.
 }
 
-void DesktopWindowTreeHostWayland::MoveCursorTo(const gfx::Point& location) {
+void DesktopWindowTreeHostWayland::MoveCursorToNative(
+    const gfx::Point& location) {
   NOTIMPLEMENTED();
 }
 
@@ -795,7 +805,9 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
 
 void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
                                                       unsigned height) {
-  if ((bounds_.width() == width) && (bounds_.height() == height)) {
+  unsigned current_width = bounds_.width();
+  unsigned current_height = bounds_.height();
+  if ((current_width == width) && (current_height == height)) {
     compositor()->ScheduleRedrawRect(bounds_);
   } else {
     bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);

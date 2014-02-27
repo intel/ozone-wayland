@@ -44,7 +44,7 @@ class WindowTreeHostDelegateWayland
   virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
  private:
   // Overridden from Dispatcher:
-  virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
+  virtual uint32_t Dispatch(const base::NativeEvent& event) OVERRIDE;
   // Window Change Observer.
   virtual void OnWindowFocused(unsigned handle) OVERRIDE;
   virtual void OnWindowEnter(unsigned handle) OVERRIDE;

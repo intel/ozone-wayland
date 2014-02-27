@@ -34,6 +34,9 @@
           'includes': [
             'impl/desktop_aura/impl_view.gypi',
           ],
+          'dependencies': [
+            '../ui/accessibility/accessibility.gyp:accessibility',
+          ],
         }],
       ],
     },
