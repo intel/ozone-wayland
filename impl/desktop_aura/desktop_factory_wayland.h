@@ -26,6 +26,8 @@ class OZONE_WAYLAND_EXPORT DesktopFactoryWayland
   virtual views::DesktopWindowTreeHost* CreateWindowTreeHost(
       views::internal::NativeWidgetDelegate* native_widget_delegate,
       views::DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
+
+  virtual gfx::Screen* CreateDesktopScreen() OVERRIDE;
 };
 
 }  // namespace ozonewayland

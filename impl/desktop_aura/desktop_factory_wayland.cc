@@ -5,6 +5,7 @@
 #include "ozone/impl/desktop_aura/desktop_factory_wayland.h"
 
 #include "ozone/impl/desktop_aura/desktop_window_tree_host_wayland.h"
+#include "ozone/impl/ozone_display.h"
 
 namespace ozonewayland {
 
@@ -22,6 +23,10 @@ views::DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
     views::DesktopNativeWidgetAura* desktop_native_widget_aura) {
   return new DesktopWindowTreeHostWayland(native_widget_delegate,
                                           desktop_native_widget_aura);
+}
+
+gfx::Screen* DesktopFactoryWayland::CreateDesktopScreen() {
+  return OzoneDisplay::GetInstance()->CreateDesktopScreen();
 }
 
 }  // namespace ozonewayland
