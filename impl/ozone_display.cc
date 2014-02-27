@@ -98,8 +98,10 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   DCHECK(display_);
   // Event Converter should be already initialized unless we are in gpu process
   // side.
-  if (!event_converter_)
-    event_converter_ = new RemoteEventDispatcher();
+  EventFactoryOzoneWayland* event_factory =
+      EventFactoryOzoneWayland::GetInstance();
+  if (!event_factory->EventConverter())
+    event_factory->StartProcessingRemoteEvents();
 
   return (gfx::AcceleratedWidget)display_->RealizeAcceleratedWidget(w);
 }

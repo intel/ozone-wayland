@@ -11,6 +11,7 @@
 #include "ozone/impl/desktop_aura/window_tree_host_delegate_wayland.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/platform/ozone_export_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
@@ -124,6 +125,12 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
+  // Ensure event converter is initialized.
+  EventFactoryOzoneWayland* event_factory =
+      EventFactoryOzoneWayland::GetInstance();
+  if (!event_factory->EventConverter())
+    event_factory->StartProcessingEvents();
+
   gfx::SurfaceFactoryOzone* surface_factory =
           gfx::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();
