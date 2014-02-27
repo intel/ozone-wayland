@@ -23,12 +23,6 @@ class EventConverterOzoneWayland {
   EventConverterOzoneWayland();
   virtual ~EventConverterOzoneWayland();
 
-  // Returns the static instance last set using SetInstance().
-  static EventConverterOzoneWayland* GetInstance();
-
-  // Sets the implementation delegate. Ownership is retained by the caller.
-  static void SetInstance(EventConverterOzoneWayland* instance);
-
   virtual void MotionNotify(float x, float y) = 0;
   virtual void ButtonNotify(unsigned handle,
                             ui::EventType type,
@@ -56,7 +50,6 @@ class EventConverterOzoneWayland {
   // Posts task to main loop of the thread on which Dispatcher was initialized.
   virtual void PostTaskOnMainLoop(const base::Closure& task);
   base::MessageLoop* loop_;
-  static EventConverterOzoneWayland* impl_;  // not owned
 };
 
 }  // namespace ozonewayland

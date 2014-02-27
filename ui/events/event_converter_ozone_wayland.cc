@@ -8,26 +8,12 @@
 
 namespace ozonewayland {
 
-// static
-EventConverterOzoneWayland* EventConverterOzoneWayland::impl_ = NULL;
-
 EventConverterOzoneWayland::EventConverterOzoneWayland()
     : loop_(base::MessageLoop::current()) {
   DCHECK(loop_);
-  EventConverterOzoneWayland::SetInstance(this);
 }
 
 EventConverterOzoneWayland::~EventConverterOzoneWayland() {
-}
-
-EventConverterOzoneWayland* EventConverterOzoneWayland::GetInstance() {
-  CHECK(impl_) << "No EventConverterOzoneWayland implementation set.";
-  return impl_;
-}
-
-void EventConverterOzoneWayland::SetInstance(EventConverterOzoneWayland* impl) {
-  CHECK(!impl_) << "Replacing set EventConverterOzoneWayland implementation.";
-  impl_ = impl;
 }
 
 void EventConverterOzoneWayland::SetWindowChangeObserver(

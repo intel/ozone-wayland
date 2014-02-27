@@ -61,8 +61,6 @@ class WaylandDisplay : public WindowStateChangeHandler {
   unsigned GetSerial() const { return serial_; }
   void SetSerial(unsigned serial) { serial_ = serial; }
 
-  const WindowMap& GetWindowList() const { return widget_map_; }
-
   // Flush Display.
   void FlushDisplay();
   // Does a round trip to Wayland server. This call blocks the current thread

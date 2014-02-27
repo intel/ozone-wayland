@@ -39,8 +39,6 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
                              unsigned height) OVERRIDE;
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer) OVERRIDE;
   virtual void SetOutputChangeObserver(OutputChangeObserver* observer) OVERRIDE;
-  // Ownership is not passed to the caller.
-  OutputChangeObserver* GetOutputChangeObserver() const;
 
  private:
   static void NotifyPointerEnter(EventConverterInProcess* data,
