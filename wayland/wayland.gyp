@@ -49,6 +49,7 @@
       ],
       'include_dirs': [
         '../..',
+        '../../third_party/mesa/src/include',
       ],
       'includes': [
         '../ui/ime/ime.gypi',
