@@ -13,7 +13,6 @@ class Screen;
 
 namespace ozonewayland {
 
-class DesktopScreenWayland;
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
 class WaylandDisplay;
@@ -29,8 +28,6 @@ class OzoneDisplay {
   void ShutdownHardware();
   intptr_t GetNativeDisplay();
 
-  gfx::Screen* CreateDesktopScreen();
-
   gfx::AcceleratedWidget GetAcceleratedWidget();
   gfx::AcceleratedWidget RealizeAcceleratedWidget(gfx::AcceleratedWidget w);
 
@@ -39,7 +36,6 @@ class OzoneDisplay {
 
   static void DelayedInitialization(OzoneDisplay* display);
 
-  DesktopScreenWayland* desktop_screen_;
   WaylandDisplay* display_;
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;

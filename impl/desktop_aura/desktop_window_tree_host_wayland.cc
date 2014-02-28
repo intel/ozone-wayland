@@ -9,7 +9,6 @@
 #include "ozone/impl/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/impl/desktop_aura/window_tree_host_delegate_wayland.h"
-#include "ozone/impl/ozone_display.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"

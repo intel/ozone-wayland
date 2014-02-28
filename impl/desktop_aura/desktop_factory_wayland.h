@@ -11,6 +11,7 @@
 
 namespace ozonewayland {
 
+class DesktopScreenWayland;
 // Desktop support for wayland
 //
 // TODO(spang): Chromium needs to move desktop support into ui/base so we don't
@@ -28,6 +29,9 @@ class OZONE_WAYLAND_EXPORT DesktopFactoryWayland
       views::DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
 
   virtual gfx::Screen* CreateDesktopScreen() OVERRIDE;
+
+ private:
+  DesktopScreenWayland* desktop_screen_;
 };
 
 }  // namespace ozonewayland

@@ -6,7 +6,6 @@
 
 #include <map>
 #include "content/child/child_process.h"
-#include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/impl/ipc/display_channel.h"
 #include "ozone/impl/ipc/display_channel_host.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
@@ -20,8 +19,7 @@ OzoneDisplay* OzoneDisplay::GetInstance() {
   return instance_;
 }
 
-OzoneDisplay::OzoneDisplay() : desktop_screen_(NULL),
-    display_(NULL),
+OzoneDisplay::OzoneDisplay() : display_(NULL),
     channel_(NULL),
     host_(NULL) {
   instance_ = this;
@@ -58,15 +56,6 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
   return (intptr_t)display_->display();
 }
 
-gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
-  if (!desktop_screen_) {
-    desktop_screen_ = new DesktopScreenWayland;
-    WaylandDisplay::LookAheadOutputGeometry();
-  }
-
-  return desktop_screen_;
-}
-
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
   if (!display_ && !host_)
@@ -100,15 +89,7 @@ void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
 }
 
 void OzoneDisplay::Terminate() {
-  if (!desktop_screen_)
-    return;
-
   delete channel_;
-  if (desktop_screen_) {
-    delete desktop_screen_;
-    desktop_screen_ = NULL;
-  }
-
   delete display_;
 }
 

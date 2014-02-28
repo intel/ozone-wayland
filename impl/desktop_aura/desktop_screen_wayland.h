@@ -22,9 +22,11 @@ class DesktopScreenWayland : public gfx::Screen,
   DesktopScreenWayland();
   virtual ~DesktopScreenWayland();
 
-  void SetGeometry(const gfx::Rect& geometry);
+  // OutputChangeObserver overrides.
+  virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
 
  private:
+  void SetGeometry(const gfx::Rect& geometry);
   // Overridden from gfx::Screen:
   virtual bool IsDIPEnabled() OVERRIDE;
   virtual gfx::Point GetCursorScreenPoint() OVERRIDE;
@@ -42,8 +44,6 @@ class DesktopScreenWayland : public gfx::Screen,
   virtual gfx::Display GetPrimaryDisplay() const OVERRIDE;
   virtual void AddObserver(gfx::DisplayObserver* observer) OVERRIDE;
   virtual void RemoveObserver(gfx::DisplayObserver* observer) OVERRIDE;
-  // OutputChangeObserver overrides.
-  virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
 
   gfx::Rect rect_;
   // The display objects we present to chrome.

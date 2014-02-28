@@ -4,18 +4,21 @@
 
 #include "ozone/impl/desktop_aura/desktop_factory_wayland.h"
 
+#include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/impl/desktop_aura/desktop_window_tree_host_wayland.h"
-#include "ozone/impl/ozone_display.h"
+#include "ozone/wayland/display.h"
 
 namespace ozonewayland {
 
-DesktopFactoryWayland::DesktopFactoryWayland() : views::DesktopFactoryOzone() {
+DesktopFactoryWayland::DesktopFactoryWayland() : views::DesktopFactoryOzone(),
+    desktop_screen_(NULL) {
   LOG(INFO) << "Ozone: DesktopFactoryWayland";
   views::DesktopFactoryOzone::SetInstance(this);
 }
 
 DesktopFactoryWayland::~DesktopFactoryWayland() {
   views::DesktopFactoryOzone::SetInstance(NULL);
+  delete desktop_screen_;
 }
 
 views::DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
@@ -26,7 +29,12 @@ views::DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
 }
 
 gfx::Screen* DesktopFactoryWayland::CreateDesktopScreen() {
-  return OzoneDisplay::GetInstance()->CreateDesktopScreen();
+  if (!desktop_screen_) {
+    desktop_screen_ = new DesktopScreenWayland();
+    WaylandDisplay::LookAheadOutputGeometry();
+  }
+
+  return desktop_screen_;
 }
 
 }  // namespace ozonewayland
