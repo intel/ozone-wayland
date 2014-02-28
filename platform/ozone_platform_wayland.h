@@ -5,7 +5,9 @@
 #ifndef OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 #define OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 
+#if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
 #include "ozone/impl/desktop_aura/desktop_factory_wayland.h"
+#endif
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/surface_factory_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
