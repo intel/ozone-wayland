@@ -13,6 +13,22 @@
         'external_ozone_platform_deps': [
           '<(DEPTH)/ozone/ozone_impl.gyp:wayland',
         ],
+        'external_ozone_events_files': [
+          '<(DEPTH)/ozone/ui/events/event_converter_ozone_wayland.h',
+          '<(DEPTH)/ozone/ui/events/event_converter_ozone_wayland.cc',
+          '<(DEPTH)/ozone/ui/events/event_factory_ozone_wayland.h',
+          '<(DEPTH)/ozone/ui/events/event_factory_ozone_wayland.cc',
+          '<(DEPTH)/ozone/ui/events/ime_state_change_handler.h',
+          '<(DEPTH)/ozone/ui/events/ime_state_change_handler.cc',
+          '<(DEPTH)/ozone/ui/events/keyboard_codes_ozone.h',
+          '<(DEPTH)/ozone/ui/events/keyboard_code_conversion_ozone.h',
+          '<(DEPTH)/ozone/ui/events/keyboard_code_conversion_ozone.cc',
+          '<(DEPTH)/ozone/ui/events/output_change_observer.h',
+          '<(DEPTH)/ozone/ui/events/window_change_observer.h',
+          '<(DEPTH)/ozone/ui/events/window_constants.h',
+          '<(DEPTH)/ozone/ui/events/window_state_change_handler.h',
+          '<(DEPTH)/ozone/ui/events/window_state_change_handler.cc',
+        ],
         'external_ozone_platforms': [
           'wayland'
         ],

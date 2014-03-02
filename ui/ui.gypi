@@ -6,7 +6,6 @@
     '<(DEPTH)/ui/ui.gyp:ui',
   ],
   'includes': [
-    'events/events.gypi',
     'ime/ime.gypi',
    ],
 }
