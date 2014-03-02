@@ -4,8 +4,8 @@
 
 #include "ozone/content/ozone_channel_host_factory.h"
 
-#include "ozone/content/display_channel_host.h"
 #include "ozone/content/event_converter_in_process.h"
+#include "ozone/content/ozone_channel_host.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 
 namespace content {
@@ -37,7 +37,7 @@ OzoneChannelHostFactory::OzoneChannelHostFactory(bool establish_gpu_channel)
   event_converter_->SetOutputChangeObserver(
       event_factory->GetOutputChangeObserver());
   if (establish_gpu_channel)
-    host_ = new OzoneDisplayChannelHost();
+    host_ = new OzoneChannelHost();
 }
 
 OzoneChannelHostFactory::~OzoneChannelHostFactory() {

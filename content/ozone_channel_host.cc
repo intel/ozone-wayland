@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/content/display_channel_host.h"
+#include "ozone/content/ozone_channel_host.h"
 
 #include "base/bind.h"
 #include "content/browser/gpu/browser_gpu_channel_host_factory.h"
@@ -14,23 +14,23 @@
 
 namespace content {
 
-OzoneDisplayChannelHost::OzoneDisplayChannelHost()
+OzoneChannelHost::OzoneChannelHost()
     : state_handler_(NULL) {
   dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
   BrowserChildProcessObserver::Add(this);
   EstablishChannel();
 }
 
-OzoneDisplayChannelHost::~OzoneDisplayChannelHost() {
+OzoneChannelHost::~OzoneChannelHost() {
   BrowserChildProcessObserver::Remove(this);
   delete state_handler_;
 }
 
-void OzoneDisplayChannelHost::OnMotionNotify(float x, float y) {
+void OzoneChannelHost::OnMotionNotify(float x, float y) {
   dispatcher_->MotionNotify(x, y);
 }
 
-void OzoneDisplayChannelHost::OnButtonNotify(unsigned handle,
+void OzoneChannelHost::OnButtonNotify(unsigned handle,
                                              ui::EventType type,
                                              ui::EventFlags flags,
                                              float x,
@@ -38,47 +38,47 @@ void OzoneDisplayChannelHost::OnButtonNotify(unsigned handle,
   dispatcher_->ButtonNotify(handle, type, flags, x, y);
 }
 
-void OzoneDisplayChannelHost::OnAxisNotify(float x,
+void OzoneChannelHost::OnAxisNotify(float x,
                                            float y,
                                            int xoffset,
                                            int yoffset) {
   dispatcher_->AxisNotify(x, y, xoffset, yoffset);
 }
 
-void OzoneDisplayChannelHost::OnPointerEnter(unsigned handle,
+void OzoneChannelHost::OnPointerEnter(unsigned handle,
                                              float x,
                                              float y) {
   dispatcher_->PointerEnter(handle, x, y);
 }
 
-void OzoneDisplayChannelHost::OnPointerLeave(unsigned handle,
+void OzoneChannelHost::OnPointerLeave(unsigned handle,
                                              float x,
                                              float y) {
   dispatcher_->PointerLeave(handle, x, y);
 }
 
-void OzoneDisplayChannelHost::OnKeyNotify(ui::EventType type,
+void OzoneChannelHost::OnKeyNotify(ui::EventType type,
                                           unsigned code,
                                           unsigned modifiers) {
   dispatcher_->KeyNotify(type, code, modifiers);
 }
 
-void OzoneDisplayChannelHost::OnOutputSizeChanged(unsigned width,
+void OzoneChannelHost::OnOutputSizeChanged(unsigned width,
                                                   unsigned height) {
   dispatcher_->OutputSizeChanged(width, height);
 }
 
-void OzoneDisplayChannelHost::OnCloseWidget(unsigned handle) {
+void OzoneChannelHost::OnCloseWidget(unsigned handle) {
   dispatcher_->CloseWidget(handle);
 }
 
-void OzoneDisplayChannelHost::OnWindowResized(unsigned handle,
+void OzoneChannelHost::OnWindowResized(unsigned handle,
                                               unsigned width,
                                               unsigned height) {
   dispatcher_->WindowResized(handle, width, height);
 }
 
-void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
+void OzoneChannelHost::BrowserChildProcessHostConnected(
   const ChildProcessData& data) {
   // we observe GPU process being forked or re-spawned for adding ourselves as
   // an ipc filter and listen to any relevant messages coming from GpuProcess
@@ -87,7 +87,7 @@ void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
     EstablishChannel();
 }
 
-void OzoneDisplayChannelHost::BrowserChildProcessHostDisconnected(
+void OzoneChannelHost::BrowserChildProcessHostDisconnected(
   const ChildProcessData& data) {
   if (data.process_type == PROCESS_TYPE_GPU) {
     if (state_handler_) {
@@ -97,7 +97,7 @@ void OzoneDisplayChannelHost::BrowserChildProcessHostDisconnected(
   }
 }
 
-void OzoneDisplayChannelHost::BrowserChildProcessCrashed(
+void OzoneChannelHost::BrowserChildProcessCrashed(
   const ChildProcessData& data) {
   if (data.process_type == PROCESS_TYPE_GPU) {
     if (state_handler_) {
@@ -107,11 +107,11 @@ void OzoneDisplayChannelHost::BrowserChildProcessCrashed(
   }
 }
 
-void OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
+void OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO)) <<
       "Must handle messages that were dispatched to another thread!";
 
-  IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannelHost, message)
+  IPC_BEGIN_MESSAGE_MAP(OzoneChannelHost, message)
   IPC_MESSAGE_HANDLER(WaylandInput_MotionNotify, OnMotionNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_ButtonNotify, OnButtonNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_AxisNotify, OnAxisNotify)
@@ -124,17 +124,17 @@ void OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_END_MESSAGE_MAP()
 }
 
-void OzoneDisplayChannelHost::EstablishChannel() {
+void OzoneChannelHost::EstablishChannel() {
   if (state_handler_)
     return;
 
   state_handler_ = new RemoteStateChangeHandler();
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-      base::Bind(&OzoneDisplayChannelHost::UpdateConnection,
+      base::Bind(&OzoneChannelHost::UpdateConnection,
           base::Unretained(this)));
 }
 
-void OzoneDisplayChannelHost::UpdateConnection() {
+void OzoneChannelHost::UpdateConnection() {
   BrowserGpuChannelHostFactory* hostFactory =
       BrowserGpuChannelHostFactory::instance();
   DCHECK(hostFactory);
@@ -151,7 +151,7 @@ void OzoneDisplayChannelHost::UpdateConnection() {
       base::MessageLoopProxy::current();
   hostFactory->SetHandlerForControlMessages(
       kMessagesToFilter, arraysize(kMessagesToFilter),
-          base::Bind(&OzoneDisplayChannelHost::OnMessageReceived,
+          base::Bind(&OzoneChannelHost::OnMessageReceived,
               base::Unretained(this)), compositor_thread_task_runner.get());
 }
 

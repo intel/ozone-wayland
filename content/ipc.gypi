@@ -3,10 +3,10 @@
 # found in the LICENSE file.
 {
   'sources': [
-    'display_channel.h',
-    'display_channel.cc',
-    'display_channel_host.h',
-    'display_channel_host.cc',
+    'ozone_channel.h',
+    'ozone_channel.cc',
+    'ozone_channel_host.h',
+    'ozone_channel_host.cc',
     'event_converter_in_process.h',
     'event_converter_in_process.cc',
     'messages.h',

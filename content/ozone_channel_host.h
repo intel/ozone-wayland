@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_CONTENT_DISPLAY_CHANNEL_HOST_H_
-#define OZONE_CONTENT_DISPLAY_CHANNEL_HOST_H_
+#ifndef OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
+#define OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
 
 #include "content/browser/gpu/gpu_process_host.h"
 #include "content/public/browser/browser_child_process_observer.h"
@@ -16,15 +16,15 @@ class EventConverterOzoneWayland;
 
 namespace content {
 class RemoteStateChangeHandler;
-// OzoneDisplayChannelHost is responsible for listening to any relevant messages
+// OzoneChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
-// always be only one OzoneDisplayChannelHost per browser instance. It listens
+// always be only one OzoneChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneDisplayChannelHost : public BrowserChildProcessObserver {
+class OzoneChannelHost : public BrowserChildProcessObserver {
  public:
-  OzoneDisplayChannelHost();
-  virtual ~OzoneDisplayChannelHost();
+  OzoneChannelHost();
+  virtual ~OzoneChannelHost();
 
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle,
@@ -56,9 +56,9 @@ class OzoneDisplayChannelHost : public BrowserChildProcessObserver {
   void UpdateConnection();
   ui::EventConverterOzoneWayland* dispatcher_;
   RemoteStateChangeHandler* state_handler_;
-  DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannelHost);
+  DISALLOW_COPY_AND_ASSIGN(OzoneChannelHost);
 };
 
 }  // namespace content
 
-#endif  // OZONE_CONTENT_DISPLAY_CHANNEL_HOST_H_
+#endif  // OZONE_CONTENT_OZONE_CHANNEL_HOST_H_

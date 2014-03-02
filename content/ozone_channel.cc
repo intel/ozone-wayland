@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/content/display_channel.h"
+#include "ozone/content/ozone_channel.h"
 
 #include "content/child/child_process.h"
 #include "content/child/child_thread.h"
@@ -28,21 +28,21 @@ content::ChildThread* GetProcessMainThread() {
 
 }
 
-OzoneDisplayChannel::OzoneDisplayChannel() {
+OzoneChannel::OzoneChannel() {
   event_converter_ = new RemoteEventDispatcher();
   ui::EventFactoryOzoneWayland::GetInstance()->
       SetEventConverterOzoneWayland(event_converter_);
 }
 
-OzoneDisplayChannel::~OzoneDisplayChannel() {
+OzoneChannel::~OzoneChannel() {
   ChildThread* thread = GetProcessMainThread();
   thread->RemoveRoute(WAYLAND_ROUTE_ID);
 }
 
-bool OzoneDisplayChannel::OnMessageReceived(
+bool OzoneChannel::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannel, message)
+  IPC_BEGIN_MESSAGE_MAP(OzoneChannel, message)
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Attributes, OnWidgetAttributesChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
@@ -52,12 +52,12 @@ bool OzoneDisplayChannel::OnMessageReceived(
   return handled;
 }
 
-void OzoneDisplayChannel::Register() {
+void OzoneChannel::Register() {
   ChildThread* thread = GetProcessMainThread();
   thread->AddRoute(WAYLAND_ROUTE_ID, this);
 }
 
-void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
+void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
                                                ui::WidgetState state,
                                                unsigned width,
                                                unsigned height) {
@@ -67,12 +67,12 @@ void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
                                                               height);
 }
 
-void OzoneDisplayChannel::OnWidgetTitleChanged(unsigned widget,
+void OzoneChannel::OnWidgetTitleChanged(unsigned widget,
                                                base::string16 title) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
 }
 
-void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
+void OzoneChannel::OnWidgetAttributesChanged(unsigned widget,
                                                     unsigned parent,
                                                     unsigned x,
                                                     unsigned y,

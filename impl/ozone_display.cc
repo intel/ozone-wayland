@@ -6,8 +6,8 @@
 
 #include <map>
 #include "content/child/child_process.h"
-#include "ozone/content/display_channel.h"
-#include "ozone/content/display_channel_host.h"
+#include "ozone/content/ozone_channel.h"
+#include "ozone/content/ozone_channel_host.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 
@@ -59,7 +59,7 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
   if (!display_ && !host_)
-    host_ = new content::OzoneDisplayChannelHost();
+    host_ = new content::OzoneChannelHost();
 
   opaque_handle++;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
@@ -77,7 +77,7 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 }
 
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
-  display->channel_ = new content::OzoneDisplayChannel();
+  display->channel_ = new content::OzoneChannel();
   display->channel_->Register();
 }
 

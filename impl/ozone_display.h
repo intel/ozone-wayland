@@ -12,8 +12,8 @@ class Screen;
 }
 
 namespace content {
-class OzoneDisplayChannel;
-class OzoneDisplayChannelHost;
+class OzoneChannel;
+class OzoneChannelHost;
 }
 
 namespace ozonewayland {
@@ -40,8 +40,8 @@ class OzoneDisplay {
   static void DelayedInitialization(OzoneDisplay* display);
 
   WaylandDisplay* display_;
-  content::OzoneDisplayChannel* channel_;
-  content::OzoneDisplayChannelHost* host_;
+  content::OzoneChannel* channel_;
+  content::OzoneChannelHost* host_;
   static OzoneDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };

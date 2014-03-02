@@ -5,11 +5,11 @@
 #ifndef OZONE_CONTENT_OZONE_CHANNEL_HOST_FACTORY_H_
 #define OZONE_CONTENT_OZONE_CHANNEL_HOST_FACTORY_H_
 
-#include "ozone/content/display_channel_host.h"
+#include "ozone/content/ozone_channel_host.h"
 
 namespace content {
 class EventConverterInProcess;
-class OzoneDisplayChannelHost;
+class OzoneChannelHost;
 // This class is responsible for establishing gpu channel connection between
 // OzoneDisplayChannel and ChannelHost.
 class OzoneChannelHostFactory {
@@ -23,7 +23,7 @@ class OzoneChannelHostFactory {
 
  private:
   EventConverterInProcess* event_converter_;
-  OzoneDisplayChannelHost* host_;
+  OzoneChannelHost* host_;
   static OzoneChannelHostFactory* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneChannelHostFactory);
 };

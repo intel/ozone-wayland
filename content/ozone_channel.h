@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_CONTENT_DISPLAY_CHANNEL_H_
-#define OZONE_CONTENT_DISPLAY_CHANNEL_H_
+#ifndef OZONE_CONTENT_OZONE_CHANNEL_H_
+#define OZONE_CONTENT_OZONE_CHANNEL_H_
 
 #include "base/strings/string16.h"
 #include "ipc/ipc_listener.h"
@@ -11,14 +11,14 @@
 
 namespace content {
 class RemoteEventDispatcher;
-// OzoneDisplayChannel is responsible for listening to any messages sent by it's
+// OzoneChannel is responsible for listening to any messages sent by it's
 // host counterpart in BrowserProcess. There will be always only one
-// OzoneDisplayChannel per browser instance.
+// OzoneChannel per browser instance.
 
-class OzoneDisplayChannel : public IPC::Listener {
+class OzoneChannel : public IPC::Listener {
  public:
-  OzoneDisplayChannel();
-  virtual ~OzoneDisplayChannel();
+  OzoneChannel();
+  virtual ~OzoneChannel();
 
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
@@ -37,9 +37,9 @@ class OzoneDisplayChannel : public IPC::Listener {
 
  private:
   RemoteEventDispatcher* event_converter_;
-  DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
+  DISALLOW_COPY_AND_ASSIGN(OzoneChannel);
 };
 
 }  // namespace content
 
-#endif  // OZONE_CONTENT_DISPLAY_CHANNEL_H_
+#endif  // OZONE_CONTENT_OZONE_CHANNEL_H_
