@@ -9,7 +9,7 @@
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
 
-namespace ui {
+namespace content {
 
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
@@ -28,7 +28,7 @@ void EventConverterInProcess::MotionNotify(float x, float y) {
                                                         0,
                                                         0));
 
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::DispatchEventHelper, base::Passed(
           mouseev.PassAs<ui::Event>())));
 }
@@ -44,12 +44,12 @@ void EventConverterInProcess::ButtonNotify(unsigned handle,
                                                         position,
                                                         flags,
                                                         1));
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::DispatchEventHelper, base::Passed(
           mouseev.PassAs<ui::Event>())));
 
   if (type == ui::ET_MOUSE_RELEASED)
-    PostTaskOnMainLoop(base::Bind(
+    ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
         &EventConverterInProcess::NotifyButtonPress, this, handle));
 }
 
@@ -64,7 +64,7 @@ void EventConverterInProcess::AxisNotify(float x,
                                                                   xoffset,
                                                                   yoffset));
 
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::DispatchEventHelper, base::Passed(
           wheelev.PassAs<ui::Event>())));
 }
@@ -78,10 +78,10 @@ void EventConverterInProcess::PointerEnter(unsigned handle,
                                                         position,
                                                         0,
                                                         0));
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyPointerEnter, this, handle));
 
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::DispatchEventHelper, base::Passed(
           mouseev.PassAs<ui::Event>())));
 }
@@ -96,10 +96,10 @@ void EventConverterInProcess::PointerLeave(unsigned handle,
                                                         0,
                                                         0));
 
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyPointerLeave, this, handle));
 
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::DispatchEventHelper, base::Passed(
           mouseev.PassAs<ui::Event>())));
 }
@@ -108,41 +108,42 @@ void EventConverterInProcess::KeyNotify(ui::EventType type,
                                         unsigned code,
                                         unsigned modifiers) {
   scoped_ptr<ui::KeyEvent> keyev(new ui::KeyEvent(type,
-      KeyboardCodeFromNativeKeysym(code), modifiers, true));
+      ui::KeyboardCodeFromNativeKeysym(code), modifiers, true));
 
-  keyev.get()->set_character(CharacterCodeFromNativeKeySym(code, modifiers));
+  keyev.get()->set_character(
+      ui::CharacterCodeFromNativeKeySym(code, modifiers));
 
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::DispatchEventHelper, base::Passed(
           keyev.PassAs<ui::Event>())));
 }
 
 void EventConverterInProcess::CloseWidget(unsigned handle) {
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyCloseWidget, this, handle));
 }
 
 void EventConverterInProcess::OutputSizeChanged(unsigned width,
                                                 unsigned height) {
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyOutputSizeChanged, this, width, height));
 }
 
 void EventConverterInProcess::WindowResized(unsigned handle,
                                             unsigned width,
                                             unsigned height) {
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyWindowResized, this, handle, width,
           height));
 }
 
 void EventConverterInProcess::SetWindowChangeObserver(
-    WindowChangeObserver* observer) {
+    ui::WindowChangeObserver* observer) {
   observer_ = observer;
 }
 
 void EventConverterInProcess::SetOutputChangeObserver(
-    OutputChangeObserver* observer) {
+    ui::OutputChangeObserver* observer) {
   output_observer_ = observer;
 }
 
@@ -192,4 +193,4 @@ void EventConverterInProcess::DispatchEventHelper(
   base::MessagePumpOzone::Current()->Dispatch(key.get());
 }
 
-}  // namespace ui
+}  // namespace content

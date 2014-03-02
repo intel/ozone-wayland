@@ -12,17 +12,16 @@
 
 namespace ui {
 class EventConverterOzoneWayland;
-class RemoteStateChangeHandler;
 }
 
 namespace content {
-
+class RemoteStateChangeHandler;
 // OzoneDisplayChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
 // always be only one OzoneDisplayChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneDisplayChannelHost : public content::BrowserChildProcessObserver {
+class OzoneDisplayChannelHost : public BrowserChildProcessObserver {
  public:
   OzoneDisplayChannelHost();
   virtual ~OzoneDisplayChannelHost();
@@ -45,18 +44,18 @@ class OzoneDisplayChannelHost : public content::BrowserChildProcessObserver {
 
   // Implement |BrowserChildProcessObserver|.
   virtual void BrowserChildProcessHostConnected(
-    const content::ChildProcessData& data) OVERRIDE;
+    const ChildProcessData& data) OVERRIDE;
   virtual void BrowserChildProcessHostDisconnected(
-      const content::ChildProcessData& data) OVERRIDE;
+      const ChildProcessData& data) OVERRIDE;
   virtual void BrowserChildProcessCrashed(
-      const content::ChildProcessData& data) OVERRIDE;
+      const ChildProcessData& data) OVERRIDE;
 
  private:
   void OnMessageReceived(const IPC::Message& message);
   void EstablishChannel();
   void UpdateConnection();
   ui::EventConverterOzoneWayland* dispatcher_;
-  ui::RemoteStateChangeHandler* state_handler_;
+  RemoteStateChangeHandler* state_handler_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannelHost);
 };
 

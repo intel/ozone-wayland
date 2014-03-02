@@ -28,7 +28,7 @@ OzoneChannelHostFactory* OzoneChannelHostFactory::instance() {
 
 OzoneChannelHostFactory::OzoneChannelHostFactory(bool establish_gpu_channel)
     : event_converter_(NULL) {
-  event_converter_ = new ui::EventConverterInProcess();
+  event_converter_ = new EventConverterInProcess();
   ui::EventFactoryOzoneWayland* event_factory =
     ui::EventFactoryOzoneWayland::GetInstance();
   event_factory->SetEventConverterOzoneWayland(event_converter_);

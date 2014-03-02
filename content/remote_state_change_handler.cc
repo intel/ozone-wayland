@@ -11,7 +11,7 @@
 #include "content/public/common/process_type.h"
 #include "ozone/content/messages.h"
 
-namespace ui {
+namespace content {
 
 // This should be same as defined in display_channel.
 const int CHANNEL_ROUTE_ID = -0x1;
@@ -20,15 +20,15 @@ RemoteStateChangeHandler::RemoteStateChangeHandler()
     : iterator_(NULL) {
   WindowStateChangeHandler::SetInstance(this);
   IMEStateChangeHandler::SetInstance(this);
-  content::BrowserGpuChannelHostFactory* host_factory =
-      content::BrowserGpuChannelHostFactory::instance();
+  BrowserGpuChannelHostFactory* host_factory =
+      BrowserGpuChannelHostFactory::instance();
   DCHECK(host_factory);
   // This is a synchronous call and blocks current thread till Channel is
   // setup.
-  content::BrowserGpuChannelHostFactory::instance()->EstablishGpuChannelSync(
-      content::CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
+  BrowserGpuChannelHostFactory::instance()->EstablishGpuChannelSync(
+      CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
 
-  content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&RemoteStateChangeHandler::EstablishChannel,
           base::Unretained(this)));
 }
@@ -40,8 +40,8 @@ void RemoteStateChangeHandler::SetWidgetState(unsigned w,
                                              ui::WidgetState state,
                                              unsigned width,
                                              unsigned height) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetState,
             base::Unretained(this), w, state, width, height));
     return;
@@ -52,8 +52,8 @@ void RemoteStateChangeHandler::SetWidgetState(unsigned w,
 
 void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,
                                              const base::string16& title) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetTitle,
             base::Unretained(this), w, title));
     return;
@@ -67,8 +67,8 @@ void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
                                                   unsigned x,
                                                   unsigned y,
                                                   ui::WidgetType type) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetAttributes,
             base::Unretained(this), widget, parent, x, y, type));
     return;
@@ -83,8 +83,8 @@ void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
 }
 
 void RemoteStateChangeHandler::ResetIme() {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::ResetIme,
             base::Unretained(this)));
     return;
@@ -94,8 +94,8 @@ void RemoteStateChangeHandler::ResetIme() {
 }
 
 void RemoteStateChangeHandler::ImeCaretBoundsChanged(gfx::Rect rect) {
-  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
-    content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::ImeCaretBoundsChanged,
             base::Unretained(this), rect));
     return;
@@ -114,9 +114,8 @@ bool RemoteStateChangeHandler::Send(IPC::Message* message) {
 
 void RemoteStateChangeHandler::EstablishChannel() {
   DCHECK(!iterator_);
-  iterator_ = new content::BrowserChildProcessHostIterator(
-                      content::PROCESS_TYPE_GPU);
+  iterator_ = new BrowserChildProcessHostIterator(PROCESS_TYPE_GPU);
   DCHECK(!iterator_->Done());
 }
 
-}  // namespace ui
+}  // namespace content

@@ -79,17 +79,17 @@ void OzoneDisplayChannelHost::OnWindowResized(unsigned handle,
 }
 
 void OzoneDisplayChannelHost::BrowserChildProcessHostConnected(
-  const content::ChildProcessData& data) {
+  const ChildProcessData& data) {
   // we observe GPU process being forked or re-spawned for adding ourselves as
   // an ipc filter and listen to any relevant messages coming from GpuProcess
   // side.
-  if (data.process_type == content::PROCESS_TYPE_GPU)
+  if (data.process_type == PROCESS_TYPE_GPU)
     EstablishChannel();
 }
 
 void OzoneDisplayChannelHost::BrowserChildProcessHostDisconnected(
-  const content::ChildProcessData& data) {
-  if (data.process_type == content::PROCESS_TYPE_GPU) {
+  const ChildProcessData& data) {
+  if (data.process_type == PROCESS_TYPE_GPU) {
     if (state_handler_) {
       delete state_handler_;
       state_handler_ = NULL;
@@ -98,8 +98,8 @@ void OzoneDisplayChannelHost::BrowserChildProcessHostDisconnected(
 }
 
 void OzoneDisplayChannelHost::BrowserChildProcessCrashed(
-  const content::ChildProcessData& data) {
-  if (data.process_type == content::PROCESS_TYPE_GPU) {
+  const ChildProcessData& data) {
+  if (data.process_type == PROCESS_TYPE_GPU) {
     if (state_handler_) {
       delete state_handler_;
       state_handler_ = NULL;
@@ -108,7 +108,7 @@ void OzoneDisplayChannelHost::BrowserChildProcessCrashed(
 }
 
 void OzoneDisplayChannelHost::OnMessageReceived(const IPC::Message& message) {
-  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) <<
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO)) <<
       "Must handle messages that were dispatched to another thread!";
 
   IPC_BEGIN_MESSAGE_MAP(OzoneDisplayChannelHost, message)
@@ -128,15 +128,15 @@ void OzoneDisplayChannelHost::EstablishChannel() {
   if (state_handler_)
     return;
 
-  state_handler_ = new ui::RemoteStateChangeHandler();
-  content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
+  state_handler_ = new RemoteStateChangeHandler();
+  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&OzoneDisplayChannelHost::UpdateConnection,
           base::Unretained(this)));
 }
 
 void OzoneDisplayChannelHost::UpdateConnection() {
-  content::BrowserGpuChannelHostFactory* hostFactory =
-      content::BrowserGpuChannelHostFactory::instance();
+  BrowserGpuChannelHostFactory* hostFactory =
+      BrowserGpuChannelHostFactory::instance();
   DCHECK(hostFactory);
   const uint32 kMessagesToFilter[] = { WaylandInput_MotionNotify::ID,
                                        WaylandInput_ButtonNotify::ID,

@@ -29,13 +29,13 @@ content::ChildThread* GetProcessMainThread() {
 }
 
 OzoneDisplayChannel::OzoneDisplayChannel() {
-  event_converter_ = new ui::RemoteEventDispatcher();
+  event_converter_ = new RemoteEventDispatcher();
   ui::EventFactoryOzoneWayland::GetInstance()->
       SetEventConverterOzoneWayland(event_converter_);
 }
 
 OzoneDisplayChannel::~OzoneDisplayChannel() {
-  content::ChildThread* thread = GetProcessMainThread();
+  ChildThread* thread = GetProcessMainThread();
   thread->RemoveRoute(WAYLAND_ROUTE_ID);
 }
 
@@ -53,7 +53,7 @@ bool OzoneDisplayChannel::OnMessageReceived(
 }
 
 void OzoneDisplayChannel::Register() {
-  content::ChildThread* thread = GetProcessMainThread();
+  ChildThread* thread = GetProcessMainThread();
   thread->AddRoute(WAYLAND_ROUTE_ID, this);
 }
 

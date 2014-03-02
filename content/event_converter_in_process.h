@@ -9,9 +9,9 @@
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ui/events/event.h"
 
-namespace ui {
+namespace content {
 
-class EventConverterInProcess : public EventConverterOzoneWayland {
+class EventConverterInProcess : public ui::EventConverterOzoneWayland {
   public:
   EventConverterInProcess();
   virtual ~EventConverterInProcess();
@@ -37,8 +37,10 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
   virtual void WindowResized(unsigned windowhandle,
                              unsigned width,
                              unsigned height) OVERRIDE;
-  virtual void SetWindowChangeObserver(WindowChangeObserver* observer) OVERRIDE;
-  virtual void SetOutputChangeObserver(OutputChangeObserver* observer) OVERRIDE;
+  virtual void SetWindowChangeObserver(
+      ui::WindowChangeObserver* observer) OVERRIDE;
+  virtual void SetOutputChangeObserver(
+      ui::OutputChangeObserver* observer) OVERRIDE;
 
  private:
   static void NotifyPointerEnter(EventConverterInProcess* data,
@@ -57,11 +59,11 @@ class EventConverterInProcess : public EventConverterOzoneWayland {
                                   unsigned width,
                                   unsigned height);
   static void DispatchEventHelper(scoped_ptr<ui::Event> key);
-  WindowChangeObserver* observer_;
-  OutputChangeObserver* output_observer_;
+  ui::WindowChangeObserver* observer_;
+  ui::OutputChangeObserver* output_observer_;
   DISALLOW_COPY_AND_ASSIGN(EventConverterInProcess);
 };
 
-}  // namespace ui
+}  // namespace content
 
 #endif  // OZONE_CONTENT_CONVERTER_IN_PROCESS_H_

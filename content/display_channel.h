@@ -9,12 +9,8 @@
 #include "ipc/ipc_listener.h"
 #include "ozone/ui/events/window_constants.h"
 
-namespace ui {
-class RemoteEventDispatcher;
-}
-
 namespace content {
-
+class RemoteEventDispatcher;
 // OzoneDisplayChannel is responsible for listening to any messages sent by it's
 // host counterpart in BrowserProcess. There will be always only one
 // OzoneDisplayChannel per browser instance.
@@ -40,7 +36,7 @@ class OzoneDisplayChannel : public IPC::Listener {
                                  ui::WidgetType type);
 
  private:
-  ui::RemoteEventDispatcher* event_converter_;
+  RemoteEventDispatcher* event_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
 };
 

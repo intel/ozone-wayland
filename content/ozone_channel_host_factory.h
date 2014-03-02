@@ -7,11 +7,8 @@
 
 #include "ozone/content/display_channel_host.h"
 
-namespace ui {
-class EventConverterInProcess;
-}
-
 namespace content {
+class EventConverterInProcess;
 class OzoneDisplayChannelHost;
 // This class is responsible for establishing gpu channel connection between
 // OzoneDisplayChannel and ChannelHost.
@@ -25,7 +22,7 @@ class OzoneChannelHostFactory {
   virtual ~OzoneChannelHostFactory();
 
  private:
-  ui::EventConverterInProcess* event_converter_;
+  EventConverterInProcess* event_converter_;
   OzoneDisplayChannelHost* host_;
   static OzoneChannelHostFactory* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneChannelHostFactory);

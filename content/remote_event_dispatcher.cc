@@ -19,7 +19,7 @@ content::ChildThread* GetProcessMainThread() {
 
 }
 
-namespace ui {
+namespace content {
 
 RemoteEventDispatcher::RemoteEventDispatcher()
     : EventConverterOzoneWayland() {
@@ -29,9 +29,8 @@ RemoteEventDispatcher::~RemoteEventDispatcher() {
 }
 
 void RemoteEventDispatcher::MotionNotify(float x, float y) {
-  PostTaskOnMainLoop(base::Bind(&RemoteEventDispatcher::SendMotionNotify,
-                                x,
-                                y));
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
+      base::Bind(&RemoteEventDispatcher::SendMotionNotify, x, y));
 }
 
 void RemoteEventDispatcher::ButtonNotify(unsigned handle,
@@ -39,67 +38,57 @@ void RemoteEventDispatcher::ButtonNotify(unsigned handle,
                                          ui::EventFlags flags,
                                          float x,
                                          float y) {
-  PostTaskOnMainLoop(base::Bind(&RemoteEventDispatcher::SendButtonNotify,
-                                handle,
-                                type,
-                                flags,
-                                x,
-                                y));
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
+      base::Bind(&RemoteEventDispatcher::SendButtonNotify, handle, type, flags,
+          x, y));
 }
 
 void RemoteEventDispatcher::AxisNotify(float x,
                                        float y,
                                        int xoffset,
                                        int yoffset) {
-  PostTaskOnMainLoop(base::Bind(&RemoteEventDispatcher::SendAxisNotify,
-                                x,
-                                y,
-                                xoffset,
-                                yoffset));
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
+      base::Bind(&RemoteEventDispatcher::SendAxisNotify, x, y, xoffset,
+          yoffset));
 }
 
 void RemoteEventDispatcher::PointerEnter(unsigned handle,
                                          float x,
                                          float y) {
-  PostTaskOnMainLoop(base::Bind(&RemoteEventDispatcher::SendPointerEnter,
-                                handle,
-                                x,
-                                y));
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
+      base::Bind(&RemoteEventDispatcher::SendPointerEnter, handle, x, y));
 }
 
 void RemoteEventDispatcher::PointerLeave(unsigned handle,
                                          float x,
                                          float y) {
-  PostTaskOnMainLoop(base::Bind(&RemoteEventDispatcher::SendPointerLeave,
-                                handle,
-                                x,
-                                y));
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
+      base::Bind(&RemoteEventDispatcher::SendPointerLeave, handle, x, y));
 }
 
 void RemoteEventDispatcher::KeyNotify(ui::EventType state,
                                       unsigned code,
                                       unsigned modifiers) {
-  PostTaskOnMainLoop(base::Bind(&RemoteEventDispatcher::SendKeyNotify,
-                                state,
-                                code,
-                                modifiers));
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
+      base::Bind(&RemoteEventDispatcher::SendKeyNotify, state, code,
+          modifiers));
 }
 
 void RemoteEventDispatcher::OutputSizeChanged(unsigned width,
                                               unsigned height) {
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &RemoteEventDispatcher::SendOutputSizeChanged, width, height));
 }
 
 void RemoteEventDispatcher::WindowResized(unsigned handle,
                                           unsigned width,
                                           unsigned height) {
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &RemoteEventDispatcher::SendWindowResized, handle, width, height));
 }
 
 void RemoteEventDispatcher::CloseWidget(unsigned handle) {
-  PostTaskOnMainLoop(base::Bind(
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &RemoteEventDispatcher::SendCloseWidget, handle));
 }
 
@@ -156,8 +145,8 @@ void RemoteEventDispatcher::SendCloseWidget(unsigned handle) {
 }
 
 void RemoteEventDispatcher::Send(IPC::Message* message) {
-  content::ChildThread* thread = GetProcessMainThread();
+  ChildThread* thread = GetProcessMainThread();
   thread->Send(message);
 }
 
-}  // namespace ui
+}  // namespace content
