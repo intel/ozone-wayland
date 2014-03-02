@@ -1,0 +1,81 @@
+From 0563d8619d174876d2935e0558f28b3d9050d6cf Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Sun, 2 Mar 2014 14:43:35 +0200
+Subject: [PATCH] Content: Add support to initialize OzoneChannel.
+
+In Wayland case all window events need to be sent to GPU process. We have
+a minimal IPC implementation, handling messages very specific to our needs.
+This patch adds support to register OzoneChannel and Host as MessageFilters
+after the succesfull launch of GPU and Browser process respectively.
+---
+ content/browser/browser_main_loop.cc |   14 ++++++++++++++
+ content/gpu/gpu_main.cc              |    8 ++++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
+index d569188..664fff5 100644
+--- a/content/browser/browser_main_loop.cc
++++ b/content/browser/browser_main_loop.cc
+@@ -119,6 +119,7 @@
+
+ #if defined(USE_OZONE)
+ #include "ui/ozone/ozone_platform.h"
++#include "ozone/content/ozone_channel_host_factory.h"
+ #endif
+
+ // One of the linux specific headers defines this as a macro.
+@@ -885,6 +886,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
+     TRACE_EVENT0("shutdown", "BrowserMainLoop::Subsystem:GPUChannelFactory");
+     if (BrowserGpuChannelHostFactory::instance())
+       BrowserGpuChannelHostFactory::Terminate();
++#if defined(USE_OZONE)
++    if (OzoneChannelHostFactory::instance())
++      OzoneChannelHostFactory::Terminate();
++#endif
+   }
+
+   // Must happen after the I/O thread is shutdown since this class lives on the
+@@ -1044,6 +1049,15 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+ #if defined(OS_MACOSX)
+   ThemeHelperMac::GetInstance();
+ #endif
++
++#if defined(USE_OZONE)
++  bool using_gpu_process =
++      established_gpu_channel &&
++      !parsed_command_line_.HasSwitch(switches::kDisableGpuProcessPrelaunch) &&
++      !parsed_command_line_.HasSwitch(switches::kSingleProcess) &&
++      !parsed_command_line_.HasSwitch(switches::kInProcessGPU);
++  OzoneChannelHostFactory::Initialize(using_gpu_process);
++#endif
+ #endif  // !defined(OS_IOS)
+
+   return result_code_;
+diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
+index 8176221..2d6c04a 100644
+--- a/content/gpu/gpu_main.cc
++++ b/content/gpu/gpu_main.cc
+@@ -51,6 +51,10 @@
+ #include "content/public/common/sandbox_init.h"
+ #endif
+
++#if defined(USE_OZONE)
++#include "ozone/content/ozone_channel.h"
++#endif
++
+ const int kGpuTimeout = 10000;
+
+ namespace content {
+@@ -339,6 +343,10 @@ int GpuMain(const MainFunctionParams& parameters) {
+     watchdog_thread->AddPowerObserver();
+
+   {
++#if defined(USE_OZONE)
++    OzoneChannel channel;
++    channel.Register();
++#endif
+     TRACE_EVENT0("gpu", "Run Message Loop");
+     main_message_loop.Run();
+   }
+--
+1.7.9.5
