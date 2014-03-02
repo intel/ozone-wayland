@@ -107,12 +107,6 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
-  // Ensure event converter is initialized.
-  ui::EventFactoryOzoneWayland* event_factory =
-      ui::EventFactoryOzoneWayland::GetInstance();
-  if (!event_factory->EventConverter())
-    event_factory->StartProcessingEvents();
-
   gfx::SurfaceFactoryOzone* surface_factory =
           gfx::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();

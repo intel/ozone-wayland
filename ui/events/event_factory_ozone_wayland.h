@@ -15,7 +15,7 @@ class WindowChangeObserver;
 class OutputChangeObserver;
 
 class EVENTS_EXPORT EventFactoryOzoneWayland : public EventFactoryOzone {
-  public:
+ public:
   EventFactoryOzoneWayland();
   virtual ~EventFactoryOzoneWayland();
 
@@ -27,24 +27,17 @@ class EVENTS_EXPORT EventFactoryOzoneWayland : public EventFactoryOzone {
 
   // Sets the window change observer. Ownership is retained by the caller.
   void SetWindowChangeObserver(WindowChangeObserver* observer);
+  WindowChangeObserver* GetWindowChangeObserver() const;
   // Sets the output change observer. Ownership is retained by the caller.
   void SetOutputChangeObserver(OutputChangeObserver* observer);
   // Registered OutputChangeObserver. Ownership is not passed to the caller.
   OutputChangeObserver* GetOutputChangeObserver() const;
+  void SetEventConverterOzoneWayland(EventConverterOzoneWayland* converter);
   // EventConverter used to convert native input events to |ui::Event|.
   // Ownership is not passed to the caller.
   EventConverterOzoneWayland* EventConverter() const;
 
-  // Overridden from EventFactoryOzone:
-  // This should be called from DRWH to initialize EventConverter and start
-  // processing events.
-  virtual void StartProcessingEvents() OVERRIDE;
-  // This should be called to start processing events in GpuProcess side. The
-  // expectation is that this is called from GPU process side in multi process
-  // case.
-  void StartProcessingRemoteEvents();
-
-  protected:
+ protected:
   EventConverterOzoneWayland* event_converter_;
   WindowChangeObserver* observer_;
   OutputChangeObserver* output_observer_;

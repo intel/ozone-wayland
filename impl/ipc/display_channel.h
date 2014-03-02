@@ -9,6 +9,10 @@
 #include "ipc/ipc_listener.h"
 #include "ozone/ui/events/window_constants.h"
 
+namespace ui {
+class RemoteEventDispatcher;
+}
+
 namespace content {
 
 // OzoneDisplayChannel is responsible for listening to any messages sent by it's
@@ -36,6 +40,7 @@ class OzoneDisplayChannel : public IPC::Listener {
                                  ui::WidgetType type);
 
  private:
+  ui::RemoteEventDispatcher* event_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
 };
 

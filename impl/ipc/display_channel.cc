@@ -8,6 +8,8 @@
 #include "content/child/child_thread.h"
 #include "ozone/impl/ipc/messages.h"
 #include "ozone/impl/ozone_display.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 
 namespace content {
@@ -28,6 +30,9 @@ content::ChildThread* GetProcessMainThread() {
 }
 
 OzoneDisplayChannel::OzoneDisplayChannel() {
+  event_converter_ = new ui::RemoteEventDispatcher();
+  ui::EventFactoryOzoneWayland::GetInstance()->
+      SetEventConverterOzoneWayland(event_converter_);
 }
 
 OzoneDisplayChannel::~OzoneDisplayChannel() {

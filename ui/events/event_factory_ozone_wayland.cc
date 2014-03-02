@@ -4,9 +4,6 @@
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 
-#include "ozone/ui/events/event_converter_in_process.h"
-#include "ozone/ui/events/remote_event_dispatcher.h"
-
 namespace ui {
 
 // static
@@ -20,7 +17,6 @@ EventFactoryOzoneWayland::EventFactoryOzoneWayland()
 }
 
 EventFactoryOzoneWayland::~EventFactoryOzoneWayland() {
-  delete event_converter_;
 }
 
 EventFactoryOzoneWayland* EventFactoryOzoneWayland::GetInstance() {
@@ -40,6 +36,11 @@ void EventFactoryOzoneWayland::SetWindowChangeObserver(
     event_converter_->SetWindowChangeObserver(observer_);
 }
 
+WindowChangeObserver*
+EventFactoryOzoneWayland::GetWindowChangeObserver() const {
+  return observer_;
+}
+
 void EventFactoryOzoneWayland::SetOutputChangeObserver(
     OutputChangeObserver* observer) {
   output_observer_ = observer;
@@ -52,21 +53,14 @@ EventFactoryOzoneWayland::GetOutputChangeObserver() const {
   return output_observer_;
 }
 
+void EventFactoryOzoneWayland::SetEventConverterOzoneWayland(
+    EventConverterOzoneWayland* converter) {
+  event_converter_ = converter;
+}
+
 EventConverterOzoneWayland* EventFactoryOzoneWayland::EventConverter() const {
   CHECK(impl_) << "EventConverterOzoneWayland is not initialized yet.";
   return event_converter_;
-}
-
-void EventFactoryOzoneWayland::StartProcessingEvents() {
-  DCHECK(!event_converter_);
-  event_converter_ = new EventConverterInProcess();
-  event_converter_->SetWindowChangeObserver(observer_);
-  event_converter_->SetOutputChangeObserver(output_observer_);
-}
-
-void EventFactoryOzoneWayland::StartProcessingRemoteEvents() {
-  DCHECK(!event_converter_);
-  event_converter_ = new RemoteEventDispatcher();
 }
 
 }  // namespace ui
