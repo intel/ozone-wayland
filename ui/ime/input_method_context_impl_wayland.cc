@@ -5,7 +5,7 @@
 #include "ozone/ui/ime/input_method_context_impl_wayland.h"
 
 #include "base/logging.h"
-#include "ozone/ui/ime/ime_state_change_handler.h"
+#include "ozone/ui/events/ime_state_change_handler.h"
 
 namespace ui {
 

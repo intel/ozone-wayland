@@ -7,7 +7,7 @@
 
 #include <wayland-client.h>
 #include "base/basictypes.h"
-#include "ozone/ui/ime/ime_state_change_handler.h"
+#include "ozone/ui/events/ime_state_change_handler.h"
 
 namespace ozonewayland {
 

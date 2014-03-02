@@ -5,8 +5,8 @@
 #ifndef OZONE_CONTENT_REMOTE_STATE_CHANGE_HANDLER_H_
 #define OZONE_CONTENT_REMOTE_STATE_CHANGE_HANDLER_H_
 
+#include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
-#include "ozone/ui/ime/ime_state_change_handler.h"
 
 namespace IPC {
 class Message;

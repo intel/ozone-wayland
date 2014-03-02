@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/ime/ime_state_change_handler.h"
+#include "ozone/ui/events/ime_state_change_handler.h"
 
 #include "base/logging.h"
 
