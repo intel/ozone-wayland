@@ -9,8 +9,8 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/process_type.h"
 #include "ozone/content/messages.h"
+#include "ozone/content/remote_state_change_handler.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/remote_state_change_handler.h"
 
 namespace content {
 

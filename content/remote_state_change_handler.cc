@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/events/remote_state_change_handler.h"
+#include "ozone/content/remote_state_change_handler.h"
 
 #include "base/bind.h"
 #include "content/browser/gpu/browser_gpu_channel_host_factory.h"

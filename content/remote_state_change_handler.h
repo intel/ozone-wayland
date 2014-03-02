@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_EVENTS_REMOTE_STATE_CHANGE_HANDLER_H_
-#define OZONE_UI_EVENTS_REMOTE_STATE_CHANGE_HANDLER_H_
+#ifndef OZONE_CONTENT_REMOTE_STATE_CHANGE_HANDLER_H_
+#define OZONE_CONTENT_REMOTE_STATE_CHANGE_HANDLER_H_
 
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/ui/ime/ime_state_change_handler.h"
@@ -53,4 +53,4 @@ class RemoteStateChangeHandler : public WindowStateChangeHandler,
 
 }  // namespace ui
 
-#endif  // OZONE_UI_EVENTS_REMOTE_STATE_CHANGE_HANDLER_H_
+#endif  // OZONE_CONTENT_EVENTS_REMOTE_STATE_CHANGE_HANDLER_H_

@@ -5,7 +5,7 @@
 #include "ozone/content/ozone_channel_host_factory.h"
 
 #include "ozone/content/display_channel_host.h"
-#include "ozone/ui/events/event_converter_in_process.h"
+#include "ozone/content/event_converter_in_process.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 
 namespace content {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/events/remote_event_dispatcher.h"
+#include "ozone/content/remote_event_dispatcher.h"
 
 #include "base/bind.h"
 #include "content/child/child_process.h"
