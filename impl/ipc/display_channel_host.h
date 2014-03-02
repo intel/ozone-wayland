@@ -15,7 +15,7 @@ class EventConverterOzoneWayland;
 class RemoteStateChangeHandler;
 }
 
-namespace ozonewayland {
+namespace content {
 
 // OzoneDisplayChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
@@ -60,6 +60,6 @@ class OzoneDisplayChannelHost : public content::BrowserChildProcessObserver {
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannelHost);
 };
 
-}  // namespace ozonewayland
+}  // namespace content
 
 #endif  // OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_

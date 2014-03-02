@@ -9,7 +9,7 @@
 #include "ipc/ipc_listener.h"
 #include "ozone/ui/events/window_constants.h"
 
-namespace ozonewayland {
+namespace content {
 
 // OzoneDisplayChannel is responsible for listening to any messages sent by it's
 // host counterpart in BrowserProcess. There will be always only one
@@ -39,6 +39,6 @@ class OzoneDisplayChannel : public IPC::Listener {
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplayChannel);
 };
 
-}  // namespace ozonewayland
+}  // namespace content
 
 #endif  // OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_

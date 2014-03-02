@@ -11,10 +11,13 @@ namespace gfx {
 class Screen;
 }
 
-namespace ozonewayland {
-
+namespace content {
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
+}
+
+namespace ozonewayland {
+
 class WaylandDisplay;
 
 class OzoneDisplay {
@@ -37,8 +40,8 @@ class OzoneDisplay {
   static void DelayedInitialization(OzoneDisplay* display);
 
   WaylandDisplay* display_;
-  OzoneDisplayChannel* channel_;
-  OzoneDisplayChannelHost* host_;
+  content::OzoneDisplayChannel* channel_;
+  content::OzoneDisplayChannelHost* host_;
   static OzoneDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };

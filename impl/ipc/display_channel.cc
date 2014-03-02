@@ -10,7 +10,7 @@
 #include "ozone/impl/ozone_display.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 
-namespace ozonewayland {
+namespace content {
 // GpuChannelManager generates unique routeid for every new
 // ImageTransportSurface. In Ozone-Wayland, we register a routeid between
 // DisplayChannel and ChannelHost. Therefore, we hardcore our own routeid with a
@@ -80,4 +80,4 @@ void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
                                                                    type);
 }
 
-}  // namespace ozonewayland
+}  // namespace content

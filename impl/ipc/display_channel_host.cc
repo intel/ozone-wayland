@@ -12,7 +12,7 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
 
-namespace ozonewayland {
+namespace content {
 
 OzoneDisplayChannelHost::OzoneDisplayChannelHost()
     : state_handler_(NULL) {
@@ -155,4 +155,4 @@ void OzoneDisplayChannelHost::UpdateConnection() {
               base::Unretained(this)), compositor_thread_task_runner.get());
 }
 
-}  // namespace ozonewayland
+}  // namespace content

@@ -59,7 +59,7 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
 gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
   static int opaque_handle = 0;
   if (!display_ && !host_)
-    host_ = new OzoneDisplayChannelHost();
+    host_ = new content::OzoneDisplayChannelHost();
 
   opaque_handle++;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
@@ -84,7 +84,7 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 }
 
 void OzoneDisplay::DelayedInitialization(OzoneDisplay* display) {
-  display->channel_ = new OzoneDisplayChannel();
+  display->channel_ = new content::OzoneDisplayChannel();
   display->channel_->Register();
 }
 
