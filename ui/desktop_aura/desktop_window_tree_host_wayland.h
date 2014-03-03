@@ -78,8 +78,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // Overridden from DesktopWindowTreeHost:
   virtual void Init(
       aura::Window* content_window,
-      const views::Widget::InitParams& params,
-      aura::WindowEventDispatcher::CreateParams* rw_create_params) OVERRIDE;
+      const views::Widget::InitParams& params) OVERRIDE;
   virtual void OnRootWindowCreated(
       aura::WindowEventDispatcher* dispatcher,
       const views::Widget::InitParams& params) OVERRIDE;

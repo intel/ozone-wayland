@@ -13,6 +13,7 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
+#include "ui/aura/client/window_move_client.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
 #include "ui/events/event_utils.h"
@@ -63,7 +64,9 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
 
 DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
   dispatcher_->window()->ClearProperty(kHostForRootWindow);
+  aura::client::SetWindowMoveClient(dispatcher_->window(), NULL);
   desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(dispatcher_);
+  DestroyDispatcher();
 }
 
 // static
@@ -189,8 +192,7 @@ bool DesktopWindowTreeHostWayland::IsWindowManagerPresent() {
 
 void DesktopWindowTreeHostWayland::Init(
     aura::Window* content_window,
-    const Widget::InitParams& params,
-    aura::WindowEventDispatcher::CreateParams* rw_create_params) {
+    const Widget::InitParams& params) {
   content_window_ = content_window;
   // In some situations, views tries to make a zero sized window, and that
   // makes us crash. Make sure we have valid sizes.
@@ -201,9 +203,6 @@ void DesktopWindowTreeHostWayland::Init(
     sanitized_params.bounds.set_height(100);
 
   InitWaylandWindow(sanitized_params);
-
-  rw_create_params->initial_bounds = bounds_;
-  rw_create_params->host = this;
 }
 
 void DesktopWindowTreeHostWayland::OnRootWindowCreated(
