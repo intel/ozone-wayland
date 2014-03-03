@@ -1,16 +1,21 @@
-From 0563d8619d174876d2935e0558f28b3d9050d6cf Mon Sep 17 00:00:00 2001
+From 8e96c52cd1ee6c0d7a1225d780e4a0f4566947d1 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Sun, 2 Mar 2014 14:43:35 +0200
-Subject: [PATCH] Content: Add support to initialize OzoneChannel.
+Date: Mon, 3 Mar 2014 13:04:17 +0200
+Subject: [PATCH] OzoneChannel: Add needed support in Content.
 
-In Wayland case all window events need to be sent to GPU process. We have
-a minimal IPC implementation, handling messages very specific to our needs.
-This patch adds support to register OzoneChannel and Host as MessageFilters
-after the succesfull launch of GPU and Browser process respectively.
+In Wayland case all window related events need to be sent to GPU process.
+We have a minimal IPC implementation, handling messages very specific to
+our needs. This patch adds support for the following:
+
+1) Register OzoneChannel and Host as MessageFilters after the succesfull
+   launch of GPU and Browser process respectively.
+2) Ensure our content related files are compiled as part of
+   content_common target.
 ---
  content/browser/browser_main_loop.cc |   14 ++++++++++++++
+ content/content_common.gypi          |   19 +++++++++++++++++++
  content/gpu/gpu_main.cc              |    8 ++++++++
- 2 files changed, 22 insertions(+)
+ 3 files changed, 41 insertions(+)
 
 diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
 index d569188..664fff5 100644
@@ -51,6 +56,36 @@ index d569188..664fff5 100644
  #endif  // !defined(OS_IOS)
 
    return result_code_;
+diff --git a/content/content_common.gypi b/content/content_common.gypi
+index a9ade95..29b7e22 100644
+--- a/content/content_common.gypi
++++ b/content/content_common.gypi
+@@ -583,6 +583,25 @@
+         '<(DEPTH)/third_party/libva',
+       ],
+     }],
++    ['use_ozone == 1', {
++      'sources': [
++        '<(DEPTH)/ozone/content/event_converter_in_process.h',
++        '<(DEPTH)/ozone/content/event_converter_in_process.cc',
++        '<(DEPTH)/ozone/content/messages.h',
++        '<(DEPTH)/ozone/content/message_generator.h',
++        '<(DEPTH)/ozone/content/message_generator.cc',
++        '<(DEPTH)/ozone/content/ozone_channel.h',
++        '<(DEPTH)/ozone/content/ozone_channel.cc',
++        '<(DEPTH)/ozone/content/ozone_channel_host.h',
++        '<(DEPTH)/ozone/content/ozone_channel_host.cc',
++        '<(DEPTH)/ozone/content/ozone_channel_host_factory.h',
++        '<(DEPTH)/ozone/content/ozone_channel_host_factory.cc',
++        '<(DEPTH)/ozone/content/remote_event_dispatcher.h',
++        '<(DEPTH)/ozone/content/remote_event_dispatcher.cc',
++        '<(DEPTH)/ozone/content/remote_state_change_handler.h',
++        '<(DEPTH)/ozone/content/remote_state_change_handler.cc',
++      ],
++    }],
+     ['OS=="win"', {
+       'dependencies': [
+         '../media/media.gyp:media',
 diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
 index 8176221..2d6c04a 100644
 --- a/content/gpu/gpu_main.cc
