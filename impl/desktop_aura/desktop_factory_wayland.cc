@@ -8,22 +8,22 @@
 #include "ozone/impl/desktop_aura/desktop_window_tree_host_wayland.h"
 #include "ozone/wayland/display.h"
 
-namespace ozonewayland {
+namespace views {
 
 DesktopFactoryWayland::DesktopFactoryWayland() : views::DesktopFactoryOzone(),
     desktop_screen_(NULL) {
   LOG(INFO) << "Ozone: DesktopFactoryWayland";
-  views::DesktopFactoryOzone::SetInstance(this);
+  DesktopFactoryOzone::SetInstance(this);
 }
 
 DesktopFactoryWayland::~DesktopFactoryWayland() {
-  views::DesktopFactoryOzone::SetInstance(NULL);
+  DesktopFactoryOzone::SetInstance(NULL);
   delete desktop_screen_;
 }
 
-views::DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
-    views::internal::NativeWidgetDelegate* native_widget_delegate,
-    views::DesktopNativeWidgetAura* desktop_native_widget_aura) {
+DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
+    internal::NativeWidgetDelegate* native_widget_delegate,
+    DesktopNativeWidgetAura* desktop_native_widget_aura) {
   return new DesktopWindowTreeHostWayland(native_widget_delegate,
                                           desktop_native_widget_aura);
 }
@@ -31,10 +31,10 @@ views::DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
 gfx::Screen* DesktopFactoryWayland::CreateDesktopScreen() {
   if (!desktop_screen_) {
     desktop_screen_ = new DesktopScreenWayland();
-    WaylandDisplay::LookAheadOutputGeometry();
+    ozonewayland::WaylandDisplay::LookAheadOutputGeometry();
   }
 
   return desktop_screen_;
 }
 
-}  // namespace ozonewayland
+}  // namespace views

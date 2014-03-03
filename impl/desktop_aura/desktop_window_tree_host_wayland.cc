@@ -9,7 +9,6 @@
 #include "ozone/impl/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/impl/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/impl/desktop_aura/window_tree_host_delegate_wayland.h"
-#include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
@@ -25,32 +24,13 @@
 #include "ui/views/corewm/window_util.h"
 #include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
+#include "ui/views/views_export.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
 
 namespace views {
-// static
-OZONE_WAYLAND_EXPORT ui::NativeTheme*
-DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
-  const views::LinuxUI* linux_ui = views::LinuxUI::instance();
-  if (linux_ui) {
-    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
-    if (native_theme)
-      return native_theme;
-  }
-
-  return ui::NativeTheme::instance();
-}
-
-}  //  namespace views
-
-namespace ozonewayland {
-
-using views::Widget;
-using views::NonClientFrameView;
-using views::NonClientView;
 
 WindowTreeHostDelegateWayland*
     DesktopWindowTreeHostWayland::g_delegate_ozone_wayland_ = NULL;
@@ -62,8 +42,8 @@ DEFINE_WINDOW_PROPERTY_KEY(
     DesktopWindowTreeHostWayland*, kHostForRootWindow, NULL);
 
 DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
-    views::internal::NativeWidgetDelegate* native_widget_delegate,
-    views::DesktopNativeWidgetAura* desktop_native_widget_aura)
+    internal::NativeWidgetDelegate* native_widget_delegate,
+    DesktopNativeWidgetAura* desktop_native_widget_aura)
     : aura::WindowTreeHost(),
       state_(Uninitialized),
       bounds_(0, 0, 0, 0),
@@ -209,7 +189,7 @@ bool DesktopWindowTreeHostWayland::IsWindowManagerPresent() {
 
 void DesktopWindowTreeHostWayland::Init(
     aura::Window* content_window,
-    const views::Widget::InitParams& params,
+    const Widget::InitParams& params,
     aura::WindowEventDispatcher::CreateParams* rw_create_params) {
   content_window_ = content_window;
   // In some situations, views tries to make a zero sized window, and that
@@ -240,7 +220,7 @@ void DesktopWindowTreeHostWayland::OnRootWindowCreated(
   // window. Otherwise activation gets screwy.
   gfx::NativeView parent = params.parent;
   if (!params.child && params.parent)
-    views::corewm::AddTransientChild(parent, content_window_);
+    corewm::AddTransientChild(parent, content_window_);
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
 
@@ -257,15 +237,15 @@ void DesktopWindowTreeHostWayland::OnRootWindowCreated(
     g_delegate_ozone_wayland_->SetActiveWindow(this);
 }
 
-scoped_ptr<views::corewm::Tooltip>
+scoped_ptr<corewm::Tooltip>
 DesktopWindowTreeHostWayland::CreateTooltip() {
-  return scoped_ptr<views::corewm::Tooltip>(
-             new views::corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
+  return scoped_ptr<corewm::Tooltip>(
+             new corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
 }
 
 scoped_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostWayland::CreateDragDropClient(
-    views::DesktopNativeCursorManager* cursor_manager) {
+    DesktopNativeCursorManager* cursor_manager) {
   drag_drop_client_ = new DesktopDragDropClientWayland(dispatcher_->window());
   return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
 }
@@ -361,9 +341,9 @@ void DesktopWindowTreeHostWayland::CenterWindow(const gfx::Size& size) {
 
   // If |window_|'s transient parent bounds are big enough to contain |size|,
   // use them instead.
-  if (views::corewm::GetTransientParent(content_window_)) {
+  if (corewm::GetTransientParent(content_window_)) {
     gfx::Rect transient_parent_rect =
-        views::corewm::GetTransientParent(content_window_)->GetBoundsInScreen();
+        corewm::GetTransientParent(content_window_)->GetBoundsInScreen();
     if (transient_parent_rect.height() >= size.height() &&
         transient_parent_rect.width() >= size.width()) {
       parent_bounds = transient_parent_rect;
@@ -831,4 +811,17 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
   }
 }
 
-}  // namespace ozonewayland
+// static
+VIEWS_EXPORT ui::NativeTheme*
+DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
+  const views::LinuxUI* linux_ui = views::LinuxUI::instance();
+  if (linux_ui) {
+    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
+    if (native_theme)
+      return native_theme;
+  }
+
+  return ui::NativeTheme::instance();
+}
+
+}  // namespace views

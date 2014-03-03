@@ -14,7 +14,7 @@ namespace aura {
 class Window;
 }
 
-namespace ozonewayland {
+namespace views {
 
 class DesktopScreenWayland : public gfx::Screen,
                              public ui::OutputChangeObserver {
@@ -51,6 +51,6 @@ class DesktopScreenWayland : public gfx::Screen,
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
 
-}  // namespace ozonewayland
+}  // namespace views
 
 #endif  // OZONE_IMPL_DESKTOP_AURA_DESKTOP_SCREEN_WAYLAND_H__

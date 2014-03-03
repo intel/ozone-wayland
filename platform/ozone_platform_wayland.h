@@ -35,7 +35,7 @@ class OzonePlatformWayland : public OzonePlatform {
   ui::EventFactoryOzoneWayland event_factory_ozone_;
   ui::InputMethodContextFactoryWayland input_method_context_factory_;
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
-  ozonewayland::DesktopFactoryWayland desktop_factory_ozone_;
+  views::DesktopFactoryWayland desktop_factory_ozone_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);

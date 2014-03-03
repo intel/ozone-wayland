@@ -9,24 +9,25 @@
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
 
-namespace ozonewayland {
+namespace views {
 
 class DesktopScreenWayland;
+
 // Desktop support for wayland
 //
 // TODO(spang): Chromium needs to move desktop support into ui/base so we don't
 // reference views from ozone platform code. This module has an undeclared
 // dependency on views.
 class OZONE_WAYLAND_EXPORT DesktopFactoryWayland
-    : public views::DesktopFactoryOzone {
+    : public DesktopFactoryOzone {
  public:
   DesktopFactoryWayland();
   virtual ~DesktopFactoryWayland();
 
   // views::DesktopFactoryOzone
-  virtual views::DesktopWindowTreeHost* CreateWindowTreeHost(
-      views::internal::NativeWidgetDelegate* native_widget_delegate,
-      views::DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
+  virtual DesktopWindowTreeHost* CreateWindowTreeHost(
+      internal::NativeWidgetDelegate* native_widget_delegate,
+      DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
 
   virtual gfx::Screen* CreateDesktopScreen() OVERRIDE;
 

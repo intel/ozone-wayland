@@ -15,7 +15,7 @@
 #include "ui/events/event_source.h"
 #include "ui/gfx/native_widget_types.h"
 
-namespace ozonewayland {
+namespace views {
 
 class DesktopWindowTreeHostWayland;
 
@@ -76,6 +76,6 @@ class WindowTreeHostDelegateWayland
   DISALLOW_COPY_AND_ASSIGN(WindowTreeHostDelegateWayland);
 };
 
-}  // namespace ozonewayland
+}  // namespace views
 
 #endif  // OZONE_IMPL_DESKTOP_AURA_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
