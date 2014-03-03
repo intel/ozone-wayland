@@ -10,13 +10,11 @@
 #include "base/native_library.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/vsync_provider_wayland.h"
-#include "ozone/ui/events/window_state_change_handler.h"
 
 namespace ozonewayland {
 
-SurfaceFactoryWayland::SurfaceFactoryWayland() : initialized_(false),
-    initialized_state_(gfx::SurfaceFactoryOzone::INITIALIZED),
-    last_realized_widget_handle_(0) {
+SurfaceFactoryWayland::SurfaceFactoryWayland()
+    : last_realized_widget_handle_(0) {
 }
 
 SurfaceFactoryWayland::~SurfaceFactoryWayland() {
@@ -24,19 +22,7 @@ SurfaceFactoryWayland::~SurfaceFactoryWayland() {
 
 gfx::SurfaceFactoryOzone::HardwareState
 SurfaceFactoryWayland::InitializeHardware() {
-  if (initialized_)
-    return initialized_state_;
-
-  initialized_ = true;
-  OzoneDisplay* display = OzoneDisplay::GetInstance();
-  initialized_state_ =
-      display->InitializeHardware() ? gfx::SurfaceFactoryOzone::INITIALIZED
-                                    : gfx::SurfaceFactoryOzone::FAILED;
-
-  if (initialized_state_ != gfx::SurfaceFactoryOzone::INITIALIZED)
-    LOG(ERROR) << "SurfaceFactoryWayland failed to initialize hardware";
-
-  return initialized_state_;
+  return OzoneDisplay::GetInstance()->InitializeHardware();
 }
 
 intptr_t SurfaceFactoryWayland::GetNativeDisplay() {
@@ -53,6 +39,7 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
 
 gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
     gfx::AcceleratedWidget w) {
+  DCHECK(OzoneDisplay::GetInstance());
   last_realized_widget_handle_ = w;
   return OzoneDisplay::GetInstance()->RealizeAcceleratedWidget(w);
 }
@@ -104,12 +91,8 @@ bool SurfaceFactoryWayland::LoadEGLGLES2Bindings(
 
 bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(
          gfx::AcceleratedWidget w, const gfx::Rect& bounds) {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
-                                                              ui::RESIZE,
-                                                              bounds.width(),
-                                                              bounds.height());
-
-  return true;
+  return OzoneDisplay::GetInstance()->AttemptToResizeAcceleratedWidget(
+      w, bounds);
 }
 
 scoped_ptr<gfx::VSyncProvider>

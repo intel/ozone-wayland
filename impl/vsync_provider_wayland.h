@@ -9,8 +9,6 @@
 
 namespace ozonewayland {
 
-class WaylandWindow;
-
 class WaylandSyncProvider : public gfx::VSyncProvider {
  public:
   explicit WaylandSyncProvider(unsigned handle);

@@ -7,8 +7,6 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "ozone/impl/ozone_display.h"
-#include "ozone/ui/events/window_state_change_handler.h"
-#include "ozone/wayland/display.h"
 
 namespace ozonewayland {
 
@@ -18,9 +16,8 @@ WaylandSyncProvider::WaylandSyncProvider(unsigned handle) : handle_(handle) {
 WaylandSyncProvider::~WaylandSyncProvider() {
   // WaylandSyncProvider is destroyed when the associated NativeSurface is
   // destroyed. Inform OzoneDisplay to release Wayland resources.
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::DESTROYED);
-  WaylandDisplay::GetInstance()->FlushDisplay();
+  OzoneDisplay::GetInstance()->DestroyWidget(handle_);
+  OzoneDisplay::GetInstance()->FlushDisplay();
 }
 
 void WaylandSyncProvider::GetVSyncParameters(
@@ -35,7 +32,7 @@ void WaylandSyncProvider::GetVSyncParameters(
 }
 
 void WaylandSyncProvider::ScheduleFlush() {
-  WaylandDisplay* native_display = WaylandDisplay::GetInstance();
+  OzoneDisplay* native_display = OzoneDisplay::GetInstance();
   if (native_display)
     native_display->FlushDisplay();
 }
