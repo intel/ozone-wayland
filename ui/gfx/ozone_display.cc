@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 
-namespace ozonewayland {
+namespace gfx {
 
 // static
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
@@ -27,4 +27,4 @@ void OzoneDisplay::SetInstance(OzoneDisplay* instance) {
   instance_ = instance;
 }
 
-}  // namespace ozonewayland
+}  // namespace gfx

@@ -9,7 +9,7 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
-namespace ozonewayland {
+namespace gfx {
 
 class GFX_EXPORT OzoneDisplay {
  public:
@@ -40,6 +40,6 @@ class GFX_EXPORT OzoneDisplay {
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
 
-}  // namespace ozonewayland
+}  // namespace gfx
 
 #endif  // OZONE_UI_GFX_OZONE_DISPLAY_H_

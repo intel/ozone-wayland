@@ -8,7 +8,7 @@
 #include "base/message_loop/message_loop.h"
 #include "ozone/ui/gfx/ozone_display.h"
 
-namespace ozonewayland {
+namespace gfx {
 
 WaylandSyncProvider::WaylandSyncProvider(unsigned handle) : handle_(handle) {
 }
@@ -37,4 +37,4 @@ void WaylandSyncProvider::ScheduleFlush() {
     native_display->FlushDisplay();
 }
 
-}  // namespace ozonewayland
+}  // namespace gfx

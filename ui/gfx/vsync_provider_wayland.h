@@ -7,7 +7,7 @@
 
 #include "ui/gfx/vsync_provider.h"
 
-namespace ozonewayland {
+namespace gfx {
 
 class WaylandSyncProvider : public gfx::VSyncProvider {
  public:
@@ -22,6 +22,6 @@ class WaylandSyncProvider : public gfx::VSyncProvider {
   DISALLOW_COPY_AND_ASSIGN(WaylandSyncProvider);
 };
 
-}  // namespace ozonewayland
+}  // namespace gfx
 
 #endif  // OZONE_UI_GFX_VSYNC_PROVIDER_WAYLAND_H_

@@ -11,7 +11,7 @@
 #include "ozone/ui/gfx/ozone_display.h"
 #include "ozone/ui/gfx/vsync_provider_wayland.h"
 
-namespace ozonewayland {
+namespace gfx {
 
 SurfaceFactoryWayland::SurfaceFactoryWayland()
     : last_realized_widget_handle_(0) {
@@ -126,4 +126,4 @@ SurfaceFactoryWayland::GetEGLSurfaceProperties(const int32* desired_list) {
   return kConfigAttribs;
 }
 
-}  // namespace ozonewayland
+}  // namespace gfx

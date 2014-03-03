@@ -9,7 +9,7 @@
 
 #include "ui/gfx/gfx_export.h"
 
-namespace ozonewayland {
+namespace gfx {
 
 class GFX_EXPORT SurfaceFactoryWayland : public gfx::SurfaceFactoryOzone {
  public:
@@ -46,6 +46,6 @@ class GFX_EXPORT SurfaceFactoryWayland : public gfx::SurfaceFactoryOzone {
   DISALLOW_COPY_AND_ASSIGN(SurfaceFactoryWayland);
 };
 
-}  // namespace ozonewayland
+}  // namespace gfx
 
 #endif  // OZONE_UI_GFX_SURFACE_FACTORY_WAYLAND_H_

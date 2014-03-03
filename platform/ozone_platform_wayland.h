@@ -30,8 +30,8 @@ class OzonePlatformWayland : public OzonePlatform {
       GetInputMethodContextFactoryOzone() OVERRIDE;
 
  private:
-  ozonewayland::OzoneDisplay display_;
-  ozonewayland::SurfaceFactoryWayland surface_factory_ozone_;
+  gfx::OzoneDisplay display_;
+  gfx::SurfaceFactoryWayland surface_factory_ozone_;
   ui::EventFactoryOzoneWayland event_factory_ozone_;
   ui::InputMethodContextFactoryWayland input_method_context_factory_;
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
