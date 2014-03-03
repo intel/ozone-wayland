@@ -14,22 +14,21 @@
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 
 namespace views {
+
 namespace corewm {
 class Tooltip;
 }
-}
 
-namespace ozonewayland {
 class DesktopDragDropClientWayland;
 class WindowTreeHostDelegateWayland;
 
 class VIEWS_EXPORT DesktopWindowTreeHostWayland
-    : public views::DesktopWindowTreeHost,
+    : public DesktopWindowTreeHost,
       public aura::WindowTreeHost {
  public:
   DesktopWindowTreeHostWayland(
-      views::internal::NativeWidgetDelegate* native_widget_delegate,
-      views::DesktopNativeWidgetAura* desktop_native_widget_aura);
+      internal::NativeWidgetDelegate* native_widget_delegate,
+      DesktopNativeWidgetAura* desktop_native_widget_aura);
   virtual ~DesktopWindowTreeHostWayland();
 
   // Accepts a opaque handle widget and returns associated
@@ -199,6 +198,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };
 
-}  // namespace ozonewayland
+}  // namespace views
 
 #endif  // OZONE_IMPL_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_

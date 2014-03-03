@@ -7,7 +7,7 @@
 #include "ui/base/dragdrop/drag_drop_types.h"
 #include "ui/base/dragdrop/drop_target_event.h"
 
-namespace ozonewayland {
+namespace views {
 
 DesktopDragDropClientWayland::DesktopDragDropClientWayland(
     aura::Window* root_window) {
@@ -46,4 +46,4 @@ bool DesktopDragDropClientWayland::IsDragDropInProgress() {
   return false;
 }
 
-}  // namespace ozonewayland
+}  // namespace views

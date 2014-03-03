@@ -9,7 +9,7 @@
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
 
-namespace ozonewayland {
+namespace views {
 
 // Desktop support for wayland
 //
@@ -17,17 +17,17 @@ namespace ozonewayland {
 // reference views from ozone platform code. This module has an undeclared
 // dependency on views.
 class OZONE_WAYLAND_EXPORT DesktopFactoryWayland
-    : public views::DesktopFactoryOzone {
+    : public DesktopFactoryOzone {
  public:
   DesktopFactoryWayland();
   virtual ~DesktopFactoryWayland();
 
   // views::DesktopFactoryOzone
-  virtual views::DesktopWindowTreeHost* CreateWindowTreeHost(
-      views::internal::NativeWidgetDelegate* native_widget_delegate,
-      views::DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
+  virtual DesktopWindowTreeHost* CreateWindowTreeHost(
+      internal::NativeWidgetDelegate* native_widget_delegate,
+      DesktopNativeWidgetAura* desktop_native_widget_aura) OVERRIDE;
 };
 
-}  // namespace ozonewayland
+}  // namespace views
 
 #endif  //  OZONE_IMPL_DESKTOP_FACTORY_WAYLAND_H_

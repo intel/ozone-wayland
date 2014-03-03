@@ -6,22 +6,22 @@
 
 #include "ozone/impl/desktop_window_tree_host_wayland.h"
 
-namespace ozonewayland {
+namespace views {
 
 DesktopFactoryWayland::DesktopFactoryWayland() : views::DesktopFactoryOzone() {
   LOG(INFO) << "Ozone: DesktopFactoryWayland";
-  views::DesktopFactoryOzone::SetInstance(this);
+  DesktopFactoryOzone::SetInstance(this);
 }
 
 DesktopFactoryWayland::~DesktopFactoryWayland() {
-  views::DesktopFactoryOzone::SetInstance(NULL);
+  DesktopFactoryOzone::SetInstance(NULL);
 }
 
-views::DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
-    views::internal::NativeWidgetDelegate* native_widget_delegate,
-    views::DesktopNativeWidgetAura* desktop_native_widget_aura) {
+DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
+    internal::NativeWidgetDelegate* native_widget_delegate,
+    DesktopNativeWidgetAura* desktop_native_widget_aura) {
   return new DesktopWindowTreeHostWayland(native_widget_delegate,
                                           desktop_native_widget_aura);
 }
 
-}  // namespace ozonewayland
+}  // namespace views

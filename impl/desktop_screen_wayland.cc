@@ -7,7 +7,7 @@
 #include "ozone/impl/desktop_window_tree_host_wayland.h"
 #include "ui/aura/window.h"
 
-namespace ozonewayland {
+namespace views {
 
 DesktopScreenWayland::DesktopScreenWayland()
     : gfx::Screen(),
@@ -51,7 +51,7 @@ gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
 gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(
     const gfx::Point& point) {
   const std::vector<aura::Window*>& windows =
-      DesktopWindowTreeHostWayland::GetAllOpenWindows();
+      views::DesktopWindowTreeHostWayland::GetAllOpenWindows();
   for (std::vector<aura::Window*>::const_iterator it = windows.begin();
          it != windows.end(); ++it) {
     if ((*it)->GetBoundsInScreen().Contains(point))
@@ -142,4 +142,4 @@ void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
 void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
 }
 
-}  // namespace ozonewayland
+}  // namespace views
