@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/desktop_aura/desktop_drag_drop_client_wayland.h"
+#include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 
 #include "ui/base/dragdrop/drag_drop_types.h"
 #include "ui/base/dragdrop/drop_target_event.h"

@@ -35,6 +35,6 @@ class OZONE_WAYLAND_EXPORT DesktopFactoryWayland
   DesktopScreenWayland* desktop_screen_;
 };
 
-}  // namespace ozonewayland
+}  // namespace views
 
 #endif  //  OZONE_IMPL_DESKTOP_AURA_DESKTOP_FACTORY_WAYLAND_H_

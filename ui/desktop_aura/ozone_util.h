@@ -18,4 +18,3 @@ UI_BASE_EXPORT bool GetCustomFramePrefDefault();
 }  // namespace ui
 
 #endif  // OZONE_IMPL_DESKTOP_AURA_OZONE_UTIL_H_
-

@@ -5,11 +5,11 @@
 #ifndef OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 #define OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 
-#if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
-#include "ozone/impl/desktop_aura/desktop_factory_wayland.h"
-#endif
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/surface_factory_wayland.h"
+#if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
+#include "ozone/ui/desktop_aura/desktop_factory_wayland.h"
+#endif
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ui/ozone/ozone_platform.h"
