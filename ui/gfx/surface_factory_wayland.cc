@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/surface_factory_wayland.h"
+#include "ozone/ui/gfx/surface_factory_wayland.h"
 
 #include <EGL/egl.h>
 #include <string>
 #include "base/files/file_path.h"
 #include "base/native_library.h"
-#include "ozone/impl/ozone_display.h"
-#include "ozone/impl/vsync_provider_wayland.h"
+#include "ozone/ui/gfx/ozone_display.h"
+#include "ozone/ui/gfx/vsync_provider_wayland.h"
 
 namespace ozonewayland {
 

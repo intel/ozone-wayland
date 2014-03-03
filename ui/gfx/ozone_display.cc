@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/ozone_display.h"
+#include "ozone/ui/gfx/ozone_display.h"
 
 #include "base/logging.h"
 

@@ -18,7 +18,7 @@
       ],
       'includes': [
         'ui/ui.gypi',
-        'impl/impl.gypi',
+        'ui/gfx/impl.gypi',
       ],
       'defines': [
         'OZONE_WAYLAND_IMPLEMENTATION',

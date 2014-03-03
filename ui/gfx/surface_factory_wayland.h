@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_SURFACE_FACTORY_WAYLAND_H_
-#define OZONE_IMPL_SURFACE_FACTORY_WAYLAND_H_
+#ifndef OZONE_UI_GFX_SURFACE_FACTORY_WAYLAND_H_
+#define OZONE_UI_GFX_SURFACE_FACTORY_WAYLAND_H_
 
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
+#include "ui/gfx/gfx_export.h"
+
 namespace ozonewayland {
 
-class SurfaceFactoryWayland : public gfx::SurfaceFactoryOzone {
+class GFX_EXPORT SurfaceFactoryWayland : public gfx::SurfaceFactoryOzone {
  public:
-  static SurfaceFactoryWayland* GetInstance();
-
   SurfaceFactoryWayland();
   virtual ~SurfaceFactoryWayland();
 
@@ -41,8 +41,6 @@ class SurfaceFactoryWayland : public gfx::SurfaceFactoryOzone {
       const int32* desired_list) OVERRIDE;
 
  private:
-  bool initialized_;
-  gfx::SurfaceFactoryOzone::HardwareState initialized_state_;
   unsigned last_realized_widget_handle_;
 
   DISALLOW_COPY_AND_ASSIGN(SurfaceFactoryWayland);
@@ -50,4 +48,4 @@ class SurfaceFactoryWayland : public gfx::SurfaceFactoryOzone {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_SURFACE_FACTORY_WAYLAND_H_
+#endif  // OZONE_UI_GFX_SURFACE_FACTORY_WAYLAND_H_

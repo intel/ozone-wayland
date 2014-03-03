@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/vsync_provider_wayland.h"
+#include "ozone/ui/gfx/vsync_provider_wayland.h"
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
-#include "ozone/impl/ozone_display.h"
+#include "ozone/ui/gfx/ozone_display.h"
 
 namespace ozonewayland {
 

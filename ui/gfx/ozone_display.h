@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_OZONE_DISPLAY_H_
-#define OZONE_IMPL_OZONE_DISPLAY_H_
+#ifndef OZONE_UI_GFX_OZONE_DISPLAY_H_
+#define OZONE_UI_GFX_OZONE_DISPLAY_H_
 
 #include "ui/gfx/gfx_export.h"
 #include "ui/gfx/native_widget_types.h"
@@ -11,8 +11,6 @@
 
 namespace ozonewayland {
 
-// A basic interface which needs to be implemented to provide the needed
-// wayland support.
 class GFX_EXPORT OzoneDisplay {
  public:
   OzoneDisplay();
@@ -44,4 +42,4 @@ class GFX_EXPORT OzoneDisplay {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_IMPL_OZONE_DISPLAY_H_
+#endif  // OZONE_UI_GFX_OZONE_DISPLAY_H_
