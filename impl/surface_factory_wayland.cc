@@ -4,13 +4,13 @@
 
 #include "ozone/impl/surface_factory_wayland.h"
 
+#include <EGL/egl.h>
 #include <string>
 #include "base/files/file_path.h"
 #include "base/native_library.h"
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/vsync_provider_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
-#include "ozone/wayland/egl/egl_window.h"
 
 namespace ozonewayland {
 
@@ -129,7 +129,18 @@ bool SurfaceFactoryWayland::SchedulePageFlip(gfx::AcceleratedWidget w) {
 
 const int32*
 SurfaceFactoryWayland::GetEGLSurfaceProperties(const int32* desired_list) {
-  return EGLWindow::GetEGLConfigAttribs();
+  static const EGLint kConfigAttribs[] = {
+    EGL_BUFFER_SIZE, 32,
+    EGL_ALPHA_SIZE, 8,
+    EGL_BLUE_SIZE, 8,
+    EGL_GREEN_SIZE, 8,
+    EGL_RED_SIZE, 8,
+    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+    EGL_NONE
+  };
+
+  return kConfigAttribs;
 }
 
 }  // namespace ozonewayland
