@@ -88,14 +88,14 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
 
 gfx::Screen* OzoneDisplay::CreateDesktopScreen() {
   if (!desktop_screen_) {
-    desktop_screen_ = new DesktopScreenWayland;
+    desktop_screen_ = new views::DesktopScreenWayland;
     LookAheadOutputGeometry();
   }
 
   return desktop_screen_;
 }
 
-const DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
+const views::DesktopScreenWayland* OzoneDisplay::GetPrimaryScreen() const {
   // TODO(kalyan): For now always return DesktopScreen. Needs proper fixing
   // after multi screen support is added.
   return desktop_screen_;

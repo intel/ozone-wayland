@@ -12,9 +12,12 @@ namespace gfx {
 class Screen;
 }
 
+namespace views {
+class DesktopScreenWayland;
+}
+
 namespace ozonewayland {
 
-class DesktopScreenWayland;
 class EventConverterOzoneWayland;
 class OzoneDisplayChannel;
 class OzoneDisplayChannelHost;
@@ -34,7 +37,7 @@ class OzoneDisplay : public OutputChangeObserver {
   intptr_t GetNativeDisplay();
 
   gfx::Screen* CreateDesktopScreen();
-  const DesktopScreenWayland* GetPrimaryScreen() const;
+  const views::DesktopScreenWayland* GetPrimaryScreen() const;
 
   gfx::AcceleratedWidget GetAcceleratedWidget();
   gfx::AcceleratedWidget RealizeAcceleratedWidget(gfx::AcceleratedWidget w);
@@ -49,7 +52,7 @@ class OzoneDisplay : public OutputChangeObserver {
 
   static void DelayedInitialization(OzoneDisplay* display);
 
-  DesktopScreenWayland* desktop_screen_;
+  views::DesktopScreenWayland* desktop_screen_;
   WaylandDisplay* display_;
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;

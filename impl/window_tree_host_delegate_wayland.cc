@@ -9,7 +9,9 @@
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ui/events/event_utils.h"
 
-namespace ozonewayland {
+using namespace ozonewayland;
+
+namespace views {
 
 WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
     : current_focus_window_(0),
@@ -272,4 +274,4 @@ void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
   window->HandleWindowResize(width, height);
 }
 
-}  // namespace ozonewayland
+}  // namespace views
