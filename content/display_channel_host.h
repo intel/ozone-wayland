@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_
-#define OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_
+#ifndef OZONE_CONTENT_DISPLAY_CHANNEL_HOST_H_
+#define OZONE_CONTENT_DISPLAY_CHANNEL_HOST_H_
 
 #include "content/browser/gpu/gpu_process_host.h"
 #include "content/public/browser/browser_child_process_observer.h"
@@ -62,4 +62,4 @@ class OzoneDisplayChannelHost : public content::BrowserChildProcessObserver {
 
 }  // namespace content
 
-#endif  // OZONE_IMPL_IPC_DISPLAY_CHANNEL_HOST_H_
+#endif  // OZONE_CONTENT_DISPLAY_CHANNEL_HOST_H_

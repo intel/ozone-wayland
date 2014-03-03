@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/ipc/display_channel.h"
+#include "ozone/content/display_channel.h"
 
 #include "content/child/child_process.h"
 #include "content/child/child_thread.h"
-#include "ozone/impl/ipc/messages.h"
-#include "ozone/impl/ozone_display.h"
+#include "ozone/content/messages.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/window_state_change_handler.h"

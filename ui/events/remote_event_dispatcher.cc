@@ -7,7 +7,7 @@
 #include "base/bind.h"
 #include "content/child/child_process.h"
 #include "content/child/child_thread.h"
-#include "ozone/impl/ipc/messages.h"
+#include "ozone/content/messages.h"
 
 namespace {
 

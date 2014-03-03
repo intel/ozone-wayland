@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
-#define OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
+#ifndef OZONE_CONTENT_DISPLAY_CHANNEL_H_
+#define OZONE_CONTENT_DISPLAY_CHANNEL_H_
 
 #include "base/strings/string16.h"
 #include "ipc/ipc_listener.h"
@@ -46,4 +46,4 @@ class OzoneDisplayChannel : public IPC::Listener {
 
 }  // namespace content
 
-#endif  // OZONE_IMPL_IPC_DISPLAY_CHANNEL_H_
+#endif  // OZONE_CONTENT_DISPLAY_CHANNEL_H_

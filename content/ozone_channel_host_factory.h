@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_IPC_OZONE_CHANNEL_HOST_FACTORY_H_
-#define OZONE_IMPL_IPC_OZONE_CHANNEL_HOST_FACTORY_H_
+#ifndef OZONE_CONTENT_OZONE_CHANNEL_HOST_FACTORY_H_
+#define OZONE_CONTENT_OZONE_CHANNEL_HOST_FACTORY_H_
 
-#include "ozone/impl/ipc/display_channel_host.h"
+#include "ozone/content/display_channel_host.h"
 
 namespace ui {
 class EventConverterInProcess;
@@ -33,4 +33,4 @@ class OzoneChannelHostFactory {
 
 }  // namespace content
 
-#endif  // OZONE_IMPL_IPC_OZONE_CHANNEL_HOST_FACTORY_H_
+#endif  // OZONE_CONTENT_OZONE_CHANNEL_HOST_FACTORY_H_

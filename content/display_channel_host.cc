@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/impl/ipc/display_channel_host.h"
+#include "ozone/content/display_channel_host.h"
 
 #include "base/bind.h"
 #include "content/browser/gpu/browser_gpu_channel_host_factory.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/process_type.h"
-#include "ozone/impl/ipc/messages.h"
+#include "ozone/content/messages.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
 
