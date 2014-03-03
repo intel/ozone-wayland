@@ -1,0 +1,99 @@
+From a9e62c4c265350e40e5fe2ca2bbb7721fff0676c Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Sun, 2 Mar 2014 13:32:30 +0200
+Subject: [PATCH] Add support to provide external ozone files in events, gfx
+ and views.
+
+Ozone implementations for SFO, EventFactory and DesktopFactory should be
+build as part of the respective target (i.e. gfx, events and views) and
+Ozone should depend on them. Currently, this is not the case with external
+ozone implementations and all get build together into one ozone_impl
+target. This patch adds support for Ozone implementations to pass and build
+factory implementations as part of the right target.
+---
+ ui/events/events.gyp |   11 ++++++++++-
+ ui/gfx/gfx.gyp       |    6 ++++++
+ ui/views/views.gyp   |    4 ++++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/ui/events/events.gyp b/ui/events/events.gyp
+index c3965e7..c772d35 100644
+--- a/ui/events/events.gyp
++++ b/ui/events/events.gyp
+@@ -5,6 +5,7 @@
+ {
+   'variables': {
+     'chromium_code': 1,
++    'external_ozone_events_files': [],
+   },
+   'targets': [
+     {
+@@ -139,11 +140,19 @@
+       'conditions': [
+         # We explicitly enumerate the platforms we _do_ provide native cracking
+         # for here.
+-        ['OS=="win" or use_x11==1 or use_ozone==1', {
++        ['OS=="win" or use_x11==1', {
+           'sources!': [
+             'events_stub.cc',
+           ],
+         }],
++        ['use_ozone==1', {
++          'sources!': [
++            'events_stub.cc',
++          ],
++          'sources': [
++            '<@(external_ozone_events_files)',
++          ],
++        }],
+         ['use_x11==1', {
+           'dependencies': [
+             '<(DEPTH)/build/linux/system.gyp:x11',
+diff --git a/ui/gfx/gfx.gyp b/ui/gfx/gfx.gyp
+index 71b8e12..b64a528 100644
+--- a/ui/gfx/gfx.gyp
++++ b/ui/gfx/gfx.gyp
+@@ -5,6 +5,7 @@
+ {
+   'variables': {
+     'chromium_code': 1,
++    'external_ozone_gfx_files': [],
+   },
+   'targets': [
+     {
+@@ -463,6 +464,11 @@
+             '<(DEPTH)/build/linux/system.gyp:fontconfig',
+           ],
+         }],
++        ['use_ozone==1', {
++          'sources': [
++            '<@(external_ozone_gfx_files)',
++          ],
++        }],
+       ],
+       'target_conditions': [
+         # Need 'target_conditions' to override default filename_rules to include
+diff --git a/ui/views/views.gyp b/ui/views/views.gyp
+index 8717392..7e5306b 100644
+--- a/ui/views/views.gyp
++++ b/ui/views/views.gyp
+@@ -4,6 +4,7 @@
+ {
+   'variables': {
+     'chromium_code': 1,
++    'external_ozone_views_files': [],
+   },
+   'target_defaults': {
+     'conditions': [
+@@ -607,6 +608,9 @@
+           ],
+         }],
+         ['use_ozone==1', {
++          'sources': [
++            '<@(external_ozone_views_files)',
++          ],
+           'dependencies': [
+             '../ozone/ozone.gyp:ozone',
+           ],
+--
+1.7.9.5
