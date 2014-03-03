@@ -29,6 +29,14 @@
           '<(DEPTH)/ozone/ui/events/window_state_change_handler.h',
           '<(DEPTH)/ozone/ui/events/window_state_change_handler.cc',
         ],
+        'external_ozone_gfx_files': [
+          '<(DEPTH)/ozone/ui/gfx/ozone_display.h',
+          '<(DEPTH)/ozone/ui/gfx/ozone_display.cc',
+          '<(DEPTH)/ozone/ui/gfx/surface_factory_wayland.cc',
+          '<(DEPTH)/ozone/ui/gfx/surface_factory_wayland.h',
+          '<(DEPTH)/ozone/ui/gfx/vsync_provider_wayland.cc',
+          '<(DEPTH)/ozone/ui/gfx/vsync_provider_wayland.h',
+        ],
         'external_ozone_platforms': [
           'wayland'
         ],
