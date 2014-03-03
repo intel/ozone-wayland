@@ -21,7 +21,7 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
       aura_windows_(NULL) {
   DCHECK(base::MessagePumpOzone::Current());
   base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
-  EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
+  ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
 }
 
 WindowTreeHostDelegateWayland::~WindowTreeHostDelegateWayland() {
@@ -46,7 +46,7 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
 
     DCHECK(base::MessagePumpOzone::Current());
     base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
-    EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
+    ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
   }
 
   if (aura_windows_) {

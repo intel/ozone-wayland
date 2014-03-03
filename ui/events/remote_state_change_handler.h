@@ -16,7 +16,7 @@ namespace IPC {
 class Message;
 }
 
-namespace ozonewayland {
+namespace ui {
 
 // RemoteStateChangeHandler implements WindowStateChangeHandler and
 // IMEStateChangeHandler. It is responsible for sending any Ime/Window state
@@ -30,7 +30,7 @@ class RemoteStateChangeHandler : public WindowStateChangeHandler,
 
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
-                              WidgetState state,
+                              ui::WidgetState state,
                               unsigned width = 0,
                               unsigned height = 0) OVERRIDE;
   virtual void SetWidgetTitle(unsigned w,
@@ -39,7 +39,7 @@ class RemoteStateChangeHandler : public WindowStateChangeHandler,
                                    unsigned parent,
                                    unsigned x,
                                    unsigned y,
-                                   WidgetType type) OVERRIDE;
+                                   ui::WidgetType type) OVERRIDE;
   virtual void ResetIme() OVERRIDE;
   virtual void ImeCaretBoundsChanged(gfx::Rect rect) OVERRIDE;
 
@@ -51,6 +51,6 @@ class RemoteStateChangeHandler : public WindowStateChangeHandler,
   DISALLOW_COPY_AND_ASSIGN(RemoteStateChangeHandler);
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_REMOTE_STATE_CHANGE_HANDLER_H_

@@ -52,7 +52,7 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
   if (wl_display_roundtrip(display_) < 0)
     terminate();
   else if (type == RegisterAsNeeded) {
-    WindowStateChangeHandler::SetInstance(this);
+    ui::WindowStateChangeHandler::SetInstance(this);
     display_poll_thread_ = new WaylandDisplayPollThread(display_);
   }
 }
@@ -84,61 +84,61 @@ wl_egl_window* WaylandDisplay::RealizeAcceleratedWidget(unsigned w) {
 }
 
 void WaylandDisplay::SetWidgetState(unsigned w,
-                                    WidgetState state,
+                                    ui::WidgetState state,
                                     unsigned width,
                                     unsigned height) {
   switch (state) {
-    case CREATE:
+    case ui::CREATE:
     {
       CreateAcceleratedSurface(w);
       break;
     }
-    case FULLSCREEN:
+    case ui::FULLSCREEN:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->SetFullscreen();
       widget->Resize(width, height);
       break;
     }
-    case MAXIMIZED:
+    case ui::MAXIMIZED:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Maximize();
       break;
     }
-    case MINIMIZED:
+    case ui::MINIMIZED:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Minimize();
       break;
     }
-    case RESTORE:
+    case ui::RESTORE:
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Restore();
       widget->Resize(width, height);
       break;
     }
-    case ACTIVE:
+    case ui::ACTIVE:
       NOTIMPLEMENTED() << " ACTIVE " << w;
       break;
-    case INACTIVE:
+    case ui::INACTIVE:
       NOTIMPLEMENTED() << " INACTIVE " << w;
       break;
-    case SHOW:
+    case ui::SHOW:
       NOTIMPLEMENTED() << " SHOW " << w;
       break;
-    case HIDE:
+    case ui::HIDE:
       NOTIMPLEMENTED() << " HIDE " << w;
       break;
-    case RESIZE:
+    case ui::RESIZE:
     {
       WaylandWindow* window = GetWidget(w);
       DCHECK(window);
       window->Resize(width, height);
       break;
     }
-    case DESTROYED:
+    case ui::DESTROYED:
     {
       DestroyWindow(w);
       if (widget_map_.empty())
@@ -161,18 +161,18 @@ void WaylandDisplay::SetWidgetAttributes(unsigned widget,
                                          unsigned parent,
                                          unsigned x,
                                          unsigned y,
-                                         WidgetType type) {
+                                         ui::WidgetType type) {
   WaylandWindow* window = GetWidget(widget);
   WaylandWindow* parent_window = GetWidget(parent);
   DCHECK(window);
   switch (type) {
-  case WINDOW:
+  case ui::WINDOW:
     window->SetShellAttributes(WaylandWindow::TOPLEVEL);
     break;
-  case WINDOWFRAMELESS:
+  case ui::WINDOWFRAMELESS:
     NOTIMPLEMENTED();
     break;
-  case POPUP:
+  case ui::POPUP:
     DCHECK(parent_window);
     window->SetShellAttributes(WaylandWindow::POPUP,
                                parent_window->ShellSurface(),
@@ -340,8 +340,8 @@ void WaylandDisplay::LookAheadOutputGeometry() {
   while (disp_.PrimaryScreen()->Geometry().IsEmpty())
     disp_.SyncDisplay();
 
-  EventFactoryOzoneWayland* event_factory =
-      EventFactoryOzoneWayland::GetInstance();
+  ui::EventFactoryOzoneWayland* event_factory =
+      ui::EventFactoryOzoneWayland::GetInstance();
   DCHECK(event_factory->GetOutputChangeObserver());
 
   unsigned width = disp_.PrimaryScreen()->Geometry().width();

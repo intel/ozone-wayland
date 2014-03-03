@@ -9,7 +9,7 @@
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
 
-namespace ozonewayland {
+namespace ui {
 
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
@@ -192,4 +192,4 @@ void EventConverterInProcess::DispatchEventHelper(
   base::MessagePumpOzone::Current()->Dispatch(key.get());
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

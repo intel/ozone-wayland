@@ -17,7 +17,7 @@ class Window;
 namespace ozonewayland {
 
 class DesktopScreenWayland : public gfx::Screen,
-                             public OutputChangeObserver {
+                             public ui::OutputChangeObserver {
  public:
   DesktopScreenWayland();
   virtual ~DesktopScreenWayland();

@@ -10,7 +10,6 @@
 #endif
 #include "ozone/impl/ozone_display.h"
 #include "ozone/impl/surface_factory_wayland.h"
-#include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ui/ozone/ozone_platform.h"
@@ -33,12 +32,8 @@ class OzonePlatformWayland : public OzonePlatform {
  private:
   ozonewayland::OzoneDisplay display_;
   ozonewayland::SurfaceFactoryWayland surface_factory_ozone_;
-
-  // TODO(kalyan): Use EventFactoryOzone. This is a stub that does nothing.
-  ozonewayland::EventFactoryOzoneWayland event_factory_ozone_;
-
-  ozonewayland::InputMethodContextFactoryWayland input_method_context_factory_;
-
+  ui::EventFactoryOzoneWayland event_factory_ozone_;
+  ui::InputMethodContextFactoryWayland input_method_context_factory_;
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
   ozonewayland::DesktopFactoryWayland desktop_factory_ozone_;
 #endif

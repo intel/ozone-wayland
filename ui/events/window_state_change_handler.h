@@ -8,12 +8,13 @@
 #include "base/basictypes.h"
 #include "base/strings/string16.h"
 #include "ozone/ui/events/window_constants.h"
+#include "ui/events/events_export.h"
 
-namespace ozonewayland {
+namespace ui {
 
 // A simple interface for passing Window state change notifications coming from
 // Aura to Wayland.
-class WindowStateChangeHandler {
+class EVENTS_EXPORT WindowStateChangeHandler {
  public:
   WindowStateChangeHandler();
   virtual ~WindowStateChangeHandler();
@@ -26,7 +27,7 @@ class WindowStateChangeHandler {
 
   // Called when AcceleratedWidget widget state has changed.
   virtual void SetWidgetState(unsigned widget,
-                              WidgetState state,
+                              ui::WidgetState state,
                               unsigned width = 0,
                               unsigned height = 0) = 0;
 
@@ -38,12 +39,12 @@ class WindowStateChangeHandler {
                                    unsigned parent,
                                    unsigned x,
                                    unsigned y,
-                                   WidgetType type) = 0;
+                                   ui::WidgetType type) = 0;
 
  private:
   static WindowStateChangeHandler* impl_;  // not owned
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_WINDOW_STATE_CHANGE_HANDLER_H_

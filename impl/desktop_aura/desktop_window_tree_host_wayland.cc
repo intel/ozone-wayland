@@ -125,8 +125,8 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
   // Ensure event converter is initialized.
-  EventFactoryOzoneWayland* event_factory =
-      EventFactoryOzoneWayland::GetInstance();
+  ui::EventFactoryOzoneWayland* event_factory =
+      ui::EventFactoryOzoneWayland::GetInstance();
   if (!event_factory->EventConverter())
     event_factory->StartProcessingEvents();
 
@@ -146,8 +146,8 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
   }
 
   bounds_ = params.bounds;
-  WindowStateChangeHandler* state_handler =
-      WindowStateChangeHandler::GetInstance();
+  ui::WindowStateChangeHandler* state_handler =
+      ui::WindowStateChangeHandler::GetInstance();
   switch (params.type) {
     case Widget::InitParams::TYPE_TOOLTIP:
     case Widget::InitParams::TYPE_POPUP:
@@ -178,7 +178,7 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
                                          parent->window_,
                                          transientPos.x(),
                                          transientPos.y(),
-                                         POPUP);
+                                         ui::POPUP);
       break;
     }
     case Widget::InitParams::TYPE_BUBBLE:
@@ -187,7 +187,7 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
                                          0,
                                          0,
                                          0,
-                                         WINDOW);
+                                         ui::WINDOW);
       break;
     case Widget::InitParams::TYPE_WINDOW_FRAMELESS:
       NOTIMPLEMENTED();
@@ -443,7 +443,8 @@ void DesktopWindowTreeHostWayland::Activate() {
 
   state_ |= Active;
   if (state_ & Visible)
-    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, ACTIVE);
+    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                                ui::ACTIVE);
 }
 
 void DesktopWindowTreeHostWayland::Deactivate() {
@@ -451,7 +452,8 @@ void DesktopWindowTreeHostWayland::Deactivate() {
     return;
 
   state_ &= ~Active;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, INACTIVE);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                              ui::INACTIVE);
 }
 
 bool DesktopWindowTreeHostWayland::IsActive() const {
@@ -466,7 +468,8 @@ void DesktopWindowTreeHostWayland::Maximize() {
   state_ &= ~Minimized;
   state_ &= ~Normal;
   previous_bounds_ = bounds_;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, MAXIMIZED);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                              ui::MAXIMIZED);
 }
 
 void DesktopWindowTreeHostWayland::Minimize() {
@@ -477,7 +480,8 @@ void DesktopWindowTreeHostWayland::Minimize() {
   state_ |= Minimized;
   state_ &= ~Normal;
   previous_bounds_ = bounds_;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, MINIMIZED);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                              ui::MINIMIZED);
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
@@ -489,10 +493,8 @@ void DesktopWindowTreeHostWayland::Restore() {
   state_ |= Normal;
   bounds_ = previous_bounds_;
   previous_bounds_ = gfx::Rect();
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                          RESTORE,
-                                                          bounds_.width(),
-                                                          bounds_.height());
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+      window_, ui::RESTORE, bounds_.width(), bounds_.height());
   native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   NotifyHostResized(bounds_.size());
 }
@@ -531,7 +533,7 @@ void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
 
 bool DesktopWindowTreeHostWayland::SetWindowTitle(const base::string16& title) {
   if (title.compare(title_)) {
-    WindowStateChangeHandler::GetInstance()->SetWidgetTitle(window_, title);
+    ui::WindowStateChangeHandler::GetInstance()->SetWidgetTitle(window_, title);
     title_ = title;
     return true;
   }
@@ -601,8 +603,8 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
     if (state_ & Maximized) {
       previous_bounds_ = previous_maximize_bounds_;
       previous_maximize_bounds_ = gfx::Rect();
-      WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                              MAXIMIZED);
+      ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+          window_, ui::MAXIMIZED);
     } else {
       Restore();
     }
@@ -623,10 +625,8 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
     // attributes already here, ensures that wl_egl_window_resize is resized
     // before eglsurface is resized. This doesn't add any extra overhead as the
     // IPC call needs to be done.
-    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                            FULLSCREEN,
-                                                            bounds_.width(),
-                                                            bounds_.height());
+    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+        window_, ui::FULLSCREEN, bounds_.width(), bounds_.height());
     NotifyHostResized(bounds_.size());
   }
 }
@@ -695,7 +695,8 @@ void DesktopWindowTreeHostWayland::Show() {
   Activate();
 
   state_ |= Visible;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, SHOW);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                              ui::SHOW);
 }
 
 void DesktopWindowTreeHostWayland::Hide() {
@@ -703,7 +704,8 @@ void DesktopWindowTreeHostWayland::Hide() {
     return;
 
   state_ &= ~Visible;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(window_, HIDE);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
+                                                              ui::HIDE);
 }
 
 void DesktopWindowTreeHostWayland::ToggleFullScreen() {
@@ -723,10 +725,8 @@ void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   if (size_changed) {
-    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                            RESIZE,
-                                                            bounds.width(),
-                                                            bounds.height());
+    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+        window_, ui::RESIZE, bounds.width(), bounds.height());
     NotifyHostResized(bounds.size());
   } else {
     compositor()->ScheduleRedrawRect(bounds);
@@ -818,10 +818,8 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
   } else {
     bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);
     NotifyHostResized(bounds_.size());
-    WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                            RESIZE,
-                                                            bounds_.width(),
-                                                            bounds_.height());
+    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+        window_, ui::RESIZE, bounds_.width(), bounds_.height());
     Widget* widget = native_widget_delegate_->AsWidget();
     NonClientView* non_client_view = widget->non_client_view();
     // non_client_view may be NULL, especially during creation.

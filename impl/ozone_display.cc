@@ -62,10 +62,10 @@ gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
     host_ = new OzoneDisplayChannelHost();
 
   opaque_handle++;
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
-                                                          CREATE,
-                                                          0,
-                                                          0);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
+                                                              ui::CREATE,
+                                                              0,
+                                                              0);
 
   return (gfx::AcceleratedWidget)opaque_handle;
 }
@@ -75,8 +75,8 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
   DCHECK(display_);
   // Event Converter should be already initialized unless we are in gpu process
   // side.
-  EventFactoryOzoneWayland* event_factory =
-      EventFactoryOzoneWayland::GetInstance();
+  ui::EventFactoryOzoneWayland* event_factory =
+      ui::EventFactoryOzoneWayland::GetInstance();
   if (!event_factory->EventConverter())
     event_factory->StartProcessingRemoteEvents();
 

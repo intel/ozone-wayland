@@ -20,7 +20,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
       input_seat_(NULL),
       input_keyboard_(NULL),
       input_pointer_(NULL) {
-  IMEStateChangeHandler::SetInstance(this);
+  ui::IMEStateChangeHandler::SetInstance(this);
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
   };

@@ -61,7 +61,7 @@ void WaylandScreen::OutputHandleMode(void* data,
     // Dont Send OutputSizeChanged notification in case a dummy display is
     // created to get current output size at start up.
     if (WaylandDisplay::GetInstance()->GetCompositor())
-      EventFactoryOzoneWayland::GetInstance()->EventConverter()->
+      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter()->
           OutputSizeChanged(width, height);
   }
 }

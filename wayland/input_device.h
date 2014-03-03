@@ -15,7 +15,7 @@ class WaylandKeyboard;
 class WaylandPointer;
 class WaylandDisplay;
 
-class WaylandInputDevice : public IMEStateChangeHandler {
+class WaylandInputDevice : public ui::IMEStateChangeHandler {
  public:
   WaylandInputDevice(WaylandDisplay* display, uint32_t id);
   virtual ~WaylandInputDevice();

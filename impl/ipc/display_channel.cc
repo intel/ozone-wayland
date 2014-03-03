@@ -54,30 +54,30 @@ void OzoneDisplayChannel::Register() {
 }
 
 void OzoneDisplayChannel::OnWidgetStateChanged(unsigned handleid,
-                                               WidgetState state,
+                                               ui::WidgetState state,
                                                unsigned width,
                                                unsigned height) {
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(handleid,
-                                                          state,
-                                                          width,
-                                                          height);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handleid,
+                                                              state,
+                                                              width,
+                                                              height);
 }
 
 void OzoneDisplayChannel::OnWidgetTitleChanged(unsigned widget,
                                                base::string16 title) {
-  WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
 }
 
 void OzoneDisplayChannel::OnWidgetAttributesChanged(unsigned widget,
                                                     unsigned parent,
                                                     unsigned x,
                                                     unsigned y,
-                                                    WidgetType type) {
-  WindowStateChangeHandler::GetInstance()->SetWidgetAttributes(widget,
-                                                               parent,
-                                                               x,
-                                                               y,
-                                                               type);
+                                                    ui::WidgetType type) {
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetAttributes(widget,
+                                                                   parent,
+                                                                   x,
+                                                                   y,
+                                                                   type);
 }
 
 }  // namespace ozonewayland

@@ -5,7 +5,7 @@
 #ifndef OZONE_UI_EVENTS_WINDOW_CONSTANTS_H_
 #define OZONE_UI_EVENTS_WINDOW_CONSTANTS_H_
 
-namespace ozonewayland {
+namespace ui {
 
   enum WidgetState {
     CREATE = 1,  // Create a new Widget
@@ -29,6 +29,6 @@ namespace ozonewayland {
       // (i.e. Wayland install the grab) by the Window.
   };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_WINDOW_CONSTANTS_H_

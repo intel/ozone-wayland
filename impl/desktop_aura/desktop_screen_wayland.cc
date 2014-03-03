@@ -14,7 +14,7 @@ DesktopScreenWayland::DesktopScreenWayland()
     : gfx::Screen(),
       rect_(0, 0, 0, 0),
       displays_() {
-  EventFactoryOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
+  ui::EventFactoryOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {

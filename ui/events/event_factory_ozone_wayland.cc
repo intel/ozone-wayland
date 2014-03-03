@@ -7,7 +7,7 @@
 #include "ozone/ui/events/event_converter_in_process.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 
-namespace ozonewayland {
+namespace ui {
 
 // static
 EventFactoryOzoneWayland* EventFactoryOzoneWayland::impl_ = NULL;
@@ -69,4 +69,4 @@ void EventFactoryOzoneWayland::StartProcessingRemoteEvents() {
   event_converter_ = new RemoteEventDispatcher();
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

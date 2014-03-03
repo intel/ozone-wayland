@@ -18,8 +18,8 @@ WaylandSyncProvider::WaylandSyncProvider(unsigned handle) : handle_(handle) {
 WaylandSyncProvider::~WaylandSyncProvider() {
   // WaylandSyncProvider is destroyed when the associated NativeSurface is
   // destroyed. Inform OzoneDisplay to release Wayland resources.
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                          DESTROYED);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
+                                                              ui::DESTROYED);
   WaylandDisplay::GetInstance()->FlushDisplay();
 }
 

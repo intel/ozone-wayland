@@ -7,10 +7,10 @@
 #include "base/logging.h"
 #include "ozone/ui/ime/ime_state_change_handler.h"
 
-namespace ozonewayland {
+namespace ui {
 
 InputMethodContextImplWayland::InputMethodContextImplWayland(
-    ui::LinuxInputMethodContextDelegate* delegate)
+    LinuxInputMethodContextDelegate* delegate)
     : delegate_(delegate) {
   CHECK(delegate_);
 }
@@ -21,7 +21,7 @@ InputMethodContextImplWayland::~InputMethodContextImplWayland() {
 ////////////////////////////////////////////////////////////////////////////////
 // InputMethodContextImplWayland, ui::LinuxInputMethodContext implementation:
 bool InputMethodContextImplWayland::DispatchKeyEvent(
-    const ui::KeyEvent& key_event) {
+    const KeyEvent& key_event) {
   return false;
 }
 
@@ -40,4 +40,4 @@ void InputMethodContextImplWayland::OnCaretBoundsChanged(
   IMEStateChangeHandler::GetInstance()->ImeCaretBoundsChanged(caret_bounds);
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

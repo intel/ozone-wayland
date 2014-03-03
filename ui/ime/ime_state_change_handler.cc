@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 
-namespace ozonewayland {
+namespace ui {
 
 // static
 IMEStateChangeHandler* IMEStateChangeHandler::impl_ = NULL;
@@ -27,4 +27,4 @@ void IMEStateChangeHandler::SetInstance(IMEStateChangeHandler* impl) {
   impl_ = impl;
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

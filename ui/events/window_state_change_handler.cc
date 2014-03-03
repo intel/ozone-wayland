@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 
-namespace ozonewayland {
+namespace ui {
 
 // static
 WindowStateChangeHandler* WindowStateChangeHandler::impl_ = NULL;
@@ -27,4 +27,4 @@ void WindowStateChangeHandler::SetInstance(WindowStateChangeHandler* impl) {
   impl_ = impl;
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

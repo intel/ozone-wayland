@@ -9,9 +9,12 @@
 
 #include "ozone/wayland/display.h"
 
+namespace ui {
+class EventConverterOzoneWayland;
+}
+
 namespace ozonewayland {
 
-class EventConverterOzoneWayland;
 class KeyboardEngineXKB;
 
 class WaylandKeyboard {
@@ -55,7 +58,7 @@ class WaylandKeyboard {
                              uint32_t group);
 
   wl_keyboard* input_keyboard_;
-  EventConverterOzoneWayland* dispatcher_;
+  ui::EventConverterOzoneWayland* dispatcher_;
   KeyboardEngineXKB* backend_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandKeyboard);

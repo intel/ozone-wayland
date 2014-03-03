@@ -7,7 +7,7 @@
 
 #include "ui/events/keycodes/keyboard_codes_posix.h"
 
-namespace ozonewayland {
+namespace ui {
 
 // This is unfiy the keycodes used in Chromium and XKB/any backend used in
 // Ozone-Wayland.
@@ -253,7 +253,7 @@ enum OZONECHARCODE {
 // OZONEACTIONKEY_START + VKEY_ defined in keyboard_codes_posix. This is to
 // make it easy in oz-wl side to differentiate between character codes and
 // action keys.
-enum KeyboardCode {
+enum OzoneKeyboardCode {
   OZONEACTIONKEY_START = 0x111100,
   OZONEACTIONKEY_BACK = OZONEACTIONKEY_START + ui::VKEY_BACK,
   OZONEACTIONKEY_TAB = OZONEACTIONKEY_START + ui::VKEY_TAB,
@@ -404,6 +404,6 @@ enum KeyboardCode {
   OZONEACTIONKEY_OEM_CLEAR = OZONEACTIONKEY_START + ui::VKEY_OEM_CLEAR
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_KEYBOARD_CODES_OZONE_H_

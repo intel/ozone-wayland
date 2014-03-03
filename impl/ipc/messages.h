@@ -20,10 +20,10 @@ IPC_ENUM_TRAITS_MAX_VALUE(ui::EventFlags,
                           ui::EF_ALTGR_DOWN)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::EventType,
                           ui::ET_LAST)
-IPC_ENUM_TRAITS_MAX_VALUE(ozonewayland::WidgetState,
-                          ozonewayland::DESTROYED)
-IPC_ENUM_TRAITS_MAX_VALUE(ozonewayland::WidgetType,
-                          ozonewayland::POPUP)
+IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetState,
+                          ui::DESTROYED)
+IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetType,
+                          ui::POPUP)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
@@ -71,7 +71,7 @@ IPC_MESSAGE_CONTROL3(WaylandWindow_Resized,  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_ROUTED4(WaylandWindow_State,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,
-                    ozonewayland::WidgetState /*state*/,
+                    ui::WidgetState /*state*/,
                     unsigned /*width*/,
                     unsigned /*height*/)
 
@@ -80,7 +80,7 @@ IPC_MESSAGE_ROUTED5(WaylandWindow_Attributes,  // NOLINT(readability/fn_size)
                     unsigned /* window parent */,
                     unsigned /* x */,
                     unsigned /* y */,
-                    ozonewayland::WidgetType /* window type */)
+                    ui::WidgetType /* window type */)
 
 IPC_MESSAGE_ROUTED2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,

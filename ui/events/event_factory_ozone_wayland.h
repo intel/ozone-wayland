@@ -6,14 +6,15 @@
 #define OZONE_UI_EVENTS_EVENT_FACTORY_OZONE_WAYLAND_H_
 
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ui/events/events_export.h"
 #include "ui/events/ozone/event_factory_ozone.h"
 
-namespace ozonewayland {
+namespace ui {
 
 class WindowChangeObserver;
 class OutputChangeObserver;
 
-class EventFactoryOzoneWayland : public ui::EventFactoryOzone {
+class EVENTS_EXPORT EventFactoryOzoneWayland : public EventFactoryOzone {
   public:
   EventFactoryOzoneWayland();
   virtual ~EventFactoryOzoneWayland();
@@ -50,6 +51,6 @@ class EventFactoryOzoneWayland : public ui::EventFactoryOzone {
   static EventFactoryOzoneWayland* impl_;  // not owned
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_EVENT_FACTORY_OZONE_WAYLAND_H_

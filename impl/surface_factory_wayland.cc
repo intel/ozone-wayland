@@ -104,10 +104,10 @@ bool SurfaceFactoryWayland::LoadEGLGLES2Bindings(
 
 bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(
          gfx::AcceleratedWidget w, const gfx::Rect& bounds) {
-  WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
-                                                          RESIZE,
-                                                          bounds.width(),
-                                                          bounds.height());
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
+                                                              ui::RESIZE,
+                                                              bounds.width(),
+                                                              bounds.height());
 
   return true;
 }

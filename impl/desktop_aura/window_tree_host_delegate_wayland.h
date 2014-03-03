@@ -24,7 +24,7 @@ class DesktopWindowTreeHostWayland;
 class WindowTreeHostDelegateWayland
     : public base::MessagePumpDispatcher,
       public ui::EventSource,
-      public WindowChangeObserver {
+      public ui::WindowChangeObserver {
  public:
   WindowTreeHostDelegateWayland();
   virtual ~WindowTreeHostDelegateWayland();

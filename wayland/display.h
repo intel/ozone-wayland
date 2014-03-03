@@ -30,7 +30,7 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
-class WaylandDisplay : public WindowStateChangeHandler {
+class WaylandDisplay : public ui::WindowStateChangeHandler {
  public:
   enum RegistrationType {
     RegisterAsNeeded,  // Handles all the required registrations.
@@ -73,7 +73,7 @@ class WaylandDisplay : public WindowStateChangeHandler {
   wl_egl_window* RealizeAcceleratedWidget(unsigned w);
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
-                              WidgetState state,
+                              ui::WidgetState state,
                               unsigned width = 0,
                               unsigned height = 0) OVERRIDE;
   virtual void SetWidgetTitle(unsigned w,
@@ -82,7 +82,7 @@ class WaylandDisplay : public WindowStateChangeHandler {
                                    unsigned parent,
                                    unsigned x,
                                    unsigned y,
-                                   WidgetType type) OVERRIDE;
+                                   ui::WidgetType type) OVERRIDE;
 
  private:
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be

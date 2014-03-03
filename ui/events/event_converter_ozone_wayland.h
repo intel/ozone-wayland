@@ -7,8 +7,9 @@
 
 #include "base/message_loop/message_loop.h"
 #include "ui/events/event_constants.h"
+#include "ui/events/events_export.h"
 
-namespace ozonewayland {
+namespace ui {
 
 class WindowChangeObserver;
 class OutputChangeObserver;
@@ -18,15 +19,15 @@ class OutputChangeObserver;
 // 1) Convert native input events to |ui::Event| and dispatching to aura.
 // 2) Convert native events related to Window Activation and dispatch it to
 //    WindowChangeObserver
-class EventConverterOzoneWayland {
+class EVENTS_EXPORT EventConverterOzoneWayland {
   public:
   EventConverterOzoneWayland();
   virtual ~EventConverterOzoneWayland();
 
   virtual void MotionNotify(float x, float y) = 0;
   virtual void ButtonNotify(unsigned handle,
-                            ui::EventType type,
-                            ui::EventFlags flags,
+                            EventType type,
+                            EventFlags flags,
                             float x,
                             float y) = 0;
   virtual void AxisNotify(float x, float y, int xoffset, int yoffset) = 0;
@@ -52,6 +53,6 @@ class EventConverterOzoneWayland {
   base::MessageLoop* loop_;
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_EVENT_CONVERTER_OZONE_WAYLAND_H_

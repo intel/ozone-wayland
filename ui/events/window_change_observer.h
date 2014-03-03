@@ -5,12 +5,13 @@
 #ifndef OZONE_UI_EVENTS_WINDOW_CHANGE_OBSERVER_H_
 #define OZONE_UI_EVENTS_WINDOW_CHANGE_OBSERVER_H_
 
-namespace ozonewayland {
+#include "ui/events/events_export.h"
+namespace ui {
 
 // A simple observer interface for all clients interested in recieving various
 // window state change notifications like when the pointer enters a
 // particular window.
-class WindowChangeObserver {
+class EVENTS_EXPORT WindowChangeObserver {
  public:
   // Called when the pointer enters a window and recieves a button down
   // notification.
@@ -30,6 +31,6 @@ class WindowChangeObserver {
   virtual ~WindowChangeObserver() {}
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
 #endif  // OZONE_UI_EVENTS_WINDOW_CHANGE_OBSERVER_H_

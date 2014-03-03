@@ -11,7 +11,7 @@
 #include "content/public/common/process_type.h"
 #include "ozone/impl/ipc/messages.h"
 
-namespace ozonewayland {
+namespace ui {
 
 // This should be same as defined in display_channel.
 const int CHANNEL_ROUTE_ID = -0x1;
@@ -37,7 +37,7 @@ RemoteStateChangeHandler::~RemoteStateChangeHandler() {
 }
 
 void RemoteStateChangeHandler::SetWidgetState(unsigned w,
-                                             WidgetState state,
+                                             ui::WidgetState state,
                                              unsigned width,
                                              unsigned height) {
   if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
@@ -66,7 +66,7 @@ void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
                                                   unsigned parent,
                                                   unsigned x,
                                                   unsigned y,
-                                                  WidgetType type) {
+                                                  ui::WidgetType type) {
   if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::IO)) {
     content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetAttributes,
@@ -119,4 +119,4 @@ void RemoteStateChangeHandler::EstablishChannel() {
   DCHECK(!iterator_->Done());
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

@@ -6,7 +6,7 @@
 
 #include "ozone/ui/ime/input_method_context_impl_wayland.h"
 
-namespace ozonewayland {
+namespace ui {
 
 InputMethodContextFactoryWayland::InputMethodContextFactoryWayland()
     : ui::InputMethodContextFactoryOzone() {
@@ -22,4 +22,4 @@ InputMethodContextFactoryWayland::CreateInputMethodContext(
              new InputMethodContextImplWayland(delegate));
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

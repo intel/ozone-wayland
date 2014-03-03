@@ -9,36 +9,36 @@
 #include "base/strings/stringprintf.h"
 #include "ui/events/event_constants.h"
 
-namespace ozonewayland {
+namespace ui {
 
-ui::KeyboardCode KeyboardCodeFromNativeKeysym(unsigned keysym) {
+KeyboardCode KeyboardCodeFromNativeKeysym(unsigned keysym) {
   if (keysym >= OZONECHARCODE_a && keysym <= OZONECHARCODE_z) {
-    return static_cast<ui::KeyboardCode>(
+    return static_cast<KeyboardCode>(
                OZONECHARCODE_A + (keysym - OZONECHARCODE_a));
   }
 
   // Check if it's an alphabet or number we can directly cast it in this case.
   if ((keysym >= OZONECHARCODE_A && keysym <= OZONECHARCODE_Z) ||
        (keysym >= OZONECHARCODE_0 && keysym <= OZONECHARCODE_9))
-    return static_cast<ui::KeyboardCode>(keysym);
+    return static_cast<KeyboardCode>(keysym);
 
   if (keysym >= OZONEACTIONKEY_BACK && keysym <= OZONEACTIONKEY_OEM_CLEAR)
-    return static_cast<ui::KeyboardCode>(keysym - OZONEACTIONKEY_START);
+    return static_cast<KeyboardCode>(keysym - OZONEACTIONKEY_START);
 
   if (keysym >= OZONECHARCODE_FILE_SEPARATOR &&
        keysym <= OZONECHARCODE_TRADEMARK)
-    return ui::VKEY_OEM_102;
+    return VKEY_OEM_102;
 
   // Empty KeyCode.
   if (keysym == OZONECHARCODE_NULL)
-    return ui::VKEY_UNKNOWN;
+    return VKEY_UNKNOWN;
 
   DLOG(WARNING) << "Unknown keysym: " << base::StringPrintf("0x%x", keysym);
-  return ui::VKEY_UNKNOWN;
+  return VKEY_UNKNOWN;
 }
 
 uint16 CharacterCodeFromNativeKeySym(unsigned sym, unsigned flags) {
-  const bool ctrl = (flags & ui::EF_CONTROL_DOWN) != 0;
+  const bool ctrl = (flags & EF_CONTROL_DOWN) != 0;
 
   // Other ctrl characters
   if (ctrl) {
@@ -49,7 +49,7 @@ uint16 CharacterCodeFromNativeKeySym(unsigned sym, unsigned flags) {
     if (keysym >= OZONECHARCODE_A && keysym <= OZONECHARCODE_Z)
       return keysym - OZONECHARCODE_A + 1;
 
-    if ((flags & ui::EF_SHIFT_DOWN) != 0) {
+    if ((flags & EF_SHIFT_DOWN) != 0) {
       // following graphics chars require shift key to input.
       switch (keysym) {
         // ctrl-@ maps to \x00 (Null byte)
@@ -111,4 +111,4 @@ uint16 CharacterCodeFromNativeKeySym(unsigned sym, unsigned flags) {
   return sym;
 }
 
-}  // namespace ozonewayland
+}  // namespace ui
