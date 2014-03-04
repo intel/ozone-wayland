@@ -4,57 +4,27 @@
 
 #include "ozone/impl/ozone_display.h"
 
-#include "ozone/wayland/display.h"
+#include "base/logging.h"
 
 namespace ozonewayland {
 
+// static
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
 
-OzoneDisplay* OzoneDisplay::GetInstance() {
-  return instance_;
-}
-
-OzoneDisplay::OzoneDisplay() : display_(NULL) {
-  instance_ = this;
+OzoneDisplay::OzoneDisplay() {
 }
 
 OzoneDisplay::~OzoneDisplay() {
-  Terminate();
-  instance_ = NULL;
 }
 
-bool OzoneDisplay::InitializeHardware() {
-  display_ = new WaylandDisplay(WaylandDisplay::RegisterAsNeeded);
-  return display_->display() ? true : false;
+OzoneDisplay* OzoneDisplay::GetInstance() {
+  CHECK(instance_) << "No OzoneDisplay implementation set.";
+  return instance_;
 }
 
-void OzoneDisplay::ShutdownHardware() {
-  Terminate();
-}
-
-intptr_t OzoneDisplay::GetNativeDisplay() {
-  return (intptr_t)display_->display();
-}
-
-gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
-  static int opaque_handle = 0;
-  opaque_handle++;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
-                                                              ui::CREATE,
-                                                              0,
-                                                              0);
-
-  return (gfx::AcceleratedWidget)opaque_handle;
-}
-
-gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
-    gfx::AcceleratedWidget w) {
-  DCHECK(display_);
-  return (gfx::AcceleratedWidget)display_->RealizeAcceleratedWidget(w);
-}
-
-void OzoneDisplay::Terminate() {
-  delete display_;
+void OzoneDisplay::SetInstance(OzoneDisplay* instance) {
+  CHECK(!instance_) << "Replacing set OzoneDisplay implementation.";
+  instance_ = instance;
 }
 
 }  // namespace ozonewayland

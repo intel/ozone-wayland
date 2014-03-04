@@ -5,34 +5,39 @@
 #ifndef OZONE_IMPL_OZONE_DISPLAY_H_
 #define OZONE_IMPL_OZONE_DISPLAY_H_
 
+#include "ui/gfx/gfx_export.h"
 #include "ui/gfx/native_widget_types.h"
-
-namespace gfx {
-class Screen;
-}
+#include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
 
-class WaylandDisplay;
-
-class OzoneDisplay {
+// A basic interface which needs to be implemented to provide the needed
+// wayland support.
+class GFX_EXPORT OzoneDisplay {
  public:
-  static OzoneDisplay* GetInstance();
-
   OzoneDisplay();
   virtual ~OzoneDisplay();
 
-  bool InitializeHardware();
-  void ShutdownHardware();
-  intptr_t GetNativeDisplay();
+  // Returns the static instance last set using SetInstance().
+  static OzoneDisplay* GetInstance();
 
-  gfx::AcceleratedWidget GetAcceleratedWidget();
-  gfx::AcceleratedWidget RealizeAcceleratedWidget(gfx::AcceleratedWidget w);
+  // Sets the implementation delegate. Ownership is retained by the caller.
+  static void SetInstance(OzoneDisplay* instance);
+
+  virtual SurfaceFactoryOzone::HardwareState InitializeHardware() = 0;
+  virtual void ShutdownHardware() = 0;
+  virtual intptr_t GetNativeDisplay() = 0;
+  virtual void FlushDisplay() = 0;
+
+  virtual gfx::AcceleratedWidget GetAcceleratedWidget() = 0;
+  virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
+      gfx::AcceleratedWidget w) = 0;
+  virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
+                                                const gfx::Rect& bounds) = 0;
+  virtual void DestroyWidget(gfx::AcceleratedWidget w) = 0;
+  virtual void LookAheadOutputGeometry() = 0;
 
  private:
-  void Terminate();
-
-  WaylandDisplay* display_;
   static OzoneDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
