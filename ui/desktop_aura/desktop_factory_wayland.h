@@ -6,7 +6,7 @@
 #define OZONE_IMPL_DESKTOP_AURA_DESKTOP_FACTORY_WAYLAND_H_
 
 #include "base/compiler_specific.h"
-#include "ozone/platform/ozone_export_wayland.h"
+#include "ui/views/views_export.h"
 #include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
 
 namespace views {
@@ -18,7 +18,7 @@ class DesktopScreenWayland;
 // TODO(spang): Chromium needs to move desktop support into ui/base so we don't
 // reference views from ozone platform code. This module has an undeclared
 // dependency on views.
-class OZONE_WAYLAND_EXPORT DesktopFactoryWayland
+class VIEWS_EXPORT DesktopFactoryWayland
     : public DesktopFactoryOzone {
  public:
   DesktopFactoryWayland();

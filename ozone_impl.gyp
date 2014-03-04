@@ -27,16 +27,6 @@
         'platform/ozone_platform_wayland.cc',
         'platform/ozone_platform_wayland.h',
       ],
-      'conditions': [
-        ['toolkit_views==1 and chromeos == 0', {
-          'includes': [
-            'ui/desktop_aura/impl_view.gypi',
-          ],
-          'dependencies': [
-            '../ui/accessibility/accessibility.gyp:accessibility',
-          ],
-        }],
-      ],
     },
   ]
 }

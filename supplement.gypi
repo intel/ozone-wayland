@@ -37,6 +37,20 @@
           '<(DEPTH)/ozone/ui/gfx/vsync_provider_wayland.cc',
           '<(DEPTH)/ozone/ui/gfx/vsync_provider_wayland.h',
         ],
+        'external_ozone_views_files': [
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.cc',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_factory_wayland.cc',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_factory_wayland.h',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_screen_wayland.cc',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_screen_wayland.h',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_window_tree_host_wayland.cc',
+          '<(DEPTH)/ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h',
+          '<(DEPTH)/ozone/ui/desktop_aura/ozone_util.cc',
+          '<(DEPTH)/ozone/ui/desktop_aura/ozone_util.h',
+          '<(DEPTH)/ozone/ui/desktop_aura/window_tree_host_delegate_wayland.cc',
+          '<(DEPTH)/ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h',
+        ],
         'external_ozone_platforms': [
           'wayland'
         ],
