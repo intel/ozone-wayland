@@ -7,13 +7,13 @@
 
 #include "base/basictypes.h"
 
-#include "ui/base/ui_base_export.h"
+#include "ui/views/views_export.h"
 
 namespace ui {
 
 // Determine whether we should default to native decorations or the custom
 // frame based on the currently-running window manager.
-UI_BASE_EXPORT bool GetCustomFramePrefDefault();
+VIEWS_EXPORT bool GetCustomFramePrefDefault();
 
 }  // namespace ui
 

@@ -9,13 +9,13 @@
 
 namespace ui {
 
-bool GetCustomFramePrefDefault() {
+VIEWS_EXPORT bool GetCustomFramePrefDefault() {
   return true;
 }
 
 }  // namespace ui
 
-bool IsFullScreenMode() {
+VIEWS_EXPORT bool IsFullScreenMode() {
   std::vector<aura::Window*> all_windows =
       views::DesktopWindowTreeHostWayland::GetAllOpenWindows();
   // Only the topmost window is checked. This works fine in the most cases, but
@@ -31,7 +31,7 @@ bool IsFullScreenMode() {
 
 // TODO(Kalyan): Remove this once https://codereview.chromium.org/176893002/
 // is fixed.
-aura::Window* GetLocalProcessWindowAtPoint(
+VIEWS_EXPORT aura::Window* GetLocalProcessWindowAtPoint(
     chrome::HostDesktopType host_desktop_type,
     const gfx::Point& screen_point,
     const std::set<aura::Window*>& ignore) {
