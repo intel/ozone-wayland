@@ -14,6 +14,7 @@ namespace ozonewayland {
 class WaylandKeyboard;
 class WaylandPointer;
 class WaylandDisplay;
+class WaylandTouchscreen;
 
 class WaylandInputDevice : public ui::IMEStateChangeHandler {
  public:
@@ -44,6 +45,7 @@ class WaylandInputDevice : public ui::IMEStateChangeHandler {
   wl_seat* input_seat_;
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
+  WaylandTouchscreen* input_touch_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandInputDevice);
 };

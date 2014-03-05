@@ -36,6 +36,13 @@ IPC_MESSAGE_CONTROL5(WaylandInput_ButtonNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
                      float /*y*/)
 
+IPC_MESSAGE_CONTROL5(WaylandInput_TouchNotify,  // NOLINT(readability/fn_size)
+                     ui::EventType /*type*/,
+                     float /*x*/,
+                     float /*y*/,
+                     int32_t /*touch_id*/,
+                     uint32_t /*time_stamp*/)
+
 IPC_MESSAGE_CONTROL4(WaylandInput_AxisNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
                      float /*y*/,

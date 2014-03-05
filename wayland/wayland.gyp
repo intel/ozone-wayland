@@ -78,6 +78,8 @@
         'input/keyboard_engine_xkb.cc',
         'input/pointer.cc',
         'input/pointer.h',
+        'input/touchscreen.cc',
+        'input/touchscreen.h',
       ],
     },
   ]

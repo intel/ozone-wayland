@@ -34,6 +34,11 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   virtual void KeyNotify(ui::EventType type,
                          unsigned code,
                          unsigned modifiers) OVERRIDE;
+  virtual void TouchNotify(ui::EventType type,
+                           float x,
+                           float y,
+                           int32_t touch_id,
+                           uint32_t time_stamp) OVERRIDE;
 
   virtual void OutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
   virtual void WindowResized(unsigned handle,
@@ -54,6 +59,11 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   static void SendKeyNotify(ui::EventType type,
                             unsigned code,
                             unsigned modifiers);
+  static void SendTouchNotify(ui::EventType type,
+                              float x,
+                              float y,
+                              int32_t touch_id,
+                              uint32_t time_stamp);
   static void SendOutputSizeChanged(unsigned width, unsigned height);
   static void SendWindowResized(unsigned handle,
                                 unsigned width,

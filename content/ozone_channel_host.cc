@@ -38,6 +38,14 @@ void OzoneChannelHost::OnButtonNotify(unsigned handle,
   dispatcher_->ButtonNotify(handle, type, flags, x, y);
 }
 
+void OzoneChannelHost::OnTouchNotify(ui::EventType type,
+                                     float x,
+                                     float y,
+                                     int32_t touch_id,
+                                     uint32_t time_stamp) {
+  dispatcher_->TouchNotify(type, x, y, touch_id, time_stamp);
+}
+
 void OzoneChannelHost::OnAxisNotify(float x,
                                            float y,
                                            int xoffset,
@@ -114,6 +122,7 @@ void OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(OzoneChannelHost, message)
   IPC_MESSAGE_HANDLER(WaylandInput_MotionNotify, OnMotionNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_ButtonNotify, OnButtonNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_TouchNotify, OnTouchNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_AxisNotify, OnAxisNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_PointerEnter, OnPointerEnter)
   IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, OnPointerLeave)
@@ -146,7 +155,8 @@ void OzoneChannelHost::UpdateConnection() {
                                        WaylandInput_KeyNotify::ID,
                                        WaylandInput_OutputSize::ID,
                                        WaylandInput_CloseWidget::ID,
-                                       WaylandWindow_Resized::ID };
+                                       WaylandWindow_Resized::ID,
+                                       WaylandInput_TouchNotify::ID};
   scoped_refptr<base::SingleThreadTaskRunner> compositor_thread_task_runner =
       base::MessageLoopProxy::current();
   hostFactory->SetHandlerForControlMessages(

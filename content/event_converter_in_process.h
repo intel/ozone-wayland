@@ -31,6 +31,11 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland {
   virtual void KeyNotify(ui::EventType type,
                          unsigned code,
                          unsigned modifiers) OVERRIDE;
+  virtual void TouchNotify(ui::EventType type,
+                           float x,
+                           float y,
+                           int32_t touch_id,
+                           uint32_t time_stamp) OVERRIDE;
   virtual void CloseWidget(unsigned handle) OVERRIDE;
 
   virtual void OutputSizeChanged(unsigned width, unsigned height) OVERRIDE;

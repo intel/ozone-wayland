@@ -9,6 +9,7 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/input/pointer.h"
+#include "ozone/wayland/input/touchscreen.h"
 
 namespace ozonewayland {
 
@@ -19,7 +20,8 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
       grab_button_(0),
       input_seat_(NULL),
       input_keyboard_(NULL),
-      input_pointer_(NULL) {
+      input_pointer_(NULL),
+      input_touch_(NULL) {
   ui::IMEStateChangeHandler::SetInstance(this);
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
@@ -35,6 +37,9 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
 WaylandInputDevice::~WaylandInputDevice() {
   delete input_keyboard_;
   delete input_pointer_;
+  if (input_touch_ != NULL) {
+    delete input_touch_;
+  }
   wl_seat_destroy(input_seat_);
 }
 
@@ -56,11 +61,21 @@ void WaylandInputDevice::OnSeatCapabilities(void *data,
     device->input_pointer_ = NULL;
   }
 
+  if ((caps & WL_SEAT_CAPABILITY_TOUCH) && !device->input_touch_) {
+    device->input_touch_ = new WaylandTouchscreen();
+  } else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && device->input_touch_) {
+    delete device->input_touch_;
+    device->input_touch_ = NULL;
+  }
+
   if (device->input_keyboard_)
     device->input_keyboard_->OnSeatCapabilities(seat, caps);
 
   if (device->input_pointer_)
     device->input_pointer_->OnSeatCapabilities(seat, caps);
+
+  if (device->input_touch_)
+    device->input_touch_->OnSeatCapabilities(seat, caps);
 }
 
 void WaylandInputDevice::SetFocusWindowHandle(unsigned windowhandle) {
