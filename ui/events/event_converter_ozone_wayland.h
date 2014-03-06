@@ -6,8 +6,8 @@
 #define OZONE_UI_EVENTS_EVENT_CONVERTER_OZONE_WAYLAND_H_
 
 #include "base/message_loop/message_loop.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ui/events/event_constants.h"
-#include "ui/events/events_export.h"
 
 namespace ui {
 
@@ -19,7 +19,7 @@ class OutputChangeObserver;
 // 1) Convert native input events to |ui::Event| and dispatching to aura.
 // 2) Convert native events related to Window Activation and dispatch it to
 //    WindowChangeObserver
-class EVENTS_EXPORT EventConverterOzoneWayland {
+class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   public:
   EventConverterOzoneWayland();
   virtual ~EventConverterOzoneWayland();

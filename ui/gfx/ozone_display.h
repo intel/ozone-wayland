@@ -5,13 +5,13 @@
 #ifndef OZONE_UI_GFX_OZONE_DISPLAY_H_
 #define OZONE_UI_GFX_OZONE_DISPLAY_H_
 
-#include "ui/gfx/gfx_export.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace gfx {
 
-class GFX_EXPORT OzoneDisplay {
+class OZONE_WAYLAND_EXPORT OzoneDisplay {
  public:
   OzoneDisplay();
   virtual ~OzoneDisplay();

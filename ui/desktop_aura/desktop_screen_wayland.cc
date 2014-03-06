@@ -85,11 +85,11 @@ gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
   // create the aura::RootWindow. So we ask what the DRWH believes the
   // window bounds are instead of going through the aura::Window's screen
   // bounds.
-  aura::WindowEventDispatcher* dispatcher = window->GetDispatcher();
-  if (dispatcher) {
+  aura::WindowTreeHost* host = window->GetHost();
+  if (host) {
     DesktopWindowTreeHostWayland* rwh =
         DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
-            dispatcher->host()->GetAcceleratedWidget());
+            host->GetAcceleratedWidget());
     if (rwh)
       return GetDisplayMatching(rwh->GetBoundsInScreen());
   }

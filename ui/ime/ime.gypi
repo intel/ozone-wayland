@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 
 {
+  'dependencies': [
+    '<(DEPTH)/ui/ui.gyp:ui',
+  ],
   'sources': [
     'input_method_context_factory_wayland.h',
     'input_method_context_factory_wayland.cc',

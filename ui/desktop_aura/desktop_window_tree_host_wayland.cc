@@ -73,11 +73,10 @@ DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
 DesktopWindowTreeHostWayland*
 DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
-  aura::WindowEventDispatcher* dispatcher =
-      aura::WindowEventDispatcher::GetForAcceleratedWidget(widget);
+  aura::WindowTreeHost* host =
+      aura::WindowTreeHost::GetForAcceleratedWidget(widget);
 
-  return dispatcher ?
-      dispatcher->window()->GetProperty(kHostForRootWindow) : NULL;
+  return host ? host->window()->GetProperty(kHostForRootWindow) : NULL;
 }
 
 // static
@@ -91,11 +90,11 @@ DesktopWindowTreeHostWayland::GetAllOpenWindows() {
 aura::Window*
 DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
-  aura::WindowEventDispatcher* dispatcher =
-      aura::WindowEventDispatcher::GetForAcceleratedWidget(widget);
+  aura::WindowTreeHost* host =
+      aura::WindowTreeHost::GetForAcceleratedWidget(widget);
 
-  return dispatcher ?
-      dispatcher->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
+  return host ?
+      host->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
@@ -114,8 +113,8 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
   // If we have a parent, record the parent/child relationship. We use this
   // data during destruction to make sure that when we try to close a parent
   // window, we also destroy all child windows.
-  if (params.parent && params.parent->GetDispatcher()) {
-    gfx::AcceleratedWidget windowId = params.parent->GetDispatcher()->host()->
+  if (params.parent && params.parent->GetHost()) {
+    gfx::AcceleratedWidget windowId = params.parent->GetHost()->
         GetAcceleratedWidget();
     window_parent_ = GetHostForAcceleratedWidget(windowId);
     DCHECK(window_parent_);
@@ -469,7 +468,7 @@ void DesktopWindowTreeHostWayland::Restore() {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
       window_, ui::RESTORE, bounds_.width(), bounds_.height());
   native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
-  NotifyHostResized(bounds_.size());
+  OnHostResized(bounds_.size());
 }
 
 bool DesktopWindowTreeHostWayland::IsMaximized() const {
@@ -600,7 +599,7 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
     // IPC call needs to be done.
     ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
         window_, ui::FULLSCREEN, bounds_.width(), bounds_.height());
-    NotifyHostResized(bounds_.size());
+    OnHostResized(bounds_.size());
   }
 }
 
@@ -700,7 +699,7 @@ void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
   if (size_changed) {
     ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
         window_, ui::RESIZE, bounds.width(), bounds.height());
-    NotifyHostResized(bounds.size());
+    OnHostResized(bounds.size());
   } else {
     compositor()->ScheduleRedrawRect(bounds);
   }
@@ -790,7 +789,7 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
     compositor()->ScheduleRedrawRect(bounds_);
   } else {
     bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);
-    NotifyHostResized(bounds_.size());
+    OnHostResized(bounds_.size());
     ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
         window_, ui::RESIZE, bounds_.width(), bounds_.height());
     Widget* widget = native_widget_delegate_->AsWidget();

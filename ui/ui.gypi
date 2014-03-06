@@ -2,10 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 {
-  'dependencies': [
-    '<(DEPTH)/ui/ui.gyp:ui',
-  ],
   'includes': [
+    'events/event.gypi',
+    'gfx/gfx.gypi',
     'ime/ime.gypi',
    ],
 }

@@ -6,15 +6,15 @@
 #define OZONE_UI_EVENTS_KEYBOARD_CODE_CONVERSION_OZONE_H_
 
 #include "base/basictypes.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/keyboard_codes_ozone.h"
-#include "ui/events/events_export.h"
 
 namespace ui {
 
   // A helper function to convert Ozone-WL types to ui::KeyboardCode type.
-  EVENTS_EXPORT KeyboardCode KeyboardCodeFromNativeKeysym(unsigned key);
-  EVENTS_EXPORT uint16 CharacterCodeFromNativeKeySym(unsigned sym,
-                                                     unsigned flags);
+  OZONE_WAYLAND_EXPORT KeyboardCode KeyboardCodeFromNativeKeysym(unsigned key);
+  OZONE_WAYLAND_EXPORT uint16 CharacterCodeFromNativeKeySym(unsigned sym,
+                                                            unsigned flags);
 
 }  // namespace ui
 
