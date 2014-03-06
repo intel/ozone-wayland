@@ -1,0 +1,9 @@
+include_rules = [
+  "+content/public/common",
+  "+ipc/",
+  "-ozone/ui/desktop_aura",
+  "+ozone/ui/events",
+  "-ozone/wayland/",
+  "+ui/events",
+  "-ui/views",
+]

@@ -1,0 +1,7 @@
+include_rules = [
+  "+ozone/platform",
+  "+ozone/ui/desktop_aura/",
+  "+ozone/ui/events",
+  "+ozone/ui/gfx",
+  "+ui/ozone",
+]
