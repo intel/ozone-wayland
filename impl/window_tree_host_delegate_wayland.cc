@@ -159,7 +159,7 @@ ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, MessagePumpDispatcher implementation:
-bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
+uint32_t WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
   ui::EventType type = ui::EventTypeFromNative(ne);
   DCHECK(current_dispatcher_);
 
@@ -211,7 +211,7 @@ bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
     default:
       NOTIMPLEMENTED() << "WindowTreeHostDelegateWayland: unknown event type.";
   }
-  return true;
+  return POST_DISPATCH_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
