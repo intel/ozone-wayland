@@ -544,7 +544,11 @@ void DesktopWindowTreeHostWayland::SetVisibilityChangedAnimationsEnabled(
   // Much like the previous NativeWidgetGtk, we don't have anything to do here.
 }
 
-bool DesktopWindowTreeHostWayland::ShouldUseNativeFrame() {
+bool DesktopWindowTreeHostWayland::ShouldUseNativeFrame() const {
+  return false;
+}
+
+bool DesktopWindowTreeHostWayland::ShouldWindowContentsBeTransparent() const {
   return false;
 }
 
@@ -722,7 +726,7 @@ void DesktopWindowTreeHostWayland::ReleaseCapture() {
   g_delegate_ozone_wayland_->SetCapture(NULL);
 }
 
-void DesktopWindowTreeHostWayland::SetCursor(gfx::NativeCursor cursor) {
+void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
   NOTIMPLEMENTED();
 }
 
@@ -741,12 +745,12 @@ void DesktopWindowTreeHostWayland::UnConfineCursor() {
   NOTIMPLEMENTED();
 }
 
-void DesktopWindowTreeHostWayland::OnCursorVisibilityChanged(bool show) {
+void DesktopWindowTreeHostWayland::OnCursorVisibilityChangedNative(bool show) {
   // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
   // the same tap-to-click disabling here that chromeos does.
 }
 
-void DesktopWindowTreeHostWayland::MoveCursorTo(const gfx::Point& location) {
+void DesktopWindowTreeHostWayland::MoveCursorToNative(const gfx::Point& location) {
   NOTIMPLEMENTED();
 }
 
