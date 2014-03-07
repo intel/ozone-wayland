@@ -32,7 +32,7 @@ void WaylandWindow::SetShellAttributes(ShellType type) {
     return;
 
   if (!shell_surface_) {
-    shell_surface_ = new WaylandShellSurface(this);
+    shell_surface_ = WaylandShellSurface::CreateShellSurface(this);
     wl_surface_set_user_data(GetSurface(), this);
   }
 
@@ -47,7 +47,7 @@ void WaylandWindow::SetShellAttributes(ShellType type,
   DCHECK(shell_parent && (type == POPUP));
 
   if (!shell_surface_) {
-    shell_surface_ = new WaylandShellSurface(this);
+    shell_surface_ = WaylandShellSurface::CreateShellSurface(this);
     wl_surface_set_user_data(GetSurface(), this);
     WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
     input->SetGrabWindowHandle(handle_, 0);
