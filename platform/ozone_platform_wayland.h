@@ -12,6 +12,7 @@
 #include "ozone/ui/gfx/surface_factory_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/wayland/ozone_hardware_display.h"
+#include "ui/base/cursor/ozone/cursor_factory_ozone.h"
 #include "ui/ozone/ozone_platform.h"
 
 namespace ui {
@@ -28,12 +29,14 @@ class OzonePlatformWayland : public OzonePlatform {
   virtual ui::EventFactoryOzone* GetEventFactoryOzone() OVERRIDE;
   virtual ui::InputMethodContextFactoryOzone*
       GetInputMethodContextFactoryOzone() OVERRIDE;
+  virtual ui::CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE;
 
  private:
   ozonewayland::OzoneHardwareDisplay hardware_display_;
   gfx::SurfaceFactoryWayland surface_factory_ozone_;
   ui::EventFactoryOzoneWayland event_factory_ozone_;
   ui::InputMethodContextFactoryWayland input_method_context_factory_;
+  ui::CursorFactoryOzone cursor_factory_ozone_;
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
   views::DesktopFactoryWayland desktop_factory_ozone_;
 #endif

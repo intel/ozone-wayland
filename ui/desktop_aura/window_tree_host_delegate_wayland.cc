@@ -153,7 +153,7 @@ WindowTreeHostDelegateWayland::open_windows() {
 }
 
 ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
-  return current_dispatcher_->delegate_->GetEventProcessor();
+  return current_dispatcher_->dispatcher();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

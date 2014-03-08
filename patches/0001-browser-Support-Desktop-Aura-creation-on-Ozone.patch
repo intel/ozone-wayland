@@ -1,6 +1,6 @@
-From 11400beb9a86b54f354b6a8ee1e1438f23990186 Mon Sep 17 00:00:00 2001
+From 6ca4b5fa325f20ed0311369cd6d597ebb80c78d5 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Thu, 27 Feb 2014 10:28:33 +0200
+Date: Fri, 7 Mar 2014 23:42:28 +0200
 Subject: [PATCH] browser: Support Desktop Aura creation on Ozone
 
 This CL creates BrowserDesktopRootWindowHostOzone and gives support for Aura
@@ -131,12 +131,12 @@ index 0000000..bbfb0c5
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index b1a2d4e..58bbe9f 100644
+index 60c64dd..63b4c84 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1901,6 +1901,8 @@
-         'browser/ui/views/frame/desktop_user_action_handler_aura.cc',
-         'browser/ui/views/frame/desktop_user_action_handler_aura.h',
+@@ -1905,6 +1905,8 @@
+         'browser/ui/views/frame/desktop_browser_frame_aura.cc',
+         'browser/ui/views/frame/desktop_browser_frame_aura.h',
          'browser/ui/views/frame/browser_desktop_window_tree_host.h',
 +        'browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc',
 +        'browser/ui/views/frame/browser_desktop_root_window_host_ozone.h',

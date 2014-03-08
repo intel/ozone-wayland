@@ -23,6 +23,10 @@ OzonePlatformWayland::GetInputMethodContextFactoryOzone() {
   return &input_method_context_factory_;
 }
 
+ui::CursorFactoryOzone* OzonePlatformWayland::GetCursorFactoryOzone() {
+  return &cursor_factory_ozone_;
+}
+
 OzonePlatform* CreateOzonePlatformWayland() { return new OzonePlatformWayland; }
 
 }  // namespace ui

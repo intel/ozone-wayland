@@ -206,7 +206,6 @@ void DesktopWindowTreeHostWayland::OnRootWindowCreated(
   dispatcher_->window()->SetProperty(
       kViewsWindowForRootWindow, content_window_);
   dispatcher_->window()->SetProperty(kHostForRootWindow, this);
-  delegate_ = dispatcher_;
 
   // If we're given a parent, we need to mark ourselves as transient to another
   // window. Otherwise activation gets screwy.
@@ -480,7 +479,7 @@ bool DesktopWindowTreeHostWayland::IsMinimized() const {
 }
 
 void DesktopWindowTreeHostWayland::OnCaptureReleased() {
-  delegate_->OnHostLostWindowCapture();
+  OnHostLostWindowCapture();
   native_widget_delegate_->OnMouseCaptureLost();
 }
 
@@ -775,7 +774,7 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
     return;
 
   if (active)
-    delegate_->OnHostActivated();
+    OnHostActivated();
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
