@@ -9,7 +9,6 @@ Source:         %{name}.tar
 Source1:        chromium-browser.sh
 Source1001:     chromium.manifest
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
-Patch2:         %{name}-do-not-run-gn.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -79,7 +78,6 @@ cp -a src/ozone/AUTHORS AUTHORS.ozone-wayland
 cp -a src/ozone/LICENSE LICENSE.ozone-wayland
 
 %patch1
-%patch2
 
 %build
 
@@ -125,15 +123,9 @@ cd src
 # cause python multiprocessing.SemLock error.
 #https://github.com/01org/ozone-wayland/issues/147
 
-BUILD_TOOL="%{?BUILD_TOOL}"
-if [ -z "${BUILD_TOOL}" ]; then
-    BUILD_TOOL="make"
-else
-    BUILD_TOOL=${BUILD_TOOL}
-    PATH=$PATH:/home/abuild/depot_tools
-fi
+PATH=$PATH:/home/abuild/depot_tools
 
-export GYP_GENERATORS=${BUILD_TOOL}
+export GYP_GENERATORS=ninja
 ./build/gyp_chromium \
 --no-parallel \
 -Duse_ash=0 \
@@ -142,6 +134,7 @@ export GYP_GENERATORS=${BUILD_TOOL}
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
+-Duse_x11=0 \
 -Duse_cups=0 \
 -Duse_gconf=0 \
 -Duse_kerberos=0 \
@@ -154,16 +147,13 @@ export GYP_GENERATORS=${BUILD_TOOL}
 -Duse_xi2_mt=0 \
 -Dtarget_arch=ia32 \
 -Duse_alsa=0 \
+-Duse_gnome_keyring=0 \
 -Dlogging_like_official_build=1 \
 -Dtracing_like_official_build=1 \
 -Drelease_unwind_tables=0 \
 -Dlinux_dump_symbols=0
 
-%if "${BUILD_TOOL}" == "ninja"
-ninja %{?_smp_mflags} -C "${BUILDDIR_NAME}" chrome
-%else
-make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release chrome
-%endif
+ninja %{?_smp_mflags} -C out/Release chrome
 
 %install
 # Support building in a non-standard directory, possibly outside %{_builddir}.
