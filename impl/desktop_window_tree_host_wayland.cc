@@ -766,7 +766,9 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
 
 void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
                                                       unsigned height) {
-  if ((bounds_.width() == width) && (bounds_.height() == height)) {
+  unsigned current_width = bounds_.width();
+  unsigned current_height = bounds_.height();
+  if ((current_width == width) && (current_height == height)) {
     compositor()->ScheduleRedrawRect(bounds_);
   } else {
     bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);
