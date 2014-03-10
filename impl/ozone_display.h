@@ -5,6 +5,7 @@
 #ifndef OZONE_IMPL_OZONE_DISPLAY_H_
 #define OZONE_IMPL_OZONE_DISPLAY_H_
 
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ui/gfx/native_widget_types.h"
 
@@ -24,7 +25,7 @@ class OzoneDisplayChannelHost;
 class WaylandDisplay;
 class WaylandWindow;
 
-class OzoneDisplay : public OutputChangeObserver {
+class OZONE_WAYLAND_EXPORT OzoneDisplay : public OutputChangeObserver {
  public:
   static OzoneDisplay* GetInstance();
 
