@@ -7,13 +7,14 @@
 
 #include "base/basictypes.h"
 #include "base/strings/string16.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/window_constants.h"
 
 namespace ozonewayland {
 
 // A simple interface for passing Window state change notifications coming from
 // Aura to Wayland.
-class WindowStateChangeHandler {
+class OZONE_WAYLAND_EXPORT WindowStateChangeHandler {
  public:
   WindowStateChangeHandler();
   virtual ~WindowStateChangeHandler();
