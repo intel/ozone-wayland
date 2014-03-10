@@ -15,7 +15,7 @@
 #include "ui/events/event_source.h"
 #include "ui/gfx/native_widget_types.h"
 
-namespace ozonewayland {
+namespace views {
 
 class DesktopWindowTreeHostWayland;
 
@@ -24,7 +24,7 @@ class DesktopWindowTreeHostWayland;
 class WindowTreeHostDelegateWayland
     : public base::MessagePumpDispatcher,
       public ui::EventSource,
-      public WindowChangeObserver {
+      public ozonewayland::WindowChangeObserver {
  public:
   WindowTreeHostDelegateWayland();
   virtual ~WindowTreeHostDelegateWayland();
@@ -44,7 +44,7 @@ class WindowTreeHostDelegateWayland
   virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
  private:
   // Overridden from Dispatcher:
-  virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
+  virtual uint32_t Dispatch(const base::NativeEvent& event) OVERRIDE;
   // Window Change Observer.
   virtual void OnWindowFocused(unsigned handle) OVERRIDE;
   virtual void OnWindowEnter(unsigned handle) OVERRIDE;
@@ -76,6 +76,6 @@ class WindowTreeHostDelegateWayland
   DISALLOW_COPY_AND_ASSIGN(WindowTreeHostDelegateWayland);
 };
 
-}  // namespace ozonewayland
+}  // namespace views
 
 #endif  // OZONE_IMPL_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_

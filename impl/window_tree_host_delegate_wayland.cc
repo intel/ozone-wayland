@@ -9,7 +9,9 @@
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ui/events/event_utils.h"
 
-namespace ozonewayland {
+using namespace ozonewayland;
+
+namespace views {
 
 WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
     : current_focus_window_(0),
@@ -159,7 +161,7 @@ ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, MessagePumpDispatcher implementation:
-bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
+uint32_t WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
   ui::EventType type = ui::EventTypeFromNative(ne);
   DCHECK(current_dispatcher_);
 
@@ -211,7 +213,7 @@ bool WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
     default:
       NOTIMPLEMENTED() << "WindowTreeHostDelegateWayland: unknown event type.";
   }
-  return true;
+  return POST_DISPATCH_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,4 +274,4 @@ void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
   window->HandleWindowResize(width, height);
 }
 
-}  // namespace ozonewayland
+}  // namespace views
