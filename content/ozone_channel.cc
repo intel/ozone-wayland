@@ -9,6 +9,7 @@
 #include "ozone/content/messages.h"
 #include "ozone/content/remote_event_dispatcher.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 
 namespace content {
@@ -46,6 +47,9 @@ bool OzoneChannel::OnMessageReceived(
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Attributes, OnWidgetAttributesChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
+  IPC_MESSAGE_HANDLER(WaylandWindow_ImeReset, OnWidgetImeReset)
+  IPC_MESSAGE_HANDLER(WaylandWindow_ShowInputPanel, OnWidgetShowInputPanel)
+  IPC_MESSAGE_HANDLER(WaylandWindow_HideInputPanel, OnWidgetHideInputPanel)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -82,6 +86,18 @@ void OzoneChannel::OnWidgetAttributesChanged(unsigned widget,
                                                                    x,
                                                                    y,
                                                                    type);
+}
+
+void OzoneChannel::OnWidgetImeReset() {
+  ui::IMEStateChangeHandler::GetInstance()->ResetIme();
+}
+
+void OzoneChannel::OnWidgetShowInputPanel() {
+  ui::IMEStateChangeHandler::GetInstance()->ShowInputPanel();
+}
+
+void OzoneChannel::OnWidgetHideInputPanel() {
+  ui::IMEStateChangeHandler::GetInstance()->HideInputPanel();
 }
 
 }  // namespace content

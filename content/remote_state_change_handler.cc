@@ -104,6 +104,28 @@ void RemoteStateChangeHandler::ImeCaretBoundsChanged(gfx::Rect rect) {
   Send(new WaylandWindow_ImeCaretBoundsChanged(CHANNEL_ROUTE_ID, rect));
 }
 
+void RemoteStateChangeHandler::HideInputPanel() {
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+        base::Bind(&RemoteStateChangeHandler::HideInputPanel,
+            base::Unretained(this)));
+    return;
+  }
+
+  Send(new WaylandWindow_HideInputPanel(CHANNEL_ROUTE_ID));
+}
+
+void RemoteStateChangeHandler::ShowInputPanel() {
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+        base::Bind(&RemoteStateChangeHandler::ShowInputPanel,
+            base::Unretained(this)));
+    return;
+  }
+
+  Send(new WaylandWindow_ShowInputPanel(CHANNEL_ROUTE_ID));
+}
+
 bool RemoteStateChangeHandler::Send(IPC::Message* message) {
   // The GPU process never sends synchronous IPC, so clear the unblock flag.
   // This ensures the message is treated as a synchronous one and helps preserve

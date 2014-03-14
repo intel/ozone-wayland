@@ -34,6 +34,9 @@ class OzoneChannel : public IPC::Listener {
                                  unsigned x,
                                  unsigned y,
                                  ui::WidgetType type);
+  void OnWidgetImeReset();
+  void OnWidgetShowInputPanel();
+  void OnWidgetHideInputPanel();
 
  private:
   RemoteEventDispatcher* event_converter_;

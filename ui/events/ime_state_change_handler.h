@@ -31,6 +31,9 @@ class OZONE_WAYLAND_EXPORT IMEStateChangeHandler {
   // relative to screen coordinates.
   virtual void ImeCaretBoundsChanged(gfx::Rect rect) = 0;
 
+  virtual void ShowInputPanel() = 0;
+  virtual void HideInputPanel() = 0;
+
  private:
   static IMEStateChangeHandler* impl_;  // not owned
 };

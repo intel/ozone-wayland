@@ -15,6 +15,7 @@ class WaylandKeyboard;
 class WaylandPointer;
 class WaylandDisplay;
 class WaylandTouchscreen;
+class WaylandTextInput;
 
 class WaylandInputDevice : public ui::IMEStateChangeHandler {
  public:
@@ -32,6 +33,8 @@ class WaylandInputDevice : public ui::IMEStateChangeHandler {
 
   virtual void ResetIme() OVERRIDE;
   virtual void ImeCaretBoundsChanged(gfx::Rect rect) OVERRIDE;
+  virtual void ShowInputPanel() OVERRIDE;
+  virtual void HideInputPanel() OVERRIDE;
 
  private:
   static void OnSeatCapabilities(void *data,
@@ -46,6 +49,7 @@ class WaylandInputDevice : public ui::IMEStateChangeHandler {
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
   WaylandTouchscreen* input_touch_;
+  WaylandTextInput* text_input_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandInputDevice);
 };

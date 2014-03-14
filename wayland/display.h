@@ -16,6 +16,7 @@
 
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_state_change_handler.h"
+#include "ozone/wayland/input/text-client-protocol.h"
 
 namespace ozonewayland {
 
@@ -58,9 +59,14 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
 
   wl_shm* shm() const { return shm_; }
   wl_compositor* GetCompositor() const { return compositor_; }
+  struct wl_text_input_manager* GetTextInputManager() const;
+
   int GetDisplayFd() const { return wl_display_get_fd(display_); }
   unsigned GetSerial() const { return serial_; }
   void SetSerial(unsigned serial) { serial_ = serial; }
+  // Returns WaylandWindow associated with w. The ownership is not transferred
+  // to the caller.
+  WaylandWindow* GetWindow(unsigned window_handle) const;
 
   // Flush Display.
   void FlushDisplay();
@@ -104,7 +110,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
   void StopProcessingEvents();
 
   void terminate();
-  WaylandWindow* GetWidget(unsigned w);
+  WaylandWindow* GetWidget(unsigned w) const;
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
@@ -128,6 +134,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
   wl_compositor* compositor_;
   wl_shell* shell_;
   wl_shm* shm_;
+  struct wl_text_input_manager* text_input_manager_;
   WaylandScreen* primary_screen_;
   WaylandInputDevice* primary_input_;
   WaylandDisplayPollThread* display_poll_thread_;

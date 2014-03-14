@@ -97,3 +97,9 @@ IPC_MESSAGE_ROUTED0(WaylandWindow_ImeReset)  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_ROUTED1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/
                     gfx::Rect /* ImeCaretBoundsChanged */)  //     fn_size)
+
+IPC_MESSAGE_ROUTED0(WaylandWindow_ShowInputPanel)  // NOLINT(readability/
+                                                   //        fn_size)
+
+IPC_MESSAGE_ROUTED0(WaylandWindow_HideInputPanel)  // NOLINT(readability/
+                                                   //        fn_size)

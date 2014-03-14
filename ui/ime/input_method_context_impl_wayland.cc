@@ -31,8 +31,12 @@ void InputMethodContextImplWayland::Reset() {
 
 void InputMethodContextImplWayland::OnTextInputTypeChanged(
     ui::TextInputType text_input_type) {
-  // TODO(vignatti): this is recurrently called, disturbing the debug for being
-  // very verbose; so that's why NOTIMPLEMENTED() isn't used here instead.
+
+  // FIXME: We need to support more input types.
+  if (text_input_type == ui::TEXT_INPUT_TYPE_NONE)
+    IMEStateChangeHandler::GetInstance()->HideInputPanel();
+  else
+    IMEStateChangeHandler::GetInstance()->ShowInputPanel();
 }
 
 void InputMethodContextImplWayland::OnCaretBoundsChanged(

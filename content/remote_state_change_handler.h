@@ -38,6 +38,8 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
                                    ui::WidgetType type) OVERRIDE;
   virtual void ResetIme() OVERRIDE;
   virtual void ImeCaretBoundsChanged(gfx::Rect rect) OVERRIDE;
+  virtual void ShowInputPanel() OVERRIDE;
+  virtual void HideInputPanel() OVERRIDE;
 
  private:
   bool Send(IPC::Message* message);
