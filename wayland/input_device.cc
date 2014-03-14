@@ -9,6 +9,7 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/input/pointer.h"
+#include "ozone/wayland/input/text_input.h"
 #include "ozone/wayland/input/touchscreen.h"
 
 namespace ozonewayland {
@@ -21,7 +22,8 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
       input_seat_(NULL),
       input_keyboard_(NULL),
       input_pointer_(NULL),
-      input_touch_(NULL) {
+      input_touch_(NULL),
+      text_input_(NULL) {
   ui::IMEStateChangeHandler::SetInstance(this);
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
@@ -32,11 +34,13 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
   DCHECK(input_seat_);
   wl_seat_add_listener(input_seat_, &kInputSeatListener, this);
   wl_seat_set_user_data(input_seat_, this);
+  text_input_ = new WaylandTextInput();
 }
 
 WaylandInputDevice::~WaylandInputDevice() {
   delete input_keyboard_;
   delete input_pointer_;
+  delete text_input_;
   if (input_touch_ != NULL) {
     delete input_touch_;
   }
@@ -80,6 +84,10 @@ void WaylandInputDevice::OnSeatCapabilities(void *data,
 
 void WaylandInputDevice::SetFocusWindowHandle(unsigned windowhandle) {
   focused_window_handle_ = windowhandle;
+  WaylandWindow* window = NULL;
+  if (windowhandle)
+    window = WaylandDisplay::GetInstance()->GetWindow(windowhandle);
+  text_input_->SetActiveWindow(window);
 }
 
 void WaylandInputDevice::SetGrabWindowHandle(unsigned windowhandle,
@@ -89,11 +97,19 @@ void WaylandInputDevice::SetGrabWindowHandle(unsigned windowhandle,
 }
 
 void WaylandInputDevice::ResetIme() {
-  NOTIMPLEMENTED();
+  text_input_->ResetIme();
 }
 
 void WaylandInputDevice::ImeCaretBoundsChanged(gfx::Rect rect) {
   NOTIMPLEMENTED();
+}
+
+void WaylandInputDevice::ShowInputPanel() {
+  text_input_->ShowInputPanel(input_seat_);
+}
+
+void WaylandInputDevice::HideInputPanel() {
+  text_input_->HideInputPanel(input_seat_);
 }
 
 }  // namespace ozonewayland

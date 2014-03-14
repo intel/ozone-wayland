@@ -65,6 +65,14 @@ const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
   return screen_list_;
 }
 
+WaylandWindow* WaylandDisplay::GetWindow(unsigned window_handle) const {
+  return GetWidget(window_handle);
+}
+
+struct wl_text_input_manager* WaylandDisplay::GetTextInputManager() const {
+  return text_input_manager_;
+}
+
 void WaylandDisplay::FlushDisplay() {
   wl_display_flush(display_);
 }
@@ -261,7 +269,7 @@ void WaylandDisplay::terminate() {
   instance_ = NULL;
 }
 
-WaylandWindow* WaylandDisplay::GetWidget(unsigned w) {
+WaylandWindow* WaylandDisplay::GetWidget(unsigned w) const {
   std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
   return it == widget_map_.end() ? NULL : it->second;
 }
@@ -297,6 +305,9 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
+  } else if (strcmp(interface, "wl_text_input_manager") == 0) {
+    disp->text_input_manager_ = static_cast<wl_text_input_manager*>(
+        wl_registry_bind(registry, name, &wl_text_input_manager_interface, 1));
   }
 }
 
