@@ -78,6 +78,8 @@
         'input/keyboard.h',
         'input/pointer.cc',
         'input/pointer.h',
+        'shell/wl_shell_surface.cc',
+        'shell/wl_shell_surface.h',
       ],
     },
   ]
