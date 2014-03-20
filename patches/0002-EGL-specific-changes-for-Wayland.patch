@@ -3,10 +3,7 @@ From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Thu, 5 Dec 2013 01:39:43 +0200
 Subject: [PATCH] EGL specific changes for Wayland.
 
-This patch adds following two snips, respectively giving support:
-1)EGLNativeDisplayType adjustment and khronos header. More info:
-  https://code.google.com/p/chromium/issues/detail?id=266310
-2)OffScreen-rendering support for use cases like WebGL and
+  OffScreen-rendering support for use cases like WebGL and
   Canvas2D. This should be enabled in upstream but needs some
   cross platform support before it can be done.
   More info: https://codereview.chromium.org/49533003/
@@ -18,16 +15,6 @@ diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
 index 3f8923a..7b1da0b8 100644
 --- a/ui/gl/gl_surface_egl.cc
 +++ b/ui/gl/gl_surface_egl.cc
-@@ -118,8 +118,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
-     LOG(ERROR) << "OZONE failed to initialize hardware";
-     return false;
-   }
--  g_native_display = reinterpret_cast<EGLNativeDisplayType>(
--      surface_factory->GetNativeDisplay());
-+  g_native_display = surface_factory->GetNativeDisplay();
- #else
-   g_native_display = EGL_DEFAULT_DISPLAY;
- #endif
 @@ -750,7 +749,7 @@ GLSurface::CreateOffscreenGLSurface(const gfx::Size& size) {
      case kGLImplementationEGLGLES2: {
        scoped_refptr<GLSurface> surface;

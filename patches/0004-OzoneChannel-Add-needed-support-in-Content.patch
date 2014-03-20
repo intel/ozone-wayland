@@ -1,4 +1,4 @@
-From 8e96c52cd1ee6c0d7a1225d780e4a0f4566947d1 Mon Sep 17 00:00:00 2001
+From cd73ce122c9fcdd1ad681d7fb6dcf8325ce83096 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Mon, 3 Mar 2014 13:04:17 +0200
 Subject: [PATCH] OzoneChannel: Add needed support in Content.
@@ -18,7 +18,7 @@ our needs. This patch adds support for the following:
  3 files changed, 41 insertions(+)
 
 diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
-index d569188..664fff5 100644
+index 89a5281..65b7440 100644
 --- a/content/browser/browser_main_loop.cc
 +++ b/content/browser/browser_main_loop.cc
 @@ -119,6 +119,7 @@
@@ -29,7 +29,7 @@ index d569188..664fff5 100644
  #endif
 
  // One of the linux specific headers defines this as a macro.
-@@ -885,6 +886,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
+@@ -888,6 +889,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
      TRACE_EVENT0("shutdown", "BrowserMainLoop::Subsystem:GPUChannelFactory");
      if (BrowserGpuChannelHostFactory::instance())
        BrowserGpuChannelHostFactory::Terminate();
@@ -40,7 +40,7 @@ index d569188..664fff5 100644
    }
 
    // Must happen after the I/O thread is shutdown since this class lives on the
-@@ -1044,6 +1049,15 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+@@ -1047,6 +1052,15 @@ int BrowserMainLoop::BrowserThreadsStarted() {
  #if defined(OS_MACOSX)
    ThemeHelperMac::GetInstance();
  #endif
@@ -57,12 +57,12 @@ index d569188..664fff5 100644
 
    return result_code_;
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index a9ade95..29b7e22 100644
+index 97b4400..7600715 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -583,6 +583,25 @@
-         '<(DEPTH)/third_party/libva',
-       ],
+@@ -691,6 +691,25 @@
+         },
+      ]
      }],
 +    ['use_ozone == 1', {
 +      'sources': [

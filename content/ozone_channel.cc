@@ -37,7 +37,7 @@ OzoneChannel::OzoneChannel() {
 
 OzoneChannel::~OzoneChannel() {
   ChildThread* thread = GetProcessMainThread();
-  thread->RemoveRoute(WAYLAND_ROUTE_ID);
+  thread->GetRouter()->RemoveRoute(WAYLAND_ROUTE_ID);
 }
 
 bool OzoneChannel::OnMessageReceived(
@@ -58,7 +58,7 @@ bool OzoneChannel::OnMessageReceived(
 
 void OzoneChannel::Register() {
   ChildThread* thread = GetProcessMainThread();
-  thread->AddRoute(WAYLAND_ROUTE_ID, this);
+  thread->GetRouter()->AddRoute(WAYLAND_ROUTE_ID, this);
 }
 
 void OzoneChannel::OnWidgetStateChanged(unsigned handleid,

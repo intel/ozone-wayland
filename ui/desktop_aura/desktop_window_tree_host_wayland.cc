@@ -20,9 +20,7 @@
 #include "ui/gfx/insets.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
 #include "ui/native_theme/native_theme.h"
-#include "ui/views/corewm/corewm_switches.h"
 #include "ui/views/corewm/tooltip_aura.h"
-#include "ui/views/corewm/window_util.h"
 #include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/views_export.h"
@@ -30,6 +28,7 @@
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
+#include "ui/wm/core/window_util.h"
 
 namespace views {
 
@@ -53,7 +52,6 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
       window_(0),
       title_(base::string16()),
       close_widget_factory_(this),
-      dispatcher_(NULL),
       drag_drop_client_(NULL),
       native_widget_delegate_(native_widget_delegate),
       content_window_(NULL),
@@ -63,9 +61,9 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
 }
 
 DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
-  dispatcher_->window()->ClearProperty(kHostForRootWindow);
-  aura::client::SetWindowMoveClient(dispatcher_->window(), NULL);
-  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(dispatcher_);
+  window()->ClearProperty(kHostForRootWindow);
+  aura::client::SetWindowMoveClient(window(), NULL);
+  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(this);
   DestroyDispatcher();
 }
 
@@ -198,20 +196,16 @@ void DesktopWindowTreeHostWayland::Init(
   InitWaylandWindow(sanitized_params);
 }
 
-void DesktopWindowTreeHostWayland::OnRootWindowCreated(
-    aura::WindowEventDispatcher* dispatcher,
+void DesktopWindowTreeHostWayland::OnNativeWidgetCreated(
     const Widget::InitParams& params) {
-  dispatcher_ = dispatcher;
-
-  dispatcher_->window()->SetProperty(
-      kViewsWindowForRootWindow, content_window_);
-  dispatcher_->window()->SetProperty(kHostForRootWindow, this);
+  window()->SetProperty(kViewsWindowForRootWindow, content_window_);
+  window()->SetProperty(kHostForRootWindow, this);
 
   // If we're given a parent, we need to mark ourselves as transient to another
   // window. Otherwise activation gets screwy.
   gfx::NativeView parent = params.parent;
   if (!params.child && params.parent)
-    corewm::AddTransientChild(parent, content_window_);
+    wm::AddTransientChild(parent, content_window_);
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
 
@@ -237,7 +231,7 @@ DesktopWindowTreeHostWayland::CreateTooltip() {
 scoped_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostWayland::CreateDragDropClient(
     DesktopNativeCursorManager* cursor_manager) {
-  drag_drop_client_ = new DesktopDragDropClientWayland(dispatcher_->window());
+  drag_drop_client_ = new DesktopDragDropClientWayland(window());
   return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
 }
 
@@ -332,9 +326,9 @@ void DesktopWindowTreeHostWayland::CenterWindow(const gfx::Size& size) {
 
   // If |window_|'s transient parent bounds are big enough to contain |size|,
   // use them instead.
-  if (corewm::GetTransientParent(content_window_)) {
+  if (wm::GetTransientParent(content_window_)) {
     gfx::Rect transient_parent_rect =
-        corewm::GetTransientParent(content_window_)->GetBoundsInScreen();
+        wm::GetTransientParent(content_window_)->GetBoundsInScreen();
     if (transient_parent_rect.height() >= size.height() &&
         transient_parent_rect.width() >= size.width()) {
       parent_bounds = transient_parent_rect;
@@ -759,9 +753,6 @@ void DesktopWindowTreeHostWayland::PostNativeEvent(
 
 void DesktopWindowTreeHostWayland::OnDeviceScaleFactorChanged(
     float device_scale_factor) {
-}
-
-void DesktopWindowTreeHostWayland::PrepareForShutdown() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
