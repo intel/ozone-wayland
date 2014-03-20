@@ -55,8 +55,9 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
     aura_windows_ = NULL;
   }
 
-  if (!current_active_window_ || current_active_window_->window_ != handle ||
-        !open_windows_) {
+  if (!current_active_window_ ||
+      GetWindowHandle(current_active_window_->window_) != handle ||
+      !open_windows_) {
      return;
   }
 
@@ -64,7 +65,7 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
   // Set first top level window in the list of open windows as dispatcher.
   // This is just a guess of the window which would eventually be focussed.
   // We should set the correct root window as dispatcher in OnWindowFocused.
-  const std::list<gfx::AcceleratedWidget>& windows = open_windows();
+  const std::list<unsigned>& windows = open_windows();
   DesktopWindowTreeHostWayland* rootWindow =
       DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
           windows.front());
@@ -81,7 +82,7 @@ void WindowTreeHostDelegateWayland::SetActiveWindow(
 
   // Make sure the stacking order is correct. The activated window should be
   // first one in list of open windows.
-  std::list<gfx::AcceleratedWidget>& windows = open_windows();
+  std::list<unsigned>& windows = open_windows();
   DCHECK(windows.size());
   unsigned window_handle = current_active_window_->window_;
   if (windows.front() != window_handle) {
@@ -117,7 +118,7 @@ WindowTreeHostDelegateWayland::GetCurrentCapture() const {
 const std::vector<aura::Window*>&
 WindowTreeHostDelegateWayland::GetAllOpenWindows() {
   if (!aura_windows_) {
-    const std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    const std::list<unsigned>& windows = open_windows();
     DCHECK(windows.size());
     aura_windows_ = new std::vector<aura::Window*>(windows.size());
     std::transform(
@@ -144,12 +145,17 @@ void WindowTreeHostDelegateWayland::DispatchMouseEvent(
     event->StopPropagation();
 }
 
-std::list<gfx::AcceleratedWidget>&
+std::list<unsigned>&
 WindowTreeHostDelegateWayland::open_windows() {
   if (!open_windows_)
-    open_windows_ = new std::list<gfx::AcceleratedWidget>();
+    open_windows_ = new std::list<unsigned>();
 
   return *open_windows_;
+}
+
+unsigned
+WindowTreeHostDelegateWayland::GetWindowHandle(gfx::AcceleratedWidget widget) {
+  return static_cast<unsigned>(widget);
 }
 
 ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
@@ -220,8 +226,8 @@ void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
   // Don't dispatch events in case a window has installed itself as capture
   // window but doesn't have the focus.
   handle_event_ = current_capture_ ? current_focus_window_ ==
-          current_capture_->GetAcceleratedWidget() : true;
-  if (current_active_window_->window_ == handle)
+          GetWindowHandle(current_capture_->GetAcceleratedWidget()) : true;
+  if (GetWindowHandle(current_active_window_->window_) == handle)
     return;
 
   // A new window should not steal focus in case the current window has a open
@@ -254,7 +260,7 @@ void WindowTreeHostDelegateWayland::OnWindowClose(unsigned handle) {
   // current_capture_ always be a valid pointer.
   if (!handle || !current_capture_)
     return;
-  if (current_capture_->window_ != handle)
+  if (GetWindowHandle(current_capture_->window_) != handle)
     return;
   DesktopWindowTreeHostWayland* window = NULL;
   window = DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
