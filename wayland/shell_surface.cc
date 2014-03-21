@@ -8,6 +8,7 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
+#include "ozone/wayland/shell/xdg_shell_surface.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -53,7 +54,15 @@ void WaylandShellSurface::WindowResized(void* data,
 
 WaylandShellSurface* WaylandShellSurface::CreateShellSurface(
                                           WaylandWindow* window) {
-  WaylandShellSurface* surface = new WLShellSurface();
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  DCHECK(display);
+
+  WaylandShellSurface* surface;
+  if (display->xdgshell())
+    surface = new XDGShellSurface();
+  else if (display->shell())
+    surface = new WLShellSurface();
+
   surface->InitializeShellSurface(window);
 
   return surface;

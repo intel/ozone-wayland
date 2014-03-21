@@ -29,9 +29,10 @@ class WaylandShellSurface {
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
                                   unsigned x,
-                                  unsigned y) const = 0;
+                                  unsigned y) = 0;
   virtual void SetWindowTitle(const base::string16& title) = 0;
-  virtual void Maximize() const = 0;
+  virtual void Maximize() = 0;
+  virtual void Minimize() = 0;
   //static functions
   static void PopupDone();
   static void WindowResized(void *data, unsigned width, unsigned height);

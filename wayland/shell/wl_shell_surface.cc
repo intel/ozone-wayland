@@ -19,13 +19,14 @@ WLShellSurface::WLShellSurface()
 }
 
 WLShellSurface::~WLShellSurface() {
-  wl_shell_surface_destroy(shell_surface_);
+  if (shell_surface_)
+    wl_shell_surface_destroy(shell_surface_);
 }
 
 void WLShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                         WaylandShellSurface* shell_parent,
                                         unsigned x,
-                                        unsigned y) const {
+                                        unsigned y) {
   switch (type) {
   case WaylandWindow::TOPLEVEL:
     wl_shell_surface_set_toplevel(shell_surface_);
@@ -64,9 +65,12 @@ void WLShellSurface::SetWindowTitle(const base::string16& title) {
   WaylandShellSurface::FlushDisplay();
 }
 
-void WLShellSurface::Maximize() const {
+void WLShellSurface::Maximize() {
   wl_shell_surface_set_maximized(shell_surface_, NULL);
   WaylandShellSurface::FlushDisplay();
+}
+
+void WLShellSurface::Minimize() {
 }
 
 void WLShellSurface::HandleConfigure(void *data,
