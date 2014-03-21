@@ -97,6 +97,10 @@
         'input/touchscreen.h',
         'shell/wl_shell_surface.cc',
         'shell/wl_shell_surface.h',
+        'shell/xdg_shell_surface.cc',
+        'shell/xdg_shell_surface.h',
+        'shell/xdg-shell-protocol.c',
+        'shell/xdg-shell-client-protocol.h',
       ],
     },
   ]

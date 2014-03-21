@@ -67,7 +67,7 @@ void WaylandWindow::Maximize() {
 }
 
 void WaylandWindow::Minimize() {
-  NOTIMPLEMENTED();
+  shell_surface_->Minimize();
 }
 
 void WaylandWindow::Restore() {
