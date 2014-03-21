@@ -1,0 +1,303 @@
+From ee70dd376732530e7911b63a018ba935c55971bd Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Fri, 21 Mar 2014 23:03:10 +0200
+Subject: [PATCH] Gardening: Update to latest revision
+
+(so many changes, I hope it's not hard to follow)
+
+Effecting CLS:
+https://codereview.chromium.org/184433003
+https://codereview.chromium.org/192823002
+https://codereview.chromium.org/198333004
+https://codereview.chromium.org/188933002
+https://codereview.chromium.org/194843004
+https://codereview.chromium.org/196063002
+https://codereview.chromium.org/198073003
+---
+ content/ozone_channel.cc                           |    4 +--
+ .../0002-EGL-specific-changes-for-Wayland.patch    |   15 +--------
+ ...zoneChannel-Add-needed-support-in-Content.patch |   16 +++++-----
+ patches/1001-Mesa-fix.patch                        |   33 --------------------
+ .../desktop_window_tree_host_wayland.cc            |   28 +++++++----------
+ ui/desktop_aura/desktop_window_tree_host_wayland.h |    6 +---
+ ui/ime/ime.gypi                                    |    2 +-
+ 7 files changed, 24 insertions(+), 80 deletions(-)
+ delete mode 100644 patches/1001-Mesa-fix.patch
+
+diff --git a/content/ozone_channel.cc b/content/ozone_channel.cc
+index 8010b91..4155fa9 100644
+--- a/content/ozone_channel.cc
++++ b/content/ozone_channel.cc
+@@ -37,7 +37,7 @@ OzoneChannel::OzoneChannel() {
+ 
+ OzoneChannel::~OzoneChannel() {
+   ChildThread* thread = GetProcessMainThread();
+-  thread->RemoveRoute(WAYLAND_ROUTE_ID);
++  thread->GetRouter()->RemoveRoute(WAYLAND_ROUTE_ID);
+ }
+ 
+ bool OzoneChannel::OnMessageReceived(
+@@ -58,7 +58,7 @@ bool OzoneChannel::OnMessageReceived(
+ 
+ void OzoneChannel::Register() {
+   ChildThread* thread = GetProcessMainThread();
+-  thread->AddRoute(WAYLAND_ROUTE_ID, this);
++  thread->GetRouter()->AddRoute(WAYLAND_ROUTE_ID, this);
+ }
+ 
+ void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
+diff --git a/patches/0002-EGL-specific-changes-for-Wayland.patch b/patches/0002-EGL-specific-changes-for-Wayland.patch
+index b11c260..66e6112 100644
+--- a/patches/0002-EGL-specific-changes-for-Wayland.patch
++++ b/patches/0002-EGL-specific-changes-for-Wayland.patch
+@@ -3,10 +3,7 @@ From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+ Date: Thu, 5 Dec 2013 01:39:43 +0200
+ Subject: [PATCH] EGL specific changes for Wayland.
+ 
+-This patch adds following two snips, respectively giving support:
+-1)EGLNativeDisplayType adjustment and khronos header. More info:
+-  https://code.google.com/p/chromium/issues/detail?id=266310
+-2)OffScreen-rendering support for use cases like WebGL and
++  OffScreen-rendering support for use cases like WebGL and
+   Canvas2D. This should be enabled in upstream but needs some
+   cross platform support before it can be done.
+   More info: https://codereview.chromium.org/49533003/
+@@ -18,16 +15,6 @@ diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
+ index 3f8923a..7b1da0b8 100644
+ --- a/ui/gl/gl_surface_egl.cc
+ +++ b/ui/gl/gl_surface_egl.cc
+-@@ -118,8 +118,7 @@ bool GLSurfaceEGL::InitializeOneOff() {
+-     LOG(ERROR) << "OZONE failed to initialize hardware";
+-     return false;
+-   }
+--  g_native_display = reinterpret_cast<EGLNativeDisplayType>(
+--      surface_factory->GetNativeDisplay());
+-+  g_native_display = surface_factory->GetNativeDisplay();
+- #else
+-   g_native_display = EGL_DEFAULT_DISPLAY;
+- #endif
+ @@ -750,7 +749,7 @@ GLSurface::CreateOffscreenGLSurface(const gfx::Size& size) {
+      case kGLImplementationEGLGLES2: {
+        scoped_refptr<GLSurface> surface;
+diff --git a/patches/0004-OzoneChannel-Add-needed-support-in-Content.patch b/patches/0004-OzoneChannel-Add-needed-support-in-Content.patch
+index 9072e02..c8a6fc7 100644
+--- a/patches/0004-OzoneChannel-Add-needed-support-in-Content.patch
++++ b/patches/0004-OzoneChannel-Add-needed-support-in-Content.patch
+@@ -1,4 +1,4 @@
+-From 8e96c52cd1ee6c0d7a1225d780e4a0f4566947d1 Mon Sep 17 00:00:00 2001
++From cd73ce122c9fcdd1ad681d7fb6dcf8325ce83096 Mon Sep 17 00:00:00 2001
+ From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+ Date: Mon, 3 Mar 2014 13:04:17 +0200
+ Subject: [PATCH] OzoneChannel: Add needed support in Content.
+@@ -18,7 +18,7 @@ our needs. This patch adds support for the following:
+  3 files changed, 41 insertions(+)
+ 
+ diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
+-index d569188..664fff5 100644
++index 89a5281..65b7440 100644
+ --- a/content/browser/browser_main_loop.cc
+ +++ b/content/browser/browser_main_loop.cc
+ @@ -119,6 +119,7 @@
+@@ -29,7 +29,7 @@ index d569188..664fff5 100644
+  #endif
+ 
+  // One of the linux specific headers defines this as a macro.
+-@@ -885,6 +886,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
++@@ -888,6 +889,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
+      TRACE_EVENT0("shutdown", "BrowserMainLoop::Subsystem:GPUChannelFactory");
+      if (BrowserGpuChannelHostFactory::instance())
+        BrowserGpuChannelHostFactory::Terminate();
+@@ -40,7 +40,7 @@ index d569188..664fff5 100644
+    }
+ 
+    // Must happen after the I/O thread is shutdown since this class lives on the
+-@@ -1044,6 +1049,15 @@ int BrowserMainLoop::BrowserThreadsStarted() {
++@@ -1047,6 +1052,15 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+  #if defined(OS_MACOSX)
+    ThemeHelperMac::GetInstance();
+  #endif
+@@ -57,12 +57,12 @@ index d569188..664fff5 100644
+ 
+    return result_code_;
+ diff --git a/content/content_common.gypi b/content/content_common.gypi
+-index a9ade95..29b7e22 100644
++index 97b4400..7600715 100644
+ --- a/content/content_common.gypi
+ +++ b/content/content_common.gypi
+-@@ -583,6 +583,25 @@
+-         '<(DEPTH)/third_party/libva',
+-       ],
++@@ -691,6 +691,25 @@
++         },
++      ]
+      }],
+ +    ['use_ozone == 1', {
+ +      'sources': [
+diff --git a/patches/1001-Mesa-fix.patch b/patches/1001-Mesa-fix.patch
+deleted file mode 100644
+index 7494777..0000000
+--- a/patches/1001-Mesa-fix.patch
++++ /dev/null
+@@ -1,33 +0,0 @@
+-From 3db9bdfd3d8b2a6c185e6b504db67f98e9db3f67 Mon Sep 17 00:00:00 2001
+-From: Tiago Vignatti <tiago.vignatti@intel.com>
+-Date: Thu, 11 Jul 2013 18:10:26 -0300
+-Subject: [PATCH] Mesa fix
+-
+-We won't need this as soon the fix the order ui/gl/ is picking the headers, ie
+-first khronos and then mesa.
+-
+-Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+----
+- include/EGL/eglplatform.h |    6 ++++++
+- 1 file changed, 6 insertions(+)
+-
+-diff --git a/include/EGL/eglplatform.h b/include/EGL/eglplatform.h
+-index 28455fb..9c05dca 100644
+---- a/include/EGL/eglplatform.h
+-+++ b/include/EGL/eglplatform.h
+-@@ -104,6 +104,12 @@ typedef struct ANativeWindow        *EGLNativeWindowType;
+- typedef struct egl_native_pixmap_t  *EGLNativePixmapType;
+- typedef void                        *EGLNativeDisplayType;
+- 
+-+#elif defined(USE_OZONE)
+-+
+-+typedef intptr_t EGLNativeDisplayType;
+-+typedef intptr_t EGLNativeWindowType;
+-+typedef intptr_t EGLNativePixmapType;
+-+
+- #elif defined(__unix__)
+- 
+- #ifdef MESA_EGL_NO_X11_HEADERS
+--- 
+-1.7.9.5
+-
+diff --git a/ui/desktop_aura/desktop_window_tree_host_wayland.cc b/ui/desktop_aura/desktop_window_tree_host_wayland.cc
+index ee882b4..ac8ae6f 100644
+--- a/ui/desktop_aura/desktop_window_tree_host_wayland.cc
++++ b/ui/desktop_aura/desktop_window_tree_host_wayland.cc
+@@ -20,9 +20,7 @@
+ #include "ui/gfx/insets.h"
+ #include "ui/gfx/ozone/surface_factory_ozone.h"
+ #include "ui/native_theme/native_theme.h"
+-#include "ui/views/corewm/corewm_switches.h"
+ #include "ui/views/corewm/tooltip_aura.h"
+-#include "ui/views/corewm/window_util.h"
+ #include "ui/views/ime/input_method.h"
+ #include "ui/views/linux_ui/linux_ui.h"
+ #include "ui/views/views_export.h"
+@@ -30,6 +28,7 @@
+ #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
+ #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
+ #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
++#include "ui/wm/core/window_util.h"
+ 
+ namespace views {
+ 
+@@ -53,7 +52,6 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
+       window_(0),
+       title_(base::string16()),
+       close_widget_factory_(this),
+-      dispatcher_(NULL),
+       drag_drop_client_(NULL),
+       native_widget_delegate_(native_widget_delegate),
+       content_window_(NULL),
+@@ -63,9 +61,9 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
+ }
+ 
+ DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
+-  dispatcher_->window()->ClearProperty(kHostForRootWindow);
+-  aura::client::SetWindowMoveClient(dispatcher_->window(), NULL);
+-  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(dispatcher_);
++  window()->ClearProperty(kHostForRootWindow);
++  aura::client::SetWindowMoveClient(window(), NULL);
++  desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(this);
+   DestroyDispatcher();
+ }
+ 
+@@ -198,20 +196,16 @@ void DesktopWindowTreeHostWayland::Init(
+   InitWaylandWindow(sanitized_params);
+ }
+ 
+-void DesktopWindowTreeHostWayland::OnRootWindowCreated(
+-    aura::WindowEventDispatcher* dispatcher,
++void DesktopWindowTreeHostWayland::OnNativeWidgetCreated(
+     const Widget::InitParams& params) {
+-  dispatcher_ = dispatcher;
+-
+-  dispatcher_->window()->SetProperty(
+-      kViewsWindowForRootWindow, content_window_);
+-  dispatcher_->window()->SetProperty(kHostForRootWindow, this);
++  window()->SetProperty(kViewsWindowForRootWindow, content_window_);
++  window()->SetProperty(kHostForRootWindow, this);
+ 
+   // If we're given a parent, we need to mark ourselves as transient to another
+   // window. Otherwise activation gets screwy.
+   gfx::NativeView parent = params.parent;
+   if (!params.child && params.parent)
+-    corewm::AddTransientChild(parent, content_window_);
++    wm::AddTransientChild(parent, content_window_);
+ 
+   native_widget_delegate_->OnNativeWidgetCreated(true);
+ 
+@@ -237,7 +231,7 @@ DesktopWindowTreeHostWayland::CreateTooltip() {
+ scoped_ptr<aura::client::DragDropClient>
+ DesktopWindowTreeHostWayland::CreateDragDropClient(
+     DesktopNativeCursorManager* cursor_manager) {
+-  drag_drop_client_ = new DesktopDragDropClientWayland(dispatcher_->window());
++  drag_drop_client_ = new DesktopDragDropClientWayland(window());
+   return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
+ }
+ 
+@@ -332,9 +326,9 @@ void DesktopWindowTreeHostWayland::CenterWindow(const gfx::Size& size) {
+ 
+   // If |window_|'s transient parent bounds are big enough to contain |size|,
+   // use them instead.
+-  if (corewm::GetTransientParent(content_window_)) {
++  if (wm::GetTransientParent(content_window_)) {
+     gfx::Rect transient_parent_rect =
+-        corewm::GetTransientParent(content_window_)->GetBoundsInScreen();
++        wm::GetTransientParent(content_window_)->GetBoundsInScreen();
+     if (transient_parent_rect.height() >= size.height() &&
+         transient_parent_rect.width() >= size.width()) {
+       parent_bounds = transient_parent_rect;
+diff --git a/ui/desktop_aura/desktop_window_tree_host_wayland.h b/ui/desktop_aura/desktop_window_tree_host_wayland.h
+index cf577f5..30804f4 100644
+--- a/ui/desktop_aura/desktop_window_tree_host_wayland.h
++++ b/ui/desktop_aura/desktop_window_tree_host_wayland.h
+@@ -79,8 +79,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
+   virtual void Init(
+       aura::Window* content_window,
+       const views::Widget::InitParams& params) OVERRIDE;
+-  virtual void OnRootWindowCreated(
+-      aura::WindowEventDispatcher* dispatcher,
++  virtual void OnNativeWidgetCreated(
+       const views::Widget::InitParams& params) OVERRIDE;
+   virtual scoped_ptr<views::corewm::Tooltip> CreateTooltip() OVERRIDE;
+   virtual scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
+@@ -176,9 +175,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
+ 
+   base::WeakPtrFactory<DesktopWindowTreeHostWayland> close_widget_factory_;
+ 
+-  // We are owned by the Dispatcher, but we have to have a back pointer to it.
+-  aura::WindowEventDispatcher* dispatcher_;
+-
+   // Owned by DesktopNativeWidgetAura.
+   DesktopDragDropClientWayland* drag_drop_client_;
+   views::internal::NativeWidgetDelegate* native_widget_delegate_;
+diff --git a/ui/ime/ime.gypi b/ui/ime/ime.gypi
+index 1481ff5..c1660a0 100644
+--- a/ui/ime/ime.gypi
++++ b/ui/ime/ime.gypi
+@@ -4,7 +4,7 @@
+ 
+ {
+   'dependencies': [
+-    '<(DEPTH)/ui/ui.gyp:ui',
++    '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
+   ],
+   'sources': [
+     'input_method_context_factory_wayland.h',
+-- 
+1.7.9.5
+
