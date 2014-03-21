@@ -151,7 +151,8 @@ export GYP_GENERATORS=ninja
 -Dlogging_like_official_build=1 \
 -Dtracing_like_official_build=1 \
 -Drelease_unwind_tables=0 \
--Dlinux_dump_symbols=0
+-Dlinux_dump_symbols=0 \
+-Denable_ozone_wayland_vkb=1
 
 ninja %{?_smp_mflags} -C out/Release chrome
 
