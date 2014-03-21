@@ -4,7 +4,7 @@
 
 {
   'dependencies': [
-    '<(DEPTH)/ui/ui.gyp:ui',
+    '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
   ],
   'sources': [
     'input_method_context_factory_wayland.h',

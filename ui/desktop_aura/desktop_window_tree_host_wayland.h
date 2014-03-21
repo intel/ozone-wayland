@@ -79,8 +79,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void Init(
       aura::Window* content_window,
       const views::Widget::InitParams& params) OVERRIDE;
-  virtual void OnRootWindowCreated(
-      aura::WindowEventDispatcher* dispatcher,
+  virtual void OnNativeWidgetCreated(
       const views::Widget::InitParams& params) OVERRIDE;
   virtual scoped_ptr<views::corewm::Tooltip> CreateTooltip() OVERRIDE;
   virtual scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
@@ -175,9 +174,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   base::string16 title_;
 
   base::WeakPtrFactory<DesktopWindowTreeHostWayland> close_widget_factory_;
-
-  // We are owned by the Dispatcher, but we have to have a back pointer to it.
-  aura::WindowEventDispatcher* dispatcher_;
 
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;
