@@ -21,7 +21,8 @@ cd $SELF_DIR/..
 FILTERS="+build,-build/header_guard,+whitespace,+readability,+legal,+runtime"
 
 cpplint.py --filter="$FILTERS" $(find \
-                               \( -name '*.h' -o -name '*.cc' \) | grep -v text-client-protocol.h  )
+                               \( -name '*.h' -o -name '*.cc' \) | grep -v text-client-protocol.h \
+                                                                 | grep -v xdg-shell-client-protocol.h)
 
 # Return to previous dir and return the code returned by cpplint.py
 RET_VAL=$?
