@@ -5,6 +5,10 @@
 
 {
   'variables': {
+    'variables':  {
+      'enable_ozone_wayland_vkb%': 0,
+    },
+    'enable_ozone_wayland_vkb%': '<(enable_ozone_wayland_vkb)',
     'conditions': [
       ['sysroot!=""', {
         'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
@@ -50,6 +54,13 @@
       ],
       'include_dirs': [
         '../..',
+      ],
+      'conditions': [
+        ['<(enable_ozone_wayland_vkb)==1', {
+          'defines': [
+            'ENABLE_OZONE_WAYLAND_VKB',
+          ],
+        }],
       ],
       'sources': [
         'display.cc',
