@@ -12,7 +12,7 @@
 namespace ozonewayland {
 // This number should be equal to size of array defined in WaylandCursorData
 // constructor.
-const unsigned TotalCursorTypes = 12;
+const unsigned TotalCursorTypes = 24;
 
 class WaylandCursorData {
  public:
@@ -52,18 +52,30 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm)
       cursors_(std::vector<wl_cursor*>(TotalCursorTypes)) {
   // This list should be always in sync with WaylandCursor::CursorType
   const char* cursor_names[] = {
+    "default",
     "bottom_left_corner",
     "bottom_right_corner",
     "bottom_side",
+    "cross",
+    "fleur",
     "grabbing",
     "left_ptr",
     "left_side",
+    "left_arrow",
     "right_side",
     "top_left_corner",
+    "top_left_arrow",
     "top_right_corner",
     "top_side",
+    "up_arrow",
+    "wait",
+    "watch",
     "xterm",
     "hand1",
+    "text",
+    "question_arrow",
+    "v_double_arrow",
+    "h_double_arrow"
   };
 
   // (kalyan) We should be able to configure the size of cursor and theme name.

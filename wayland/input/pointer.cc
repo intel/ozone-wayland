@@ -155,7 +155,6 @@ void WaylandPointer::OnPointerEnter(void* data,
 
   WaylandDisplay::GetInstance()->SetSerial(serial);
   device->pointer_position_.SetPoint(sx, sy);
-  device->cursor_->Update(WaylandCursor::CURSOR_LEFT_PTR, serial);
   input->SetFocusWindowHandle(handle);
   device->dispatcher_->PointerEnter(handle,
                                     device->pointer_position_.x(),
