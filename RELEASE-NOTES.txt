@@ -15,6 +15,7 @@ New Features enabled in this release:
 1) Support for xdg_shell.(Experimental, disabled by default)
 2) VKB support for Tizen-IVI.(Experimental, disabled by default)
 3) Touch support.
+4) Cursor support.
 
 ---------------------------------------------------------------------
 Contributors:
