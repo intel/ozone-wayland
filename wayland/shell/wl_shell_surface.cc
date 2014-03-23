@@ -22,6 +22,26 @@ WLShellSurface::~WLShellSurface() {
   wl_shell_surface_destroy(shell_surface_);
 }
 
+void WLShellSurface::InitializeShellSurface(WaylandWindow* window) {
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  DCHECK(display && display->shell());
+
+  shell_surface_ = wl_shell_get_shell_surface(display->shell(),
+                                              Surface()->wlSurface());
+
+  static const wl_shell_surface_listener shell_surface_listener = {
+    WLShellSurface::HandlePing,
+    WLShellSurface::HandleConfigure,
+    WLShellSurface::HandlePopupDone
+  };
+
+  wl_shell_surface_add_listener(shell_surface_,
+                                &shell_surface_listener,
+                                window);
+
+  DCHECK(shell_surface_);
+}
+
 void WLShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                         WaylandShellSurface* shell_parent,
                                         unsigned x,
@@ -89,26 +109,6 @@ void WLShellSurface::HandlePing(void* data,
                                 struct wl_shell_surface* shell_surface,
                                 uint32_t serial) {
   wl_shell_surface_pong(shell_surface, serial);
-}
-
-void WLShellSurface::InitializeShellSurface(WaylandWindow* window) {
-  WaylandDisplay* display = WaylandDisplay::GetInstance();
-  DCHECK(display && display->shell());
-
-  shell_surface_ = wl_shell_get_shell_surface(display->shell(),
-                                              Surface()->wlSurface());
-
-  static const wl_shell_surface_listener shell_surface_listener = {
-    WLShellSurface::HandlePing,
-    WLShellSurface::HandleConfigure,
-    WLShellSurface::HandlePopupDone
-  };
-
-  wl_shell_surface_add_listener(shell_surface_,
-                                &shell_surface_listener,
-                                window);
-
-  DCHECK(shell_surface_);
 }
 
 }  // namespace ozonewayland

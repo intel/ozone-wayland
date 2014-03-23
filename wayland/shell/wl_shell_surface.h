@@ -17,6 +17,7 @@ class WLShellSurface : public WaylandShellSurface {
   WLShellSurface();
   virtual ~WLShellSurface();
 
+  virtual void InitializeShellSurface(WaylandWindow* window) OVERRIDE;
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
                                   unsigned x,
@@ -35,9 +36,6 @@ class WLShellSurface : public WaylandShellSurface {
   static void HandlePing(void* data,
                          struct wl_shell_surface* shell_surface,
                          uint32_t serial);
-
- protected:
-  virtual void InitializeShellSurface(WaylandWindow* window) OVERRIDE;
 
  private:
   wl_shell_surface* shell_surface_;

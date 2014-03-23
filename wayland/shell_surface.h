@@ -26,6 +26,9 @@ class WaylandShellSurface {
 
   WaylandSurface* Surface() const { return surface_; }
 
+  // The implementation should initialize the shell and set up all
+  // necessary callbacks.
+  virtual void InitializeShellSurface(WaylandWindow* window) = 0;
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
                                   unsigned x,
@@ -40,9 +43,6 @@ class WaylandShellSurface {
 
  protected:
   void FlushDisplay() const;
-  // The implementation should initialize the shell and set up all
-  // necessary callbacks.
-  virtual void InitializeShellSurface(WaylandWindow* window) = 0;
 
  private:
   WaylandSurface* surface_;

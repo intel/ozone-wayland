@@ -27,6 +27,24 @@ XDGShellSurface::~XDGShellSurface() {
     xdg_popup_destroy(xdg_popup_);
 }
 
+void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  DCHECK(display && display->xdgshell());
+  xdg_surface_ = xdg_shell_get_xdg_surface(display->xdgshell(),
+                                           Surface()->wlSurface());
+
+  static const xdg_surface_listener xdg_surface_listener = {
+    XDGShellSurface::HandlePing,
+    XDGShellSurface::HandleConfigure,
+  };
+
+  xdg_surface_add_listener(xdg_surface_,
+                           &xdg_surface_listener,
+                           window);
+
+  DCHECK(xdg_surface_);
+}
+
 void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                          WaylandShellSurface* shell_parent,
                                          unsigned x,
@@ -114,25 +132,6 @@ void XDGShellSurface::HandlePopupPing(void* data,
                                  struct xdg_popup* xdg_popup,
                                  uint32_t serial) {
   xdg_popup_pong(xdg_popup, serial);
-}
-
-void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
-  WaylandDisplay* display = WaylandDisplay::GetInstance();
-  DCHECK(display && display->xdgshell());
-  xdg_surface_ = xdg_shell_get_xdg_surface(display->xdgshell(),
-                                           Surface()->wlSurface());
-
-  static const xdg_surface_listener xdg_surface_listener = {
-    XDGShellSurface::HandlePing,
-    XDGShellSurface::HandleConfigure,
-  };
-
-  xdg_surface_add_listener(xdg_surface_,
-                           &xdg_surface_listener,
-                           window);
-
-  DCHECK(xdg_surface_);
-  WaylandShellSurface::FlushDisplay();
 }
 
 }  // namespace ozonewayland

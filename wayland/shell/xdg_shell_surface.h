@@ -18,6 +18,7 @@ class XDGShellSurface : public WaylandShellSurface {
   XDGShellSurface();
   virtual ~XDGShellSurface();
 
+  virtual void InitializeShellSurface(WaylandWindow* window) OVERRIDE;
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
                                   unsigned x,
@@ -41,9 +42,6 @@ class XDGShellSurface : public WaylandShellSurface {
   static void HandlePopupPing(void* data,
                               struct xdg_popup* xdg_popup,
                               uint32_t serial);
-
- protected:
-  virtual void InitializeShellSurface(WaylandWindow* window) OVERRIDE;
 
  private:
   xdg_surface* xdg_surface_;
