@@ -13,7 +13,6 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
-#include "ui/aura/client/window_move_client.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
 #include "ui/events/event_utils.h"
@@ -29,6 +28,7 @@
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
 #include "ui/wm/core/window_util.h"
+#include "ui/wm/public/window_move_client.h"
 
 namespace views {
 
