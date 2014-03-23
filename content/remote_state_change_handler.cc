@@ -37,9 +37,9 @@ RemoteStateChangeHandler::~RemoteStateChangeHandler() {
 }
 
 void RemoteStateChangeHandler::SetWidgetState(unsigned w,
-                                             ui::WidgetState state,
-                                             unsigned width,
-                                             unsigned height) {
+                                              ui::WidgetState state,
+                                              unsigned width,
+                                              unsigned height) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
     BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetState,
@@ -51,7 +51,7 @@ void RemoteStateChangeHandler::SetWidgetState(unsigned w,
 }
 
 void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,
-                                             const base::string16& title) {
+                                              const base::string16& title) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
     BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetTitle,
@@ -63,10 +63,10 @@ void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,
 }
 
 void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
-                                                  unsigned parent,
-                                                  unsigned x,
-                                                  unsigned y,
-                                                  ui::WidgetType type) {
+                                                   unsigned parent,
+                                                   unsigned x,
+                                                   unsigned y,
+                                                   ui::WidgetType type) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
     BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
         base::Bind(&RemoteStateChangeHandler::SetWidgetAttributes,

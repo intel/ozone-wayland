@@ -62,9 +62,9 @@ void OzoneChannel::Register() {
 }
 
 void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
-                                               ui::WidgetState state,
-                                               unsigned width,
-                                               unsigned height) {
+                                        ui::WidgetState state,
+                                        unsigned width,
+                                        unsigned height) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handleid,
                                                               state,
                                                               width,
@@ -72,15 +72,15 @@ void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
 }
 
 void OzoneChannel::OnWidgetTitleChanged(unsigned widget,
-                                               base::string16 title) {
+                                        base::string16 title) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
 }
 
 void OzoneChannel::OnWidgetAttributesChanged(unsigned widget,
-                                                    unsigned parent,
-                                                    unsigned x,
-                                                    unsigned y,
-                                                    ui::WidgetType type) {
+                                             unsigned parent,
+                                             unsigned x,
+                                             unsigned y,
+                                             ui::WidgetType type) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetAttributes(widget,
                                                                    parent,
                                                                    x,
