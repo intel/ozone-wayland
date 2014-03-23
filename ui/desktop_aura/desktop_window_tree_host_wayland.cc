@@ -718,7 +718,8 @@ void DesktopWindowTreeHostWayland::ReleaseCapture() {
 }
 
 void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
-  NOTIMPLEMENTED();
+  // TODO(kalyan): Add support for custom cursor.
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetCursor(cursor_type);
 }
 
 bool DesktopWindowTreeHostWayland::QueryMouseLocation(

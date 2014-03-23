@@ -33,6 +33,8 @@ class OZONE_WAYLAND_EXPORT WindowStateChangeHandler {
 
   // Called when AcceleratedWidget widget title has changed.
   virtual void SetWidgetTitle(unsigned widget, const base::string16& title) = 0;
+  // Called when Cursor has changed and the image needs to be updated.
+  virtual void SetWidgetCursor(int cursor_type) = 0;
 
   // This is called when we want to create an AcceleratedWidget widget.
   virtual void SetWidgetAttributes(unsigned widget,

@@ -62,6 +62,17 @@ void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,
   Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
 }
 
+void RemoteStateChangeHandler::SetWidgetCursor(int cursor_type) {
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+        base::Bind(&RemoteStateChangeHandler::SetWidgetCursor,
+            base::Unretained(this), cursor_type));
+    return;
+  }
+
+  Send(new WaylandWindow_Cursor(CHANNEL_ROUTE_ID, cursor_type));
+}
+
 void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
                                                    unsigned parent,
                                                    unsigned x,

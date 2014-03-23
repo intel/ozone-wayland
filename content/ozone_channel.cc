@@ -47,6 +47,7 @@ bool OzoneChannel::OnMessageReceived(
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Attributes, OnWidgetAttributesChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Cursor, OnWidgetCursorChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_ImeReset, OnWidgetImeReset)
   IPC_MESSAGE_HANDLER(WaylandWindow_ShowInputPanel, OnWidgetShowInputPanel)
   IPC_MESSAGE_HANDLER(WaylandWindow_HideInputPanel, OnWidgetHideInputPanel)
@@ -74,6 +75,10 @@ void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
 void OzoneChannel::OnWidgetTitleChanged(unsigned widget,
                                         base::string16 title) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
+}
+
+void OzoneChannel::OnWidgetCursorChanged(int cursor_type) {
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetCursor(cursor_type);
 }
 
 void OzoneChannel::OnWidgetAttributesChanged(unsigned widget,

@@ -31,6 +31,7 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
                               unsigned height = 0) OVERRIDE;
   virtual void SetWidgetTitle(unsigned w,
                               const base::string16& title) OVERRIDE;
+  virtual void SetWidgetCursor(int cursor_type) OVERRIDE;
   virtual void SetWidgetAttributes(unsigned widget,
                                    unsigned parent,
                                    unsigned x,
