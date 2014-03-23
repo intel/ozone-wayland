@@ -11,7 +11,6 @@
 #include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/xdg_shell_surface.h"
 #endif
-#include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
 

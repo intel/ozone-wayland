@@ -12,7 +12,6 @@
 
 namespace ozonewayland {
 
-class WaylandSurface;
 class WaylandWindow;
 
 class WaylandShellSurface {
@@ -41,7 +40,7 @@ class WaylandShellSurface {
   void FlushDisplay() const;
 
  private:
-  WaylandSurface* surface_;
+  struct wl_surface* surface_;
   DISALLOW_COPY_AND_ASSIGN(WaylandShellSurface);
 };
 

@@ -7,22 +7,23 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
-#include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
 
 WaylandShellSurface::WaylandShellSurface()
     : surface_(NULL) {
-  surface_ = new WaylandSurface();
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  surface_ = wl_compositor_create_surface(display->GetCompositor());
 }
 
 WaylandShellSurface::~WaylandShellSurface() {
-  delete surface_;
+  DCHECK(surface_);
+  wl_surface_destroy(surface_);
   FlushDisplay();
 }
 
 struct wl_surface* WaylandShellSurface::GetWLSurface() const {
-    return surface_->GetWLSurface();
+    return surface_;
 }
 
 void WaylandShellSurface::FlushDisplay() const {
