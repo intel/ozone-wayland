@@ -20,7 +20,7 @@ class EGLWindow {
   ~EGLWindow();
 
   wl_egl_window* egl_window() const { return window_; }
-  bool Resize(WaylandSurface* surface, int32_t width, int32_t height);
+  bool Resize(int32_t width, int32_t height);
 
  private:
   wl_egl_window* window_;

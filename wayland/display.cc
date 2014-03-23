@@ -12,9 +12,7 @@
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
-#if defined(ENABLE_XDG_SHELL)
-#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
-#endif
+#include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"
 
 namespace ozonewayland {
@@ -24,7 +22,6 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     registry_(NULL),
     compositor_(NULL),
     shell_(NULL),
-    xdg_shell_(NULL),
     shm_(NULL),
     primary_screen_(NULL),
     primary_input_(NULL),
@@ -48,10 +45,12 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
   };
 
   registry_ = wl_display_get_registry(display_);
-  if (type == RegisterAsNeeded)
+  if (type == RegisterAsNeeded) {
     wl_registry_add_listener(registry_, &registry_all, this);
-  else
+    shell_ = new WaylandShell();
+  } else {
     wl_registry_add_listener(registry_, &registry_output, this);
+  }
 
   if (wl_display_roundtrip(display_) < 0)
     terminate();
@@ -253,12 +252,7 @@ void WaylandDisplay::terminate() {
   if (compositor_)
     wl_compositor_destroy(compositor_);
 
-  if (shell_)
-    wl_shell_destroy(shell_);
-#if defined(ENABLE_XDG_SHELL)
-  if (xdg_shell_)
-    xdg_shell_destroy(xdg_shell_);
-#endif
+  delete shell_;
   if (shm_)
     wl_shm_destroy(shm_);
 
@@ -306,22 +300,14 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     WaylandInputDevice *input_device = new WaylandInputDevice(disp, name);
     disp->input_list_.push_back(input_device);
     disp->primary_input_ = disp->input_list_.front();
-  } else if (strcmp(interface, "wl_shell") == 0) {
-    disp->shell_ = static_cast<wl_shell*>(
-        wl_registry_bind(registry, name, &wl_shell_interface, 1));
-  } else if (strcmp(interface, "xdg_shell") == 0) {
-#if defined(ENABLE_XDG_SHELL)
-    disp->xdg_shell_ = static_cast<xdg_shell*>(
-        wl_registry_bind(registry, name, &xdg_shell_interface, 1));
-     xdg_shell_use_unstable_version(disp->xdg_shell_,
-                                    XDG_SHELL_VERSION_CURRENT);
-#endif
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
   } else if (strcmp(interface, "wl_text_input_manager") == 0) {
     disp->text_input_manager_ = static_cast<wl_text_input_manager*>(
         wl_registry_bind(registry, name, &wl_text_input_manager_interface, 1));
+  } else {
+    disp->shell_->Initialize(registry, name, interface, version);
   }
 }
 

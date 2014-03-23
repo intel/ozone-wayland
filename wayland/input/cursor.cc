@@ -113,11 +113,11 @@ void WaylandCursor::Update(CursorType type, uint32_t serial) {
   int height = image->height;
   wl_pointer_set_cursor(input_pointer_,
                         serial,
-                        pointer_surface_->wlSurface(),
+                        pointer_surface_->GetWLSurface(),
                         image->hotspot_x,
                         image->hotspot_y);
 
-  struct wl_surface* surface = pointer_surface_->wlSurface();
+  struct wl_surface* surface = pointer_surface_->GetWLSurface();
   wl_surface_attach(surface, buffer, 0, 0);
   wl_surface_damage(surface, 0, 0, width, height);
   wl_surface_commit(surface);

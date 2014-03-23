@@ -28,6 +28,9 @@ class WaylandShell {
                   const char *interface,
                   uint32_t version);
 
+  wl_shell* GetWLShell() const { return shell_; }
+  xdg_shell* GetXDGShell() const { return xdg_shell_; }
+
  private:
   wl_shell* shell_;
   xdg_shell* xdg_shell_;

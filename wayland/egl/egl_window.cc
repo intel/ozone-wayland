@@ -21,7 +21,7 @@ EGLWindow::~EGLWindow() {
   wl_egl_window_destroy(window_);
 }
 
-bool EGLWindow::Resize(WaylandSurface* surface, int32_t width, int32_t height) {
+bool EGLWindow::Resize(int32_t width, int32_t height) {
   // TODO(kalyan): Check if we need to sync display here.
   wl_egl_window_resize(window_, width, height, 0, 0);
   return true;

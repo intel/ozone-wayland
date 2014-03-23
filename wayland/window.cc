@@ -9,8 +9,8 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/shell_surface.h"
-#include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
 
@@ -22,7 +22,6 @@ WaylandWindow::WaylandWindow(unsigned handle) : shell_surface_(NULL),
 }
 
 WaylandWindow::~WaylandWindow() {
-  wl_surface_set_user_data(GetSurface(), 0);
   delete window_;
   delete shell_surface_;
 }
@@ -32,8 +31,8 @@ void WaylandWindow::SetShellAttributes(ShellType type) {
     return;
 
   if (!shell_surface_) {
-    shell_surface_ = WaylandShellSurface::CreateShellSurface(this);
-    wl_surface_set_user_data(GetSurface(), this);
+    shell_surface_ =
+        WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(this);
   }
 
   type_ = type;
@@ -47,8 +46,8 @@ void WaylandWindow::SetShellAttributes(ShellType type,
   DCHECK(shell_parent && (type == POPUP));
 
   if (!shell_surface_) {
-    shell_surface_ = WaylandShellSurface::CreateShellSurface(this);
-    wl_surface_set_user_data(GetSurface(), this);
+    shell_surface_ =
+        WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(this);
     WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
     input->SetGrabWindowHandle(handle_, 0);
   }
@@ -89,7 +88,7 @@ void WaylandWindow::RealizeAcceleratedWidget() {
   }
 
   if (!window_)
-    window_ = new EGLWindow(shell_surface_->Surface()->wlSurface(),
+    window_ = new EGLWindow(shell_surface_->GetWLSurface(),
                             allocation_.width(),
                             allocation_.height());
 }
@@ -97,11 +96,6 @@ void WaylandWindow::RealizeAcceleratedWidget() {
 wl_egl_window* WaylandWindow::egl_window() const {
   DCHECK(window_);
   return window_->egl_window();
-}
-
-struct wl_surface* WaylandWindow::GetSurface() const {
-  DCHECK(shell_surface_);
-  return shell_surface_->Surface()->wlSurface();
 }
 
 void WaylandWindow::Resize(unsigned width, unsigned height) {
@@ -112,7 +106,7 @@ void WaylandWindow::Resize(unsigned width, unsigned height) {
   if (!shell_surface_ || !window_)
     return;
 
-  window_->Resize(shell_surface_->Surface(), width, height);
+  window_->Resize(width, height);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
   display->FlushDisplay();

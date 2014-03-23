@@ -53,8 +53,6 @@ class WaylandWindow {
   // Returns pointer to egl window associated with the window.
   // The WaylandWindow object owns the pointer.
   wl_egl_window* egl_window() const;
-  // Returns pointer to Wayland Surface associated with the window.
-  struct wl_surface* GetSurface() const;
 
   // Immediately Resizes window and flushes Wayland Display.
   void Resize(unsigned width, unsigned height);

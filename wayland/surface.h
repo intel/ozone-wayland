@@ -15,7 +15,7 @@ class WaylandSurface {
  public:
   WaylandSurface();
   ~WaylandSurface();
-  struct wl_surface* wlSurface() const { return surface_; }
+  struct wl_surface* GetWLSurface() const { return surface_; }
 
  private:
   struct wl_surface* surface_;
