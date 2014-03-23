@@ -6,8 +6,8 @@
 #define OZONE_IMPL_DESKTOP_AURA_DESKTOP_DRAG_DROP_CLIENT_WAYLAND_H_
 
 #include "base/compiler_specific.h"
-#include "ui/aura/client/drag_drop_client.h"
 #include "ui/views/views_export.h"
+#include "ui/wm/public/drag_drop_client.h"
 
 namespace views {
 
