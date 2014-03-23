@@ -12,6 +12,9 @@
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
+#if defined(ENABLE_XDG_SHELL)
+#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
+#endif
 #include "ozone/wayland/window.h"
 
 namespace ozonewayland {
@@ -252,10 +255,10 @@ void WaylandDisplay::terminate() {
 
   if (shell_)
     wl_shell_destroy(shell_);
-
+#if defined(ENABLE_XDG_SHELL)
   if (xdg_shell_)
     xdg_shell_destroy(xdg_shell_);
-
+#endif
   if (shm_)
     wl_shm_destroy(shm_);
 
@@ -307,10 +310,12 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     disp->shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));
   } else if (strcmp(interface, "xdg_shell") == 0) {
+#if defined(ENABLE_XDG_SHELL)
     disp->xdg_shell_ = static_cast<xdg_shell*>(
         wl_registry_bind(registry, name, &xdg_shell_interface, 1));
      xdg_shell_use_unstable_version(disp->xdg_shell_,
                                     XDG_SHELL_VERSION_CURRENT);
+#endif
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));

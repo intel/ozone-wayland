@@ -17,8 +17,8 @@
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/wayland/input/text-client-protocol.h"
-#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 
+struct xdg_shell;
 namespace ozonewayland {
 
 class WaylandDisplayPollThread;
