@@ -93,6 +93,9 @@ IPC_MESSAGE_ROUTED2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
                     unsigned /* window handle */,
                     base::string16 /* window title */)
 
+IPC_MESSAGE_ROUTED1(WaylandWindow_Cursor,  // NOLINT(readability/fn_size)
+                    int /* cursor type */)
+
 IPC_MESSAGE_ROUTED0(WaylandWindow_ImeReset)  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_ROUTED1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/

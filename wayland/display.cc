@@ -168,6 +168,10 @@ void WaylandDisplay::SetWidgetTitle(unsigned w,
   widget->SetWindowTitle(title);
 }
 
+void WaylandDisplay::SetWidgetCursor(int cursor_type) {
+  NOTIMPLEMENTED();
+}
+
 void WaylandDisplay::SetWidgetAttributes(unsigned widget,
                                          unsigned parent,
                                          unsigned x,
