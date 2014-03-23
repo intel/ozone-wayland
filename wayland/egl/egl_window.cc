@@ -7,9 +7,6 @@
 #include <EGL/egl.h>
 #include <wayland-egl.h>
 
-#include "ozone/wayland/display.h"
-#include "ozone/wayland/surface.h"
-
 namespace ozonewayland {
 
 EGLWindow::EGLWindow(struct wl_surface* surface, int32_t width, int32_t height)

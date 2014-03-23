@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "ozone/wayland/surface.h"
+#include "ozone/wayland/display.h"
 
 namespace ozonewayland {
 // This number should be equal to size of array defined in WaylandCursorData
@@ -90,12 +90,15 @@ WaylandCursorData::~WaylandCursorData() {
 }
 
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
-    pointer_surface_(new WaylandSurface()) {
+    pointer_surface_(NULL) {
   WaylandCursorData::InitializeCursorData(shm);
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  pointer_surface_ = wl_compositor_create_surface(display->GetCompositor());
 }
 
 WaylandCursor::~WaylandCursor() {
-  delete pointer_surface_;
+  DCHECK(pointer_surface_);
+  wl_surface_destroy(pointer_surface_);
 }
 
 void WaylandCursor::Clear() {
@@ -113,11 +116,11 @@ void WaylandCursor::Update(CursorType type, uint32_t serial) {
   int height = image->height;
   wl_pointer_set_cursor(input_pointer_,
                         serial,
-                        pointer_surface_->GetWLSurface(),
+                        pointer_surface_,
                         image->hotspot_x,
                         image->hotspot_y);
 
-  struct wl_surface* surface = pointer_surface_->GetWLSurface();
+  struct wl_surface* surface = pointer_surface_;
   wl_surface_attach(surface, buffer, 0, 0);
   wl_surface_damage(surface, 0, 0, width, height);
   wl_surface_commit(surface);

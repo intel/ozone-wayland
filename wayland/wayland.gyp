@@ -76,8 +76,6 @@
         'ozone_hardware_display.cc',
         'screen.cc',
         'screen.h',
-        'surface.h',
-        'surface.cc',
         'window.cc',
         'window.h',
         'egl/egl_window.cc',

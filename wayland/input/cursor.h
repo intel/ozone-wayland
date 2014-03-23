@@ -11,7 +11,6 @@
 #include "base/basictypes.h"
 
 namespace ozonewayland {
-class WaylandSurface;
 
 class WaylandCursor {
  public:
@@ -45,7 +44,7 @@ class WaylandCursor {
 
  private:
   wl_pointer* input_pointer_;
-  WaylandSurface* pointer_surface_;
+  struct wl_surface* pointer_surface_;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 
