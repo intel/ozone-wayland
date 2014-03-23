@@ -8,6 +8,7 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
 #if defined(ENABLE_XDG_SHELL)
+#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/xdg_shell_surface.h"
 #endif
 #include "ozone/wayland/surface.h"

@@ -5,8 +5,10 @@
 #ifndef OZONE_WAYLAND_SHELL_XDG_SURFACE_H_
 #define OZONE_WAYLAND_SHELL_XDG_SURFACE_H_
 
-#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
-#include "ozone/wayland/shell_surface.h"
+#include "ozone/wayland/shell/shell_surface.h"
+
+struct xdg_surface;
+struct xdg_popup;
 
 namespace ozonewayland {
 

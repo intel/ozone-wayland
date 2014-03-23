@@ -10,7 +10,7 @@
 #include "ozone/wayland/egl/egl_window.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/shell/shell.h"
-#include "ozone/wayland/shell_surface.h"
+#include "ozone/wayland/shell/shell_surface.h"
 
 namespace ozonewayland {
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_SHELL_SURFACE_H_
-#define OZONE_WAYLAND_SHELL_SURFACE_H_
+#ifndef OZONE_WAYLAND_SHELL_SHELL_SURFACE_H_
+#define OZONE_WAYLAND_SHELL_SHELL_SURFACE_H_
 
 #include <wayland-client.h>
 
@@ -47,4 +47,4 @@ class WaylandShellSurface {
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_SHELL_SURFACE_H_
+#endif  // OZONE_WAYLAND_SHELL_SHELL_SURFACE_H_

@@ -5,7 +5,7 @@
 #ifndef OZONE_WAYLAND_SHELL_WL_SHELL_SURFACE_H_
 #define OZONE_WAYLAND_SHELL_WL_SHELL_SURFACE_H_
 
-#include "ozone/wayland/shell_surface.h"
+#include "ozone/wayland/shell/shell_surface.h"
 
 namespace ozonewayland {
 
