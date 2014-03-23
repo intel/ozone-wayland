@@ -7,8 +7,10 @@
   'variables': {
     'variables':  {
       'enable_ozone_wayland_vkb%': 0,
+      'enable_xdg_shell%': 0,
     },
     'enable_ozone_wayland_vkb%': '<(enable_ozone_wayland_vkb)',
+    'enable_xdg_shell%': '<(enable_xdg_shell)',
     'conditions': [
       ['sysroot!=""', {
         'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
@@ -97,10 +99,19 @@
         'input/touchscreen.h',
         'shell/wl_shell_surface.cc',
         'shell/wl_shell_surface.h',
-        'shell/xdg_shell_surface.cc',
-        'shell/xdg_shell_surface.h',
-        'shell/xdg-shell-protocol.c',
-        'shell/xdg-shell-client-protocol.h',
+      ],
+      'conditions': [
+        ['<(enable_xdg_shell)==1', {
+          'defines': [
+            'ENABLE_XDG_SHELL',
+          ],
+          'sources': [
+            'shell/xdg_shell_surface.cc',
+            'shell/xdg_shell_surface.h',
+            'shell/xdg-shell-protocol.c',
+            'shell/xdg-shell-client-protocol.h',
+          ],
+        }],
       ],
     },
   ]

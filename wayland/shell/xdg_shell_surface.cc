@@ -119,7 +119,6 @@ void XDGShellSurface::HandlePopupPing(void* data,
 void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display && display->xdgshell());
-
   xdg_surface_ = xdg_shell_get_xdg_surface(display->xdgshell(),
                                            Surface()->wlSurface());
 
@@ -133,6 +132,7 @@ void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
                            window);
 
   DCHECK(xdg_surface_);
+  WaylandShellSurface::FlushDisplay();
 }
 
 }  // namespace ozonewayland

@@ -8,7 +8,9 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
+#if defined(ENABLE_XDG_SHELL)
 #include "ozone/wayland/shell/xdg_shell_surface.h"
+#endif
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -53,12 +55,16 @@ WaylandShellSurface* WaylandShellSurface::CreateShellSurface(
     WaylandWindow* window) {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
-  WaylandShellSurface* surface;
+  WaylandShellSurface* surface = NULL;
+#if defined(ENABLE_XDG_SHELL)
   if (display->xdgshell())
     surface = new XDGShellSurface();
-  else if (display->shell())
+#endif
+  DCHECK(display->shell());
+  if (!surface)
     surface = new WLShellSurface();
 
+  DCHECK(surface);
   surface->InitializeShellSurface(window);
 
   return surface;
