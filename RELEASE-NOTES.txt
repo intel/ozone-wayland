@@ -17,10 +17,10 @@ New Features enabled in this release:
 3) Touch support.
 
 ---------------------------------------------------------------------
-Controbutors:
-1) Patrick Heeb <patrick.heeb@noser.com>(Touch support.)
+Contributors:
+1) Joone Hur <joone.hur@intel.com> (VKB support for Tizen IVI.)
 2) Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>(xdg_shell support.)
-3) Joone Hur <joone.hur@intel.com> (VKB support for Tizen IVI.)
+3) Patrick Heeb <patrick.heeb@noser.com>(Touch support.)
 
 ---------------------------------------------------------------------
 
