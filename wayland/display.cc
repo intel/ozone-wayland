@@ -169,7 +169,7 @@ void WaylandDisplay::SetWidgetTitle(unsigned w,
 }
 
 void WaylandDisplay::SetWidgetCursor(int cursor_type) {
-  NOTIMPLEMENTED();
+  primary_input_->SetCursorType(cursor_type);
 }
 
 void WaylandDisplay::SetWidgetAttributes(unsigned widget,
