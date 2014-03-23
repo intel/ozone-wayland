@@ -5,6 +5,7 @@
 #ifndef OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 #define OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 
+#include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
 #include "ozone/ui/desktop_aura/desktop_factory_wayland.h"
 #endif
@@ -36,7 +37,7 @@ class OzonePlatformWayland : public OzonePlatform {
   gfx::SurfaceFactoryWayland surface_factory_ozone_;
   ui::EventFactoryOzoneWayland event_factory_ozone_;
   ui::InputMethodContextFactoryWayland input_method_context_factory_;
-  ui::CursorFactoryOzone cursor_factory_ozone_;
+  ui::CursorFactoryOzoneWayland cursor_factory_ozone_;
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
   views::DesktopFactoryWayland desktop_factory_ozone_;
 #endif

@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 {
   'includes': [
+    'cursor/cursor.gypi',
     'events/event.gypi',
     'gfx/gfx.gypi',
     'ime/ime.gypi',
