@@ -98,6 +98,8 @@
         'input/text-client-protocol.h',
         'input/touchscreen.cc',
         'input/touchscreen.h',
+        'shell/shell.cc',
+        'shell/shell.h',
         'shell/wl_shell_surface.cc',
         'shell/wl_shell_surface.h',
       ],
