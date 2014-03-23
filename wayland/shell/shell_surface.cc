@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/shell_surface.h"
+#include "ozone/wayland/shell/shell_surface.h"
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
