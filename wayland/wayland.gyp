@@ -56,6 +56,7 @@
       ],
       'include_dirs': [
         '../..',
+        '<(DEPTH)/third_party/khronos',
       ],
       'conditions': [
         ['<(enable_ozone_wayland_vkb)==1', {
