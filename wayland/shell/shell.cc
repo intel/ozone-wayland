@@ -42,7 +42,7 @@ WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window) {
 
   DCHECK(surface);
   surface->InitializeShellSurface(window);
-  wl_surface_set_user_data(surface->Surface()->wlSurface(), window);
+  wl_surface_set_user_data(surface->GetWLSurface(), window);
   display->FlushDisplay();
 
   return surface;
@@ -56,8 +56,8 @@ void WaylandShell::Initialize(struct wl_registry *registry,
     DCHECK(!shell_);
     shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));
-  } else if (strcmp(interface, "xdg_shell") == 0) {
 #if defined(ENABLE_XDG_SHELL)
+  } else if (strcmp(interface, "xdg_shell") == 0) {
       DCHECK(!xdg_shell_);
       xdg_shell_ = static_cast<xdg_shell*>(
           wl_registry_bind(registry, name, &xdg_shell_interface, 1));

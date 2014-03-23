@@ -17,14 +17,10 @@ class WaylandWindow;
 
 class WaylandShellSurface {
  public:
-  // Creates shell surface for a given WaylandWindow. This can be either
-  // wl_shell, xdg_shell or any shell which supports wayland protocol.
-  // Ownership is passed to the caller.
-  static WaylandShellSurface* CreateShellSurface(WaylandWindow* window);
   WaylandShellSurface();
   virtual ~WaylandShellSurface();
 
-  WaylandSurface* Surface() const { return surface_; }
+  struct wl_surface* GetWLSurface() const;
 
   // The implementation should initialize the shell and set up all
   // necessary callbacks.

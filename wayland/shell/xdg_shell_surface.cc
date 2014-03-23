@@ -9,6 +9,7 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -28,10 +29,13 @@ XDGShellSurface::~XDGShellSurface() {
 }
 
 void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
+  DCHECK(!xdg_surface_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
-  DCHECK(display && display->xdgshell());
-  xdg_surface_ = xdg_shell_get_xdg_surface(display->xdgshell(),
-                                           Surface()->wlSurface());
+  DCHECK(display);
+  WaylandShell* shell = WaylandDisplay::GetInstance()->GetShell();
+  DCHECK(shell && shell->GetXDGShell());
+  xdg_surface_ = xdg_shell_get_xdg_surface(shell->GetXDGShell(),
+                                           GetWLSurface());
 
   static const xdg_surface_listener xdg_surface_listener = {
     XDGShellSurface::HandlePing,
@@ -60,9 +64,9 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   case WaylandWindow::POPUP: {
     WaylandDisplay* display = WaylandDisplay::GetInstance();
     WaylandInputDevice* input_device = display->PrimaryInput();
-    wl_surface* surface = Surface()->wlSurface();
-    wl_surface* parent_surface = shell_parent->Surface()->wlSurface();
-    xdg_popup_ = xdg_shell_get_xdg_popup(display->xdgshell(),
+    wl_surface* surface = GetWLSurface();
+    wl_surface* parent_surface = shell_parent->GetWLSurface();
+    xdg_popup_ = xdg_shell_get_xdg_popup(display->GetShell()->GetXDGShell(),
                                          surface,
                                          parent_surface,
                                          input_device->GetInputSeat(),

@@ -18,12 +18,12 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/wayland/input/text-client-protocol.h"
 
-struct xdg_shell;
 namespace ozonewayland {
 
 class WaylandDisplayPollThread;
 class WaylandInputDevice;
 class WaylandScreen;
+class WaylandShell;
 class WaylandWindow;
 struct wl_egl_window;
 
@@ -56,8 +56,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
   const std::list<WaylandScreen*>& GetScreenList() const;
   WaylandScreen* PrimaryScreen() const { return primary_screen_ ; }
 
-  wl_shell* shell() const { return shell_; }
-  xdg_shell* xdgshell() const { return xdg_shell_; }
+  WaylandShell* GetShell() const { return shell_; }
 
   wl_shm* shm() const { return shm_; }
   wl_compositor* GetCompositor() const { return compositor_; }
@@ -134,8 +133,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
   wl_display* display_;
   wl_registry* registry_;
   wl_compositor* compositor_;
-  wl_shell* shell_;
-  xdg_shell* xdg_shell_;
+  WaylandShell* shell_;
   wl_shm* shm_;
   struct wl_text_input_manager* text_input_manager_;
   WaylandScreen* primary_screen_;

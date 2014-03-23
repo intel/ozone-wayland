@@ -9,6 +9,7 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/surface.h"
 
 namespace ozonewayland {
@@ -23,11 +24,13 @@ WLShellSurface::~WLShellSurface() {
 }
 
 void WLShellSurface::InitializeShellSurface(WaylandWindow* window) {
+  DCHECK(!shell_surface_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
-  DCHECK(display && display->shell());
-
-  shell_surface_ = wl_shell_get_shell_surface(display->shell(),
-                                              Surface()->wlSurface());
+  DCHECK(display);
+  WaylandShell* shell = WaylandDisplay::GetInstance()->GetShell();
+  DCHECK(shell && shell->GetWLShell());
+  shell_surface_ = wl_shell_get_shell_surface(shell->GetWLShell(),
+                                              GetWLSurface());
 
   static const wl_shell_surface_listener shell_surface_listener = {
     WLShellSurface::HandlePing,
@@ -53,7 +56,7 @@ void WLShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   case WaylandWindow::POPUP: {
     WaylandDisplay* display = WaylandDisplay::GetInstance();
     WaylandInputDevice* input_device = display->PrimaryInput();
-    wl_surface* parent_surface = shell_parent->Surface()->wlSurface();
+    wl_surface* parent_surface = shell_parent->GetWLSurface();
     wl_shell_surface_set_popup(shell_surface_,
                                input_device->GetInputSeat(),
                                display->GetSerial(),
