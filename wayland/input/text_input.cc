@@ -5,6 +5,7 @@
 #include "ozone/wayland/input/text_input.h"
 
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/shell/shell_surface.h"
 #include "ozone/wayland/window.h"
 
 namespace ozonewayland {
@@ -129,7 +130,7 @@ void WaylandTextInput::ShowInputPanel(wl_seat* input_seat) {
     wl_text_input_show_input_panel(text_input_);
     wl_text_input_activate(text_input_,
                            input_seat,
-                           active_window_->GetSurface());
+                           active_window_->ShellSurface()->GetWLSurface());
   }
 #endif
 }
