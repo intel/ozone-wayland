@@ -58,13 +58,6 @@
         '../..',
         '<(DEPTH)/third_party/khronos',
       ],
-      'conditions': [
-        ['<(enable_ozone_wayland_vkb)==1', {
-          'defines': [
-            'ENABLE_OZONE_WAYLAND_VKB',
-          ],
-        }],
-      ],
       'sources': [
         'display.cc',
         'display.h',
@@ -102,6 +95,11 @@
         'shell/wl_shell_surface.h',
       ],
       'conditions': [
+        ['<(enable_ozone_wayland_vkb)==1', {
+          'defines': [
+            'ENABLE_OZONE_WAYLAND_VKB',
+          ],
+        }],
         ['<(enable_xdg_shell)==1', {
           'defines': [
             'ENABLE_XDG_SHELL',
