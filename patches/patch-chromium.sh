@@ -26,6 +26,5 @@ if [ -n "$exists" ]; then
   git branch -D $HACKING_OZONE_BRANCH
 fi
 git checkout -b $HACKING_OZONE_BRANCH $RELEASE_OZONE_BRANCH
-git am $PATCH_DIR/M35*
 cd ..
 git am $PATCH_DIR/00*
