@@ -1,4 +1,4 @@
-From 12d750685d23e5e9ef5b61856f5d4569848cbc13 Mon Sep 17 00:00:00 2001
+From 3398c6b7999de652a885b0286e53dd54b5c46963 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Wed, 5 Mar 2014 22:56:11 +0200
 Subject: [PATCH] Add support to provide external ozone files in views.
@@ -10,7 +10,7 @@ to include desktop_aura/ as part of view target.
  1 file changed, 4 insertions(+)
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 8717392..7e5306b 100644
+index feb92d8..a4a02ef 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
 @@ -4,6 +4,7 @@
@@ -19,9 +19,9 @@ index 8717392..7e5306b 100644
      'chromium_code': 1,
 +    'external_ozone_views_files': [],
    },
-   'target_defaults': {
-     'conditions': [
-@@ -607,6 +608,9 @@
+   'targets': [
+     {
+@@ -481,6 +482,9 @@
            ],
          }],
          ['use_ozone==1', {
@@ -31,5 +31,6 @@ index 8717392..7e5306b 100644
            'dependencies': [
              '../ozone/ozone.gyp:ozone',
            ],
---
+-- 
 1.7.9.5
+
