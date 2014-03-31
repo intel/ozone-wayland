@@ -757,9 +757,6 @@ void DesktopWindowTreeHostWayland::OnDeviceScaleFactorChanged(
     float device_scale_factor) {
 }
 
-void DesktopWindowTreeHostWayland::PrepareForShutdown() {
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, Private implementation:
 
