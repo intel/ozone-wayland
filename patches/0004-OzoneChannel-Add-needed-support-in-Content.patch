@@ -1,4 +1,4 @@
-From 15fb6b20e30dfdc018cf836eb53106b581992014 Mon Sep 17 00:00:00 2001
+From ad7ce32ae997b990c2e4ede50267637ff86d33c6 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Mon, 3 Mar 2014 13:04:17 +0200
 Subject: [PATCH] OzoneChannel: Add needed support in Content.
@@ -12,13 +12,13 @@ our needs. This patch adds support for the following:
 2) Ensure our content related files are compiled as part of
    content_common target.
 ---
- content/browser/browser_main_loop.cc |   13 +++++++++++++
+ content/browser/browser_main_loop.cc |   12 ++++++++++++
  content/content_common.gypi          |   19 +++++++++++++++++++
  content/gpu/gpu_main.cc              |    8 ++++++++
- 3 files changed, 40 insertions(+)
+ 3 files changed, 39 insertions(+)
 
 diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
-index ab045e4..1898b90 100644
+index ab045e4..554bfa4 100644
 --- a/content/browser/browser_main_loop.cc
 +++ b/content/browser/browser_main_loop.cc
 @@ -119,6 +119,7 @@
@@ -40,14 +40,13 @@ index ab045e4..1898b90 100644
    }
  
    // Must happen after the I/O thread is shutdown since this class lives on the
-@@ -1045,6 +1050,14 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+@@ -1045,6 +1050,13 @@ int BrowserMainLoop::BrowserThreadsStarted() {
  #if defined(OS_MACOSX)
    ThemeHelperMac::GetInstance();
  #endif
 +
 +#if defined(USE_OZONE)
 +  bool using_gpu_process =
-+      established_gpu_channel &&
 +      !parsed_command_line_.HasSwitch(switches::kSingleProcess) &&
 +      !parsed_command_line_.HasSwitch(switches::kInProcessGPU);
 +  OzoneChannelHostFactory::Initialize(using_gpu_process);
