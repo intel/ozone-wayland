@@ -35,7 +35,7 @@ class WaylandCursorData {
     }
   }
 
-  struct wl_cursor_image* GetCursorImage(int index);
+  struct wl_cursor_image* GetCursorImage(WaylandCursor::CursorType index);
 
  private:
   wl_cursor_theme* cursor_theme_;
@@ -86,7 +86,8 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm)
     cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
 }
 
-struct wl_cursor_image* WaylandCursorData::GetCursorImage(int index) {
+struct wl_cursor_image* WaylandCursorData::GetCursorImage(WaylandCursor::CursorType type) {
+  int index = type - 1;
   const struct wl_cursor* cursor = cursors_.at(index);
   if (!cursor)
     return NULL;
@@ -102,7 +103,8 @@ WaylandCursorData::~WaylandCursorData() {
 }
 
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
-    pointer_surface_(NULL) {
+    pointer_surface_(NULL),
+    current_cursor_(CURSOR_UNSET) {
   WaylandCursorData::InitializeCursorData(shm);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   pointer_surface_ = wl_compositor_create_surface(display->GetCompositor());
@@ -121,8 +123,25 @@ void WaylandCursor::Update(CursorType type, uint32_t serial) {
   if (!input_pointer_)
     return;
 
-  struct wl_cursor_image* image = WaylandCursorData::GetInstance()->
-      GetCursorImage(type - 1);
+  DCHECK(type != CURSOR_UNSET);
+  CursorType cursor_type = type;
+  wl_cursor_image* image = WaylandCursorData::GetInstance()->GetCursorImage(
+      cursor_type);
+
+  if (!image) {
+    LOG(INFO) << "The current cursor theme does not have a cursor for type "
+              << cursor_type << ". Falling back to the default cursor.";
+    // The cursor currently being displayed is already the default one, so we
+    // can just continue showing it.
+    if (current_cursor_ == CURSOR_LEFT_PTR)
+      return;
+
+    cursor_type = CURSOR_LEFT_PTR;
+    image = WaylandCursorData::GetInstance()->GetCursorImage(cursor_type);
+    DCHECK(image);
+  }
+
+  current_cursor_ = cursor_type;
   struct wl_buffer* buffer = wl_cursor_image_get_buffer(image);
   int width = image->width;
   int height = image->height;
