@@ -53,12 +53,12 @@ bool SurfaceFactoryWayland::LoadEGLGLES2Bindings(
   // ensure here that wayland is set as the native platform. However, we don't
   // override the EGL_PLATFORM value in case it has already been set.
   setenv("EGL_PLATFORM", "wayland", 0);
-  std::string error;
+  base::NativeLibraryLoadError error;
   base::NativeLibrary gles_library = base::LoadNativeLibrary(
     base::FilePath("libGLESv2.so.2"), &error);
 
   if (!gles_library) {
-    LOG(WARNING) << "Failed to load GLES library: " << error;
+    LOG(WARNING) << "Failed to load GLES library: " << error.ToString();
     return false;
   }
 
@@ -66,7 +66,7 @@ bool SurfaceFactoryWayland::LoadEGLGLES2Bindings(
     base::FilePath("libEGL.so.1"), &error);
 
   if (!egl_library) {
-    LOG(WARNING) << "Failed to load EGL library: " << error;
+    LOG(WARNING) << "Failed to load EGL library: " << error.ToString();
     base::UnloadNativeLibrary(gles_library);
     return false;
   }
