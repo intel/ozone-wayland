@@ -49,7 +49,8 @@ WaylandCursorData* WaylandCursorData::impl_ = NULL;
 
 WaylandCursorData::WaylandCursorData(wl_shm* shm)
     : cursor_theme_(NULL),
-      cursors_(std::vector<wl_cursor*>(TotalCursorTypes)) {
+      cursors_(std::vector<wl_cursor*>(TotalCursorTypes)),
+      current_cursor_(CursorType::CURSOR_UNSET) {
   // This list should be always in sync with WaylandCursor::CursorType
   const char* cursor_names[] = {
     "default",
@@ -121,8 +122,25 @@ void WaylandCursor::Update(CursorType type, uint32_t serial) {
   if (!input_pointer_)
     return;
 
-  struct wl_cursor_image* image = WaylandCursorData::GetInstance()->
-      GetCursorImage(type - 1);
+  int cursor_index = type - 1;
+  wl_cursor_image* image = WaylandCursorData::GetInstance()->GetCursorImage(
+      cursor_index);
+
+  if (!image) {
+    // The cursor currently being displayed is already the default one, so we
+    // can just continue showing it.
+    if (current_cursor_ == CursorType::CURSOR_LEFT_PTR)
+      return;
+
+    LOG(INFO) << "The current cursor theme does not have a cursor for type "
+              << cursor_index << ". Falling back to the default cursor.";
+    cursor_index = CursorType::CURSOR_LEFT_PTR;
+    image = WaylandCursorData::GetInstance()->GetCursorImage(cursor_index);
+    DCHECK(image);
+  }
+
+  current_cursor_ = cursor_index;
+
   struct wl_buffer* buffer = wl_cursor_image_get_buffer(image);
   int width = image->width;
   int height = image->height;
