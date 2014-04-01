@@ -57,6 +57,7 @@ class WaylandCursor {
  private:
   wl_pointer* input_pointer_;
   struct wl_surface* pointer_surface_;
+  CursorType current_cursor_;
   DISALLOW_COPY_AND_ASSIGN(WaylandCursor);
 };
 
