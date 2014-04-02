@@ -18,7 +18,6 @@
 namespace ozonewayland {
 
 OzoneDisplay* OzoneDisplay::instance_ = NULL;
-const int kMaxDisplaySize = 20;
 
 OzoneDisplay* OzoneDisplay::GetInstance() {
   return instance_;
@@ -28,18 +27,13 @@ OzoneDisplay::OzoneDisplay() : desktop_screen_(NULL),
     display_(NULL),
     channel_(NULL),
     host_(NULL),
-    event_converter_(NULL),
-    spec_(NULL) {
+    event_converter_(NULL) {
   instance_ = this;
 }
 
 OzoneDisplay::~OzoneDisplay() {
   Terminate();
   instance_ = NULL;
-}
-
-const char* OzoneDisplay::DefaultDisplaySpec() {
-  return spec_;
 }
 
 bool OzoneDisplay::InitializeHardware() {
@@ -124,8 +118,6 @@ gfx::AcceleratedWidget OzoneDisplay::RealizeAcceleratedWidget(
 }
 
 void OzoneDisplay::OnOutputSizeChanged(unsigned width, unsigned height) {
-  if (spec_)
-    base::snprintf(spec_, kMaxDisplaySize, "%dx%d*2", width, height);
   if (desktop_screen_)
     desktop_screen_->SetGeometry(gfx::Rect(0, 0, width, height));
 }
@@ -146,9 +138,6 @@ WaylandWindow* OzoneDisplay::GetWidget(gfx::AcceleratedWidget w) {
 void OzoneDisplay::Terminate() {
   if (!event_converter_ && !desktop_screen_)
     return;
-
-  if (spec_)
-    delete[] spec_;
 
   delete channel_;
   if (desktop_screen_) {

@@ -21,10 +21,6 @@ SurfaceFactoryWayland::SurfaceFactoryWayland() : initialized_(false),
 SurfaceFactoryWayland::~SurfaceFactoryWayland() {
 }
 
-const char* SurfaceFactoryWayland::DefaultDisplaySpec() {
-  return OzoneDisplay::GetInstance()->DefaultDisplaySpec();
-}
-
 gfx::Screen* SurfaceFactoryWayland::CreateDesktopScreen() {
   return OzoneDisplay::GetInstance()->CreateDesktopScreen();
 }

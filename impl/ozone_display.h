@@ -32,7 +32,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public OutputChangeObserver {
   OzoneDisplay();
   virtual ~OzoneDisplay();
 
-  const char* DefaultDisplaySpec();
   bool InitializeHardware();
   void ShutdownHardware();
   intptr_t GetNativeDisplay();
@@ -58,7 +57,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public OutputChangeObserver {
   OzoneDisplayChannel* channel_;
   OzoneDisplayChannelHost* host_;
   EventConverterOzoneWayland* event_converter_;
-  char* spec_;
   static OzoneDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
