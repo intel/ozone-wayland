@@ -51,6 +51,9 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
   // Sets the output change observer. Ownership is retained by the caller.
   virtual void SetOutputChangeObserver(OutputChangeObserver* observer);
+  // Sets the in-process event dispatcher. Ownership is retained by the caller.
+  virtual void SetDispatchCallback(
+      base::Callback<void(void*)> callback);  // NOLINT(readability/function)
 
   protected:
   // Posts task to main loop of the thread on which Dispatcher was initialized.

@@ -5,7 +5,6 @@
 #include "ozone/content/event_converter_in_process.h"
 
 #include "base/bind.h"
-#include "ozone/ui/events/keyboard_code_conversion_ozone.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
 
@@ -21,16 +20,8 @@ EventConverterInProcess::~EventConverterInProcess() {
 }
 
 void EventConverterInProcess::MotionNotify(float x, float y) {
-  gfx::Point position(x, y);
-  scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_MOVED,
-                                                        position,
-                                                        position,
-                                                        0,
-                                                        0));
-
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          mouseev.PassAs<ui::Event>())));
+      &EventConverterInProcess::NotifyMotion, this, x, y));
 }
 
 void EventConverterInProcess::ButtonNotify(unsigned handle,
@@ -38,84 +29,40 @@ void EventConverterInProcess::ButtonNotify(unsigned handle,
                                            ui::EventFlags flags,
                                            float x,
                                            float y) {
-  gfx::Point position(x, y);
-  scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(type,
-                                                        position,
-                                                        position,
-                                                        flags,
-                                                        1));
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          mouseev.PassAs<ui::Event>())));
-
-  if (type == ui::ET_MOUSE_RELEASED)
-    ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-        &EventConverterInProcess::NotifyButtonPress, this, handle));
+      &EventConverterInProcess::NotifyButtonPress, this, handle, type,
+          flags, x, y));
 }
 
 void EventConverterInProcess::AxisNotify(float x,
                                          float y,
                                          int xoffset,
                                          int yoffset) {
-  gfx::Point position(x, y);
-  ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
-
-  scoped_ptr<ui::MouseWheelEvent> wheelev(new ui::MouseWheelEvent(mouseev,
-                                                                  xoffset,
-                                                                  yoffset));
-
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          wheelev.PassAs<ui::Event>())));
+      &EventConverterInProcess::NotifyAxis, this, x, y, xoffset, yoffset));
 }
 
 void EventConverterInProcess::PointerEnter(unsigned handle,
                                            float x,
                                            float y) {
-  gfx::Point position(x, y);
-  scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_ENTERED,
-                                                        position,
-                                                        position,
-                                                        0,
-                                                        0));
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyPointerEnter, this, handle));
-
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          mouseev.PassAs<ui::Event>())));
+      &EventConverterInProcess::NotifyPointerEnter, this, handle, x, y));
 }
 
 void EventConverterInProcess::PointerLeave(unsigned handle,
                                            float x,
                                            float y) {
-  gfx::Point position(x, y);
-  scoped_ptr<ui::MouseEvent> mouseev(new ui::MouseEvent(ui::ET_MOUSE_EXITED,
-                                                        position,
-                                                        position,
-                                                        0,
-                                                        0));
-
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyPointerLeave, this, handle));
-
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          mouseev.PassAs<ui::Event>())));
+      &EventConverterInProcess::NotifyPointerLeave, this, handle, x, y));
 }
 
 void EventConverterInProcess::KeyNotify(ui::EventType type,
                                         unsigned code,
                                         unsigned modifiers) {
-  scoped_ptr<ui::KeyEvent> keyev(new ui::KeyEvent(type,
-      ui::KeyboardCodeFromNativeKeysym(code), modifiers, true));
-
-  keyev.get()->set_character(
-      ui::CharacterCodeFromNativeKeySym(code, modifiers));
-
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          keyev.PassAs<ui::Event>())));
+      &EventConverterInProcess::NotifyKeyEvent, this, type,
+          ui::KeyboardCodeFromNativeKeysym(code),
+              ui::CharacterCodeFromNativeKeySym(code, modifiers), modifiers));
 }
 
 void EventConverterInProcess::TouchNotify(ui::EventType type,
@@ -123,16 +70,9 @@ void EventConverterInProcess::TouchNotify(ui::EventType type,
                                           float y,
                                           int32_t touch_id,
                                           uint32_t time_stamp) {
-  gfx::Point position(x, y);
-  base::TimeDelta time_delta = base::TimeDelta::FromMilliseconds(time_stamp);
-  scoped_ptr<ui::TouchEvent> touchev(new ui::TouchEvent(type,
-                                                        position,
-                                                        touch_id,
-                                                        time_delta));
-
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::DispatchEventHelper, base::Passed(
-          touchev.PassAs<ui::Event>())));
+      &EventConverterInProcess::NotifyTouchEvent, this, type, x, y, touch_id,
+          time_stamp));
 }
 
 void EventConverterInProcess::CloseWidget(unsigned handle) {
@@ -164,22 +104,93 @@ void EventConverterInProcess::SetOutputChangeObserver(
   output_observer_ = observer;
 }
 
+void EventConverterInProcess::SetDispatchCallback(
+    base::Callback<void(void*)> callback) {  // NOLINT(readability/function))
+  dispatch_callback_ = callback;
+}
+
+void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,
+                                           float x,
+                                           float y) {
+  gfx::Point position(x, y);
+  ui::MouseEvent mouseev(ui::ET_MOUSE_MOVED,
+                         position,
+                         position,
+                         0,
+                         0);
+  data->dispatch_callback_.Run(&mouseev);
+}
+
+void EventConverterInProcess::NotifyButtonPress(EventConverterInProcess* data,
+                                                unsigned handle,
+                                                ui::EventType type,
+                                                ui::EventFlags flags,
+                                                float x,
+                                                float y) {
+    gfx::Point position(x, y);
+    ui::MouseEvent mouseev(type,
+                           position,
+                           position,
+                           flags,
+                           1);
+    data->dispatch_callback_.Run(&mouseev);
+
+    if (type == ui::ET_MOUSE_RELEASED && data->observer_)
+      data->observer_->OnWindowFocused(handle);
+}
+
+void EventConverterInProcess::NotifyAxis(EventConverterInProcess* data,
+                                         float x,
+                                         float y,
+                                         int xoffset,
+                                         int yoffset) {
+  gfx::Point position(x, y);
+  ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
+  ui::MouseWheelEvent wheelev(mouseev, xoffset, yoffset);
+
+  data->dispatch_callback_.Run(&wheelev);
+}
+
 void EventConverterInProcess::NotifyPointerEnter(
-    EventConverterInProcess* data, unsigned handle) {
+    EventConverterInProcess* data, unsigned handle, float x, float y) {
   if (data->observer_)
     data->observer_->OnWindowEnter(handle);
+
+  gfx::Point position(x, y);
+  ui::MouseEvent mouseev(ui::ET_MOUSE_ENTERED, position, position, 0, 0);
+  data->dispatch_callback_.Run(&mouseev);
 }
 
 void EventConverterInProcess::NotifyPointerLeave(
-    EventConverterInProcess* data, unsigned handle) {
+    EventConverterInProcess* data, unsigned handle, float x, float y) {
   if (data->observer_)
     data->observer_->OnWindowLeave(handle);
+
+  gfx::Point position(x, y);
+  ui::MouseEvent mouseev(ui::ET_MOUSE_EXITED, position, position, 0, 0);
+  data->dispatch_callback_.Run(&mouseev);
 }
 
-void EventConverterInProcess::NotifyButtonPress(
-    EventConverterInProcess* data, unsigned handle) {
-  if (data->observer_)
-    data->observer_->OnWindowFocused(handle);
+void EventConverterInProcess::NotifyKeyEvent(EventConverterInProcess* data,
+                                             ui::EventType type,
+                                             ui::KeyboardCode code,
+                                             uint16 CharacterCodeFromNativeKey,
+                                             unsigned modifiers) {
+  ui::KeyEvent keyev(type, code, modifiers, true);
+  keyev.set_character(CharacterCodeFromNativeKey);
+  data->dispatch_callback_.Run(&keyev);
+}
+
+void EventConverterInProcess::NotifyTouchEvent(EventConverterInProcess* data,
+                                               ui::EventType type,
+                                               float x,
+                                               float y,
+                                               int32_t touch_id,
+                                               uint32_t time_stamp) {
+  gfx::Point position(x, y);
+  base::TimeDelta time_delta = base::TimeDelta::FromMilliseconds(time_stamp);
+  ui::TouchEvent touchev(type, position, touch_id, time_delta);
+  data->dispatch_callback_.Run(&touchev);
 }
 
 void EventConverterInProcess::NotifyCloseWidget(
@@ -203,11 +214,6 @@ EventConverterInProcess::NotifyWindowResized(EventConverterInProcess* data,
                                              unsigned height) {
   if (data->observer_)
     data->observer_->OnWindowResized(handle, width, height);
-}
-
-void EventConverterInProcess::DispatchEventHelper(
-    scoped_ptr<ui::Event> key) {
-  base::MessagePumpOzone::Current()->Dispatch(key.get());
 }
 
 }  // namespace content

@@ -13,6 +13,7 @@
 #include "ozone/ui/events/window_change_observer.h"
 #include "ui/events/event.h"
 #include "ui/events/event_source.h"
+#include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace views {
@@ -22,7 +23,7 @@ class DesktopWindowTreeHostWayland;
 // A static class used by DesktopWindowTreeHostWayland to dispatch native events
 // and basic window management.
 class WindowTreeHostDelegateWayland
-    : public base::MessagePumpDispatcher,
+    : public ui::PlatformEventDispatcher,
       public ui::EventSource,
       public ui::WindowChangeObserver {
  public:
@@ -43,8 +44,10 @@ class WindowTreeHostDelegateWayland
   // Overridden frm ui::EventSource
   virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
  private:
-  // Overridden from Dispatcher:
-  virtual uint32_t Dispatch(const base::NativeEvent& event) OVERRIDE;
+  // ui::PlatformEventDispatcher:
+  virtual bool CanDispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
+  virtual uint32_t DispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
+
   // Window Change Observer.
   virtual void OnWindowFocused(unsigned handle) OVERRIDE;
   virtual void OnWindowEnter(unsigned handle) OVERRIDE;

@@ -20,7 +20,8 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
       open_windows_(NULL),
       aura_windows_(NULL) {
   DCHECK(base::MessagePumpOzone::Current());
-  base::MessagePumpOzone::Current()->AddDispatcherForRootWindow(this);
+  if (ui::PlatformEventSource::GetInstance())
+    ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
   ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
 }
 
@@ -44,8 +45,10 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
     open_windows_ = NULL;
     SetActiveWindow(NULL);
 
-    DCHECK(base::MessagePumpOzone::Current());
-    base::MessagePumpOzone::Current()->RemoveDispatcherForRootWindow(this);
+    ui::PlatformEventSource* event_source =
+        ui::PlatformEventSource::GetInstance();
+    if (event_source)
+      event_source->RemovePlatformEventDispatcher(this);
     ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
   }
 
@@ -163,8 +166,15 @@ ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// WindowTreeHostDelegateWayland, MessagePumpDispatcher implementation:
-uint32_t WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
+// WindowTreeHostDelegateWayland, ui::PlatformEventDispatcher implementation:
+bool WindowTreeHostDelegateWayland::CanDispatchEvent(
+    const ui::PlatformEvent& ne) {
+  DCHECK(ne);
+  return true;
+}
+
+uint32_t WindowTreeHostDelegateWayland::DispatchEvent(
+    const ui::PlatformEvent& ne) {
   ui::EventType type = ui::EventTypeFromNative(ne);
   DCHECK(current_dispatcher_);
 
@@ -216,7 +226,7 @@ uint32_t WindowTreeHostDelegateWayland::Dispatch(const base::NativeEvent& ne) {
     default:
       NOTIMPLEMENTED() << "WindowTreeHostDelegateWayland: unknown event type.";
   }
-  return POST_DISPATCH_NONE;
+  return ui::POST_DISPATCH_STOP_PROPAGATION;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/ui/events/keyboard_code_conversion_ozone.h"
 #include "ui/events/event.h"
 
 namespace content {
@@ -46,14 +47,44 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland {
       ui::WindowChangeObserver* observer) OVERRIDE;
   virtual void SetOutputChangeObserver(
       ui::OutputChangeObserver* observer) OVERRIDE;
+  virtual void  SetDispatchCallback(
+      base::Callback<void(void*)> callback) OVERRIDE;  // NOLINT(readability/
+                                                       //  function)
 
  private:
-  static void NotifyPointerEnter(EventConverterInProcess* data,
-                                 unsigned handle);
-  static void NotifyPointerLeave(EventConverterInProcess* data,
-                                 unsigned handle);
+  static void NotifyMotion(EventConverterInProcess* data,
+                           float x,
+                           float y);
   static void NotifyButtonPress(EventConverterInProcess* data,
-                                unsigned handle);
+                                unsigned handle,
+                                ui::EventType type,
+                                ui::EventFlags flags,
+                                float x,
+                                float y);
+  static void NotifyAxis(EventConverterInProcess* data,
+                         float x,
+                         float y,
+                         int xoffset,
+                         int yoffset);
+  static void NotifyPointerEnter(EventConverterInProcess* data,
+                                 unsigned handle,
+                                 float x,
+                                 float y);
+  static void NotifyPointerLeave(EventConverterInProcess* data,
+                                 unsigned handle,
+                                 float x,
+                                 float y);
+  static void NotifyKeyEvent(EventConverterInProcess* data,
+                             ui::EventType type,
+                             ui::KeyboardCode code,
+                             uint16 CharacterCodeFromNativeKey,
+                             unsigned modifiers);
+  static void NotifyTouchEvent(EventConverterInProcess* data,
+                               ui::EventType type,
+                               float x,
+                               float y,
+                               int32_t touch_id,
+                               uint32_t time_stamp);
   static void NotifyCloseWidget(EventConverterInProcess* data,
                                 unsigned handle);
   static void NotifyOutputSizeChanged(EventConverterInProcess* data,
@@ -63,9 +94,10 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland {
                                   unsigned handle,
                                   unsigned width,
                                   unsigned height);
-  static void DispatchEventHelper(scoped_ptr<ui::Event> key);
   ui::WindowChangeObserver* observer_;
   ui::OutputChangeObserver* output_observer_;
+  base::Callback<void(void*)> dispatch_callback_;  // NOLINT(readability/
+                                                   // function)
   DISALLOW_COPY_AND_ASSIGN(EventConverterInProcess);
 };
 
