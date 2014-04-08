@@ -349,7 +349,7 @@ void DesktopWindowTreeHostWayland::CenterWindow(const gfx::Size& size) {
 void DesktopWindowTreeHostWayland::GetWindowPlacement(
     gfx::Rect* bounds,
     ui::WindowShowState* show_state) const {
-  *bounds = bounds_;
+  *bounds = GetRestoredBounds();
 
   if (IsFullscreen()) {
     *show_state = ui::SHOW_STATE_FULLSCREEN;
