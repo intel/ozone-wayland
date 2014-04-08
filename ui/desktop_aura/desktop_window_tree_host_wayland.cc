@@ -170,8 +170,6 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
       break;
   }
 
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-      window_, ui::RESIZE, bounds_.width(), bounds_.height());
   CreateCompositor(GetAcceleratedWidget());
 }
 
@@ -694,13 +692,10 @@ void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
 
   if (origin_changed)
     native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
-  if (size_changed) {
-    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-        window_, ui::RESIZE, bounds.width(), bounds.height());
+  if (size_changed)
     OnHostResized(bounds.size());
-  } else {
+  else
     compositor()->ScheduleRedrawRect(bounds);
-  }
 }
 
 gfx::Insets DesktopWindowTreeHostWayland::GetInsets() const {
@@ -787,8 +782,6 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
   } else {
     bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);
     OnHostResized(bounds_.size());
-    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-        window_, ui::RESIZE, bounds_.width(), bounds_.height());
     Widget* widget = native_widget_delegate_->AsWidget();
     NonClientView* non_client_view = widget->non_client_view();
     // non_client_view may be NULL, especially during creation.
