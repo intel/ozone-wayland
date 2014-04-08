@@ -63,7 +63,7 @@ gfx::AcceleratedWidget OzoneHardwareDisplay::RealizeAcceleratedWidget(
 }
 
 bool OzoneHardwareDisplay::AttemptToResizeAcceleratedWidget(
-    gfx::AcceleratedWidget w, const gfx::Rect& bounds) {
+    gfx::AcceleratedWidget w, const gfx::Size& bounds) {
     ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
         w, ui::RESIZE, bounds.width(), bounds.height());
 

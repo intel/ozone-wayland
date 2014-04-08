@@ -10,14 +10,10 @@
 
 namespace gfx {
 
-WaylandSyncProvider::WaylandSyncProvider(unsigned handle) : handle_(handle) {
+WaylandSyncProvider::WaylandSyncProvider() {
 }
 
 WaylandSyncProvider::~WaylandSyncProvider() {
-  // WaylandSyncProvider is destroyed when the associated NativeSurface is
-  // destroyed. Inform OzoneDisplay to release Wayland resources.
-  OzoneDisplay::GetInstance()->DestroyWidget(handle_);
-  OzoneDisplay::GetInstance()->FlushDisplay();
 }
 
 void WaylandSyncProvider::GetVSyncParameters(

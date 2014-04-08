@@ -9,12 +9,12 @@
 #include "base/files/file_path.h"
 #include "base/native_library.h"
 #include "ozone/ui/gfx/ozone_display.h"
-#include "ozone/ui/gfx/vsync_provider_wayland.h"
+#include "ozone/ui/gfx/surface_ozone_impl_egl.h"
+#include "ui/gfx/ozone/surface_ozone_egl.h"
 
 namespace gfx {
 
-SurfaceFactoryWayland::SurfaceFactoryWayland()
-    : last_realized_widget_handle_(0) {
+SurfaceFactoryWayland::SurfaceFactoryWayland() {
 }
 
 SurfaceFactoryWayland::~SurfaceFactoryWayland() {
@@ -37,11 +37,9 @@ gfx::AcceleratedWidget SurfaceFactoryWayland::GetAcceleratedWidget() {
   return OzoneDisplay::GetInstance()->GetAcceleratedWidget();
 }
 
-gfx::AcceleratedWidget SurfaceFactoryWayland::RealizeAcceleratedWidget(
+scoped_ptr<SurfaceOzoneEGL> SurfaceFactoryWayland::CreateEGLSurfaceForWidget(
     gfx::AcceleratedWidget w) {
-  DCHECK(OzoneDisplay::GetInstance());
-  last_realized_widget_handle_ = w;
-  return OzoneDisplay::GetInstance()->RealizeAcceleratedWidget(w);
+  return make_scoped_ptr<SurfaceOzoneEGL>(new SurfaceOzoneImplEGL(w));
 }
 
 bool SurfaceFactoryWayland::LoadEGLGLES2Bindings(
@@ -86,27 +84,6 @@ bool SurfaceFactoryWayland::LoadEGLGLES2Bindings(
   setprocaddress.Run(get_proc_address);
   add_gl_library.Run(egl_library);
   add_gl_library.Run(gles_library);
-  return true;
-}
-
-bool SurfaceFactoryWayland::AttemptToResizeAcceleratedWidget(
-         gfx::AcceleratedWidget w, const gfx::Rect& bounds) {
-  return OzoneDisplay::GetInstance()->AttemptToResizeAcceleratedWidget(
-      w, bounds);
-}
-
-scoped_ptr<gfx::VSyncProvider>
-SurfaceFactoryWayland::CreateVSyncProvider(gfx::AcceleratedWidget w) {
-  DCHECK(last_realized_widget_handle_);
-  // This is based on the fact that we realize accelerated widget and create
-  // its vsync provider immediately (right after widget is realized). This
-  // saves us going through list of realized widgets and finding the right one.
-  unsigned handle = last_realized_widget_handle_;
-  last_realized_widget_handle_ = 0;
-  return scoped_ptr<gfx::VSyncProvider>(new WaylandSyncProvider(handle));
-}
-
-bool SurfaceFactoryWayland::SchedulePageFlip(gfx::AcceleratedWidget w) {
   return true;
 }
 

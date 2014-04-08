@@ -25,7 +25,7 @@ class OzoneHardwareDisplay : public gfx::OzoneDisplay {
   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
       gfx::AcceleratedWidget w) OVERRIDE;
   virtual bool AttemptToResizeAcceleratedWidget(
-      gfx::AcceleratedWidget w, const gfx::Rect& bounds) OVERRIDE;
+      gfx::AcceleratedWidget w, const gfx::Size& bounds) OVERRIDE;
   virtual void DestroyWidget(gfx::AcceleratedWidget w) OVERRIDE;
   virtual void LookAheadOutputGeometry() OVERRIDE;
 

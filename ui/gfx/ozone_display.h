@@ -31,7 +31,7 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay {
   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
       gfx::AcceleratedWidget w) = 0;
   virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
-                                                const gfx::Rect& bounds) = 0;
+                                                const gfx::Size& bounds) = 0;
   virtual void DestroyWidget(gfx::AcceleratedWidget w) = 0;
   virtual void LookAheadOutputGeometry() = 0;
 

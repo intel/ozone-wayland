@@ -11,14 +11,13 @@ namespace gfx {
 
 class WaylandSyncProvider : public gfx::VSyncProvider {
  public:
-  explicit WaylandSyncProvider(unsigned handle);
+  explicit WaylandSyncProvider();
   virtual ~WaylandSyncProvider();
 
   virtual void GetVSyncParameters(const UpdateVSyncCallback& callback) OVERRIDE;
 
  private:
   static void ScheduleFlush();
-  unsigned handle_;
   DISALLOW_COPY_AND_ASSIGN(WaylandSyncProvider);
 };
 

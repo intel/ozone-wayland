@@ -170,7 +170,8 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
       break;
   }
 
-  surface_factory->AttemptToResizeAcceleratedWidget(window_, bounds_);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+      window_, ui::RESIZE, bounds_.width(), bounds_.height());
   CreateCompositor(GetAcceleratedWidget());
 }
 
