@@ -86,7 +86,8 @@ WaylandCursorData::WaylandCursorData(wl_shm* shm)
     cursors_[i] = wl_cursor_theme_get_cursor(cursor_theme_, cursor_names[i]);
 }
 
-struct wl_cursor_image* WaylandCursorData::GetCursorImage(WaylandCursor::CursorType type) {
+struct wl_cursor_image* WaylandCursorData::GetCursorImage(
+    WaylandCursor::CursorType type) {
   int index = type - 1;
   const struct wl_cursor* cursor = cursors_.at(index);
   if (!cursor)
