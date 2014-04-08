@@ -296,6 +296,8 @@ void DesktopWindowTreeHostWayland::ShowWindowWithState(
   }
 
   Show();
+  if (show_state == ui::SHOW_STATE_MAXIMIZED)
+    Maximize();
   // Set initial focus for root window.
   if (!window_parent_)
     native_widget_delegate_->AsWidget()->SetInitialFocus(show_state);
@@ -662,6 +664,7 @@ void DesktopWindowTreeHostWayland::Show() {
   state_ |= Visible;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
                                                               ui::SHOW);
+  native_widget_delegate_->OnNativeWidgetVisibilityChanged(true);
 }
 
 void DesktopWindowTreeHostWayland::Hide() {
@@ -671,6 +674,7 @@ void DesktopWindowTreeHostWayland::Hide() {
   state_ &= ~Visible;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
                                                               ui::HIDE);
+  native_widget_delegate_->OnNativeWidgetVisibilityChanged(false);
 }
 
 void DesktopWindowTreeHostWayland::ToggleFullScreen() {
