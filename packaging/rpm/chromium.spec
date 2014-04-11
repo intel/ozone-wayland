@@ -16,6 +16,7 @@ BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  libcap-devel
+BuildRequires:  ninja
 BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
@@ -122,8 +123,6 @@ cd src
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
 #https://github.com/01org/ozone-wayland/issues/147
-
-PATH=$PATH:/home/abuild/depot_tools
 
 export GYP_GENERATORS=ninja
 ./build/gyp_chromium \
