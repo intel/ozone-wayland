@@ -1,6 +1,6 @@
 # Introduction
 
-Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland graphics system. Different projects based on Chromium/Blink like the Chrome browser, ChromeOS, among others can be enabled now using Wayland.
+Ozone-Wayland is the implementation of Chromium's Ozone for supporting [Wayland](http://wayland.freedesktop.org/) graphics system. Different projects based on Chromium/Blink like the Chrome Browser, Chrome OS, [Crosswalk](https://crosswalk-project.org/), among others can be enabled now using Wayland.
 
 ![Alt text](https://raw.github.com/tiagovignatti/misc/master/chromium-2013-06-07-small.png "Content Shell running on Weston")
 
@@ -15,13 +15,13 @@ Ozone-Wayland is the implementation of Chromium's Ozone for supporting Wayland g
 
 ## Design
 
-Ozone is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling.
+[Ozone](http://www.chromium.org/developers/design-documents/ozone) is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling:
 
-http://www.chromium.org/developers/design-documents/ozone
+![Alt text](https://raw.githubusercontent.com/tiagovignatti/misc/master/ozone-architecture-overview-small.png "Ozone architecture overview")
 
-Before when using Aura on Linux, all the native windowing system code (X11) was spread throughout Chromium tree. Now the idea is that Ozone will abstract the native code and because it's a set of class factories, it will switch for whoever is the window system. The biggest advantage of this API is that it allows to implement the needed window system bits externally from the Chromium tree, which is great because it is where the loaded work situates.
+Before, when using Aura on Linux all the native windowing system code (X11) was spread throughout Chromium tree. Now the idea is that Ozone will abstract the native code and because it's a set of class factories, it will switch for whatever is the window system.
 
-Worth to mention also that when Aura is used, there's no need for graphics toolkits, such as GTK+, EFL etc.
+One of the biggest advantages of Chromium Ozone is that it allows to implement the window system details externally from the Chromium tree, which is great because it is where the loaded work situates in many cases. Therefore, Ozone-Wayland can be seen as a sibling project of Chromium where one is empowering the other with different characteristics. Besides Ozone-Wayland, there are different [Ozone implementations](http://www.chromium.org/developers/design-documents/ozone#TOC-Ozone-Platforms) like KMS/DRM, caca, etc
 
 ## Howto
 
