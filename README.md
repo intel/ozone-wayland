@@ -17,7 +17,7 @@ Ozone-Wayland is the implementation of Chromium's Ozone for supporting [Wayland]
 
 [Ozone](http://www.chromium.org/developers/design-documents/ozone) is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling:
 
-![Alt text](https://raw.githubusercontent.com/tiagovignatti/misc/master/ozone-architecture-overview-small.png "Ozone architecture overview")
+![Alt text](https://raw.github.com/tiagovignatti/misc/master/ozone-architecture-overview-small.png "Ozone architecture overview")
 
 Before, when using Aura on Linux all the native windowing system code (X11) was spread throughout Chromium tree. Now the idea is that Ozone will abstract the native code and because it's a set of class factories, it will switch for whatever is the window system.
 
