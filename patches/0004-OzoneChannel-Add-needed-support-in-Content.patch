@@ -1,4 +1,4 @@
-From ad7ce32ae997b990c2e4ede50267637ff86d33c6 Mon Sep 17 00:00:00 2001
+From cf3ae9bd0df0a4ca627bf79a9e12117960263ef5 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Mon, 3 Mar 2014 13:04:17 +0200
 Subject: [PATCH] OzoneChannel: Add needed support in Content.
@@ -18,18 +18,18 @@ our needs. This patch adds support for the following:
  3 files changed, 39 insertions(+)
 
 diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
-index ab045e4..554bfa4 100644
+index 316d7c3..8c85667 100644
 --- a/content/browser/browser_main_loop.cc
 +++ b/content/browser/browser_main_loop.cc
-@@ -119,6 +119,7 @@
- 
- #if defined(USE_OZONE)
- #include "ui/ozone/ozone_platform.h"
-+#include "ozone/content/ozone_channel_host_factory.h"
+@@ -122,6 +122,7 @@
  #endif
  
- // One of the linux specific headers defines this as a macro.
-@@ -888,6 +889,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
+ #if defined(USE_OZONE)
++#include "ozone/content/ozone_channel_host_factory.h"
+ #include "ui/ozone/ozone_platform.h"
+ #include "ui/events/ozone/event_factory_ozone.h"
+ #endif
+@@ -868,6 +869,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
      TRACE_EVENT0("shutdown", "BrowserMainLoop::Subsystem:GPUChannelFactory");
      if (BrowserGpuChannelHostFactory::instance())
        BrowserGpuChannelHostFactory::Terminate();
@@ -40,7 +40,7 @@ index ab045e4..554bfa4 100644
    }
  
    // Must happen after the I/O thread is shutdown since this class lives on the
-@@ -1045,6 +1050,13 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+@@ -1024,6 +1029,13 @@ int BrowserMainLoop::BrowserThreadsStarted() {
  #if defined(OS_MACOSX)
    ThemeHelperMac::GetInstance();
  #endif
@@ -55,10 +55,10 @@ index ab045e4..554bfa4 100644
  
    return result_code_;
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 16efa4b..ef3ba21 100644
+index 34bda3a..7db5ac0 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -692,6 +692,25 @@
+@@ -690,6 +690,25 @@
          },
       ]
      }],
@@ -85,7 +85,7 @@ index 16efa4b..ef3ba21 100644
        'dependencies': [
          '../media/media.gyp:media',
 diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
-index fe4d3ce..77fa9c1 100644
+index 0dac81d..050243b 100644
 --- a/content/gpu/gpu_main.cc
 +++ b/content/gpu/gpu_main.cc
 @@ -51,6 +51,10 @@
@@ -99,7 +99,7 @@ index fe4d3ce..77fa9c1 100644
  const int kGpuTimeout = 10000;
  
  namespace content {
-@@ -353,6 +357,10 @@ int GpuMain(const MainFunctionParams& parameters) {
+@@ -351,6 +355,10 @@ int GpuMain(const MainFunctionParams& parameters) {
      watchdog_thread->AddPowerObserver();
  
    {
