@@ -19,7 +19,6 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
       current_active_window_(NULL),
       open_windows_(NULL),
       aura_windows_(NULL) {
-  DCHECK(base::MessagePumpOzone::Current());
   if (ui::PlatformEventSource::GetInstance())
     ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
   ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);

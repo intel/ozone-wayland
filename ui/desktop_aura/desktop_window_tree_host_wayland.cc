@@ -649,6 +649,11 @@ bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
 
+ui::EventSource* DesktopWindowTreeHostWayland::GetEventSource() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 gfx::AcceleratedWidget DesktopWindowTreeHostWayland::GetAcceleratedWidget() {
   return window_;
 }
@@ -723,12 +728,6 @@ void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
       cursor.native_type());
 }
 
-bool DesktopWindowTreeHostWayland::QueryMouseLocation(
-    gfx::Point* location_return) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 bool DesktopWindowTreeHostWayland::ConfineCursorToRootWindow() {
   NOTIMPLEMENTED();
   return false;
@@ -798,7 +797,7 @@ VIEWS_EXPORT ui::NativeTheme*
 DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
   const views::LinuxUI* linux_ui = views::LinuxUI::instance();
   if (linux_ui) {
-    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
+    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme(window);
     if (native_theme)
       return native_theme;
   }

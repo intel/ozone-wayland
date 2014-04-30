@@ -139,6 +139,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual bool IsAnimatingClosed() const OVERRIDE;
 
   // Overridden from aura::WindowTreeHost:
+  virtual ui::EventSource* GetEventSource() OVERRIDE;
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual void Show() OVERRIDE;
   virtual void Hide() OVERRIDE;
@@ -151,7 +152,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void SetCapture() OVERRIDE;
   virtual void ReleaseCapture() OVERRIDE;
   virtual void SetCursorNative(gfx::NativeCursor cursor) OVERRIDE;
-  virtual bool QueryMouseLocation(gfx::Point* location_return) OVERRIDE;
   virtual bool ConfineCursorToRootWindow() OVERRIDE;
   virtual void UnConfineCursor() OVERRIDE;
   virtual void OnCursorVisibilityChangedNative(bool show) OVERRIDE;
