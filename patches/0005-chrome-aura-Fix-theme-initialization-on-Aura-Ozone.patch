@@ -1,0 +1,59 @@
+From 201f8ed85e3367aba8be619f6758a348231536b2 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Wed, 30 Apr 2014 18:47:26 -0300
+Subject: [PATCH] chrome: aura: Fix theme initialization on Aura/Ozone
+
+This CL fixes theme initialization on Aura/Ozone systems where GTK+ is not
+desired. Essentially it fixes Ozone-Wayland implementation.
+
+Revision 266047 introduced this problem and to circumvent that I've assumed
+that GTK+ theme UI is only desired on Linux platforms using Aura/X11.
+
+BUG=347832
+---
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
+index ef8abe1..3658a52 100644
+--- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
++++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
+@@ -18,7 +18,7 @@
+ #include "ui/gfx/screen.h"
+ #include "ui/views/widget/native_widget_aura.h"
+ 
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+ #include "base/prefs/pref_service.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
+@@ -42,7 +42,7 @@
+ 
+ namespace {
+ 
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+ ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
+   if (!window)
+     return NULL;
+@@ -84,7 +84,7 @@ ChromeBrowserMainExtraPartsAura::~ChromeBrowserMainExtraPartsAura() {
+ }
+ 
+ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+   // TODO(erg): Refactor this into a dlopen call when we add a GTK3 port.
+   views::LinuxUI* gtk2_ui = BuildGtk2UI();
+   gtk2_ui->SetNativeThemeOverride(base::Bind(&GetNativeThemeForWindow));
+@@ -100,7 +100,7 @@ void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
+ #endif
+ #endif
+ 
+-#if !defined(USE_ASH) && defined(OS_LINUX) && defined(USE_X11)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+   views::LinuxUI::instance()->Initialize();
+ #endif
+ }
+-- 
+1.7.9.5
+
