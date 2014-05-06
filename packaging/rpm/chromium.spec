@@ -186,8 +186,6 @@ strip %{buildroot}%{_libdir}/chromium/chrome
 # Supporting libraries and resources.
 install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/chromium/libffmpegsumo.so
 strip %{buildroot}%{_libdir}/chromium/libffmpegsumo.so
-install -p -D ${BUILDDIR_NAME}/out/Release/lib/libmojo_system.so %{buildroot}%{_libdir}/chromium/lib/libmojo_system.so
-strip %{buildroot}%{_libdir}/chromium/lib/libmojo_system.so
 install -p -D ${BUILDDIR_NAME}/out/Release/resources.pak %{buildroot}%{_libdir}/chromium/resources.pak
 install -p -D ${BUILDDIR_NAME}/out/Release/chrome_100_percent.pak %{buildroot}%{_libdir}/chromium/chrome_100_percent.pak
 install -p -D ${BUILDDIR_NAME}/out/Release/icudtl.dat %{buildroot}%{_libdir}/chromium/icudtl.dat
@@ -197,7 +195,6 @@ install -p -D ${BUILDDIR_NAME}/out/Release/icudtl.dat %{buildroot}%{_libdir}/chr
 %license AUTHORS.chromium LICENSE.chromium AUTHORS.ozone-wayland LICENSE.ozone-wayland
 %{_bindir}/chromium-browser
 %{_libdir}/chromium/libffmpegsumo.so
-%{_libdir}/chromium/lib/libmojo_system.so
 %{_libdir}/chromium/chrome
 %{_libdir}/chromium/resources.pak
 %{_libdir}/chromium/chrome_100_percent.pak
