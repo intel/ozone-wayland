@@ -8,7 +8,7 @@ Url:            https://01.org/ozone-wayland
 Source:         %{name}.tar
 Source1:        chromium-browser.sh
 Source1001:     chromium.manifest
-Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
+Patch1:         %{name}-do-not-look-for-gtk2-when-using-ozone.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
