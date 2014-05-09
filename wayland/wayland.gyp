@@ -13,7 +13,7 @@
     'enable_xdg_shell%': '<(enable_xdg_shell)',
     'conditions': [
       ['sysroot!=""', {
-        'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
+        'pkg-config': '../../build/linux/pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
       }, {
         'pkg-config': 'pkg-config'
       }],
