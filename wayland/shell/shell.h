@@ -27,6 +27,11 @@ class WaylandShell {
                   uint32_t name,
                   const char *interface,
                   uint32_t version);
+#if defined(ENABLE_XDG_SHELL)
+  static void XDGHandlePing(void* data,
+                            struct xdg_shell* xdg_shell,
+                            uint32_t serial);
+#endif
 
   wl_shell* GetWLShell() const { return shell_; }
   xdg_shell* GetXDGShell() const { return xdg_shell_; }

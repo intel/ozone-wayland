@@ -1,9 +1,9 @@
-/*
+/* 
  * Copyright © 2008-2013 Kristian Høgsberg
  * Copyright © 2013      Rafael Antognolli
  * Copyright © 2013      Jasper St. Pierre
  * Copyright © 2010-2013 Intel Corporation
- *
+ * 
  * Permission to use, copy, modify, distribute, and sell this
  * software and its documentation for any purpose is hereby granted
  * without fee, provided that the above copyright notice appear in
@@ -15,7 +15,7 @@
  * representations about the suitability of this software for any
  * purpose.  It is provided "as is" without express or implied
  * warranty.
- *
+ * 
  * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
  * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
@@ -45,6 +45,7 @@ static const struct wl_interface *types[] = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	&xdg_surface_interface,
 	&wl_surface_interface,
 	&xdg_popup_interface,
@@ -66,63 +67,60 @@ static const struct wl_interface *types[] = {
 
 static const struct wl_message xdg_shell_requests[] = {
 	{ "use_unstable_version", "i", types + 0 },
-	{ "get_xdg_surface", "no", types + 3 },
-	{ "get_xdg_popup", "nooouiiu", types + 5 },
+	{ "get_xdg_surface", "no", types + 4 },
+	{ "get_xdg_popup", "nooouiiu", types + 6 },
+	{ "pong", "u", types + 0 },
+};
+
+static const struct wl_message xdg_shell_events[] = {
+	{ "ping", "u", types + 0 },
 };
 
 WL_EXPORT const struct wl_interface xdg_shell_interface = {
 	"xdg_shell", 1,
-	3, xdg_shell_requests,
-	0, NULL,
+	4, xdg_shell_requests,
+	1, xdg_shell_events,
 };
 
 static const struct wl_message xdg_surface_requests[] = {
 	{ "destroy", "", types + 0 },
-	{ "set_transient_for", "?o", types + 13 },
+	{ "set_transient_for", "?o", types + 14 },
+	{ "set_margin", "iiii", types + 0 },
 	{ "set_title", "s", types + 0 },
 	{ "set_app_id", "s", types + 0 },
-	{ "pong", "u", types + 0 },
-	{ "move", "ou", types + 14 },
-	{ "resize", "ouu", types + 16 },
-	{ "set_output", "?o", types + 19 },
-	{ "set_fullscreen", "", types + 0 },
-	{ "unset_fullscreen", "", types + 0 },
-	{ "set_maximized", "", types + 0 },
-	{ "unset_maximized", "", types + 0 },
+	{ "move", "ou", types + 15 },
+	{ "resize", "ouu", types + 17 },
+	{ "set_output", "?o", types + 20 },
+	{ "request_change_state", "uuu", types + 0 },
+	{ "ack_change_state", "uuu", types + 0 },
 	{ "set_minimized", "", types + 0 },
 };
 
 static const struct wl_message xdg_surface_events[] = {
-	{ "ping", "u", types + 0 },
-	{ "configure", "uii", types + 0 },
-	{ "request_set_fullscreen", "", types + 0 },
-	{ "request_unset_fullscreen", "", types + 0 },
-	{ "request_set_maximized", "", types + 0 },
-	{ "request_unset_maximized", "", types + 0 },
-	{ "request_set_minimized", "", types + 0 },
-	{ "request_unset_minimized", "", types + 0 },
-	{ "focused_set", "", types + 0 },
-	{ "focused_unset", "", types + 0 },
+	{ "configure", "ii", types + 0 },
+	{ "change_state", "uuu", types + 0 },
+	{ "activated", "", types + 0 },
+	{ "deactivated", "", types + 0 },
+	{ "close", "", types + 0 },
 };
 
 WL_EXPORT const struct wl_interface xdg_surface_interface = {
 	"xdg_surface", 1,
-	13, xdg_surface_requests,
-	10, xdg_surface_events,
+	11, xdg_surface_requests,
+	5, xdg_surface_events,
 };
 
 static const struct wl_message xdg_popup_requests[] = {
 	{ "destroy", "", types + 0 },
-	{ "pong", "u", types + 0 },
 };
 
 static const struct wl_message xdg_popup_events[] = {
-	{ "ping", "u", types + 0 },
 	{ "popup_done", "u", types + 0 },
 };
 
 WL_EXPORT const struct wl_interface xdg_popup_interface = {
 	"xdg_popup", 1,
-	2, xdg_popup_requests,
-	2, xdg_popup_events,
+	1, xdg_popup_requests,
+	1, xdg_popup_events,
 };
+
