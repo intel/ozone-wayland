@@ -31,37 +31,14 @@ WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     widget_map_(),
     serial_(0),
     processing_events_(false) {
-  display_ = wl_display_connect(NULL);
-  if (!display_)
-    return;
-
-  instance_ = this;
-  static const struct wl_registry_listener registry_all = {
-    WaylandDisplay::DisplayHandleGlobal
-  };
-
-  static const struct wl_registry_listener registry_output = {
-    WaylandDisplay::DisplayHandleOutputOnly
-  };
-
-  registry_ = wl_display_get_registry(display_);
-  if (type == RegisterAsNeeded) {
-    wl_registry_add_listener(registry_, &registry_all, this);
-    shell_ = new WaylandShell();
-  } else {
-    wl_registry_add_listener(registry_, &registry_output, this);
-  }
-
-  if (wl_display_roundtrip(display_) < 0)
-    terminate();
-  else if (type == RegisterAsNeeded) {
-    ui::WindowStateChangeHandler::SetInstance(this);
-    display_poll_thread_ = new WaylandDisplayPollThread(display_);
-  }
+  if (type == RegisterAsNeeded)
+    gfx::OzoneDisplay::SetInstance(this);
+  else
+    InitializeDisplay(WaylandDisplay::RegisterOutputOnly);
 }
 
 WaylandDisplay::~WaylandDisplay() {
-  terminate();
+  Terminate();
 }
 
 const std::list<WaylandScreen*>& WaylandDisplay::GetScreenList() const {
@@ -76,22 +53,99 @@ struct wl_text_input_manager* WaylandDisplay::GetTextInputManager() const {
   return text_input_manager_;
 }
 
-void WaylandDisplay::FlushDisplay() {
-  wl_display_flush(display_);
-}
-
 void WaylandDisplay::SyncDisplay() {
   wl_display_roundtrip(display_);
 }
 
-wl_egl_window* WaylandDisplay::RealizeAcceleratedWidget(unsigned w) {
+gfx::SurfaceFactoryOzone::HardwareState
+WaylandDisplay::InitializeHardware() {
+  InitializeDisplay(WaylandDisplay::RegisterAsNeeded);
+  if (!display_) {
+    LOG(ERROR) << "WaylandDisplay failed to initialize hardware";
+    return gfx::SurfaceFactoryOzone::FAILED;
+  }
+
+  return gfx::SurfaceFactoryOzone::INITIALIZED;
+}
+
+void WaylandDisplay::ShutdownHardware() {
+  Terminate();
+}
+
+intptr_t WaylandDisplay::GetNativeDisplay() {
+  return (intptr_t)display();
+}
+
+void WaylandDisplay::FlushDisplay() {
+  wl_display_flush(display_);
+}
+
+gfx::AcceleratedWidget WaylandDisplay::GetAcceleratedWidget() {
+  static int opaque_handle = 0;
+  opaque_handle++;
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
+                                                              ui::CREATE,
+                                                              0,
+                                                              0);
+
+  return (gfx::AcceleratedWidget)opaque_handle;
+}
+
+gfx::AcceleratedWidget WaylandDisplay::RealizeAcceleratedWidget(
+    gfx::AcceleratedWidget w) {
   // Ensure we are processing wayland event requests.
   StartProcessingEvents();
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
   widget->RealizeAcceleratedWidget();
 
-  return widget->egl_window();
+  return (gfx::AcceleratedWidget)widget->egl_window();
+}
+
+bool WaylandDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
+                                                      const gfx::Size& bounds) {
+    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
+        w, ui::RESIZE, bounds.width(), bounds.height());
+
+    return true;
+}
+
+void WaylandDisplay::DestroyWidget(gfx::AcceleratedWidget w) {
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
+                                                              ui::DESTROYED);
+}
+
+// TODO(vignatti): GPU process conceptually is the one that deals with hardware
+// details and therefore we assume that the window system connection should
+// happen in there only. There's a glitch with Chrome though, that creates its
+// frame contents requiring access to the window system, before the GPU process
+// even exists. In other words, Chrome runs
+// BrowserMainLoop::PreMainMessageLoopRun before GpuProcessHost::Get. If the
+// assumption of window system connection belongs to the GPU process is valid,
+// then I believe this Chrome behavior needs to be addressed upstream.
+//
+// For now, we create another window system connection to look ahead the needed
+// output properties that Chrome (among others) need and then close right after
+// that. I haven't measured how long it takes to open a Wayland connection,
+// listen all the interface the compositor sends and close it, but _for_ _sure_
+// it slows down the overall initialization time of Chromium targets.
+// Therefore, this is something that has to be solved in the future, moving all
+// Chrome tasks after GPU process is created.
+//
+void WaylandDisplay::LookAheadOutputGeometry() {
+  WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
+  CHECK(disp_.display()) << "Ozone: Wayland server connection not found.";
+
+  while (disp_.PrimaryScreen()->Geometry().IsEmpty())
+    disp_.SyncDisplay();
+
+  ui::EventFactoryOzoneWayland* event_factory =
+      ui::EventFactoryOzoneWayland::GetInstance();
+  DCHECK(event_factory->GetOutputChangeObserver());
+
+  unsigned width = disp_.PrimaryScreen()->Geometry().width();
+  unsigned height = disp_.PrimaryScreen()->Geometry().height();
+  event_factory->GetOutputChangeObserver()->OnOutputSizeChanged(width, height);
 }
 
 void WaylandDisplay::SetWidgetState(unsigned w,
@@ -199,6 +253,37 @@ void WaylandDisplay::SetWidgetAttributes(unsigned widget,
   }
 }
 
+void WaylandDisplay::InitializeDisplay(RegistrationType type) {
+  DCHECK(!display_);
+  display_ = wl_display_connect(NULL);
+  if (!display_)
+    return;
+
+  instance_ = this;
+  static const struct wl_registry_listener registry_all = {
+    WaylandDisplay::DisplayHandleGlobal
+  };
+
+  static const struct wl_registry_listener registry_output = {
+    WaylandDisplay::DisplayHandleOutputOnly
+  };
+
+  registry_ = wl_display_get_registry(display_);
+  if (type == RegisterAsNeeded) {
+    wl_registry_add_listener(registry_, &registry_all, this);
+    shell_ = new WaylandShell();
+  } else {
+    wl_registry_add_listener(registry_, &registry_output, this);
+  }
+
+  if (wl_display_roundtrip(display_) < 0)
+    Terminate();
+  else if (type == RegisterAsNeeded) {
+    ui::WindowStateChangeHandler::SetInstance(this);
+    display_poll_thread_ = new WaylandDisplayPollThread(display_);
+  }
+}
+
 WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
   WaylandWindow* window = new WaylandWindow(w);
   widget_map_[w] = window;
@@ -232,7 +317,7 @@ void WaylandDisplay::StopProcessingEvents() {
   }
 }
 
-void WaylandDisplay::terminate() {
+void WaylandDisplay::Terminate() {
   if (!widget_map_.empty()) {
     STLDeleteValues(&widget_map_);
     widget_map_.clear();
@@ -328,40 +413,6 @@ void WaylandDisplay::DisplayHandleOutputOnly(void *data,
     disp->screen_list_.push_back(screen);
     disp->primary_screen_ = disp->screen_list_.front();
   }
-}
-
-// static
-// TODO(vignatti): GPU process conceptually is the one that deals with hardware
-// details and therefore we assume that the window system connection should
-// happen in there only. There's a glitch with Chrome though, that creates its
-// frame contents requiring access to the window system, before the GPU process
-// even exists. In other words, Chrome runs
-// BrowserMainLoop::PreMainMessageLoopRun before GpuProcessHost::Get. If the
-// assumption of window system connection belongs to the GPU process is valid,
-// then I believe this Chrome behavior needs to be addressed upstream.
-//
-// For now, we create another window system connection to look ahead the needed
-// output properties that Chrome (among others) need and then close right after
-// that. I haven't measured how long it takes to open a Wayland connection,
-// listen all the interface the compositor sends and close it, but _for_ _sure_
-// it slows down the overall initialization time of Chromium targets.
-// Therefore, this is something that has to be solved in the future, moving all
-// Chrome tasks after GPU process is created.
-//
-void WaylandDisplay::LookAheadOutputGeometry() {
-  WaylandDisplay disp_(WaylandDisplay::RegisterOutputOnly);
-  CHECK(disp_.display()) << "Ozone: Wayland server connection not found.";
-
-  while (disp_.PrimaryScreen()->Geometry().IsEmpty())
-    disp_.SyncDisplay();
-
-  ui::EventFactoryOzoneWayland* event_factory =
-      ui::EventFactoryOzoneWayland::GetInstance();
-  DCHECK(event_factory->GetOutputChangeObserver());
-
-  unsigned width = disp_.PrimaryScreen()->Geometry().width();
-  unsigned height = disp_.PrimaryScreen()->Geometry().height();
-  event_factory->GetOutputChangeObserver()->OnOutputSizeChanged(width, height);
 }
 
 }  // namespace ozonewayland

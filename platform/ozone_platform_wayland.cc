@@ -11,7 +11,7 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/gfx/surface_factory_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
-#include "ozone/wayland/ozone_hardware_display.h"
+#include "ozone/wayland/display.h"
 #include "ui/base/cursor/ozone/cursor_factory_ozone.h"
 #include "ui/ozone/ozone_platform.h"
 
@@ -44,7 +44,7 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
  private:
-  ozonewayland::OzoneHardwareDisplay hardware_display_;
+  ozonewayland::WaylandDisplay wayland_display_;
   gfx::SurfaceFactoryWayland surface_factory_ozone_;
   ui::EventFactoryOzoneWayland event_factory_ozone_;
   ui::InputMethodContextFactoryWayland input_method_context_factory_;

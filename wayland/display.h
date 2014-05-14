@@ -16,6 +16,7 @@
 
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_state_change_handler.h"
+#include "ozone/ui/gfx/ozone_display.h"
 #include "ozone/wayland/input/text-client-protocol.h"
 
 namespace ozonewayland {
@@ -32,19 +33,20 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
-class WaylandDisplay : public ui::WindowStateChangeHandler {
+class WaylandDisplay : public ui::WindowStateChangeHandler,
+                       public gfx::OzoneDisplay {
  public:
   enum RegistrationType {
     RegisterAsNeeded,  // Handles all the required registrations.
     RegisterOutputOnly  // Only screen registration.
   };
 
-  explicit WaylandDisplay(RegistrationType type);
+  explicit WaylandDisplay(RegistrationType type = RegisterAsNeeded);
   virtual ~WaylandDisplay();
 
   // Ownership is not passed to the caller.
   static WaylandDisplay* GetInstance() { return instance_; }
-  static void LookAheadOutputGeometry();
+
   // Returns a pointer to wl_display.
   wl_display* display() const { return display_; }
 
@@ -69,15 +71,24 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
   // to the caller.
   WaylandWindow* GetWindow(unsigned window_handle) const;
 
-  // Flush Display.
-  void FlushDisplay();
   // Does a round trip to Wayland server. This call blocks the current thread
   // until all pending request are processed by the server.
   void SyncDisplay();
-  // Realizes an AcceleratedWidget so that the returned AcceleratedWidget
-  // can be used to to create a GLSurface. Ownership is not passed to the
-  // caller.
-  wl_egl_window* RealizeAcceleratedWidget(unsigned w);
+
+  // Ozone Display implementation:
+  virtual gfx::SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
+  virtual void ShutdownHardware() OVERRIDE;
+  virtual intptr_t GetNativeDisplay() OVERRIDE;
+  virtual void FlushDisplay() OVERRIDE;
+
+  virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
+  virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
+      gfx::AcceleratedWidget w) OVERRIDE;
+  virtual bool AttemptToResizeAcceleratedWidget(
+      gfx::AcceleratedWidget w, const gfx::Size& bounds) OVERRIDE;
+  virtual void DestroyWidget(gfx::AcceleratedWidget w) OVERRIDE;
+  virtual void LookAheadOutputGeometry() OVERRIDE;
+
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               ui::WidgetState state,
@@ -93,6 +104,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
                                    ui::WidgetType type) OVERRIDE;
 
  private:
+  void InitializeDisplay(RegistrationType type);
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
   // useful for callers to track a particular surface. By default the type of
   // surface(i.e. toplevel, menu) is none. One needs to explicitly call
@@ -111,7 +123,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler {
   // Stops polling on display fd.
   void StopProcessingEvents();
 
-  void terminate();
+  void Terminate();
   WaylandWindow* GetWidget(unsigned w) const;
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
