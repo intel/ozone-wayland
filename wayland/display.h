@@ -89,6 +89,17 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   virtual void DestroyWidget(gfx::AcceleratedWidget w) OVERRIDE;
   virtual void LookAheadOutputGeometry() OVERRIDE;
 
+  // Ownership is passed to the caller.
+  virtual scoped_ptr<gfx::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
+        gfx::AcceleratedWidget widget) OVERRIDE;
+
+  virtual bool LoadEGLGLES2Bindings(
+    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
+        proc_address) OVERRIDE;
+  virtual const int32* GetEGLSurfaceProperties(
+      const int32* desired_list) OVERRIDE;
+
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               ui::WidgetState state,

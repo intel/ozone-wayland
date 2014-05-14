@@ -11,7 +11,7 @@
 
 namespace gfx {
 
-class OZONE_WAYLAND_EXPORT OzoneDisplay {
+class OZONE_WAYLAND_EXPORT OzoneDisplay : public gfx::SurfaceFactoryOzone {
  public:
   OzoneDisplay();
   virtual ~OzoneDisplay();
@@ -22,18 +22,13 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay {
   // Sets the implementation delegate. Ownership is retained by the caller.
   static void SetInstance(OzoneDisplay* instance);
 
-  virtual SurfaceFactoryOzone::HardwareState InitializeHardware() = 0;
-  virtual void ShutdownHardware() = 0;
-  virtual intptr_t GetNativeDisplay() = 0;
   virtual void FlushDisplay() = 0;
-
-  virtual gfx::AcceleratedWidget GetAcceleratedWidget() = 0;
   virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
       gfx::AcceleratedWidget w) = 0;
   virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
                                                 const gfx::Size& bounds) = 0;
   virtual void DestroyWidget(gfx::AcceleratedWidget w) = 0;
-  virtual void LookAheadOutputGeometry() = 0;
+  virtual void LookAheadOutputGeometry();
 
  private:
   static OzoneDisplay* instance_;

@@ -9,7 +9,6 @@
 #include "ozone/ui/desktop_aura/desktop_factory_wayland.h"
 #endif
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/gfx/surface_factory_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ui/base/cursor/ozone/cursor_factory_ozone.h"
@@ -30,7 +29,7 @@ class OzonePlatformWayland : public OzonePlatform {
 
   // OzonePlatform:
   virtual gfx::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
-    return &surface_factory_ozone_;
+    return &wayland_display_;
   }
   virtual ui::EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
     return &event_factory_ozone_;
@@ -45,7 +44,6 @@ class OzonePlatformWayland : public OzonePlatform {
 
  private:
   ozonewayland::WaylandDisplay wayland_display_;
-  gfx::SurfaceFactoryWayland surface_factory_ozone_;
   ui::EventFactoryOzoneWayland event_factory_ozone_;
   ui::InputMethodContextFactoryWayland input_method_context_factory_;
   ui::CursorFactoryOzoneWayland cursor_factory_ozone_;

@@ -8,8 +8,6 @@
   'sources': [
     'ozone_display.h',
     'ozone_display.cc',
-    'surface_factory_wayland.cc',
-    'surface_factory_wayland.h',
     'surface_ozone_impl_egl.cc',
     'surface_ozone_impl_egl.h',
     'vsync_provider_wayland.cc',

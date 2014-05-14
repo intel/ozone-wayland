@@ -27,4 +27,7 @@ void OzoneDisplay::SetInstance(OzoneDisplay* instance) {
   instance_ = instance;
 }
 
+void OzoneDisplay::LookAheadOutputGeometry() {
+}
+
 }  // namespace gfx
