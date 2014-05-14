@@ -15,7 +15,7 @@ namespace content {
 
 class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                 public ui::PlatformEventSource {
-  public:
+ public:
   EventConverterInProcess();
   virtual ~EventConverterInProcess();
 

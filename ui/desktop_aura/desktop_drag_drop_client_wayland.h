@@ -32,7 +32,7 @@ class VIEWS_EXPORT DesktopDragDropClientWayland
   virtual void DragCancel() OVERRIDE;
   virtual bool IsDragDropInProgress() OVERRIDE;
 
-  private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(DesktopDragDropClientWayland);
 };
 

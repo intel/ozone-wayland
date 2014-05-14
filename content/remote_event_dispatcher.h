@@ -15,7 +15,7 @@ namespace content {
 // process side. All callbacks related to input need to be handled in Browser
 // process and hence the events are sent to it over IPC.
 class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
-  public:
+ public:
   RemoteEventDispatcher();
   virtual ~RemoteEventDispatcher();
 
