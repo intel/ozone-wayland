@@ -173,10 +173,6 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
   CreateCompositor(GetAcceleratedWidget());
 }
 
-bool DesktopWindowTreeHostWayland::IsWindowManagerPresent() {
-  return true;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, DesktopWindowTreeHost implementation:
 

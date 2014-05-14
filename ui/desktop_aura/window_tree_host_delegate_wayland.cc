@@ -7,6 +7,7 @@
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/events/event_utils.h"
+#include "ui/events/platform/platform_event_source.h"
 
 namespace views {
 

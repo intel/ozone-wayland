@@ -104,11 +104,6 @@ void EventConverterInProcess::SetOutputChangeObserver(
   output_observer_ = observer;
 }
 
-void EventConverterInProcess::SetDispatchCallback(
-    base::Callback<void(void*)> callback) {  // NOLINT(readability/function))
-  dispatch_callback_ = callback;
-}
-
 void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,
                                            float x,
                                            float y) {
@@ -118,7 +113,7 @@ void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,
                          position,
                          0,
                          0);
-  data->dispatch_callback_.Run(&mouseev);
+  data->DispatchEvent(&mouseev);
 }
 
 void EventConverterInProcess::NotifyButtonPress(EventConverterInProcess* data,
@@ -133,7 +128,7 @@ void EventConverterInProcess::NotifyButtonPress(EventConverterInProcess* data,
                            position,
                            flags,
                            1);
-    data->dispatch_callback_.Run(&mouseev);
+    data->DispatchEvent(&mouseev);
 
     if (type == ui::ET_MOUSE_RELEASED && data->observer_)
       data->observer_->OnWindowFocused(handle);
@@ -148,7 +143,7 @@ void EventConverterInProcess::NotifyAxis(EventConverterInProcess* data,
   ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
   ui::MouseWheelEvent wheelev(mouseev, xoffset, yoffset);
 
-  data->dispatch_callback_.Run(&wheelev);
+  data->DispatchEvent(&wheelev);
 }
 
 void EventConverterInProcess::NotifyPointerEnter(
@@ -158,7 +153,7 @@ void EventConverterInProcess::NotifyPointerEnter(
 
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSE_ENTERED, position, position, 0, 0);
-  data->dispatch_callback_.Run(&mouseev);
+  data->DispatchEvent(&mouseev);
 }
 
 void EventConverterInProcess::NotifyPointerLeave(
@@ -168,7 +163,7 @@ void EventConverterInProcess::NotifyPointerLeave(
 
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSE_EXITED, position, position, 0, 0);
-  data->dispatch_callback_.Run(&mouseev);
+  data->DispatchEvent(&mouseev);
 }
 
 void EventConverterInProcess::NotifyKeyEvent(EventConverterInProcess* data,
@@ -178,7 +173,7 @@ void EventConverterInProcess::NotifyKeyEvent(EventConverterInProcess* data,
                                              unsigned modifiers) {
   ui::KeyEvent keyev(type, code, modifiers, true);
   keyev.set_character(CharacterCodeFromNativeKey);
-  data->dispatch_callback_.Run(&keyev);
+  data->DispatchEvent(&keyev);
 }
 
 void EventConverterInProcess::NotifyTouchEvent(EventConverterInProcess* data,
@@ -190,7 +185,7 @@ void EventConverterInProcess::NotifyTouchEvent(EventConverterInProcess* data,
   gfx::Point position(x, y);
   base::TimeDelta time_delta = base::TimeDelta::FromMilliseconds(time_stamp);
   ui::TouchEvent touchev(type, position, touch_id, time_delta);
-  data->dispatch_callback_.Run(&touchev);
+  data->DispatchEvent(&touchev);
 }
 
 void EventConverterInProcess::NotifyCloseWidget(

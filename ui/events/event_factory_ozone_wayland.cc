@@ -58,12 +58,6 @@ EventFactoryOzoneWayland::GetOutputChangeObserver() const {
 void EventFactoryOzoneWayland::SetEventConverterOzoneWayland(
     EventConverterOzoneWayland* converter) {
   event_converter_ = converter;
-  if (!event_converter_)
-    return;
-
-  event_converter_->SetDispatchCallback(
-      base::Bind(base::IgnoreResult(&EventFactoryOzoneWayland::DispatchEvent),
-          base::Unretained(this)));
 }
 
 EventConverterOzoneWayland* EventFactoryOzoneWayland::EventConverter() const {

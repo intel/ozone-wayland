@@ -1,6 +1,6 @@
-From cf3ae9bd0df0a4ca627bf79a9e12117960263ef5 Mon Sep 17 00:00:00 2001
+From c3446616fe85fb4c2a24446aa34938f801725d40 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Mon, 3 Mar 2014 13:04:17 +0200
+Date: Wed, 14 May 2014 11:10:28 +0300
 Subject: [PATCH] OzoneChannel: Add needed support in Content.
 
 In Wayland case all window related events need to be sent to GPU process.
@@ -18,10 +18,10 @@ our needs. This patch adds support for the following:
  3 files changed, 39 insertions(+)
 
 diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
-index 316d7c3..8c85667 100644
+index 1039dc7..53f6ec1 100644
 --- a/content/browser/browser_main_loop.cc
 +++ b/content/browser/browser_main_loop.cc
-@@ -122,6 +122,7 @@
+@@ -123,6 +123,7 @@
  #endif
  
  #if defined(USE_OZONE)
@@ -29,7 +29,7 @@ index 316d7c3..8c85667 100644
  #include "ui/ozone/ozone_platform.h"
  #include "ui/events/ozone/event_factory_ozone.h"
  #endif
-@@ -868,6 +869,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
+@@ -870,6 +871,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
      TRACE_EVENT0("shutdown", "BrowserMainLoop::Subsystem:GPUChannelFactory");
      if (BrowserGpuChannelHostFactory::instance())
        BrowserGpuChannelHostFactory::Terminate();
@@ -40,7 +40,7 @@ index 316d7c3..8c85667 100644
    }
  
    // Must happen after the I/O thread is shutdown since this class lives on the
-@@ -1024,6 +1029,13 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+@@ -1032,6 +1037,13 @@ int BrowserMainLoop::BrowserThreadsStarted() {
  #if defined(OS_MACOSX)
    ThemeHelperMac::GetInstance();
  #endif
@@ -55,10 +55,10 @@ index 316d7c3..8c85667 100644
  
    return result_code_;
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 34bda3a..7db5ac0 100644
+index 61cc59b..3849260 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -690,6 +690,25 @@
+@@ -691,6 +691,25 @@
          },
       ]
      }],
@@ -85,11 +85,11 @@ index 34bda3a..7db5ac0 100644
        'dependencies': [
          '../media/media.gyp:media',
 diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
-index 0dac81d..050243b 100644
+index 46549d1..88e855e 100644
 --- a/content/gpu/gpu_main.cc
 +++ b/content/gpu/gpu_main.cc
-@@ -51,6 +51,10 @@
- #include "content/public/common/sandbox_init.h"
+@@ -55,6 +55,10 @@
+ #include "base/message_loop/message_pump_mac.h"
  #endif
  
 +#if defined(USE_OZONE)
@@ -99,17 +99,17 @@ index 0dac81d..050243b 100644
  const int kGpuTimeout = 10000;
  
  namespace content {
-@@ -351,6 +355,10 @@ int GpuMain(const MainFunctionParams& parameters) {
-     watchdog_thread->AddPowerObserver();
+@@ -363,6 +367,10 @@ int GpuMain(const MainFunctionParams& parameters) {
  
    {
-+#if defined(USE_OZONE)
-+    OzoneChannel channel;
-+    channel.Register();
-+#endif
      TRACE_EVENT0("gpu", "Run Message Loop");
++#if defined(USE_OZONE)
++  OzoneChannel channel;
++  channel.Register();
++#endif
      main_message_loop.Run();
    }
+
 -- 
 1.7.9.5
 

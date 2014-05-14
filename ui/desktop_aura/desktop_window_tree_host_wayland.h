@@ -66,11 +66,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // initialization related to talking to the Ozone server.
   void InitWaylandWindow(const views::Widget::InitParams& params);
 
-  // Returns true if there's an X window manager present... in most cases.  Some
-  // window managers (notably, ion3) don't implement enough of ICCCM for us to
-  // detect that they're there.
-  bool IsWindowManagerPresent();
-
   // Called when another DRWHL takes capture, or when capture is released
   // entirely.
   void OnCaptureReleased();
