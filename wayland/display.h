@@ -78,12 +78,12 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   // Does a round trip to Wayland server. This call blocks the current thread
   // until all pending request are processed by the server.
   void SyncDisplay();
+  void FlushDisplay();
 
   // Ozone Display implementation:
   virtual gfx::SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
   virtual void ShutdownHardware() OVERRIDE;
   virtual intptr_t GetNativeDisplay() OVERRIDE;
-  virtual void FlushDisplay() OVERRIDE;
 
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual void LookAheadOutputGeometry() OVERRIDE;

@@ -22,7 +22,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public gfx::SurfaceFactoryOzone {
   // Sets the implementation delegate. Ownership is retained by the caller.
   static void SetInstance(OzoneDisplay* instance);
 
-  virtual void FlushDisplay() = 0;
   virtual void LookAheadOutputGeometry();
 
  private:

@@ -18,19 +18,7 @@ WaylandSyncProvider::~WaylandSyncProvider() {
 
 void WaylandSyncProvider::GetVSyncParameters(
          const UpdateVSyncCallback& callback) {
-  // PassThroughImageTransportSurface calls this before swapping the surface.
-  // Post a task to flush display as it should be handled immediately after
-  // swap buffers is done.
-  base::MessageLoop::current()->message_loop_proxy()->PostTask(
-      FROM_HERE, base::Bind(&WaylandSyncProvider::ScheduleFlush));
-
   // TODO(kalyan): Pass refresh rate and time of the last refresh.
-}
-
-void WaylandSyncProvider::ScheduleFlush() {
-  OzoneDisplay* native_display = OzoneDisplay::GetInstance();
-  if (native_display)
-    native_display->FlushDisplay();
 }
 
 }  // namespace gfx

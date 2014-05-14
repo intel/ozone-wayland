@@ -17,7 +17,6 @@ class WaylandSyncProvider : public gfx::VSyncProvider {
   virtual void GetVSyncParameters(const UpdateVSyncCallback& callback) OVERRIDE;
 
  private:
-  static void ScheduleFlush();
   DISALLOW_COPY_AND_ASSIGN(WaylandSyncProvider);
 };
 

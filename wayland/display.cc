@@ -65,6 +65,10 @@ void WaylandDisplay::SyncDisplay() {
   wl_display_roundtrip(display_);
 }
 
+void WaylandDisplay::FlushDisplay() {
+  wl_display_flush(display_);
+}
+
 void WaylandDisplay::DestroyWindow(unsigned w) {
   std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
   WaylandWindow* widget = it == widget_map_.end() ? NULL : it->second;
@@ -102,10 +106,6 @@ void WaylandDisplay::ShutdownHardware() {
 
 intptr_t WaylandDisplay::GetNativeDisplay() {
   return (intptr_t)display_;
-}
-
-void WaylandDisplay::FlushDisplay() {
-  wl_display_flush(display_);
 }
 
 gfx::AcceleratedWidget WaylandDisplay::GetAcceleratedWidget() {
