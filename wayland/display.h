@@ -70,6 +70,10 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   // Returns WaylandWindow associated with w. The ownership is not transferred
   // to the caller.
   WaylandWindow* GetWindow(unsigned window_handle) const;
+  gfx::AcceleratedWidget GetNativeWindow(unsigned window_handle);
+
+  // Destroys WaylandWindow whose handle is w.
+  void DestroyWindow(unsigned w);
 
   // Does a round trip to Wayland server. This call blocks the current thread
   // until all pending request are processed by the server.
@@ -82,11 +86,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   virtual void FlushDisplay() OVERRIDE;
 
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
-  virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
-      gfx::AcceleratedWidget w) OVERRIDE;
-  virtual bool AttemptToResizeAcceleratedWidget(
-      gfx::AcceleratedWidget w, const gfx::Size& bounds) OVERRIDE;
-  virtual void DestroyWidget(gfx::AcceleratedWidget w) OVERRIDE;
   virtual void LookAheadOutputGeometry() OVERRIDE;
 
   // Ownership is passed to the caller.
@@ -122,9 +121,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   // WaylandWindow::SetShellAttributes to set this. The ownership of
   // WaylandWindow is not passed to the caller.
   WaylandWindow* CreateAcceleratedSurface(unsigned w);
-
-  // Destroys WaylandWindow whose handle is w.
-  void DestroyWindow(unsigned w);
 
   // Starts polling on display fd. This should be used when one needs to
   // continuously read pending events coming from Wayland compositor and

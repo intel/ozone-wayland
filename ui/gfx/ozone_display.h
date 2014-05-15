@@ -23,11 +23,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public gfx::SurfaceFactoryOzone {
   static void SetInstance(OzoneDisplay* instance);
 
   virtual void FlushDisplay() = 0;
-  virtual gfx::AcceleratedWidget RealizeAcceleratedWidget(
-      gfx::AcceleratedWidget w) = 0;
-  virtual bool AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
-                                                const gfx::Size& bounds) = 0;
-  virtual void DestroyWidget(gfx::AcceleratedWidget w) = 0;
   virtual void LookAheadOutputGeometry();
 
  private:

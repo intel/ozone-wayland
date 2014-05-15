@@ -2,21 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_GFX_SURFACE_OZONE_IMPL_EGL_H_
-#define OZONE_UI_GFX_SURFACE_OZONE_IMPL_EGL_H_
+#ifndef OZONE_WAYLAND_EGL_SURFACE_OZONE_WAYLAND
+#define OZONE_WAYLAND_EGL_SURFACE_OZONE_WAYLAND
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/gfx/gfx_export.h"
 #include "ui/gfx/ozone/surface_ozone_egl.h"
 
-namespace gfx {
+namespace ozonewayland {
 
 // Provides EGL support for SurfaceOzone.
-class GFX_EXPORT SurfaceOzoneImplEGL : public SurfaceOzoneEGL {
+class SurfaceOzoneWayland : public gfx::SurfaceOzoneEGL {
  public:
-  explicit SurfaceOzoneImplEGL(unsigned handle);
-  virtual ~SurfaceOzoneImplEGL() OVERRIDE;
+  explicit SurfaceOzoneWayland(unsigned handle);
+  virtual ~SurfaceOzoneWayland() OVERRIDE;
 
   // SurfaceOzone:
   virtual intptr_t GetNativeWindow() OVERRIDE;
@@ -25,9 +25,9 @@ class GFX_EXPORT SurfaceOzoneImplEGL : public SurfaceOzoneEGL {
 
  private:
   unsigned handle_;
-  DISALLOW_COPY_AND_ASSIGN(SurfaceOzoneImplEGL);
+  DISALLOW_COPY_AND_ASSIGN(SurfaceOzoneWayland);
 };
 
-}  // namespace gfx
+}  // namespace ozonewayland
 
-#endif  // OZONE_UI_GFX_SURFACE_OZONE_IMPL_EGL_H_
+#endif  // OZONE_WAYLAND_EGL_SURFACE_OZONE_WAYLAND

@@ -71,6 +71,8 @@
         'window.h',
         'egl/egl_window.cc',
         'egl/egl_window.h',
+        'egl/surface_ozone_wayland.cc',
+        'egl/surface_ozone_wayland.h',
         'input/cursor.cc',
         'input/cursor.h',
         'input/keyboard.cc',

@@ -14,11 +14,11 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/gfx/ozone_display.h"
-#include "ozone/ui/gfx/surface_ozone_impl_egl.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
+#include "ozone/wayland/egl/surface_ozone_wayland.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"
 #include "ui/gfx/ozone/surface_ozone_egl.h"
@@ -65,6 +65,26 @@ void WaylandDisplay::SyncDisplay() {
   wl_display_roundtrip(display_);
 }
 
+void WaylandDisplay::DestroyWindow(unsigned w) {
+  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
+  WaylandWindow* widget = it == widget_map_.end() ? NULL : it->second;
+  DCHECK(widget);
+  delete widget;
+  widget_map_.erase(w);
+  if (widget_map_.empty())
+    StopProcessingEvents();
+}
+
+gfx::AcceleratedWidget WaylandDisplay::GetNativeWindow(unsigned window_handle) {
+  // Ensure we are processing wayland event requests.
+  StartProcessingEvents();
+  WaylandWindow* widget = GetWidget(window_handle);
+  DCHECK(widget);
+  widget->RealizeAcceleratedWidget();
+
+  return (gfx::AcceleratedWidget)widget->egl_window();
+}
+
 gfx::SurfaceFactoryOzone::HardwareState
 WaylandDisplay::InitializeHardware() {
   InitializeDisplay(WaylandDisplay::RegisterAsNeeded);
@@ -81,7 +101,7 @@ void WaylandDisplay::ShutdownHardware() {
 }
 
 intptr_t WaylandDisplay::GetNativeDisplay() {
-  return (intptr_t)display();
+  return (intptr_t)display_;
 }
 
 void WaylandDisplay::FlushDisplay() {
@@ -97,30 +117,6 @@ gfx::AcceleratedWidget WaylandDisplay::GetAcceleratedWidget() {
                                                               0);
 
   return (gfx::AcceleratedWidget)opaque_handle;
-}
-
-gfx::AcceleratedWidget WaylandDisplay::RealizeAcceleratedWidget(
-    gfx::AcceleratedWidget w) {
-  // Ensure we are processing wayland event requests.
-  StartProcessingEvents();
-  WaylandWindow* widget = GetWidget(w);
-  DCHECK(widget);
-  widget->RealizeAcceleratedWidget();
-
-  return (gfx::AcceleratedWidget)widget->egl_window();
-}
-
-bool WaylandDisplay::AttemptToResizeAcceleratedWidget(gfx::AcceleratedWidget w,
-                                                      const gfx::Size& bounds) {
-    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-        w, ui::RESIZE, bounds.width(), bounds.height());
-
-    return true;
-}
-
-void WaylandDisplay::DestroyWidget(gfx::AcceleratedWidget w) {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(w,
-                                                              ui::DESTROYED);
 }
 
 // TODO(vignatti): GPU process conceptually is the one that deals with hardware
@@ -158,7 +154,7 @@ void WaylandDisplay::LookAheadOutputGeometry() {
 
 scoped_ptr<gfx::SurfaceOzoneEGL> WaylandDisplay::CreateEGLSurfaceForWidget(
     gfx::AcceleratedWidget w) {
-  return make_scoped_ptr<gfx::SurfaceOzoneEGL>(new gfx::SurfaceOzoneImplEGL(w));
+  return make_scoped_ptr<gfx::SurfaceOzoneEGL>(new SurfaceOzoneWayland(w));
 }
 
 bool WaylandDisplay::LoadEGLGLES2Bindings(
@@ -270,20 +266,6 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     case ui::HIDE:
       NOTIMPLEMENTED() << " HIDE " << w;
       break;
-    case ui::RESIZE:
-    {
-      WaylandWindow* window = GetWidget(w);
-      DCHECK(window);
-      window->Resize(width, height);
-      break;
-    }
-    case ui::DESTROYED:
-    {
-      DestroyWindow(w);
-      if (widget_map_.empty())
-        StopProcessingEvents();
-      break;
-    }
     default:
       break;
   }
@@ -363,14 +345,6 @@ WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
   widget_map_[w] = window;
 
   return window;
-}
-
-void WaylandDisplay::DestroyWindow(unsigned w) {
-  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
-  WaylandWindow* widget = it == widget_map_.end() ? NULL : it->second;
-  DCHECK(widget);
-  delete widget;
-  widget_map_.erase(w);
 }
 
 void WaylandDisplay::StartProcessingEvents() {
