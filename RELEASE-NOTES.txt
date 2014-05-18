@@ -1,0 +1,58 @@
+========================================================================
+Milestone Easter.
+Release Date: 15 May 2014.
+========================================================================
+
+Based on Chromium-
+Version: 35.0.1916.114.
+Channel: Beta.
+Branch: 1916.
+Revision: cf1f3150c6561eb92f347dfc25addc0e6e2cd199.
+
+---------------------------------------------------------------------
+
+New Features enabled in this release:
+-
+
+---------------------------------------------------------------------
+
+Fixed Issues:
+Full list can be found here: 
+https://github.com/01org/ozone-wayland/issues?milestone=4&page=1&state=closed
+
+---------------------------------------------------------------------
+
+Known Issues:
+1) Dialogs are not supported.(i.e. File picker)
+2) Missing Drag and Drop support.
+
+---------------------------------------------------------------------
+
+The release has been tested on Ubuntu 12.04, x86-64 against the following
+dependencies:
+
+1) Wayland and Weston.
+   Version: 1.4
+   Wayland Revision: 3adcf6f11b9b982433f89b2c10c408071f9df44e
+   Weston Revision: cbb915816249a68c34e8a290ca89c8aae669c461
+2) Mesa.
+   Version: 10.1
+   Revision: 4a86465f4754a0d79ed98f2d1ce425864854418b
+3) DRM.
+   Version:2.4.52
+   Revision: 46d451c9a9514df9de01df647a3f397c5b5d7d1a
+4) GLProto.
+   Version:1.4.17
+   Revision: f84853d97d5749308992412a215fa518b6536eb3
+5) libunwind.
+   Revision: 2cb00c1eaca437e41556ad5512149508fcc7cb82
+6) libxkbcommon.
+   Version:0.4.0
+   Revision: be16858c927b0d3023dd20fc35fa0919711a72c7
+7) Cairo.
+   Revision: bb17403622e9ea474017e0039af8ee48b2b285db
+8) Pixman.
+   Revision: c343846625152bacbba8d35c0354ed8aadb3c6a0
+
+
+
