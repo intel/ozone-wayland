@@ -147,6 +147,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void SetCapture() OVERRIDE;
   virtual void ReleaseCapture() OVERRIDE;
   virtual void SetCursorNative(gfx::NativeCursor cursor) OVERRIDE;
+  virtual bool QueryMouseLocation(gfx::Point* location_return) OVERRIDE;
   virtual bool ConfineCursorToRootWindow() OVERRIDE;
   virtual void UnConfineCursor() OVERRIDE;
   virtual void OnCursorVisibilityChangedNative(bool show) OVERRIDE;

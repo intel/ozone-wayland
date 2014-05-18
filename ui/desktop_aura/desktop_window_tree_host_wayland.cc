@@ -724,6 +724,12 @@ void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
       cursor.native_type());
 }
 
+bool DesktopWindowTreeHostWayland::QueryMouseLocation(
+    gfx::Point* location_return) {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 bool DesktopWindowTreeHostWayland::ConfineCursorToRootWindow() {
   NOTIMPLEMENTED();
   return false;
@@ -793,7 +799,7 @@ VIEWS_EXPORT ui::NativeTheme*
 DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
   const views::LinuxUI* linux_ui = views::LinuxUI::instance();
   if (linux_ui) {
-    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme(window);
+    ui::NativeTheme* native_theme = linux_ui->GetNativeTheme();
     if (native_theme)
       return native_theme;
   }
