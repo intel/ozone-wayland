@@ -6,7 +6,7 @@ Release Date: 15 May 2014.
 Based on Chromium-
 Version: 35.0.1916.114.
 Channel: Beta.
-Branch: 1916.
+Branch: 1985.
 Revision: cf1f3150c6561eb92f347dfc25addc0e6e2cd199.
 
 ---------------------------------------------------------------------

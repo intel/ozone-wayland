@@ -1,7 +1,7 @@
-From 2d14089efaffc7d5249572ab437d0dedebef5f2f Mon Sep 17 00:00:00 2001
+From eb9316f5b06db71debc0949e822997b8ce0c066d Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
-Date: Thu, 15 May 2014 20:01:37 +0300
-Subject: [PATCH 2/2] Add needed support in Content.
+Date: Fri, 23 May 2014 11:31:24 +0300
+Subject: [PATCH] Add needed support in Content.
 
 In Wayland case all window related events need to be sent to GPU process.
 We have a minimal IPC implementation, handling messages very specific to
@@ -12,27 +12,28 @@ our needs. This patch adds support for the following:
 2) Ensure our content related files are compiled as part of
    content_common target.
 ---
- content/browser/browser_main_loop.cc |   11 +++++++++++
+ content/browser/browser_main_loop.cc |   12 ++++++++++++
  content/content_common.gypi          |   19 +++++++++++++++++++
  content/gpu/gpu_main.cc              |    8 ++++++++
- 3 files changed, 38 insertions(+)
+ 3 files changed, 39 insertions(+)
 
 diff --git a/content/browser/browser_main_loop.cc b/content/browser/browser_main_loop.cc
-index 89a5281..fbcf9e6 100644
+index 39a1de3..2a69a3e 100644
 --- a/content/browser/browser_main_loop.cc
 +++ b/content/browser/browser_main_loop.cc
-@@ -118,6 +118,7 @@
+@@ -125,6 +125,7 @@
+ #if defined(USE_OZONE)
+ #include "ui/ozone/ozone_platform.h"
+ #include "ui/events/ozone/event_factory_ozone.h"
++#include "ozone/content/ozone_channel_host_factory.h"
  #endif
  
- #if defined(USE_OZONE)
-+#include "ozone/content/ozone_channel_host_factory.h"
- #include "ui/ozone/ozone_platform.h"
- #endif
-
-@@ -888,6 +889,10 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
+ // One of the linux specific headers defines this as a macro.
+@@ -870,6 +871,11 @@ void BrowserMainLoop::ShutdownThreadsAndCleanUp() {
      TRACE_EVENT0("shutdown", "BrowserMainLoop::Subsystem:GPUChannelFactory");
      if (BrowserGpuChannelHostFactory::instance())
        BrowserGpuChannelHostFactory::Terminate();
++
 +#if defined(USE_OZONE)
 +    if (OzoneChannelHostFactory::instance())
 +      OzoneChannelHostFactory::Terminate();
@@ -40,24 +41,24 @@ index 89a5281..fbcf9e6 100644
    }
  
    // Must happen after the I/O thread is shutdown since this class lives on the
-@@ -1047,6 +1052,12 @@ int BrowserMainLoop::BrowserThreadsStarted() {
+@@ -1032,6 +1038,12 @@ int BrowserMainLoop::BrowserThreadsStarted() {
  #if defined(OS_MACOSX)
    ThemeHelperMac::GetInstance();
  #endif
 +#if defined(USE_OZONE)
 +  bool using_gpu_process =
-+      !parsed_command_line_.HasSwitch(switches::kSingleProcess) &&
-+      !parsed_command_line_.HasSwitch(switches::kInProcessGPU);
++    !parsed_command_line_.HasSwitch(switches::kSingleProcess) &&
++    !parsed_command_line_.HasSwitch(switches::kInProcessGPU);
 +  OzoneChannelHostFactory::Initialize(using_gpu_process);
 +#endif
  #endif  // !defined(OS_IOS)
  
    return result_code_;
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index a28e37f..41eddf6 100644
+index 61cc59b..3849260 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -681,6 +681,25 @@
+@@ -691,6 +691,25 @@
          },
       ]
      }],
@@ -84,7 +85,7 @@ index a28e37f..41eddf6 100644
        'dependencies': [
          '../media/media.gyp:media',
 diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
-index fe4d3ce..77fa9c1 100644
+index 0dac81d..96ff9f2 100644
 --- a/content/gpu/gpu_main.cc
 +++ b/content/gpu/gpu_main.cc
 @@ -51,6 +51,10 @@
@@ -96,19 +97,19 @@ index fe4d3ce..77fa9c1 100644
 +#endif
 +
  const int kGpuTimeout = 10000;
- 
+
  namespace content {
 @@ -353,6 +357,10 @@ int GpuMain(const MainFunctionParams& parameters) {
-     watchdog_thread->AddPowerObserver();
- 
    {
+     TRACE_EVENT0("gpu", "Run Message Loop");
+     main_message_loop.Run();
 +#if defined(USE_OZONE)
 +    OzoneChannel channel;
 +    channel.Register();
 +#endif
-     TRACE_EVENT0("gpu", "Run Message Loop");
-     main_message_loop.Run();
    }
--- 
+
+   child_thread->StopWatchdog();
+--
 1.7.9.5
 
