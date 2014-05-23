@@ -9,13 +9,11 @@
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/keyboard_code_conversion_ozone.h"
 #include "ui/events/event.h"
-#include "ui/events/platform/platform_event_source.h"
 
 namespace content {
 
-class EventConverterInProcess : public ui::EventConverterOzoneWayland,
-                                public ui::PlatformEventSource {
- public:
+class EventConverterInProcess : public ui::EventConverterOzoneWayland {
+  public:
   EventConverterInProcess();
   virtual ~EventConverterInProcess();
 
@@ -49,6 +47,9 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
       ui::WindowChangeObserver* observer) OVERRIDE;
   virtual void SetOutputChangeObserver(
       ui::OutputChangeObserver* observer) OVERRIDE;
+  virtual void  SetDispatchCallback(
+      base::Callback<void(void*)> callback) OVERRIDE;  // NOLINT(readability/
+                                                       //  function)
 
  private:
   static void NotifyMotion(EventConverterInProcess* data,

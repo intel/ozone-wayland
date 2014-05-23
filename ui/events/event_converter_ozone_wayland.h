@@ -20,7 +20,7 @@ class OutputChangeObserver;
 // 2) Convert native events related to Window Activation and dispatch it to
 //    WindowChangeObserver
 class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
- public:
+  public:
   EventConverterOzoneWayland();
   virtual ~EventConverterOzoneWayland();
 
@@ -51,8 +51,11 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
   // Sets the output change observer. Ownership is retained by the caller.
   virtual void SetOutputChangeObserver(OutputChangeObserver* observer);
+  // Sets the in-process event dispatcher. Ownership is retained by the caller.
+  virtual void SetDispatchCallback(
+      base::Callback<void(void*)> callback);  // NOLINT(readability/function)
 
- protected:
+  protected:
   // Posts task to main loop of the thread on which Dispatcher was initialized.
   virtual void PostTaskOnMainLoop(const base::Closure& task);
   base::MessageLoop* loop_;
