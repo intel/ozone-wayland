@@ -5,12 +5,14 @@
 #ifndef OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 #define OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_
 
+#include "ozone/platform/ozone_export_wayland.h"
+
 namespace ui {
 
 class OzonePlatform;
 
 // Constructor hook for use in ozone_platform_list.cc
-OzonePlatform* CreateOzonePlatformWayland();
+OZONE_WAYLAND_EXPORT OzonePlatform* CreateOzonePlatformWayland();
 
 }  // namespace ui
 
