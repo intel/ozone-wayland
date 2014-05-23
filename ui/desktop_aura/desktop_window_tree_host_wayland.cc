@@ -677,10 +677,6 @@ void DesktopWindowTreeHostWayland::Hide() {
   native_widget_delegate_->OnNativeWidgetVisibilityChanged(false);
 }
 
-void DesktopWindowTreeHostWayland::ToggleFullScreen() {
-  SetFullscreen(!(state_ & FullScreen));
-}
-
 gfx::Rect DesktopWindowTreeHostWayland::GetBounds() const {
   return bounds_;
 }
@@ -699,13 +695,6 @@ void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
     compositor()->ScheduleRedrawRect(bounds);
 }
 
-gfx::Insets DesktopWindowTreeHostWayland::GetInsets() const {
-  return gfx::Insets();
-}
-
-void DesktopWindowTreeHostWayland::SetInsets(const gfx::Insets& insets) {
-}
-
 gfx::Point DesktopWindowTreeHostWayland::GetLocationOnNativeScreen() const {
   return bounds_.origin();
 }
@@ -722,15 +711,6 @@ void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
   // TODO(kalyan): Add support for custom cursor.
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetCursor(
       cursor.native_type());
-}
-
-bool DesktopWindowTreeHostWayland::ConfineCursorToRootWindow() {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-void DesktopWindowTreeHostWayland::UnConfineCursor() {
-  NOTIMPLEMENTED();
 }
 
 void DesktopWindowTreeHostWayland::OnCursorVisibilityChangedNative(bool show) {
