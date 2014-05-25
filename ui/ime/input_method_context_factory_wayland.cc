@@ -8,8 +8,8 @@
 
 namespace ui {
 
-InputMethodContextFactoryWayland::InputMethodContextFactoryWayland()
-    : ui::InputMethodContextFactoryOzone() {
+InputMethodContextFactoryWayland::InputMethodContextFactoryWayland() {
+  LinuxInputMethodContextFactory::SetInstance(this);
 }
 
 InputMethodContextFactoryWayland::~InputMethodContextFactoryWayland() {

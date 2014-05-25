@@ -6,12 +6,12 @@
 #define OZONE_UI_IME_INPUT_METHOD_CONTEXT_FACTORY_OZONE_H_
 
 #include "ozone/platform/ozone_export_wayland.h"
-#include "ui/ozone/ime/input_method_context_factory_ozone.h"
+#include "ui/base/ime/linux/linux_input_method_context_factory.h"
 
 namespace ui {
 
 class OZONE_WAYLAND_EXPORT InputMethodContextFactoryWayland
-    : public InputMethodContextFactoryOzone  {
+    : public LinuxInputMethodContextFactory  {
  public:
   InputMethodContextFactoryWayland();
   virtual ~InputMethodContextFactoryWayland();
