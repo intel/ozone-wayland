@@ -12,7 +12,7 @@
 
 namespace ozonewayland {
 
-WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
+WaylandScreen::WaylandScreen(wl_registry* registry, uint32_t id)
     : output_(NULL),
       refresh_(0),
       rect_(0, 0, 0, 0) {
@@ -22,7 +22,7 @@ WaylandScreen::WaylandScreen(WaylandDisplay* display, uint32_t id)
   };
 
   output_ = static_cast<wl_output*>(
-      wl_registry_bind(display->registry(), id, &wl_output_interface, 1));
+      wl_registry_bind(registry, id, &wl_output_interface, 1));
   wl_output_add_listener(output_, &kOutputListener, this);
   DCHECK(output_);
 }
@@ -58,11 +58,12 @@ void WaylandScreen::OutputHandleMode(void* data,
     screen->rect_.set_width(width);
     screen->rect_.set_height(height);
     screen->refresh_ = refresh;
-    // Dont Send OutputSizeChanged notification in case a dummy display is
-    // created to get current output size at start up.
-    if (WaylandDisplay::GetInstance()->GetCompositor())
-      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter()->
-          OutputSizeChanged(width, height);
+
+    if (!WaylandDisplay::GetInstance())
+      return;
+
+    ui::EventFactoryOzoneWayland::GetInstance()->EventConverter()->
+        OutputSizeChanged(width, height);
   }
 }
 

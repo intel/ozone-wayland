@@ -5,6 +5,8 @@
 #include "ozone/ui/gfx/ozone_display.h"
 
 #include "base/logging.h"
+#include "ozone/ui/events/window_state_change_handler.h"
+#include "ui/gfx/ozone/surface_ozone_egl.h"
 
 namespace gfx {
 
@@ -28,6 +30,45 @@ void OzoneDisplay::SetInstance(OzoneDisplay* instance) {
 }
 
 void OzoneDisplay::LookAheadOutputGeometry() {
+}
+
+gfx::SurfaceFactoryOzone::HardwareState
+OzoneDisplay::InitializeHardware() {
+  return gfx::SurfaceFactoryOzone::FAILED;
+}
+
+void OzoneDisplay::ShutdownHardware() {
+}
+
+intptr_t OzoneDisplay::GetNativeDisplay() {
+  return (intptr_t)NULL;
+}
+
+gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
+  static int opaque_handle = 0;
+  opaque_handle++;
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
+                                                              ui::CREATE,
+                                                              0,
+                                                              0);
+
+  return (gfx::AcceleratedWidget)opaque_handle;
+}
+
+scoped_ptr<gfx::SurfaceOzoneEGL> OzoneDisplay::CreateEGLSurfaceForWidget(
+    gfx::AcceleratedWidget w) {
+  return scoped_ptr<gfx::SurfaceOzoneEGL>();
+}
+
+bool OzoneDisplay::LoadEGLGLES2Bindings(
+    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback setprocaddress) {
+  return false;
+}
+
+const int32*
+OzoneDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
+  return desired_list;
 }
 
 }  // namespace gfx

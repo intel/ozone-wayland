@@ -18,6 +18,7 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/ui/gfx/ozone_display.h"
 #include "ozone/wayland/input/text-client-protocol.h"
+#include "ui/gfx/ozone/surface_factory_ozone.h"
 
 namespace ozonewayland {
 
@@ -34,14 +35,9 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay : public ui::WindowStateChangeHandler,
-                       public gfx::OzoneDisplay {
+                       public gfx::SurfaceFactoryOzone {
  public:
-  enum RegistrationType {
-    RegisterAsNeeded,  // Handles all the required registrations.
-    RegisterOutputOnly  // Only screen registration.
-  };
-
-  explicit WaylandDisplay(RegistrationType type = RegisterAsNeeded);
+  explicit WaylandDisplay();
   virtual ~WaylandDisplay();
 
   // Ownership is not passed to the caller.
@@ -86,7 +82,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   virtual intptr_t GetNativeDisplay() OVERRIDE;
 
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
-  virtual void LookAheadOutputGeometry() OVERRIDE;
 
   // Ownership is passed to the caller.
   virtual scoped_ptr<gfx::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
@@ -114,7 +109,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
                                    ui::WidgetType type) OVERRIDE;
 
  private:
-  void InitializeDisplay(RegistrationType type);
+  void InitializeDisplay();
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
   // useful for callers to track a particular surface. By default the type of
   // surface(i.e. toplevel, menu) is none. One needs to explicitly call
@@ -135,14 +130,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
-      void *data,
-      struct wl_registry *registry,
-      uint32_t name,
-      const char *interface,
-      uint32_t version);
-  // This handler resolves only screen registration. In general you don't want
-  // to use this but the one below.
-  static void DisplayHandleOutputOnly(
       void *data,
       struct wl_registry *registry,
       uint32_t name,

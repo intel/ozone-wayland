@@ -11,6 +11,7 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/proxy_display.h"
 #include "ui/base/cursor/ozone/cursor_factory_ozone.h"
 #include "ui/ozone/ozone_platform.h"
 
@@ -23,33 +24,54 @@ namespace {
 // This platform is Linux with the Wayland display server.
 class OzonePlatformWayland : public OzonePlatform {
  public:
-  OzonePlatformWayland() {}
+  OzonePlatformWayland() : wayland_proxy_display_(NULL) {}
 
-  virtual ~OzonePlatformWayland() {}
+  virtual ~OzonePlatformWayland() {
+    delete wayland_proxy_display_;
+  }
 
   // OzonePlatform:
   virtual gfx::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
-    return &wayland_display_;
+    return wayland_display_.get();
   }
-  virtual ui::EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
-    return &event_factory_ozone_;
+  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
+    return event_factory_ozone_.get();
   }
-  virtual ui::InputMethodContextFactoryOzone*
-  GetInputMethodContextFactoryOzone() OVERRIDE {
-    return &input_method_context_factory_;
+  virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+    return cursor_factory_ozone_.get();
   }
-  virtual ui::CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
-    return &cursor_factory_ozone_;
+
+  virtual void InitializeUI() OVERRIDE {
+    input_method_factory_.reset(
+        new ui::InputMethodContextFactoryWayland());
+    event_factory_ozone_.reset(
+        new ui::EventFactoryOzoneWayland());
+    cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
+    wayland_proxy_display_ = new ozonewayland::WaylandProxyDisplay();
+  }
+
+  virtual void InitializeGPU() OVERRIDE {
+    // We don't need proxy display in case of Single process.
+    // TODO(kalyan): Find a better way to handle this.
+    if (wayland_proxy_display_) {
+      delete wayland_proxy_display_;
+      wayland_proxy_display_ = NULL;
+    }
+
+    wayland_display_.reset(new ozonewayland::WaylandDisplay());
+    if (!event_factory_ozone_)
+      event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
   }
 
  private:
-  ozonewayland::WaylandDisplay wayland_display_;
-  ui::EventFactoryOzoneWayland event_factory_ozone_;
-  ui::InputMethodContextFactoryWayland input_method_context_factory_;
-  ui::CursorFactoryOzoneWayland cursor_factory_ozone_;
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
   views::DesktopFactoryWayland desktop_factory_ozone_;
 #endif
+  ozonewayland::WaylandProxyDisplay* wayland_proxy_display_;
+  scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
+  scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
+  scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
+  scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
 

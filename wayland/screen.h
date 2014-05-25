@@ -13,6 +13,7 @@
 #include "ui/gfx/rect.h"
 
 struct wl_output;
+struct wl_registry;
 
 namespace ozonewayland {
 
@@ -22,7 +23,7 @@ class WaylandDisplay;
 // that are available to the application.
 class WaylandScreen {
  public:
-  WaylandScreen(WaylandDisplay* display, uint32_t id);
+  WaylandScreen(wl_registry* registry, uint32_t id);
   ~WaylandScreen();
 
   // Returns the active allocation of the screen.

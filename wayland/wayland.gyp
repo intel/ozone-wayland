@@ -65,6 +65,8 @@
         'display_poll_thread.h',
         'input_device.cc',
         'input_device.h',
+        'proxy_display.cc',
+        'proxy_display.h',
         'screen.cc',
         'screen.h',
         'window.cc',
