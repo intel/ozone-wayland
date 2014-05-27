@@ -26,7 +26,7 @@ One of the biggest advantages of Chromium Ozone is that it allows to implement t
 ## Howto
 
 We use Ubuntu 12.04 LTS (Precise Pangolin), 32/64-bit but a kernel from Raring though. One can install it pretty easily just
-`sudo apt-get install linux-generic-lts-raring`. This version is needed for using Mesa master 9.3.0-devel, a requirement for Weston.
+`sudo apt-get install linux-generic-lts-raring`. This version is needed for using Mesa master 9.3.0-devel, a requirement for Weston. Besides, make sure you have **at least** 25 GB of disk space to store all the sources and a few targets to be compiled (with debugging symbols).
 
 Firstly you'd need to set up the Wayland libraries (version >= 1.2.9), and the Weston reference compositor that you will be running Chromium onto. The information on Wayland's web page should be enough for doing so:
 
