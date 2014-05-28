@@ -213,7 +213,10 @@ void WaylandInputDevice::SetGrabWindowHandle(unsigned windowhandle,
 }
 
 void WaylandInputDevice::SetCursorType(int cursor_type) {
-  DCHECK(input_pointer_);
+  if (!input_pointer_) {
+    LOG(WARNING) << "Tried to change cursor without input configured";
+    return;
+  }
   input_pointer_->Cursor()->Update(CursorShapeFromNative(cursor_type),
                                    WaylandDisplay::GetInstance()->GetSerial());
 }
