@@ -18,6 +18,7 @@
       ],
       'includes': [
         'ui/ui.gypi',
+        'media/video.gypi',
       ],
       'defines': [
         'OZONE_WAYLAND_IMPLEMENTATION',
