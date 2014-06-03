@@ -6,6 +6,7 @@
 #define OZONE_IMPL_DESKTOP_AURA_WINDOW_TREE_HOST_DELEGATE_WAYLAND_H_
 
 #include <list>
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -56,6 +57,10 @@ class WindowTreeHostDelegateWayland
   virtual void OnWindowResized(unsigned windowhandle,
                                unsigned width,
                                unsigned height) OVERRIDE;
+  virtual void OnPreeditChanged(unsigned handle,
+                                const std::string& text,
+                                const std::string& commit) OVERRIDE;
+  virtual void OnCommit(unsigned handle, const std::string& text) OVERRIDE;
 
   // Dispatches a mouse event.
   void DispatchMouseEvent(ui::MouseEvent* event);

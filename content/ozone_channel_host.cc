@@ -4,6 +4,8 @@
 
 #include "ozone/content/ozone_channel_host.h"
 
+#include <string>
+
 #include "base/bind.h"
 #include "content/browser/gpu/browser_gpu_channel_host_factory.h"
 #include "content/public/browser/browser_thread.h"
@@ -86,6 +88,21 @@ void OzoneChannelHost::OnWindowResized(unsigned handle,
   dispatcher_->WindowResized(handle, width, height);
 }
 
+void OzoneChannelHost::OnCommit(unsigned handle, std::string text) {
+  dispatcher_->Commit(handle, text);
+}
+
+void OzoneChannelHost::OnPreeditChanged(unsigned handle, std::string text,
+                                        std::string commit) {
+  dispatcher_->PreeditChanged(handle, text, commit);
+}
+
+void OzoneChannelHost::OnPreeditEnd() {
+}
+
+void OzoneChannelHost::OnPreeditStart() {
+}
+
 void OzoneChannelHost::BrowserChildProcessHostConnected(
   const ChildProcessData& data) {
   // we observe GPU process being forked or re-spawned for adding ourselves as
@@ -130,6 +147,11 @@ void OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
   IPC_MESSAGE_HANDLER(WaylandWindow_Resized, OnWindowResized)
+  IPC_MESSAGE_HANDLER(WaylandInput_Commit, OnCommit)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, OnPreeditChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditEnd, OnPreeditEnd)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditStart, OnPreeditStart)
+
   IPC_END_MESSAGE_MAP()
 }
 
@@ -156,7 +178,12 @@ void OzoneChannelHost::UpdateConnection() {
                                        WaylandInput_OutputSize::ID,
                                        WaylandInput_CloseWidget::ID,
                                        WaylandWindow_Resized::ID,
-                                       WaylandInput_TouchNotify::ID};
+                                       WaylandInput_TouchNotify::ID,
+                                       WaylandInput_Commit::ID,
+                                       WaylandInput_PreeditChanged::ID,
+                                       WaylandInput_PreeditEnd::ID,
+                                       WaylandInput_PreeditStart::ID,
+                                       };
   scoped_refptr<base::SingleThreadTaskRunner> compositor_thread_task_runner =
       base::MessageLoopProxy::current();
   hostFactory->SetHandlerForControlMessages(

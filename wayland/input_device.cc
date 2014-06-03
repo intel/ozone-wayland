@@ -150,7 +150,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
   DCHECK(input_seat_);
   wl_seat_add_listener(input_seat_, &kInputSeatListener, this);
   wl_seat_set_user_data(input_seat_, this);
-  text_input_ = new WaylandTextInput();
+  text_input_ = new WaylandTextInput(this);
 }
 
 WaylandInputDevice::~WaylandInputDevice() {

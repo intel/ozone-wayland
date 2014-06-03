@@ -5,6 +5,8 @@
 #ifndef OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
 #define OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
 
+#include <string>
+
 #include "content/browser/gpu/gpu_process_host.h"
 #include "content/public/browser/browser_child_process_observer.h"
 #include "content/public/browser/child_process_data.h"
@@ -46,6 +48,10 @@ class OzoneChannelHost : public BrowserChildProcessObserver {
   void OnWindowResized(unsigned handle,
                        unsigned width,
                        unsigned height);
+  void OnCommit(unsigned handle, std::string text);
+  void OnPreeditChanged(unsigned handle, std::string text, std::string commit);
+  void OnPreeditEnd();
+  void OnPreeditStart();
 
   // Implement |BrowserChildProcessObserver|.
   virtual void BrowserChildProcessHostConnected(

@@ -5,6 +5,8 @@
 #ifndef OZONE_UI_EVENTS_EVENT_CONVERTER_OZONE_WAYLAND_H_
 #define OZONE_UI_EVENTS_EVENT_CONVERTER_OZONE_WAYLAND_H_
 
+#include <string>
+
 #include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/events/event_constants.h"
@@ -47,6 +49,12 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
                              unsigned width,
                              unsigned height) = 0;
   virtual void CloseWidget(unsigned handle) = 0;
+  virtual void Commit(unsigned handle, const std::string& text) = 0;
+  virtual void PreeditChanged(unsigned handle, const std::string& text,
+                              const std::string& commit) = 0;
+  virtual void PreeditEnd() = 0;
+  virtual void PreeditStart() = 0;
+
   // Sets the window change observer. Ownership is retained by the caller.
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
   // Sets the output change observer. Ownership is retained by the caller.

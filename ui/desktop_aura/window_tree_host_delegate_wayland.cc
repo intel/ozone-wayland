@@ -4,6 +4,8 @@
 
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
 
+#include <string>
+
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/events/event_utils.h"
@@ -285,6 +287,23 @@ void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
       DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
   DCHECK(window);
   window->HandleWindowResize(width, height);
+}
+
+void WindowTreeHostDelegateWayland::OnCommit(unsigned handle,
+                                             const std::string& text) {
+  DesktopWindowTreeHostWayland* window =
+      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  DCHECK(window);
+  window->HandleCommit(text);
+}
+
+void WindowTreeHostDelegateWayland::OnPreeditChanged(unsigned handle,
+                                                   const std::string& text,
+                                                   const std::string& commit) {
+  DesktopWindowTreeHostWayland* window =
+      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  DCHECK(window);
+  window->HandlePreeditChanged(text, commit);
 }
 
 }  // namespace views

@@ -4,6 +4,8 @@
 
 // Multiply-included message file, hence no include guard here.
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "base/strings/string16.h"
 #include "content/public/common/common_param_traits.h"
@@ -106,3 +108,16 @@ IPC_MESSAGE_ROUTED0(WaylandWindow_ShowInputPanel)  // NOLINT(readability/
 
 IPC_MESSAGE_ROUTED0(WaylandWindow_HideInputPanel)  // NOLINT(readability/
                                                    //        fn_size)
+
+IPC_MESSAGE_CONTROL2(WaylandInput_Commit,  // NOLINT(readability/fn_size)
+                     unsigned,
+                     std::string)
+
+IPC_MESSAGE_CONTROL3(WaylandInput_PreeditChanged, // NOLINT(readability/
+                     unsigned,                    //        fn_size)
+                     std::string, std::string)
+
+IPC_MESSAGE_CONTROL0(WaylandInput_PreeditEnd)  // NOLINT(readability/fn_size)
+
+IPC_MESSAGE_CONTROL0(WaylandInput_PreeditStart)  // NOLINT(readability/fn_size)
+

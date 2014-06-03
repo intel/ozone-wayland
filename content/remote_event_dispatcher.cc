@@ -4,6 +4,8 @@
 
 #include "ozone/content/remote_event_dispatcher.h"
 
+#include <string>
+
 #include "base/bind.h"
 #include "content/child/child_process.h"
 #include "content/child/child_thread.h"
@@ -102,6 +104,29 @@ void RemoteEventDispatcher::CloseWidget(unsigned handle) {
       &RemoteEventDispatcher::SendCloseWidget, handle));
 }
 
+void RemoteEventDispatcher::Commit(unsigned handle,
+                                   const std::string& text) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &RemoteEventDispatcher::SendCommit, handle, text));
+}
+
+void RemoteEventDispatcher::PreeditChanged(unsigned handle,
+                                           const std::string& text,
+                                           const std::string& commit) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &RemoteEventDispatcher::SendPreeditChanged, handle, text, commit));
+}
+
+void RemoteEventDispatcher::PreeditEnd() {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &RemoteEventDispatcher::SendPreeditEnd));
+}
+
+void RemoteEventDispatcher::PreeditStart() {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &RemoteEventDispatcher::SendPreeditStart));
+}
+
 void RemoteEventDispatcher::SendMotionNotify(float x, float y) {
   Send(new WaylandInput_MotionNotify(x, y));
 }
@@ -160,6 +185,25 @@ void RemoteEventDispatcher::SendWindowResized(unsigned handle,
 
 void RemoteEventDispatcher::SendCloseWidget(unsigned handle) {
   Send(new WaylandInput_CloseWidget(handle));
+}
+
+void RemoteEventDispatcher::SendCommit(unsigned handle,
+                                       const std::string& text) {
+  Send(new WaylandInput_Commit(handle, text));
+}
+
+void RemoteEventDispatcher::SendPreeditChanged(unsigned handle,
+                                               const std::string& text,
+                                               const std::string& commit) {
+  Send(new WaylandInput_PreeditChanged(handle, text, commit));
+}
+
+void RemoteEventDispatcher::SendPreeditEnd() {
+  Send(new WaylandInput_PreeditEnd());
+}
+
+void RemoteEventDispatcher::SendPreeditStart() {
+  Send(new WaylandInput_PreeditStart());
 }
 
 void RemoteEventDispatcher::Send(IPC::Message* message) {

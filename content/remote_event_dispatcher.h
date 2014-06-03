@@ -5,6 +5,8 @@
 #ifndef OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
 #define OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
 
+#include <string>
+
 #include "content/browser/gpu/gpu_process_host.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 
@@ -46,6 +48,13 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
                              unsigned height) OVERRIDE;
   virtual void CloseWidget(unsigned handle) OVERRIDE;
 
+  virtual void Commit(unsigned handle, const std::string& text) OVERRIDE;
+  virtual void PreeditChanged(unsigned handle,
+                              const std::string& text,
+                              const std::string& commit) OVERRIDE;
+  virtual void PreeditEnd() OVERRIDE;
+  virtual void PreeditStart() OVERRIDE;
+
  private:
   static void SendMotionNotify(float x, float y);
   static void SendButtonNotify(unsigned handle,
@@ -69,6 +78,12 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
                                 unsigned width,
                                 unsigned height);
   static void SendCloseWidget(unsigned handle);
+  static void SendCommit(unsigned handle, const std::string& text);
+  static void SendPreeditChanged(unsigned handle,
+                              const std::string& text,
+                              const std::string& commit);
+  static void SendPreeditEnd();
+  static void SendPreeditStart();
   static void Send(IPC::Message* message);
   DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);
 };

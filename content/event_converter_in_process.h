@@ -5,6 +5,8 @@
 #ifndef OZONE_CONTENT_CONVERTER_IN_PROCESS_H_
 #define OZONE_CONTENT_CONVERTER_IN_PROCESS_H_
 
+#include <string>
+
 #include "base/memory/scoped_ptr.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/keyboard_code_conversion_ozone.h"
@@ -45,6 +47,13 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   virtual void WindowResized(unsigned windowhandle,
                              unsigned width,
                              unsigned height) OVERRIDE;
+
+  virtual void Commit(unsigned handle, const std::string& text) OVERRIDE;
+  virtual void PreeditChanged(unsigned handle, const std::string& text,
+                              const std::string& commit) OVERRIDE;
+  virtual void PreeditEnd() OVERRIDE;
+  virtual void PreeditStart() OVERRIDE;
+
   virtual void SetWindowChangeObserver(
       ui::WindowChangeObserver* observer) OVERRIDE;
   virtual void SetOutputChangeObserver(
@@ -93,6 +102,15 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                   unsigned handle,
                                   unsigned width,
                                   unsigned height);
+  static void NotifyCommit(EventConverterInProcess* data, unsigned handle,
+                           const std::string& text);
+  static void NotifyPreeditChanged(EventConverterInProcess* data,
+                                   unsigned handle,
+                                   const std::string& text,
+                                   const std::string& commit);
+  static void NotifyPreeditEnd(EventConverterInProcess* data);
+  static void NotifyPreeditStart(EventConverterInProcess* data);
+
   ui::WindowChangeObserver* observer_;
   ui::OutputChangeObserver* output_observer_;
   base::Callback<void(void*)> dispatch_callback_;  // NOLINT(readability/

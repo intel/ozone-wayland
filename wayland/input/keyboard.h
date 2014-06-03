@@ -21,6 +21,7 @@ class WaylandKeyboard {
  public:
   WaylandKeyboard();
   ~WaylandKeyboard();
+  KeyboardEngineXKB* GetBackend() { return backend_;}
 
   void OnSeatCapabilities(wl_seat *seat, uint32_t caps);
 

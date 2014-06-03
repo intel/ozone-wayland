@@ -4,6 +4,8 @@
 
 #include "ozone/content/event_converter_in_process.h"
 
+#include <string>
+
 #include "base/bind.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
@@ -92,6 +94,29 @@ void EventConverterInProcess::WindowResized(unsigned handle,
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyWindowResized, this, handle, width,
           height));
+}
+
+void EventConverterInProcess::Commit(unsigned handle, const std::string& text) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyCommit, this, handle, text));
+}
+
+void EventConverterInProcess::PreeditChanged(unsigned handle,
+                                             const std::string& text,
+                                             const std::string& commit) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyPreeditChanged, this, handle, text,
+      commit));
+}
+
+void EventConverterInProcess::PreeditEnd() {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+        &EventConverterInProcess::NotifyPreeditEnd, this));
+}
+
+void EventConverterInProcess::PreeditStart() {
+    ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+        &EventConverterInProcess::NotifyPreeditStart, this));
 }
 
 void EventConverterInProcess::SetWindowChangeObserver(
@@ -209,6 +234,31 @@ EventConverterInProcess::NotifyWindowResized(EventConverterInProcess* data,
                                              unsigned height) {
   if (data->observer_)
     data->observer_->OnWindowResized(handle, width, height);
+}
+
+void
+EventConverterInProcess::NotifyCommit(EventConverterInProcess* data,
+                                      unsigned handle,
+                                      const std::string& text) {
+  if (data->observer_)
+    data->observer_->OnCommit(handle, text);
+}
+
+void
+EventConverterInProcess::NotifyPreeditChanged(EventConverterInProcess* data,
+                                              unsigned handle,
+                                              const std::string& text,
+                                              const std::string& commit) {
+  if (data->observer_)
+    data->observer_->OnPreeditChanged(handle, text, commit);
+}
+
+void
+EventConverterInProcess::NotifyPreeditEnd(EventConverterInProcess* data) {
+}
+
+void
+EventConverterInProcess::NotifyPreeditStart(EventConverterInProcess* data) {
 }
 
 }  // namespace content

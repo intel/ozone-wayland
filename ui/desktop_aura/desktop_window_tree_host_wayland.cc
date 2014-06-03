@@ -5,7 +5,10 @@
 
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
 
+#include <string>
+
 #include "base/bind.h"
+#include "base/strings/utf_string_conversions.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
@@ -15,6 +18,9 @@
 #include "ui/aura/client/focus_client.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
+#include "ui/base/ime/composition_text.h"
+#include "ui/base/ime/input_method.h"
+#include "ui/base/ime/input_method_auralinux.h"
 #include "ui/events/event_utils.h"
 #include "ui/gfx/insets.h"
 #include "ui/gfx/ozone/surface_factory_ozone.h"
@@ -27,6 +33,7 @@
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
+#include "ui/wm/core/input_method_event_filter.h"
 #include "ui/wm/core/window_util.h"
 #include "ui/wm/public/window_move_client.h"
 
@@ -766,6 +773,23 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
     }
     widget->GetRootView()->Layout();
   }
+}
+
+void DesktopWindowTreeHostWayland::HandleCommit(const std::string& text) {
+  ui::InputMethodAuraLinux* inputMethod =
+      static_cast<ui::InputMethodAuraLinux*>(desktop_native_widget_aura_->
+      input_method_event_filter()->input_method());
+  inputMethod->OnCommit(base::string16(base::ASCIIToUTF16(text.c_str())));
+}
+
+void DesktopWindowTreeHostWayland::HandlePreeditChanged(const std::string& text,
+  const std::string& commit) {
+  ui::CompositionText composition_text;
+  composition_text.text = base::string16(base::ASCIIToUTF16(text.c_str()));
+  ui::InputMethodAuraLinux* inputMethod =
+      static_cast<ui::InputMethodAuraLinux*>(desktop_native_widget_aura_->
+      input_method_event_filter()->input_method());
+  inputMethod->OnPreeditChanged(composition_text);
 }
 
 // static

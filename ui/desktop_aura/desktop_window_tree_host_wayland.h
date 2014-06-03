@@ -7,6 +7,7 @@
 #define OZONE_IMPL_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_
 
 #include <set>
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -151,6 +152,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
 
   void HandleNativeWidgetActivationChanged(bool active);
   void HandleWindowResize(unsigned width, unsigned height);
+
+  void HandlePreeditChanged(const std::string& text, const std::string& commit);
+  void HandleCommit(const std::string& text);
 
   RootWindowState state_;
 

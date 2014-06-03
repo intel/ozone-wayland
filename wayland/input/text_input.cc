@@ -4,15 +4,22 @@
 
 #include "ozone/wayland/input/text_input.h"
 
+#include <string>
+
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/ui/events/keyboard_codes_ozone.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/input/keyboard.h"
+#include "ozone/wayland/input/keyboard_engine_xkb.h"
+#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/shell/shell_surface.h"
 #include "ozone/wayland/window.h"
 
 namespace ozonewayland {
 
-
-WaylandTextInput::WaylandTextInput(): text_input_(NULL),
-  active_window_(NULL) {
+WaylandTextInput::WaylandTextInput(WaylandInputDevice* inputDevice):
+  text_input_(NULL), active_window_(NULL), last_active_window_(NULL),
+  input_device_(inputDevice) {
 }
 
 WaylandTextInput::~WaylandTextInput() {
@@ -20,10 +27,21 @@ WaylandTextInput::~WaylandTextInput() {
     wl_text_input_destroy(text_input_);
 }
 
+void WaylandTextInput::SetActiveWindow(WaylandWindow* window) {
+  active_window_ = window;
+  if (active_window_)
+    last_active_window_ = active_window_;
+}
+
 void WaylandTextInput::OnCommitString(void* data,
                                       struct wl_text_input* text_input,
                                       uint32_t serial,
                                       const char* text) {
+  ui::EventConverterOzoneWayland* dispatcher =
+        ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  DCHECK(static_cast<WaylandTextInput*>(data)->last_active_window_);
+  dispatcher->Commit(static_cast<WaylandTextInput*>(data)->
+      last_active_window_->Handle(), std::string(text));
 }
 
 void WaylandTextInput::OnPreeditString(void* data,
@@ -31,6 +49,11 @@ void WaylandTextInput::OnPreeditString(void* data,
                                        uint32_t serial,
                                        const char* text,
                                        const char* commit) {
+  ui::EventConverterOzoneWayland* dispatcher =
+         ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  DCHECK(static_cast<WaylandTextInput*>(data)->last_active_window_);
+  dispatcher->PreeditChanged(static_cast<WaylandTextInput*>(data)->
+     last_active_window_->Handle(), std::string(text), std::string(commit));
 }
 
 void WaylandTextInput::OnDeleteSurroundingText(void* data,
@@ -69,8 +92,43 @@ void WaylandTextInput::OnKeysym(void* data,
                                 uint32_t key,
                                 uint32_t state,
                                 uint32_t modifiers) {
-}
+  WaylandTextInput* textInuput = static_cast<WaylandTextInput*>(data);
 
+  // Copid from WaylandKeyboard::OnKeyNotify()
+  ui::EventType type = ui::ET_KEY_PRESSED;
+  WaylandDisplay::GetInstance()->SetSerial(serial);
+  if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
+    type = ui::ET_KEY_RELEASED;
+
+  // Check if we can ignore the KeyEvent notification, saves an IPC call.
+  if (textInuput->getInputDevice()->GetKeyBoard()->GetBackend()->
+    IgnoreKeyNotify(key, type == ui::ET_KEY_PRESSED))
+    return;
+
+  ui::EventConverterOzoneWayland* dispatcher =
+          ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+
+  switch (key) {
+    case XKB_KEY_KP_Enter:
+    case XKB_KEY_Return:
+    case XKB_KEY_ISO_Enter:
+      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_RETURN, modifiers);
+      break;
+    case XKB_KEY_BackSpace:  // FIXME: Back space is not handled.
+      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_BACK, modifiers);
+      break;
+    case XKB_KEY_Left:
+    case XKB_KEY_KP_Left:
+      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_LEFT, modifiers);
+      break;
+    case XKB_KEY_Right:
+    case XKB_KEY_KP_Right:
+      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_RIGHT, modifiers);
+      break;
+    default:
+      break;
+  }
+}
 
 void WaylandTextInput::OnEnter(void* data,
                                struct wl_text_input* text_input,
