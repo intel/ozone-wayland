@@ -30,6 +30,10 @@ bool SurfaceOzoneWayland::ResizeNativeWindow(
   window->Resize(viewport_size.width(), viewport_size.height());
 }
 
+bool SurfaceOzoneWayland::OnSwapBuffers() {
+  return true;
+}
+
 scoped_ptr<gfx::VSyncProvider> SurfaceOzoneWayland::CreateVSyncProvider() {
   return scoped_ptr<gfx::VSyncProvider>(new gfx::WaylandSyncProvider());
 }

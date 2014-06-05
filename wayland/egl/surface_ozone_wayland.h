@@ -21,6 +21,7 @@ class SurfaceOzoneWayland : public gfx::SurfaceOzoneEGL {
   // SurfaceOzone:
   virtual intptr_t GetNativeWindow() OVERRIDE;
   virtual bool ResizeNativeWindow(const gfx::Size& viewport_size) OVERRIDE;
+  virtual bool OnSwapBuffers() OVERRIDE;
   virtual scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider() OVERRIDE;
 
  private:
