@@ -300,6 +300,7 @@ void DesktopWindowTreeHostWayland::ShowWindowWithState(
   Show();
   if (show_state == ui::SHOW_STATE_MAXIMIZED)
     Maximize();
+
   // Set initial focus for root window.
   if (!window_parent_)
     native_widget_delegate_->AsWidget()->SetInitialFocus(show_state);
@@ -432,6 +433,8 @@ bool DesktopWindowTreeHostWayland::IsActive() const {
 void DesktopWindowTreeHostWayland::Maximize() {
   if (state_ & Maximized)
     return;
+  if (IsMinimized() && !window_parent_)
+    native_widget_delegate_->AsWidget()->SetInitialFocus(ui::SHOW_STATE_NORMAL);
 
   state_ |= Maximized;
   state_ &= ~Minimized;
@@ -457,6 +460,8 @@ void DesktopWindowTreeHostWayland::Restore() {
   if (state_ & Normal)
     return;
 
+  if (IsMinimized() && !window_parent_)
+    native_widget_delegate_->AsWidget()->SetInitialFocus(ui::SHOW_STATE_NORMAL);
   state_ &= ~Maximized;
   state_ &= ~Minimized;
   state_ |= Normal;
@@ -547,14 +552,18 @@ bool DesktopWindowTreeHostWayland::ShouldWindowContentsBeTransparent() const {
 }
 
 void DesktopWindowTreeHostWayland::FrameTypeChanged() {
+  Widget::FrameType new_type =
+    native_widget_delegate_->AsWidget()->frame_type();
+  if (new_type == Widget::FRAME_TYPE_DEFAULT) {
+    // The default is determined by Widget::InitParams::remove_standard_frame
+    // and does not change.
+    return;
+  }
+
   // Replace the frame and layout the contents. Even though we don't have a
   // swapable glass frame like on Windows, we still replace the frame because
   // the button assets don't update otherwise.
   native_widget_delegate_->AsWidget()->non_client_view()->UpdateFrame();
-}
-
-NonClientFrameView* DesktopWindowTreeHostWayland::CreateNonClientFrameView() {
-  return NULL;
 }
 
 void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {

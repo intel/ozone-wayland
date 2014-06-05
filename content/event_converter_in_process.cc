@@ -196,7 +196,7 @@ void EventConverterInProcess::NotifyKeyEvent(EventConverterInProcess* data,
                                              ui::KeyboardCode code,
                                              uint16 CharacterCodeFromNativeKey,
                                              unsigned modifiers) {
-  ui::KeyEvent keyev(type, code, modifiers, true);
+  ui::KeyEvent keyev(type, code, modifiers, false);
   keyev.set_character(CharacterCodeFromNativeKey);
   data->DispatchEvent(&keyev);
 }
