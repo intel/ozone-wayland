@@ -38,8 +38,11 @@ void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
                                            GetWLSurface());
 
   static const xdg_surface_listener xdg_surface_listener = {
-    XDGShellSurface::HandlePing,
     XDGShellSurface::HandleConfigure,
+    XDGShellSurface::HandleChangeState,
+    XDGShellSurface::HandleActivate,
+    XDGShellSurface::HandleDeactivate,
+    XDGShellSurface::HandleDelete
   };
 
   xdg_surface_add_listener(xdg_surface_,
@@ -56,7 +59,9 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   switch (type) {
   case WaylandWindow::TOPLEVEL: {
     if (maximized_) {
-      xdg_surface_unset_maximized(xdg_surface_);
+      xdg_surface_request_change_state(xdg_surface_,
+                                       XDG_SURFACE_STATE_MAXIMIZED,
+                                       false, 0);
       maximized_ = false;
     }
     break;
@@ -75,7 +80,6 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                          y,
                                          0);
     static const xdg_popup_listener xdg_popup_listener = {
-      XDGShellSurface::HandlePopupPing,
       XDGShellSurface::HandlePopupPopupDone
     };
     xdg_popup_add_listener(xdg_popup_,
@@ -85,7 +89,9 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
     break;
   }
   case WaylandWindow::FULLSCREEN:
-    xdg_surface_set_fullscreen(xdg_surface_);
+    xdg_surface_request_change_state(xdg_surface_,
+                                     XDG_SURFACE_STATE_FULLSCREEN,
+                                     true, 0);
     break;
   case WaylandWindow::CUSTOM:
       NOTREACHED() << "Unsupported shell type: " << type;
@@ -103,7 +109,9 @@ void XDGShellSurface::SetWindowTitle(const base::string16& title) {
 }
 
 void XDGShellSurface::Maximize() {
-  xdg_surface_set_maximized(xdg_surface_);
+  xdg_surface_request_change_state(xdg_surface_,
+                                   XDG_SURFACE_STATE_MAXIMIZED,
+                                   true, 0);
   maximized_ = true;
   WaylandShellSurface::FlushDisplay();
 }
@@ -114,28 +122,35 @@ void XDGShellSurface::Minimize() {
 
 void XDGShellSurface::HandleConfigure(void* data,
                                  struct xdg_surface* xdg_surface,
-                                 uint32_t edges,
                                  int32_t width,
                                  int32_t height) {
   WaylandShellSurface::WindowResized(data, width, height);
 }
 
-void XDGShellSurface::HandlePing(void* data,
-                            struct xdg_surface* xdg_surface,
-                            uint32_t serial) {
-  xdg_surface_pong(xdg_surface, serial);
+void XDGShellSurface::HandleChangeState(void* data,
+                                 struct xdg_surface* xdg_surface,
+                                 uint32_t state,
+                                 uint32_t value,
+                                 uint32_t serial) {
+  xdg_surface_ack_change_state(xdg_surface, state, value, serial);
+}
+
+void XDGShellSurface::HandleActivate(void* data,
+                                 struct xdg_surface* xdg_surface) {
+}
+
+void XDGShellSurface::HandleDeactivate(void* data,
+                                 struct xdg_surface* xdg_surface) {
+}
+
+void XDGShellSurface::HandleDelete(void* data,
+                                 struct xdg_surface* xdg_surface) {
 }
 
 void XDGShellSurface::HandlePopupPopupDone(void* data,
                                       struct xdg_popup* xdg_popup,
                                       uint32_t serial) {
   WaylandShellSurface::PopupDone();
-}
-
-void XDGShellSurface::HandlePopupPing(void* data,
-                                 struct xdg_popup* xdg_popup,
-                                 uint32_t serial) {
-  xdg_popup_pong(xdg_popup, serial);
 }
 
 }  // namespace ozonewayland
