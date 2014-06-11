@@ -31,19 +31,23 @@ class XDGShellSurface : public WaylandShellSurface {
 
   static void HandleConfigure(void* data,
                               struct xdg_surface* xdg_surface,
-                              uint32_t edges,
                               int32_t width,
                               int32_t height);
-  static void HandlePing(void* data,
-                         struct xdg_surface* shell_surface,
-                         uint32_t serial);
+  static void HandleChangeState(void* data,
+                                struct xdg_surface* xdg_surface,
+                                uint32_t state,
+                                uint32_t value,
+                                uint32_t serial);
+  static void HandleActivate(void* data,
+                             struct xdg_surface* xdg_surface);
+  static void HandleDeactivate(void* data,
+                               struct xdg_surface* xdg_surface);
+  static void HandleDelete(void* data,
+                           struct xdg_surface* xdg_surface);
 
   static void HandlePopupPopupDone(void* data,
                                    struct xdg_popup* xdg_popup,
                                    uint32_t serial);
-  static void HandlePopupPing(void* data,
-                              struct xdg_popup* xdg_popup,
-                              uint32_t serial);
 
  private:
   xdg_surface* xdg_surface_;

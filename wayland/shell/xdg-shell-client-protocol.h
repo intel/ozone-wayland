@@ -54,17 +54,55 @@ extern const struct wl_interface xdg_popup_interface;
  * xdg_shell_version - latest protocol version
  * @XDG_SHELL_VERSION_CURRENT: Always the latest version
  *
- * Use this enum to check the protocol version, and it will be updated
- * automatically.
+ * The 'current' member of this enum gives the version of the protocol.
+ * Implementations can compare this to the version they implement using
+ * static_assert to ensure the protocol and implementation versions match.
  */
 enum xdg_shell_version {
-	XDG_SHELL_VERSION_CURRENT = 1,
+	XDG_SHELL_VERSION_CURRENT = 3,
 };
 #endif /* XDG_SHELL_VERSION_ENUM */
+
+/**
+ * xdg_shell - create desktop-style surfaces
+ * @ping: check if the client is alive
+ *
+ * This interface is implemented by servers that provide desktop-style
+ * user interfaces.
+ *
+ * It allows clients to associate a xdg_surface with a basic surface.
+ */
+struct xdg_shell_listener {
+	/**
+	 * ping - check if the client is alive
+	 * @serial: pass this to the callback
+	 *
+	 * The ping event asks the client if it's still alive. Pass the
+	 * serial specified in the event back to the compositor by sending
+	 * a "pong" request back with the specified serial.
+	 *
+	 * Compositors can use this to determine if the client is still
+	 * alive. It's unspecified what will happen if the client doesn't
+	 * respond to the ping request, or in what timeframe. Clients
+	 * should try to respond in a reasonable amount of time.
+	 */
+	void (*ping)(void *data,
+		     struct xdg_shell *xdg_shell,
+		     uint32_t serial);
+};
+
+static inline int
+xdg_shell_add_listener(struct xdg_shell *xdg_shell,
+		       const struct xdg_shell_listener *listener, void *data)
+{
+	return wl_proxy_add_listener((struct wl_proxy *) xdg_shell,
+				     (void (**)(void)) listener, data);
+}
 
 #define XDG_SHELL_USE_UNSTABLE_VERSION	0
 #define XDG_SHELL_GET_XDG_SURFACE	1
 #define XDG_SHELL_GET_XDG_POPUP	2
+#define XDG_SHELL_PONG	3
 
 static inline void
 xdg_shell_set_user_data(struct xdg_shell *xdg_shell, void *user_data)
@@ -113,6 +151,13 @@ xdg_shell_get_xdg_popup(struct xdg_shell *xdg_shell, struct wl_surface *surface,
 	return (struct xdg_popup *) id;
 }
 
+static inline void
+xdg_shell_pong(struct xdg_shell *xdg_shell, uint32_t serial)
+{
+	wl_proxy_marshal((struct wl_proxy *) xdg_shell,
+			 XDG_SHELL_PONG, serial);
+}
+
 #ifndef XDG_SURFACE_RESIZE_EDGE_ENUM
 #define XDG_SURFACE_RESIZE_EDGE_ENUM
 /**
@@ -144,22 +189,45 @@ enum xdg_surface_resize_edge {
 };
 #endif /* XDG_SURFACE_RESIZE_EDGE_ENUM */
 
+#ifndef XDG_SURFACE_STATE_ENUM
+#define XDG_SURFACE_STATE_ENUM
+/**
+ * xdg_surface_state - types of state on the surface
+ * @XDG_SURFACE_STATE_MAXIMIZED: the surface is maximized
+ * @XDG_SURFACE_STATE_FULLSCREEN: the surface is fullscreen
+ *
+ * The different state values used on the surface. This is designed for
+ * state values like maximized, fullscreen. It is paired with the
+ * request_change_state event to ensure that both the client and the
+ * compositor setting the state can be synchronized.
+ *
+ * States set in this way are double-buffered. They will get applied on the
+ * next commit.
+ *
+ * Desktop environments may extend this enum by taking up a range of values
+ * and documenting the range they chose in this description. They are not
+ * required to document the values for the range that they chose. Ideally,
+ * any good extensions from a desktop environment should make its way into
+ * standardization into this enum.
+ *
+ * The current reserved ranges are:
+ *
+ * 0x0000 - 0x0FFF: xdg-shell core values, documented below. 0x1000 -
+ * 0x1FFF: GNOME
+ */
+enum xdg_surface_state {
+	XDG_SURFACE_STATE_MAXIMIZED = 1,
+	XDG_SURFACE_STATE_FULLSCREEN = 2,
+};
+#endif /* XDG_SURFACE_STATE_ENUM */
+
 /**
  * xdg_surface - desktop-style metadata interface
- * @ping: ping client
  * @configure: suggest resize
- * @request_set_fullscreen: server requests that the client set
- *	fullscreen
- * @request_unset_fullscreen: server requests that the client unset
- *	fullscreen
- * @request_set_maximized: server requests that the client set maximized
- * @request_unset_maximized: server requests that the client unset
- *	maximized
- * @request_set_minimized: server requests that the client set minimized
- * @request_unset_minimized: server requests that the client unset
- *	maximized
- * @focused_set: surface was focused
- * @focused_unset: surface was unfocused
+ * @change_state: compositor wants to change a surface's state
+ * @activated: surface was activated
+ * @deactivated: surface was deactivated
+ * @close: surface wants to be closed
  *
  * An interface that may be implemented by a wl_surface, for
  * implementations that provide a desktop-style user interface.
@@ -174,18 +242,7 @@ enum xdg_surface_resize_edge {
  */
 struct xdg_surface_listener {
 	/**
-	 * ping - ping client
-	 * @serial: (none)
-	 *
-	 * Ping a client to check if it is receiving events and sending
-	 * requests. A client is expected to reply with a pong request.
-	 */
-	void (*ping)(void *data,
-		     struct xdg_surface *xdg_surface,
-		     uint32_t serial);
-	/**
 	 * configure - suggest resize
-	 * @edges: (none)
 	 * @width: (none)
 	 * @height: (none)
 	 *
@@ -195,12 +252,6 @@ struct xdg_surface_listener {
 	 * ignore it if it doesn't resize, pick a smaller size (to satisfy
 	 * aspect ratio or resize in steps of NxM pixels).
 	 *
-	 * The edges parameter provides a hint about how the surface was
-	 * resized. The client may use this information to decide how to
-	 * adjust its content to the new size (e.g. a scrolling area might
-	 * adjust its content position to leave the viewable content
-	 * unmoved). Valid edge values are from resize_edge enum.
-	 *
 	 * The client is free to dismiss all but the last configure event
 	 * it received.
 	 *
@@ -209,86 +260,62 @@ struct xdg_surface_listener {
 	 */
 	void (*configure)(void *data,
 			  struct xdg_surface *xdg_surface,
-			  uint32_t edges,
 			  int32_t width,
 			  int32_t height);
 	/**
-	 * request_set_fullscreen - server requests that the client set
-	 *	fullscreen
+	 * change_state - compositor wants to change a surface's state
+	 * @state_type: the state to set
+	 * @value: the value to change the state to
+	 * @serial: a serial for the compositor's own tracking
 	 *
-	 * Event sent from the compositor to the client requesting that
-	 * the client goes to a fullscreen state. It's the client job to
-	 * call set_fullscreen and really trigger the fullscreen state.
+	 * This event tells the client to change a surface's state. The
+	 * client should respond with an ack_change_state request to the
+	 * compositor to guarantee that the compositor knows that the
+	 * client has seen it.
 	 */
-	void (*request_set_fullscreen)(void *data,
-				       struct xdg_surface *xdg_surface);
+	void (*change_state)(void *data,
+			     struct xdg_surface *xdg_surface,
+			     uint32_t state_type,
+			     uint32_t value,
+			     uint32_t serial);
 	/**
-	 * request_unset_fullscreen - server requests that the client
-	 *	unset fullscreen
+	 * activated - surface was activated
 	 *
-	 * Event sent from the compositor to the client requesting that
-	 * the client leaves the fullscreen state. It's the client job to
-	 * call unset_fullscreen and really leave the fullscreen state.
+	 * The activated_set event is sent when this surface has been
+	 * activated, which means that the surface has user attention.
+	 * Window decorations should be updated accordingly. You should not
+	 * use this event for anything but the style of decorations you
+	 * display, use wl_keyboard.enter and wl_keyboard.leave for
+	 * determining keyboard focus.
 	 */
-	void (*request_unset_fullscreen)(void *data,
-					 struct xdg_surface *xdg_surface);
+	void (*activated)(void *data,
+			  struct xdg_surface *xdg_surface);
 	/**
-	 * request_set_maximized - server requests that the client set
-	 *	maximized
+	 * deactivated - surface was deactivated
 	 *
-	 * Event sent from the compositor to the client requesting that
-	 * the client goes to a maximized state. It's the client job to
-	 * call set_maximized and really trigger the maximized state.
+	 * The deactivate event is sent when this surface has been
+	 * deactivated, which means that the surface lost user attention.
+	 * Window decorations should be updated accordingly. You should not
+	 * use this event for anything but the style of decorations you
+	 * display, use wl_keyboard.enter and wl_keyboard.leave for
+	 * determining keyboard focus.
 	 */
-	void (*request_set_maximized)(void *data,
-				      struct xdg_surface *xdg_surface);
-	/**
-	 * request_unset_maximized - server requests that the client
-	 *	unset maximized
-	 *
-	 * Event sent from the compositor to the client requesting that
-	 * the client leaves the maximized state. It's the client job to
-	 * call unset_maximized and really leave the maximized state.
-	 */
-	void (*request_unset_maximized)(void *data,
-					struct xdg_surface *xdg_surface);
-	/**
-	 * request_set_minimized - server requests that the client set
-	 *	minimized
-	 *
-	 * Event sent from the compositor to the client requesting that
-	 * the client goes to a minimized state. It's the client job to
-	 * call set_minimized and trigger its minimized state.
-	 */
-	void (*request_set_minimized)(void *data,
-				      struct xdg_surface *xdg_surface);
-	/**
-	 * request_unset_minimized - server requests that the client
-	 *	unset maximized
-	 *
-	 * Event sent from the compositor to the client requesting that
-	 * the client leaves the minimized state. It's the client job to
-	 * call unset_maximized and leave its minimized state.
-	 */
-	void (*request_unset_minimized)(void *data,
-					struct xdg_surface *xdg_surface);
-	/**
-	 * focused_set - surface was focused
-	 *
-	 * The focused_set event is sent when this surface has been
-	 * activated. Window decorations should be updated accordingly.
-	 */
-	void (*focused_set)(void *data,
+	void (*deactivated)(void *data,
 			    struct xdg_surface *xdg_surface);
 	/**
-	 * focused_unset - surface was unfocused
+	 * close - surface wants to be closed
 	 *
-	 * The focused_unset event is sent when this surface has been
-	 * deactivated, because another surface has been activated. Window
-	 * decorations should be updated accordingly.
+	 * The close event is sent by the compositor when the user wants
+	 * the surface to be closed. This should be equivalent to the user
+	 * clicking the close button in client-side decorations, if your
+	 * application has any...
+	 *
+	 * This is only a request that the user intends to close your
+	 * window. The client may choose to ignore this request, or show a
+	 * dialog to ask the user to save their data...
 	 */
-	void (*focused_unset)(void *data,
-			      struct xdg_surface *xdg_surface);
+	void (*close)(void *data,
+		      struct xdg_surface *xdg_surface);
 };
 
 static inline int
@@ -301,17 +328,15 @@ xdg_surface_add_listener(struct xdg_surface *xdg_surface,
 
 #define XDG_SURFACE_DESTROY	0
 #define XDG_SURFACE_SET_TRANSIENT_FOR	1
-#define XDG_SURFACE_SET_TITLE	2
-#define XDG_SURFACE_SET_APP_ID	3
-#define XDG_SURFACE_PONG	4
+#define XDG_SURFACE_SET_MARGIN	2
+#define XDG_SURFACE_SET_TITLE	3
+#define XDG_SURFACE_SET_APP_ID	4
 #define XDG_SURFACE_MOVE	5
 #define XDG_SURFACE_RESIZE	6
 #define XDG_SURFACE_SET_OUTPUT	7
-#define XDG_SURFACE_SET_FULLSCREEN	8
-#define XDG_SURFACE_UNSET_FULLSCREEN	9
-#define XDG_SURFACE_SET_MAXIMIZED	10
-#define XDG_SURFACE_UNSET_MAXIMIZED	11
-#define XDG_SURFACE_SET_MINIMIZED	12
+#define XDG_SURFACE_REQUEST_CHANGE_STATE	8
+#define XDG_SURFACE_ACK_CHANGE_STATE	9
+#define XDG_SURFACE_SET_MINIMIZED	10
 
 static inline void
 xdg_surface_set_user_data(struct xdg_surface *xdg_surface, void *user_data)
@@ -342,6 +367,13 @@ xdg_surface_set_transient_for(struct xdg_surface *xdg_surface, struct wl_surface
 }
 
 static inline void
+xdg_surface_set_margin(struct xdg_surface *xdg_surface, int32_t left_margin, int32_t right_margin, int32_t top_margin, int32_t bottom_margin)
+{
+	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
+			 XDG_SURFACE_SET_MARGIN, left_margin, right_margin, top_margin, bottom_margin);
+}
+
+static inline void
 xdg_surface_set_title(struct xdg_surface *xdg_surface, const char *title)
 {
 	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
@@ -353,13 +385,6 @@ xdg_surface_set_app_id(struct xdg_surface *xdg_surface, const char *app_id)
 {
 	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
 			 XDG_SURFACE_SET_APP_ID, app_id);
-}
-
-static inline void
-xdg_surface_pong(struct xdg_surface *xdg_surface, uint32_t serial)
-{
-	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
-			 XDG_SURFACE_PONG, serial);
 }
 
 static inline void
@@ -384,31 +409,17 @@ xdg_surface_set_output(struct xdg_surface *xdg_surface, struct wl_output *output
 }
 
 static inline void
-xdg_surface_set_fullscreen(struct xdg_surface *xdg_surface)
+xdg_surface_request_change_state(struct xdg_surface *xdg_surface, uint32_t state_type, uint32_t value, uint32_t serial)
 {
 	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
-			 XDG_SURFACE_SET_FULLSCREEN);
+			 XDG_SURFACE_REQUEST_CHANGE_STATE, state_type, value, serial);
 }
 
 static inline void
-xdg_surface_unset_fullscreen(struct xdg_surface *xdg_surface)
+xdg_surface_ack_change_state(struct xdg_surface *xdg_surface, uint32_t state_type, uint32_t value, uint32_t serial)
 {
 	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
-			 XDG_SURFACE_UNSET_FULLSCREEN);
-}
-
-static inline void
-xdg_surface_set_maximized(struct xdg_surface *xdg_surface)
-{
-	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
-			 XDG_SURFACE_SET_MAXIMIZED);
-}
-
-static inline void
-xdg_surface_unset_maximized(struct xdg_surface *xdg_surface)
-{
-	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
-			 XDG_SURFACE_UNSET_MAXIMIZED);
+			 XDG_SURFACE_ACK_CHANGE_STATE, state_type, value, serial);
 }
 
 static inline void
@@ -420,7 +431,6 @@ xdg_surface_set_minimized(struct xdg_surface *xdg_surface)
 
 /**
  * xdg_popup - desktop-style metadata interface
- * @ping: ping client
  * @popup_done: popup interaction is done
  *
  * An interface that may be implemented by a wl_surface, for
@@ -444,16 +454,6 @@ xdg_surface_set_minimized(struct xdg_surface *xdg_surface)
  */
 struct xdg_popup_listener {
 	/**
-	 * ping - ping client
-	 * @serial: (none)
-	 *
-	 * Ping a client to check if it is receiving events and sending
-	 * requests. A client is expected to reply with a pong request.
-	 */
-	void (*ping)(void *data,
-		     struct xdg_popup *xdg_popup,
-		     uint32_t serial);
-	/**
 	 * popup_done - popup interaction is done
 	 * @serial: serial of the implicit grab on the pointer
 	 *
@@ -475,7 +475,6 @@ xdg_popup_add_listener(struct xdg_popup *xdg_popup,
 }
 
 #define XDG_POPUP_DESTROY	0
-#define XDG_POPUP_PONG	1
 
 static inline void
 xdg_popup_set_user_data(struct xdg_popup *xdg_popup, void *user_data)
@@ -496,13 +495,6 @@ xdg_popup_destroy(struct xdg_popup *xdg_popup)
 			 XDG_POPUP_DESTROY);
 
 	wl_proxy_destroy((struct wl_proxy *) xdg_popup);
-}
-
-static inline void
-xdg_popup_pong(struct xdg_popup *xdg_popup, uint32_t serial)
-{
-	wl_proxy_marshal((struct wl_proxy *) xdg_popup,
-			 XDG_POPUP_PONG, serial);
 }
 
 #ifdef  __cplusplus

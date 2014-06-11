@@ -32,6 +32,11 @@ class WaylandShell {
   xdg_shell* GetXDGShell() const { return xdg_shell_; }
 
  private:
+#if defined(ENABLE_XDG_SHELL)
+  static void XDGHandlePing(void* data,
+                            struct xdg_shell* xdg_shell,
+                            uint32_t serial);
+#endif
   wl_shell* shell_;
   xdg_shell* xdg_shell_;
   DISALLOW_COPY_AND_ASSIGN(WaylandShell);
