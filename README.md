@@ -48,11 +48,24 @@ need:
   $ export PATH=`pwd`/depot_tools:"$PATH"
   ```
 
-now we can clone Ozone-Wayland and fetch all the dependencies of it, including Chromium itself:
+now we can clone Ozone-Wayland and define some build-time variables:
 
   ```
   $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --git-deps
-  $ GYP_DEFINES='use_ash=0 use_aura=1 chromeos=0 use_ozone=1' gclient sync
+  $ GYP_DEFINES='use_ash=0 use_aura=1 chromeos=0 use_ozone=1'
+  ```
+
+if we have Weston >= 1.5.0, we can optionally enable xdg-shell to benefit from additional
+features (such as minimization):
+
+  ```
+  $ GYP_DEFINES='$GYP_DEFINES enable_xdg_shell=1'
+  ```
+
+and now we can fetch all the dependencies of Ozone->Wayland, including Chromium itself:
+
+  ```
+  $ gclient sync
   ```
 
 It may take a considerable time for downloading the trees. If everything went

@@ -62,8 +62,21 @@ void WaylandShell::Initialize(struct wl_registry *registry,
       xdg_shell_ = static_cast<xdg_shell*>(
           wl_registry_bind(registry, name, &xdg_shell_interface, 1));
       xdg_shell_use_unstable_version(xdg_shell_, XDG_SHELL_VERSION_CURRENT);
+
+      static const xdg_shell_listener xdg_shell_listener = {
+        WaylandShell::XDGHandlePing
+      };
+      xdg_shell_add_listener(xdg_shell_, &xdg_shell_listener, NULL);
 #endif
   }
 }
+
+#if defined(ENABLE_XDG_SHELL)
+void WaylandShell::XDGHandlePing(void* data,
+                                 struct xdg_shell* xdg_shell,
+                                 uint32_t serial) {
+  xdg_shell_pong(xdg_shell, serial);
+}
+#endif
 
 }  // namespace ozonewayland
