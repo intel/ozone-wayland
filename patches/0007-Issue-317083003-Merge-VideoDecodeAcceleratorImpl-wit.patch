@@ -1,0 +1,358 @@
+From 303b1719f169df1c778b8798cee7d172235f464c Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Fri, 6 Jun 2014 18:17:27 -0300
+Subject: [PATCH 2/3] Issue 317083003: Merge VideoDecodeAcceleratorImpl with
+ VideoDecodeAccelerator
+
+---
+ .../gpu/media/android_video_decode_accelerator.cc  |    4 ++
+ .../gpu/media/android_video_decode_accelerator.h   |    4 +-
+ .../gpu/media/dxva_video_decode_accelerator.cc     |    4 ++
+ .../gpu/media/dxva_video_decode_accelerator.h      |    4 +-
+ .../gpu/media/gpu_video_decode_accelerator.h       |    3 +-
+ .../gpu/media/v4l2_video_decode_accelerator.h      |    5 +-
+ .../gpu/media/vaapi_video_decode_accelerator.cc    |    4 ++
+ .../gpu/media/vaapi_video_decode_accelerator.h     |    4 +-
+ .../gpu/media/video_decode_accelerator_impl.cc     |   15 ------
+ .../gpu/media/video_decode_accelerator_impl.h      |   50 --------------------
+ content/content_common.gypi                        |    2 -
+ media/video/mock_video_decode_accelerator.h        |    1 +
+ media/video/video_decode_accelerator.cc            |    8 ++++
+ media/video/video_decode_accelerator.h             |   11 +++++
+ 14 files changed, 40 insertions(+), 79 deletions(-)
+ delete mode 100644 content/common/gpu/media/video_decode_accelerator_impl.cc
+ delete mode 100644 content/common/gpu/media/video_decode_accelerator_impl.h
+
+diff --git a/content/common/gpu/media/android_video_decode_accelerator.cc b/content/common/gpu/media/android_video_decode_accelerator.cc
+index d84c28f..f72e1b2 100644
+--- a/content/common/gpu/media/android_video_decode_accelerator.cc
++++ b/content/common/gpu/media/android_video_decode_accelerator.cc
+@@ -514,6 +514,10 @@ void AndroidVideoDecodeAccelerator::Destroy() {
+   delete this;
+ }
+ 
++bool AndroidVideoDecodeAccelerator::CanDecodeOnIOThread() {
++  return false;
++}
++
+ void AndroidVideoDecodeAccelerator::RequestPictureBuffers() {
+   client_->ProvidePictureBuffers(kNumPictureBuffers, size_, GL_TEXTURE_2D);
+ }
+diff --git a/content/common/gpu/media/android_video_decode_accelerator.h b/content/common/gpu/media/android_video_decode_accelerator.h
+index cc963c8..0e02ce4 100644
+--- a/content/common/gpu/media/android_video_decode_accelerator.h
++++ b/content/common/gpu/media/android_video_decode_accelerator.h
+@@ -15,7 +15,6 @@
+ #include "base/threading/thread_checker.h"
+ #include "base/timer/timer.h"
+ #include "content/common/content_export.h"
+-#include "content/common/gpu/media/video_decode_accelerator_impl.h"
+ #include "gpu/command_buffer/service/gles2_cmd_copy_texture_chromium.h"
+ #include "gpu/command_buffer/service/gles2_cmd_decoder.h"
+ #include "media/base/android/media_codec_bridge.h"
+@@ -30,7 +29,7 @@ namespace content {
+ // This class decodes the input encoded stream by using Android's MediaCodec
+ // class. http://developer.android.com/reference/android/media/MediaCodec.html
+ class CONTENT_EXPORT AndroidVideoDecodeAccelerator
+-    : public VideoDecodeAcceleratorImpl {
++    : public media::VideoDecodeAccelerator {
+  public:
+   // Does not take ownership of |client| which must outlive |*this|.
+   AndroidVideoDecodeAccelerator(
+@@ -47,6 +46,7 @@ class CONTENT_EXPORT AndroidVideoDecodeAccelerator
+   virtual void Flush() OVERRIDE;
+   virtual void Reset() OVERRIDE;
+   virtual void Destroy() OVERRIDE;
++  virtual bool CanDecodeOnIOThread() OVERRIDE;
+ 
+  private:
+   enum State {
+diff --git a/content/common/gpu/media/dxva_video_decode_accelerator.cc b/content/common/gpu/media/dxva_video_decode_accelerator.cc
+index be15bb8..2c857f0 100644
+--- a/content/common/gpu/media/dxva_video_decode_accelerator.cc
++++ b/content/common/gpu/media/dxva_video_decode_accelerator.cc
+@@ -622,6 +622,10 @@ void DXVAVideoDecodeAccelerator::Destroy() {
+   delete this;
+ }
+ 
++bool DXVAVideoDecodeAccelerator::CanDecodeOnIOThread() {
++  return false;
++}
++
+ bool DXVAVideoDecodeAccelerator::InitDecoder(media::VideoCodecProfile profile) {
+   if (profile < media::H264PROFILE_MIN || profile > media::H264PROFILE_MAX)
+     return false;
+diff --git a/content/common/gpu/media/dxva_video_decode_accelerator.h b/content/common/gpu/media/dxva_video_decode_accelerator.h
+index 7bff907..74ca599 100644
+--- a/content/common/gpu/media/dxva_video_decode_accelerator.h
++++ b/content/common/gpu/media/dxva_video_decode_accelerator.h
+@@ -18,7 +18,6 @@
+ #include "base/threading/non_thread_safe.h"
+ #include "base/win/scoped_comptr.h"
+ #include "content/common/content_export.h"
+-#include "content/common/gpu/media/video_decode_accelerator_impl.h"
+ #include "media/video/video_decode_accelerator.h"
+ 
+ interface IMFSample;
+@@ -31,7 +30,7 @@ namespace content {
+ // This class lives on a single thread and DCHECKs that it is never accessed
+ // from any other.
+ class CONTENT_EXPORT DXVAVideoDecodeAccelerator
+-    : public VideoDecodeAcceleratorImpl,
++    : public media::VideoDecodeAccelerator,
+       NON_EXPORTED_BASE(public base::NonThreadSafe) {
+  public:
+   enum State {
+@@ -57,6 +56,7 @@ class CONTENT_EXPORT DXVAVideoDecodeAccelerator
+   virtual void Flush() OVERRIDE;
+   virtual void Reset() OVERRIDE;
+   virtual void Destroy() OVERRIDE;
++  virtual bool CanDecodeOnIOThread() OVERRIDE;
+ 
+  private:
+   typedef void* EGLConfig;
+diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.h b/content/common/gpu/media/gpu_video_decode_accelerator.h
+index a93559e..05d9fb0 100644
+--- a/content/common/gpu/media/gpu_video_decode_accelerator.h
++++ b/content/common/gpu/media/gpu_video_decode_accelerator.h
+@@ -13,7 +13,6 @@
+ #include "base/memory/shared_memory.h"
+ #include "base/synchronization/waitable_event.h"
+ #include "content/common/gpu/gpu_command_buffer_stub.h"
+-#include "content/common/gpu/media/video_decode_accelerator_impl.h"
+ #include "gpu/command_buffer/service/texture_manager.h"
+ #include "ipc/ipc_listener.h"
+ #include "ipc/ipc_sender.h"
+@@ -98,7 +97,7 @@ class GpuVideoDecodeAccelerator
+   GpuCommandBufferStub* stub_;
+ 
+   // The underlying VideoDecodeAccelerator.
+-  scoped_ptr<VideoDecodeAcceleratorImpl> video_decode_accelerator_;
++  scoped_ptr<media::VideoDecodeAccelerator> video_decode_accelerator_;
+ 
+   // Callback for making the relevant context current for GL calls.
+   // Returns false if failed.
+diff --git a/content/common/gpu/media/v4l2_video_decode_accelerator.h b/content/common/gpu/media/v4l2_video_decode_accelerator.h
+index b372c3a..96141a1 100644
+--- a/content/common/gpu/media/v4l2_video_decode_accelerator.h
++++ b/content/common/gpu/media/v4l2_video_decode_accelerator.h
+@@ -19,7 +19,6 @@
+ #include "base/threading/thread.h"
+ #include "content/common/content_export.h"
+ #include "content/common/gpu/media/v4l2_video_device.h"
+-#include "content/common/gpu/media/video_decode_accelerator_impl.h"
+ #include "media/base/limits.h"
+ #include "media/base/video_decoder_config.h"
+ #include "media/video/picture.h"
+@@ -73,7 +72,7 @@ namespace content {
+ // subtle races (esp. if we get Reset() in the meantime), we block the decoder
+ // thread while we wait for AssignPictureBuffers from the client.
+ class CONTENT_EXPORT V4L2VideoDecodeAccelerator
+-    : public VideoDecodeAcceleratorImpl {
++    : public media::VideoDecodeAccelerator {
+  public:
+   V4L2VideoDecodeAccelerator(
+       EGLDisplay egl_display,
+@@ -95,8 +94,6 @@ class CONTENT_EXPORT V4L2VideoDecodeAccelerator
+   virtual void Flush() OVERRIDE;
+   virtual void Reset() OVERRIDE;
+   virtual void Destroy() OVERRIDE;
+-
+-  // VideoDecodeAcceleratorImpl implementation.
+   virtual bool CanDecodeOnIOThread() OVERRIDE;
+ 
+  private:
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.cc b/content/common/gpu/media/vaapi_video_decode_accelerator.cc
+index 4b2c49e..360bd29 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.cc
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.cc
+@@ -916,4 +916,8 @@ void VaapiVideoDecodeAccelerator::Destroy() {
+   delete this;
+ }
+ 
++bool VaapiVideoDecodeAccelerator::CanDecodeOnIOThread() {
++  return false;
++}
++
+ }  // namespace content
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.h b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+index 37b9c7f..2bde3e0 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.h
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+@@ -25,7 +25,6 @@
+ #include "content/common/content_export.h"
+ #include "content/common/gpu/media/vaapi_h264_decoder.h"
+ #include "content/common/gpu/media/vaapi_wrapper.h"
+-#include "content/common/gpu/media/video_decode_accelerator_impl.h"
+ #include "media/base/bitstream_buffer.h"
+ #include "media/video/picture.h"
+ #include "media/video/video_decode_accelerator.h"
+@@ -42,7 +41,7 @@ namespace content {
+ // stopped during |this->Destroy()|, so any tasks posted to the decoder thread
+ // can assume |*this| is still alive.  See |weak_this_| below for more details.
+ class CONTENT_EXPORT VaapiVideoDecodeAccelerator
+-    : public VideoDecodeAcceleratorImpl {
++    : public media::VideoDecodeAccelerator {
+  public:
+   VaapiVideoDecodeAccelerator(
+       Display* x_display,
+@@ -59,6 +58,7 @@ class CONTENT_EXPORT VaapiVideoDecodeAccelerator
+   virtual void Flush() OVERRIDE;
+   virtual void Reset() OVERRIDE;
+   virtual void Destroy() OVERRIDE;
++  virtual bool CanDecodeOnIOThread() OVERRIDE;
+ 
+ private:
+   // Notify the client that an error has occurred and decoding cannot continue.
+diff --git a/content/common/gpu/media/video_decode_accelerator_impl.cc b/content/common/gpu/media/video_decode_accelerator_impl.cc
+deleted file mode 100644
+index a3ae3936..0000000
+--- a/content/common/gpu/media/video_decode_accelerator_impl.cc
++++ /dev/null
+@@ -1,15 +0,0 @@
+-// Copyright 2013 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#include "content/common/gpu/media/video_decode_accelerator_impl.h"
+-
+-namespace content {
+-
+-VideoDecodeAcceleratorImpl::VideoDecodeAcceleratorImpl() {}
+-
+-bool VideoDecodeAcceleratorImpl::CanDecodeOnIOThread() { return false; }
+-
+-VideoDecodeAcceleratorImpl::~VideoDecodeAcceleratorImpl() {}
+-
+-}  // namespace content
+diff --git a/content/common/gpu/media/video_decode_accelerator_impl.h b/content/common/gpu/media/video_decode_accelerator_impl.h
+deleted file mode 100644
+index c0762a0..0000000
+--- a/content/common/gpu/media/video_decode_accelerator_impl.h
++++ /dev/null
+@@ -1,50 +0,0 @@
+-// Copyright 2013 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#ifndef CONTENT_COMMON_GPU_MEDIA_VIDEO_DECODE_ACCELERATOR_IMPL_H_
+-#define CONTENT_COMMON_GPU_MEDIA_VIDEO_DECODE_ACCELERATOR_IMPL_H_
+-
+-#include "content/common/content_export.h"
+-#include "media/video/video_decode_accelerator.h"
+-
+-namespace content {
+-
+-class CONTENT_EXPORT VideoDecodeAcceleratorImpl
+-    : public media::VideoDecodeAccelerator {
+- public:
+-  VideoDecodeAcceleratorImpl();
+-
+-  // Returns true if VDA::Decode and VDA::Client callbacks can run on the IO
+-  // thread. Otherwise they will run on the GPU child thread. The purpose of
+-  // running Decode on the IO thread is to reduce decode latency. Note Decode
+-  // should return as soon as possible and not block on the IO thread. Also,
+-  // PictureReady should be run on the child thread if a picture is delivered
+-  // the first time so it can be cleared.
+-  virtual bool CanDecodeOnIOThread();
+-
+- protected:
+-  virtual ~VideoDecodeAcceleratorImpl();
+-};
+-
+-}  // namespace content
+-
+-namespace base {
+-
+-template <class T>
+-struct DefaultDeleter;
+-
+-// Specialize DefaultDeleter so that scoped_ptr<VideoDecodeAcceleratorImpl>
+-// always uses "Destroy()" instead of trying to use the destructor.
+-template <>
+-struct DefaultDeleter<content::VideoDecodeAcceleratorImpl> {
+- public:
+-  inline void operator()(void* video_decode_accelerator) const {
+-    static_cast<content::VideoDecodeAcceleratorImpl*>(video_decode_accelerator)
+-        ->Destroy();
+-  }
+-};
+-
+-}  // namespace base
+-
+-#endif  // CONTENT_COMMON_GPU_MEDIA_VIDEO_DECODE_ACCELERATOR_IMPL_H_
+diff --git a/content/content_common.gypi b/content/content_common.gypi
+index ed2c0b2..9430bfe 100644
+--- a/content/content_common.gypi
++++ b/content/content_common.gypi
+@@ -284,8 +284,6 @@
+       'common/gpu/media/gpu_video_decode_accelerator.h',
+       'common/gpu/media/gpu_video_encode_accelerator.cc',
+       'common/gpu/media/gpu_video_encode_accelerator.h',
+-      'common/gpu/media/video_decode_accelerator_impl.cc',
+-      'common/gpu/media/video_decode_accelerator_impl.h',
+       'common/gpu/stream_texture_android.cc',
+       'common/gpu/stream_texture_android.h',
+       'common/gpu/sync_point_manager.cc',
+diff --git a/media/video/mock_video_decode_accelerator.h b/media/video/mock_video_decode_accelerator.h
+index 4568ab6..f8bb6da 100644
+--- a/media/video/mock_video_decode_accelerator.h
++++ b/media/video/mock_video_decode_accelerator.h
+@@ -32,6 +32,7 @@ class MockVideoDecodeAccelerator : public VideoDecodeAccelerator {
+   MOCK_METHOD0(Flush, void());
+   MOCK_METHOD0(Reset, void());
+   MOCK_METHOD0(Destroy, void());
++  MOCK_METHOD0(CanDecodeOnIOThread, bool());
+ 
+  private:
+   void DeleteThis();
+diff --git a/media/video/video_decode_accelerator.cc b/media/video/video_decode_accelerator.cc
+index 142dab3..a72912c 100644
+--- a/media/video/video_decode_accelerator.cc
++++ b/media/video/video_decode_accelerator.cc
+@@ -4,12 +4,20 @@
+ 
+ #include "media/video/video_decode_accelerator.h"
+ 
++#include "base/logging.h"
++
+ namespace media {
+ 
+ VideoDecodeAccelerator::~VideoDecodeAccelerator() {}
+ 
++bool VideoDecodeAccelerator::CanDecodeOnIOThread() {
++  // GPU process subclasses must override this.
++  LOG(FATAL) << "This should only get called in the GPU process";
++  return false;  // not reached
+ }
+ 
++} // namespace media
++
+ namespace base {
+ 
+ void DefaultDeleter<media::VideoDecodeAccelerator>::operator()(
+diff --git a/media/video/video_decode_accelerator.h b/media/video/video_decode_accelerator.h
+index 7025a51..4df3b1c 100644
+--- a/media/video/video_decode_accelerator.h
++++ b/media/video/video_decode_accelerator.h
+@@ -132,6 +132,17 @@ class MEDIA_EXPORT VideoDecodeAccelerator {
+   // unconditionally, so make sure to drop all pointers to it!
+   virtual void Destroy() = 0;
+ 
++  // GPU PROCESS ONLY.  Implementations of this interface in the
++  // content/common/gpu/media should implement this, and implementations in
++  // other processes should not override the default implementation.
++  // Returns true if VDA::Decode and VDA::Client callbacks can run on the IO
++  // thread. Otherwise they will run on the GPU child thread. The purpose of
++  // running Decode on the IO thread is to reduce decode latency. Note Decode
++  // should return as soon as possible and not block on the IO thread. Also,
++  // PictureReady should be run on the child thread if a picture is delivered
++  // the first time so it can be cleared.
++  virtual bool CanDecodeOnIOThread();
++
+  protected:
+   // Do not delete directly; use Destroy() or own it with a scoped_ptr, which
+   // will Destroy() it properly by default.
+-- 
+1.7.9.5
+
