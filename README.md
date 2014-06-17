@@ -52,7 +52,7 @@ now we can clone Ozone-Wayland and fetch all the dependencies of it, including C
 
   ```
   $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --git-deps
-  $ GYP_DEFINES='use_ash=0 use_aura=1 chromeos=0 use_ozone=1' gclient sync
+  $ GYP_DEFINES='use_ash=1 use_aura=1 chromeos=0 use_ozone=1' gclient sync
   ```
 
 It may take a considerable time for downloading the trees. If everything went

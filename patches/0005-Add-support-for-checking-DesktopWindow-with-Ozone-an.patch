@@ -1,0 +1,40 @@
+From fda04cf73995cc85c0228d1b5e99aeec5d1781a9 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Tue, 17 Jun 2014 20:24:19 +0300
+Subject: [PATCH] Add support for checking DesktopWindow with Ozone and Ash.
+
+Only windows hosted by a DesktopWindowTreeHost implementation can be mapped
+back to a content Window. All others, therefore, must be the root window
+for an Ash display. This check is done in ActiveDesktopMonitor. This patch
+adds the needed support for Ozone and should be upstreamed after
+https://codereview.chromium.org/36953002/ lands.
+---
+ chrome/browser/ui/aura/active_desktop_monitor.cc |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/chrome/browser/ui/aura/active_desktop_monitor.cc b/chrome/browser/ui/aura/active_desktop_monitor.cc
+index f6c5a7b..626576ba 100644
+--- a/chrome/browser/ui/aura/active_desktop_monitor.cc
++++ b/chrome/browser/ui/aura/active_desktop_monitor.cc
+@@ -11,6 +11,8 @@
+ #include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
+ #elif defined(OS_WIN)
+ #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
++#elif defined(USE_OZONE)
++#include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
+ #endif
+
+ // static
+@@ -48,6 +50,10 @@ bool ActiveDesktopMonitor::IsDesktopWindow(aura::WindowTreeHost* host) {
+ #elif defined(USE_X11)
+   return views::DesktopWindowTreeHostX11::GetContentWindowForXID(
+       host->GetAcceleratedWidget()) != NULL;
++#elif defined(USE_OZONE)
++  return views::DesktopWindowTreeHostWayland::
++      GetContentWindowForAcceleratedWidget(
++          host->GetAcceleratedWidget()) != NULL;
+ #else
+   NOTREACHED();
+   return true;
+--
+1.7.9.5
