@@ -16,6 +16,7 @@
 #include "media/base/bind_to_current_loop.h"
 #include "media/video/picture.h"
 #include "ui/gl/scoped_binders.h"
+#include "ui/gl/gl_surface_egl.h"
 
 static void ReportToUMA(
     media::VaapiH264Decoder::VAVDAH264DecoderFailure failure) {
@@ -206,8 +207,7 @@ VaapiVideoDecodeAccelerator::TFPPicture*
 
 VaapiVideoDecodeAccelerator::VaapiVideoDecodeAccelerator(
     const base::Callback<bool(void)>& make_context_current) //NOLINT
-    : wl_display_(NULL),
-      make_context_current_(make_context_current),
+    : make_context_current_(make_context_current),
       state_(kUninitialized),
       input_ready_(&lock_),
       surfaces_available_(&lock_),
@@ -226,45 +226,7 @@ VaapiVideoDecodeAccelerator::VaapiVideoDecodeAccelerator(
 
 VaapiVideoDecodeAccelerator::~VaapiVideoDecodeAccelerator() {
   DCHECK_EQ(message_loop_, base::MessageLoop::current());
-  if (wl_display_) {
-    wl_display_flush(wl_display_);
-    wl_display_disconnect(wl_display_);
-    wl_display_ = NULL;
-  }
 }
-
-typedef struct wayland_display {
-  wl_display* display;
-  wl_compositor* compositor;
-  wl_shell* shell;
-  wl_registry* registry;
-  int event_fd;
-} wayland_display;
-
-static void registry_handle_global(
-    void* data,
-    wl_registry* registry,
-    uint32_t id,
-    const char* interface,
-    uint32_t version) {
-  wayland_display* display_handle =
-      reinterpret_cast<wayland_display *>(data);
-
-  if (strcmp(interface, "wl_compositor") == 0) {
-    display_handle->compositor =
-        reinterpret_cast<wl_compositor *>(wl_registry_bind(
-            registry, id, &wl_compositor_interface, 1));
-  } else if (strcmp(interface, "wl_shell") == 0) {
-    display_handle->shell =
-        reinterpret_cast<wl_shell *>(wl_registry_bind(
-            registry, id, &wl_shell_interface, 1));
-  }
-}
-
-static const struct wl_registry_listener registry_listener = {
-  registry_handle_global,
-  NULL,
-};
 
 bool VaapiVideoDecodeAccelerator::Initialize(media::VideoCodecProfile profile,
                                              Client* client) {
@@ -280,19 +242,9 @@ bool VaapiVideoDecodeAccelerator::Initialize(media::VideoCodecProfile profile,
   if (!make_context_current_.Run())
     return false;
 
-  wayland_display d;
-
-  d.display = wl_display_connect(NULL);
-  if (!d.display)
-    return false;
-  wl_display_set_user_data(d.display, &d);
-  d.registry = wl_display_get_registry(d.display);
-  wl_registry_add_listener(d.registry, &registry_listener, &d);
-  wl_display_dispatch(d.display);
-  wl_display_ = d.display;
-
   vaapi_wrapper_ = VaapiWrapper::Create(
-      profile, wl_display_,
+      profile,
+      gfx::GetPlatformDefaultEGLNativeDisplay(),
       base::Bind(&ReportToUMA, VaapiH264Decoder::VAAPI_ERROR));
 
   if (!vaapi_wrapper_.get()) {

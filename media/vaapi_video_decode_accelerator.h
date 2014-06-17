@@ -8,9 +8,6 @@
 #ifndef OZONE_MEDIA_VAAPI_VIDEO_DECODE_ACCELERATOR_H_
 #define OZONE_MEDIA_VAAPI_VIDEO_DECODE_ACCELERATOR_H_
 
-// TODO(vignatti): should we accept this here?
-#include <wayland-client.h>
-
 #include <list>
 #include <map>
 #include <queue>
@@ -151,7 +148,6 @@ private:
   // Check if the surfaces have been released or post ourselves for later.
   void TryFinishSurfaceSetChange();
 
-  wl_display* wl_display_;
   base::Callback<bool(void)> make_context_current_; //NOLINT
 
   // VAVDA state.
