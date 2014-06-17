@@ -1,0 +1,25 @@
+From 517f8d206d048c00aec0ab34caab1ffea24fe9b1 Mon Sep 17 00:00:00 2001
+From: Kondapally Kalyan <kalyan.kondapally@intel.com>
+Date: Tue, 17 Jun 2014 19:13:41 +0300
+Subject: [PATCH 2/2] Temporary patch to fix linking issue.
+
+---
+ .../chrome_browser_main_extra_parts_metrics.cc     |    2 +-
+ .../views/app_list/linux/app_list_service_linux.cc |    4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc b/chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
+index bd9ccf2..458ef1c 100644
+--- a/chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
++++ b/chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
+@@ -124,7 +124,7 @@ void RecordLinuxGlibcVersion() {
+ }
+
+ void RecordLinuxWindowManager() {
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
+   ui::WindowManagerName name = ui::GuessWindowManager();
+   UMALinuxWindowManager uma_name = UMA_LINUX_WINDOW_MANAGER_OTHER;
+   switch (name) {
+1.7.9.5
+
