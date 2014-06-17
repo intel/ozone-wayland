@@ -74,7 +74,6 @@ class VaapiVideoDecodeAccelerator::TFPPicture : public base::NonThreadSafe {
 
   static linked_ptr<TFPPicture> Create(
       const base::Callback<bool(void)>& make_context_current, //NOLINT
-      wl_display* wl_display,
       VaapiWrapper* va_wrapper,
       int32 picture_buffer_id,
       uint32 texture_id,
@@ -93,7 +92,6 @@ class VaapiVideoDecodeAccelerator::TFPPicture : public base::NonThreadSafe {
 
  private:
   TFPPicture(const base::Callback<bool(void)>& make_context_current, //NOLINT
-             wl_display* wl_display,
              VaapiWrapper* va_wrapper,
              int32 picture_buffer_id,
              uint32 texture_id,
@@ -103,7 +101,6 @@ class VaapiVideoDecodeAccelerator::TFPPicture : public base::NonThreadSafe {
 
   base::Callback<bool(void)> make_context_current_; //NOLINT
 
-  wl_display* wl_display_;
   VaapiWrapper* va_wrapper_;
 
   // Output id for the client.
@@ -118,13 +115,11 @@ class VaapiVideoDecodeAccelerator::TFPPicture : public base::NonThreadSafe {
 
 VaapiVideoDecodeAccelerator::TFPPicture::TFPPicture(
     const base::Callback<bool(void)>& make_context_current, //NOLINT
-    wl_display* wl_display,
     VaapiWrapper* va_wrapper,
     int32 picture_buffer_id,
     uint32 texture_id,
     gfx::Size size)
     : make_context_current_(make_context_current),
-      wl_display_(wl_display),
       va_wrapper_(va_wrapper),
       picture_buffer_id_(picture_buffer_id),
       texture_id_(texture_id),
@@ -135,13 +130,12 @@ VaapiVideoDecodeAccelerator::TFPPicture::TFPPicture(
 linked_ptr<VaapiVideoDecodeAccelerator::TFPPicture>
 VaapiVideoDecodeAccelerator::TFPPicture::Create(
     const base::Callback<bool(void)>& make_context_current, //NOLINT
-    wl_display* wl_display,
     VaapiWrapper* va_wrapper,
     int32 picture_buffer_id,
     uint32 texture_id,
     gfx::Size size) {
   linked_ptr<TFPPicture> tfp_picture(
-      new TFPPicture(make_context_current, wl_display, va_wrapper,
+      new TFPPicture(make_context_current, va_wrapper,
                      picture_buffer_id, texture_id, size));
 
   if (!tfp_picture->Initialize())
@@ -695,9 +689,11 @@ void VaapiVideoDecodeAccelerator::AssignPictureBuffers(
              << " VASurfaceID: " << va_surface_ids[i];
 
     linked_ptr<TFPPicture> tfp_picture(
-        TFPPicture::Create(make_context_current_, wl_display_,
-                           vaapi_wrapper_.get(), buffers[i].id(),
-                           buffers[i].texture_id(), requested_pic_size_));
+        TFPPicture::Create(make_context_current_,
+                           vaapi_wrapper_.get(),
+                           buffers[i].id(),
+                           buffers[i].texture_id(),
+                           requested_pic_size_));
 
     RETURN_AND_NOTIFY_ON_FAILURE(
         tfp_picture.get(), "Failed assigning picture buffer to a texture.",
