@@ -8,5 +8,6 @@
     'gfx/gfx.gypi',
     'ime/ime.gypi',
     'public/public.gypi',
+    'webui/webui.gypi',
    ],
 }

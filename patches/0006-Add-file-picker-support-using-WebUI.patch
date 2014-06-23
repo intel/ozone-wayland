@@ -1,0 +1,662 @@
+From 0ae9a183f4e7de8d3d2601f180d1751b19abb1dc Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Thu, 26 Jun 2014 17:11:00 -0700
+Subject: [PATCH] Add file picker support using WebUI
+
+File-picker has not been supported in oz-wl because Gtk+2 does not work under
+Wayland. Chromium Linux version still uses Gtk+ for file-picker.
+
+This implementation allows for oz-wl to show a web based file picker UI.
+Currently, the WebUI only supports basic functionality for opening a file.
+File browsing UI will be added later.
+---
+ chrome/app/generated_resources.grd                 |    8 +
+ chrome/browser/browser_resources.grd               |    3 +
+ .../browser/download/save_package_file_picker.cc   |    2 +-
+ .../browser/resources/file_picker/file_picker.css  |   72 +++++++++
+ .../browser/resources/file_picker/file_picker.html |   37 +++++
+ .../browser/resources/file_picker/file_picker.js   |   51 ++++++
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |   13 +-
+ .../ui/webui/chrome_web_ui_controller_factory.cc   |    5 +
+ .../browser/ui/webui/file_picker/file_picker_ui.cc |   47 ++++++
+ .../browser/ui/webui/file_picker/file_picker_ui.h  |   24 +++
+ .../ui/webui/file_picker/file_picker_web_dialog.cc |  165 ++++++++++++++++++++
+ chrome/chrome_browser_ui.gypi                      |    4 +
+ chrome/common/url_constants.cc                     |    3 +
+ chrome/common/url_constants.h                      |    2 +
+ tools/gritsettings/resource_ids                    |    2 +-
+ 15 files changed, 434 insertions(+), 4 deletions(-)
+ create mode 100644 chrome/browser/resources/file_picker/file_picker.css
+ create mode 100644 chrome/browser/resources/file_picker/file_picker.html
+ create mode 100644 chrome/browser/resources/file_picker/file_picker.js
+ create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_ui.cc
+ create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_ui.h
+ create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
+
+diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
+index 9732bb1..37dce66 100644
+--- a/chrome/app/generated_resources.grd
++++ b/chrome/app/generated_resources.grd
+@@ -14675,6 +14675,14 @@ Do you accept?
+     <message name="IDS_FLAGS_ENABLE_EXPERIMENTAL_HOTWORDING_DESCRIPTION" desc="Description of about:flags option for hotword detection.">
+       Enables experimental 'Ok Google' hotword detection features, such as using the built-in extension. The hotword extension from the Chrome Web Store will no longer be used.
+     </message>
++
++    <!-- File-picker strings -->
++    <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
++      Save file as
++    </message>
++    <message name="IDS_FILE_PICKER_FILE_NAME" desc="File Name">
++      File name
++    </message>
+   </messages>
+   </release>
+ </grit>
+diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
+index f352fc8..46b3020 100644
+--- a/chrome/browser/browser_resources.grd
++++ b/chrome/browser/browser_resources.grd
+@@ -445,6 +445,9 @@
+         <include name="IDR_BRAILLE_MANIFEST" file="resources\chromeos\braille_ime\manifest.json" type="BINDATA" />
+       </if>
+       <include name="IDR_WHISPERNET_PROXY_MANIFEST" file="resources\whispernet_proxy\manifest.json" type="BINDATA" />
++      <include name="IDR_FILE_PICKER_HTML" file="resources\file_picker\file_picker.html" type="BINDATA" />
++      <include name="IDR_FILE_PICKER_JS" file="resources\file_picker\file_picker.js" type="BINDATA" />
++      <include name="IDR_FILE_PICKER_CSS" file="resources\file_picker\file_picker.css" type="BINDATA" />
+     </includes>
+   </release>
+ </grit>
+diff --git a/chrome/browser/download/save_package_file_picker.cc b/chrome/browser/download/save_package_file_picker.cc
+index f45440c..7c4c1d3 100644
+--- a/chrome/browser/download/save_package_file_picker.cc
++++ b/chrome/browser/download/save_package_file_picker.cc
+@@ -216,7 +216,7 @@ SavePackageFilePicker::SavePackageFilePicker(
+         file_type_index,
+         default_extension_copy,
+         platform_util::GetTopLevel(web_contents->GetNativeView()),
+-        NULL);
++        web_contents);
+   } else {
+     // Just use 'suggested_path_copy' instead of opening the dialog prompt.
+     // Go through FileSelected() for consistency.
+diff --git a/chrome/browser/resources/file_picker/file_picker.css b/chrome/browser/resources/file_picker/file_picker.css
+new file mode 100644
+index 0000000..a675d89
+--- /dev/null
++++ b/chrome/browser/resources/file_picker/file_picker.css
+@@ -0,0 +1,72 @@
++/*
++ * Copyright 2014 The Chromium Authors. All rights reserved.
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#main-table {
++  border-collapse: collapse;
++  border-width: 0;
++  margin-left: auto;
++  margin-right: auto;
++  table-layout: fixed;
++  width: 1000px;
++}
++
++tr.section-row {
++  border-bottom-width: 2px;
++  border-color: #000;
++  border-left-width: 0;
++  border-right-width: 0;
++  border-style: solid;
++  border-top-width: 2px;
++  width: 100%;
++}
++
++td.title-cell {
++  border-width: 0;
++  text-align: right;
++  vertical-align: top;
++  width: 15%;
++}
++
++p.title-text {
++  font-weight: bold;
++  margin-right: 10px;
++}
++
++td.show-button-cell {
++  border-bottom-width: 0;
++  border-color: #aaa;
++  border-left-width: 1px;
++  border-right-width: 1px;
++  border-style: solid;
++  border-top-width: 0;
++  text-align: center;
++  vertical-align: top;
++  width: 10%;
++}
++
++td.plots-cell {
++  border-width: 0;
++  padding: 10px;
++  text-align: left;
++  width: 75%;
++}
++
++div.section-div {
++  width: 100%;
++}
++
++div.plots-div {
++  width: 100%;
++}
++
++button.show-button {
++  margin: 10px;
++}
++
++button.reload-button {
++  margin-bottom: 10px;
++  margin-top: 10px;
++}
+diff --git a/chrome/browser/resources/file_picker/file_picker.html b/chrome/browser/resources/file_picker/file_picker.html
+new file mode 100644
+index 0000000..7710c81
+--- /dev/null
++++ b/chrome/browser/resources/file_picker/file_picker.html
+@@ -0,0 +1,37 @@
++<!DOCTYPE HTML>
++<html i18n-values="dir:textdirection">
++<head>
++  <meta charset="utf-8">
++  <title i18n-content="dialogTitle"></title>
++  <script src="chrome://resources/js/cr.js"></script>
++  <script src="chrome://resources/js/load_time_data.js"></script>
++  <script src="chrome://resources/js/util.js"></script>
++  <script src="strings.js"></script>
++  <script src="file_picker.js"></script>
++  <link rel="stylesheet" href="file_picker.css">
++</head>
++<body i18n-values=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
++
++<p>Input a file name</p>
++<table>
++<tr>
++<td><div id="file-picker-file-name" i18n-content="filePickerFileNameLabel"></div>
++</td>
++<td>
++<input id="file-name-inputbox" type="text" name="FileName">
++</td>
++</tr>
++<tr>
++<td>
++  <div id="button-row">
++    <button id="save-button" i18n-content="saveButtonText"></button>
++    <button id="open-button" i18n-content="openButtonText"></button>
++    <button id="cancel-button" i18n-content="cancelButtonText"></button>
++  </div>
++</td>
++</tr>
++</table>
++  <!-- Must be last in the DOM: processes elements and inserts i18n strings -->
++  <script src="chrome://resources/js/i18n_template2.js"></script>
++</body>
++</html>
+diff --git a/chrome/browser/resources/file_picker/file_picker.js b/chrome/browser/resources/file_picker/file_picker.js
+new file mode 100644
+index 0000000..4161330
+--- /dev/null
++++ b/chrome/browser/resources/file_picker/file_picker.js
+@@ -0,0 +1,51 @@
++// Copyright 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++cr.define('filePicker', function() {
++  'use strict';
++
++  function initialize() {
++
++    var args = JSON.parse(chrome.getVariableValue('dialogArguments'));
++
++    var input_box = document.getElementById("file-name-inputbox");
++    input_box.value = args.filePath;
++
++    $('cancel-button').addEventListener('click', function() {
++        chrome.send('cancel');
++        self.close();
++    });
++    $('cancel-button').innerText =
++        loadTimeData.getStringF('cancelButtonText');
++
++    if (args.promptForOpenFile) {
++      $('open-button').addEventListener('click', function() {
++            var file_path = document.getElementById("file-name-inputbox").value;
++            chrome.send('done', [file_path]);
++            self.close();
++      });
++      $('open-button').innerText =
++        loadTimeData.getStringF('openButtonText');
++      $('save-button').style.display = 'none';
++    } else {
++      $('save-button').addEventListener('click', function() {
++          var file_path = document.getElementById("file-name-inputbox").value;
++          chrome.send('done', [file_path]);
++          self.close();
++      });
++      $('save-button').innerText =
++        loadTimeData.getStringF('saveButtonText');
++      $('open-button').style.display = 'none';
++   }
++
++    $('button-row').style['text-align'] = 'end';
++  }
++
++  return {
++    initialize: initialize
++  };
++});
++
++document.addEventListener('DOMContentLoaded',
++                          filePicker.initialize);
+diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
+index 259b073..cf342a5 100644
+--- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
++++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
+@@ -18,17 +18,21 @@
+ #include "ui/gfx/screen.h"
+ #include "ui/views/widget/native_widget_aura.h"
+ 
+-#if defined(USE_X11) && !defined(OS_CHROMEOS)
++#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+ #include "base/prefs/pref_service.h"
+ #include "chrome/browser/profiles/profile.h"
+-#include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
+ #include "chrome/common/pref_names.h"
++#include "ozone/ui/webui/ozone_webui.h"
+ #include "ui/aura/window.h"
+ #include "ui/base/ime/input_method_initializer.h"
+ #include "ui/native_theme/native_theme_aura.h"
+ #include "ui/views/linux_ui/linux_ui.h"
+ #endif
+ 
++#if defined(USE_X11) && !defined(OS_CHROMEOS)
++#include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
++#endif
++
+ #if defined(USE_ASH)
+ #include "chrome/browser/ui/ash/ash_init.h"
+ #if defined(OS_WIN)
+@@ -102,6 +106,11 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
+     ui::InitializeInputMethodForTesting();
+   }
+ #endif
++
++#if defined(OS_LINUX) && defined(USE_OZONE)
++  views::LinuxUI::SetInstance(BuildWebUI());
++#endif
++
+ }
+ 
+ void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
+diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
+index b4acde4..f3774a2 100644
+--- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
++++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
+@@ -27,6 +27,9 @@
+ #include "chrome/browser/ui/webui/devtools_ui.h"
+ #include "chrome/browser/ui/webui/domain_reliability_internals_ui.h"
+ #include "chrome/browser/ui/webui/downloads_ui.h"
++#include "chrome/browser/ui/webui/extensions/extension_info_ui.h"
++#include "chrome/browser/ui/webui/extensions/extensions_ui.h"
++#include "chrome/browser/ui/webui/file_picker/file_picker_ui.h"
+ #include "chrome/browser/ui/webui/flags_ui.h"
+ #include "chrome/browser/ui/webui/flash_ui.h"
+ #include "chrome/browser/ui/webui/gcm_internals_ui.h"
+@@ -285,6 +288,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+     return &NewWebUI<DomainReliabilityInternalsUI>;
+   if (url.host() == chrome::kChromeUIFlagsHost)
+     return &NewWebUI<FlagsUI>;
++  if (url.host() == chrome::kChromeUIFilePickerHost)
++      return &NewWebUI<ui::FilePickerUI>;
+   if (url.host() == chrome::kChromeUIHistoryFrameHost)
+     return &NewWebUI<HistoryUI>;
+   if (url.host() == chrome::kChromeUIInstantHost)
+diff --git a/chrome/browser/ui/webui/file_picker/file_picker_ui.cc b/chrome/browser/ui/webui/file_picker/file_picker_ui.cc
+new file mode 100644
+index 0000000..9663fbb
+--- /dev/null
++++ b/chrome/browser/ui/webui/file_picker/file_picker_ui.cc
+@@ -0,0 +1,47 @@
++// Copyright 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "chrome/browser/ui/webui/file_picker/file_picker_ui.h"
++
++#include "base/values.h"
++#include "chrome/browser/profiles/profile.h"
++#include "chrome/common/url_constants.h"
++#include "chrome/grit/browser_resources.h"
++#include "chrome/grit/chromium_strings.h"
++#include "chrome/grit/generated_resources.h"
++#include "content/public/browser/web_contents.h"
++#include "content/public/browser/web_ui.h"
++#include "content/public/browser/web_ui_data_source.h"
++#include "ui/base/l10n/l10n_util.h"
++#include "ui/base/resource/resource_bundle.h"
++
++namespace ui {
++FilePickerUI::FilePickerUI(content::WebUI* web_ui)
++  : WebDialogUI(web_ui) {
++  content::WebUIDataSource* html_source = content::WebUIDataSource::Create(
++      chrome::kChromeUIFilePickerHost);
++  html_source->SetUseJsonJSFormatV2();
++
++  html_source->AddLocalizedString(
++       "filePickerFileNameLabel",
++       IDS_FILE_PICKER_FILE_NAME);
++
++  html_source->AddLocalizedString("saveButtonText", IDS_SAVE);
++  html_source->AddLocalizedString("openButtonText", IDS_OK);
++  html_source->AddLocalizedString("cancelButtonText", IDS_CANCEL);
++
++  html_source->SetJsonPath("strings.js");
++
++  html_source->AddResourcePath("file_picker.js", IDR_FILE_PICKER_JS);
++  html_source->AddResourcePath("file_picker.css", IDR_FILE_PICKER_CSS);
++  html_source->SetDefaultResource(IDR_FILE_PICKER_HTML);
++
++  Profile* profile = Profile::FromWebUI(web_ui);
++  content::WebUIDataSource::Add(profile, html_source);
++}
++
++FilePickerUI::~FilePickerUI() {
++}
++
++}  // namespace ui
+diff --git a/chrome/browser/ui/webui/file_picker/file_picker_ui.h b/chrome/browser/ui/webui/file_picker/file_picker_ui.h
+new file mode 100644
+index 0000000..908eb06
+--- /dev/null
++++ b/chrome/browser/ui/webui/file_picker/file_picker_ui.h
+@@ -0,0 +1,24 @@
++// Copyright 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef CHROME_BROWSER_UI_WEBUI_FILE_PICKER_UI_H_
++#define CHROME_BROWSER_UI_WEBUI_FILE_PICKER_UI_H_
++
++#include "base/basictypes.h"
++#include "ui/web_dialogs/web_dialog_ui.h"
++
++namespace ui {
++
++class FilePickerUI : public WebDialogUI {
++ public:
++  explicit FilePickerUI(content::WebUI* web_ui);
++  virtual ~FilePickerUI();
++
++ private:
++  DISALLOW_COPY_AND_ASSIGN(FilePickerUI);
++};
++
++}  // namespace ui
++
++#endif  // CHROME_BROWSER_UI_WEBUI_FILE_PICKER_UI_H_
+diff --git a/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
+new file mode 100644
+index 0000000..7711b44
+--- /dev/null
++++ b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
+@@ -0,0 +1,165 @@
++// Copyright (c) 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ozone/ui/webui/file_picker_web_dialog.h"
++
++#include "base/json/json_writer.h"
++#include "chrome/browser/profiles/profile_manager.h"
++#include "chrome/browser/ui/browser_dialogs.h"
++#include "chrome/common/url_constants.h"
++#include "chrome/grit/browser_resources.h"
++#include "chrome/grit/chromium_strings.h"
++#include "chrome/grit/generated_resources.h"
++#include "content/public/browser/web_ui.h"
++#include "content/public/browser/web_ui_message_handler.h"
++#include "grit/ui_strings.h"
++#include "ui/base/l10n/l10n_util.h"
++#include "ui/gfx/size.h"
++
++using content::WebContents;
++using content::WebUIMessageHandler;
++
++namespace {
++
++// Default width/height of the dialog.
++const int kDefaultWidth = 350;
++const int kDefaultHeight = 225;
++}
++
++namespace ui {
++
++class FilePickerMessageHandler : public content::WebUIMessageHandler {
++ public:
++  FilePickerMessageHandler(
++      const ui::FilePickerWebDialog* dialog);
++  virtual ~FilePickerMessageHandler();
++  virtual void RegisterMessages() OVERRIDE;
++
++ private:
++  // content::WebUIMessageHandler implementation.
++  void OnCancelButtonClicked(const base::ListValue* args);
++  void OnSaveButtonClicked(const base::ListValue* args);
++
++  // Weak ptr to parent dialog.
++  const ui::FilePickerWebDialog* dialog_;
++};
++
++FilePickerMessageHandler::FilePickerMessageHandler(
++    const ui::FilePickerWebDialog* dialog)
++  : dialog_(dialog) {
++}
++
++FilePickerMessageHandler::~FilePickerMessageHandler() {
++}
++
++void FilePickerMessageHandler::RegisterMessages() {
++  web_ui()->RegisterMessageCallback(
++      "cancel",
++      base::Bind(&FilePickerMessageHandler::OnCancelButtonClicked,
++                 base::Unretained(this)));
++  web_ui()->RegisterMessageCallback(
++      "done",
++      base::Bind(&FilePickerMessageHandler::OnSaveButtonClicked,
++                 base::Unretained(this)));
++}
++
++void FilePickerMessageHandler::OnCancelButtonClicked(
++    const base::ListValue* args) {
++    std::string file_path;
++    dialog_->Close(file_path);
++}
++
++void FilePickerMessageHandler::OnSaveButtonClicked(
++    const base::ListValue* args) {
++    std::string file_path;
++    args->GetString(0, &file_path);
++    dialog_->Close(file_path);
++}
++
++}  // namespace ui
++
++namespace ui {
++
++// static
++void FilePickerWebDialog::ShowDialog(SelectFileDialog::Type type, gfx::NativeWindow owning_window,
++    content::WebContents* contents,  SelectFileDialog::Listener* listener) {
++  chrome::ShowWebDialog(owning_window,
++                        ProfileManager::GetActiveUserProfile(),
++                        new FilePickerWebDialog(type, listener));
++}
++
++void FilePickerWebDialog::Close(std::string& file_path) const {
++  if (!file_path.empty())
++    listener_->FileSelected(base::FilePath(file_path), 0 , NULL);
++  else
++    listener_->FileSelectionCanceled(NULL);
++}
++
++FilePickerWebDialog::FilePickerWebDialog(SelectFileDialog::Type type, SelectFileDialog::Listener* listener)
++    : type_(type), listener_(listener) {
++}
++
++ui::ModalType FilePickerWebDialog::GetDialogModalType() const {
++  return ui::MODAL_TYPE_SYSTEM;
++}
++
++base::string16 FilePickerWebDialog::GetDialogTitle() const {
++
++  if (type_ == SelectFileDialog::SELECT_OPEN_FILE)
++    return l10n_util::GetStringUTF16(IDS_OPEN_FILE_DIALOG_TITLE);
++  else if (type_ == SelectFileDialog::SELECT_SAVEAS_FILE)
++    return l10n_util::GetStringUTF16(IDS_SAVE_AS_DIALOG_TITLE);
++
++  return base::string16();
++}
++
++GURL FilePickerWebDialog::GetDialogContentURL() const {
++  return GURL(chrome::kChromeUIFilePickerURL);
++}
++
++void FilePickerWebDialog::GetWebUIMessageHandlers(
++    std::vector<content::WebUIMessageHandler*>* handlers) const {
++  handlers->push_back(new FilePickerMessageHandler(this));
++}
++
++void FilePickerWebDialog::GetDialogSize(gfx::Size* size) const {
++  size->SetSize(kDefaultWidth, kDefaultHeight);
++}
++
++std::string FilePickerWebDialog::GetDialogArgs() const {
++  std::string data;
++  base::DictionaryValue file_info;
++  if (type_ == SelectFileDialog::SELECT_OPEN_FILE)
++    file_info.SetBoolean("promptForOpenFile",  true);
++  else
++    file_info.SetBoolean("promptForOpenFile",  false);
++
++  // FIXME(joone): Pass the home directory
++  file_info.SetString("filePath",  "/home/app");
++  base::JSONWriter::Write(&file_info, &data);
++  return data;
++}
++
++void FilePickerWebDialog::OnDialogClosed(const std::string& json_retval) {
++  listener_->FileSelectionCanceled(NULL);
++  delete this;
++}
++
++void FilePickerWebDialog::OnCloseContents(WebContents* source,
++                                                bool* out_close_dialog) {
++  if (out_close_dialog)
++    *out_close_dialog = true;
++}
++
++bool FilePickerWebDialog::ShouldShowDialogTitle() const {
++  return true;
++}
++
++bool FilePickerWebDialog::HandleContextMenu(
++    const content::ContextMenuParams& params) {
++  // Disable context menu.
++  return true;
++}
++
++}  // namespace ui
+diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
+index 91e0549..28b0356 100644
+--- a/chrome/chrome_browser_ui.gypi
++++ b/chrome/chrome_browser_ui.gypi
+@@ -1051,6 +1051,9 @@
+       'browser/ui/webui/favicon_source.h',
+       'browser/ui/webui/fileicon_source.cc',
+       'browser/ui/webui/fileicon_source.h',
++      'browser/ui/webui/file_picker/file_picker_ui.cc',
++      'browser/ui/webui/file_picker/file_picker_ui.h',
++      'browser/ui/webui/file_picker/file_picker_web_dialog.cc',
+       'browser/ui/webui/flags_ui.cc',
+       'browser/ui/webui/flags_ui.h',
+       'browser/ui/webui/flash_ui.cc',
+@@ -2903,6 +2906,7 @@
+               'dependencies': [
+                 '../build/linux/system.gyp:dbus',
+                 '../build/linux/system.gyp:fontconfig',
++                '../build/linux/system.gyp:pangocairo',
+                 '../dbus/dbus.gyp:dbus',
+               ],
+             }],
+diff --git a/chrome/common/url_constants.cc b/chrome/common/url_constants.cc
+index 6ac57c5..138c718 100644
+--- a/chrome/common/url_constants.cc
++++ b/chrome/common/url_constants.cc
+@@ -49,6 +49,7 @@ const char kChromeUIExtensionsFrameURL[] = "chrome://extensions-frame/";
+ const char kChromeUIExtensionsURL[] = "chrome://extensions/";
+ const char kChromeUIFaviconURL[] = "chrome://favicon/";
+ const char kChromeUIFeedbackURL[] = "chrome://feedback/";
++const char kChromeUIFilePickerURL[] = "chrome://file-picker/";
+ const char kChromeUIFlagsURL[] = "chrome://flags/";
+ const char kChromeUIFlashURL[] = "chrome://flash/";
+ const char kChromeUIGCMInternalsURL[] = "chrome://gcm-internals/";
+@@ -187,6 +188,7 @@ const char kChromeUIExtensionsFrameHost[] = "extensions-frame";
+ const char kChromeUIExtensionsHost[] = "extensions";
+ const char kChromeUIFaviconHost[] = "favicon";
+ const char kChromeUIFeedbackHost[] = "feedback";
++const char kChromeUIFilePickerHost[] = "file-picker";
+ const char kChromeUIFlagsHost[] = "flags";
+ const char kChromeUIFlashHost[] = "flash";
+ const char kChromeUIGCMInternalsHost[] = "gcm-internals";
+@@ -574,6 +576,7 @@ const char* const kChromeHostURLs[] = {
+   kChromeUICrashesHost,
+   kChromeUICreditsHost,
+   kChromeUIDNSHost,
++  kChromeUIFilePickerHost,
+   kChromeUIFlagsHost,
+   kChromeUIHistoryHost,
+   kChromeUIInvalidationsHost,
+diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
+index 0f59363..856eda7 100644
+--- a/chrome/common/url_constants.h
++++ b/chrome/common/url_constants.h
+@@ -43,6 +43,7 @@ extern const char kChromeUIExtensionsFrameURL[];
+ extern const char kChromeUIExtensionsURL[];
+ extern const char kChromeUIFaviconURL[];
+ extern const char kChromeUIFeedbackURL[];
++extern const char kChromeUIFilePickerURL[];
+ extern const char kChromeUIFlagsURL[];
+ extern const char kChromeUIFlashURL[];
+ extern const char kChromeUIGCMInternalsURL[];
+@@ -176,6 +177,7 @@ extern const char kChromeUIExtensionsFrameHost[];
+ extern const char kChromeUIExtensionsHost[];
+ extern const char kChromeUIFaviconHost[];
+ extern const char kChromeUIFeedbackHost[];
++extern const char kChromeUIFilePickerHost[];
+ extern const char kChromeUIFlagsHost[];
+ extern const char kChromeUIFlashHost[];
+ extern const char kChromeUIGCMInternalsHost[];
+diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
+index 6cf6292..0d6e2e0 100644
+--- a/tools/gritsettings/resource_ids
++++ b/tools/gritsettings/resource_ids
+@@ -18,7 +18,7 @@
+ 
+   "chrome/browser/browser_resources.grd": {
+     "includes": [500],
+-    "structures": [750],
++    "structures": [800],
+   },
+   "chrome/browser/resources/component_extension_resources.grd": {
+     "includes": [1000],
+-- 
+1.7.9.5
+
