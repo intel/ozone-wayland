@@ -50,6 +50,7 @@ BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-cursor)
 BuildRequires:  pkgconfig(wayland-egl)
+BuildRequires:  pkgconfig(weston)
 BuildRequires:  pkgconfig(xkbcommon)
 
 %description
