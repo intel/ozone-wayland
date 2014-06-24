@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/content/ozone_channel_host.h"
+#include "ozone/ui/public/ozone_channel_host.h"
 
-#include "ozone/content/messages.h"
 #include "ozone/ui/events/event_converter_in_process.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
+#include "ozone/ui/public/messages.h"
 
 namespace ui {
 

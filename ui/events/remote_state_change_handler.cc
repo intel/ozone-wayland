@@ -5,7 +5,7 @@
 #include "ozone/ui/events/remote_state_change_handler.h"
 
 #include "ipc/ipc_sender.h"
-#include "ozone/content/messages.h"
+#include "ozone/ui/public/messages.h"
 
 namespace ui {
 

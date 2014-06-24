@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
-#define OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
+#ifndef OZONE_UI_PUBLIC_OZONE_CHANNEL_HOST_H_
+#define OZONE_UI_PUBLIC_OZONE_CHANNEL_HOST_H_
 
 #include <string>
+
 #include "ui/events/event_constants.h"
 #include "ui/ozone/public/gpu_platform_support_host.h"
 
@@ -62,4 +63,4 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
 
 }  // namespace ui
 
-#endif  // OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
+#endif  // OZONE_UI_PUBLIC_OZONE_CHANNEL_HOST_H_

@@ -5,7 +5,7 @@
 #include "ozone/ui/events/remote_event_dispatcher.h"
 
 #include "base/bind.h"
-#include "ozone/content/messages.h"
+#include "ozone/ui/public/messages.h"
 
 namespace ui {
 

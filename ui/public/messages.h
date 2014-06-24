@@ -120,4 +120,3 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PreeditChanged, // NOLINT(readability/
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditEnd)  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditStart)  // NOLINT(readability/fn_size)
-

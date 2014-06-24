@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_CONTENT_OZONE_CHANNEL_H_
-#define OZONE_CONTENT_OZONE_CHANNEL_H_
+#ifndef OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
+#define OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
 
 #include "base/strings/string16.h"
 #include "ui/ozone/public/gpu_platform_support.h"
@@ -47,4 +47,4 @@ class OzoneChannel : public GpuPlatformSupport {
 
 }  // namespace ui
 
-#endif  // OZONE_CONTENT_OZONE_CHANNEL_H_
+#endif  // OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
