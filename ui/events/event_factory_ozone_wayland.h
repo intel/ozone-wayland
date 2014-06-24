@@ -7,7 +7,7 @@
 
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
-#include "ui/events/ozone/event_factory_ozone.h"
+#include "ui/ozone/public/event_factory_ozone.h"
 
 namespace ui {
 

@@ -5,7 +5,7 @@
 #ifndef OZONE_UI_CURSOR_CURSOR_FACTORY_OZONE_WAYLAND_H_
 #define OZONE_UI_CURSOR_CURSOR_FACTORY_OZONE_WAYLAND_H_
 
-#include "ui/base/cursor/ozone/cursor_factory_ozone.h"
+#include "ui/ozone/public/cursor_factory_ozone.h"
 
 namespace ui {
 

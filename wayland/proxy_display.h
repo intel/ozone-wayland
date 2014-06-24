@@ -18,7 +18,7 @@ class WaylandScreen;
 // WaylandProxyDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
-class WaylandProxyDisplay : public gfx::OzoneDisplay {
+class WaylandProxyDisplay : public ui::OzoneDisplay {
  public:
   explicit WaylandProxyDisplay();
   virtual ~WaylandProxyDisplay();

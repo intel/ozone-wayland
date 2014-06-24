@@ -7,11 +7,11 @@
 
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/gfx/native_widget_types.h"
-#include "ui/gfx/ozone/surface_factory_ozone.h"
+#include "ui/ozone/public/surface_factory_ozone.h"
 
-namespace gfx {
+namespace ui {
 
-class OZONE_WAYLAND_EXPORT OzoneDisplay : public gfx::SurfaceFactoryOzone {
+class OZONE_WAYLAND_EXPORT OzoneDisplay : public SurfaceFactoryOzone {
  public:
   OzoneDisplay();
   virtual ~OzoneDisplay();
@@ -25,19 +25,19 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public gfx::SurfaceFactoryOzone {
   virtual void LookAheadOutputGeometry();
 
   // Ozone Display implementation:
-  virtual gfx::SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
+  virtual SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
   virtual void ShutdownHardware() OVERRIDE;
   virtual intptr_t GetNativeDisplay() OVERRIDE;
 
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
 
   // Ownership is passed to the caller.
-  virtual scoped_ptr<gfx::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
+  virtual scoped_ptr<SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
         gfx::AcceleratedWidget widget) OVERRIDE;
 
   virtual bool LoadEGLGLES2Bindings(
-    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
+    SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
         proc_address) OVERRIDE;
   virtual const int32* GetEGLSurfaceProperties(
       const int32* desired_list) OVERRIDE;
@@ -47,6 +47,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public gfx::SurfaceFactoryOzone {
   DISALLOW_COPY_AND_ASSIGN(OzoneDisplay);
 };
 
-}  // namespace gfx
+}  // namespace ui
 
 #endif  // OZONE_UI_GFX_OZONE_DISPLAY_H_

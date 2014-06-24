@@ -12,7 +12,6 @@
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
@@ -23,8 +22,8 @@
 #include "ui/base/ime/input_method_auralinux.h"
 #include "ui/events/event_utils.h"
 #include "ui/gfx/insets.h"
-#include "ui/gfx/ozone/surface_factory_ozone.h"
 #include "ui/native_theme/native_theme.h"
+#include "ui/ozone/public/surface_factory_ozone.h"
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
@@ -111,8 +110,8 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
-  gfx::SurfaceFactoryOzone* surface_factory =
-          gfx::SurfaceFactoryOzone::GetInstance();
+  ui::SurfaceFactoryOzone* surface_factory =
+          ui::SurfaceFactoryOzone::GetInstance();
   window_ = surface_factory->GetAcceleratedWidget();
   // Maintain parent child relation as done in X11 version.
   // If we have a parent, record the parent/child relationship. We use this

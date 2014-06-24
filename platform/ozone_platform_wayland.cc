@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Authors. All rights reserved.
+// Copyright 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,7 +12,6 @@
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/proxy_display.h"
-#include "ui/base/cursor/ozone/cursor_factory_ozone.h"
 #include "ui/ozone/ozone_platform.h"
 
 namespace ui {
@@ -31,7 +30,7 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   // OzonePlatform:
-  virtual gfx::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+  virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
     return wayland_display_.get();
   }
   virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {

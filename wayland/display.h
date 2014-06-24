@@ -18,7 +18,7 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/ui/gfx/ozone_display.h"
 #include "ozone/wayland/input/text-client-protocol.h"
-#include "ui/gfx/ozone/surface_factory_ozone.h"
+#include "ui/ozone/public/surface_factory_ozone.h"
 
 namespace ozonewayland {
 
@@ -35,7 +35,7 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandDisplay : public ui::WindowStateChangeHandler,
-                       public gfx::SurfaceFactoryOzone {
+                       public ui::SurfaceFactoryOzone {
  public:
   explicit WaylandDisplay();
   virtual ~WaylandDisplay();
@@ -77,19 +77,19 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   void FlushDisplay();
 
   // Ozone Display implementation:
-  virtual gfx::SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
+  virtual ui::SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
   virtual void ShutdownHardware() OVERRIDE;
   virtual intptr_t GetNativeDisplay() OVERRIDE;
 
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
 
   // Ownership is passed to the caller.
-  virtual scoped_ptr<gfx::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
+  virtual scoped_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
         gfx::AcceleratedWidget widget) OVERRIDE;
 
   virtual bool LoadEGLGLES2Bindings(
-    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
+    ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
         proc_address) OVERRIDE;
   virtual const int32* GetEGLSurfaceProperties(
       const int32* desired_list) OVERRIDE;

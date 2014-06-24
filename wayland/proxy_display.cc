@@ -11,7 +11,7 @@
 namespace ozonewayland {
 
 WaylandProxyDisplay::WaylandProxyDisplay(): screen_(NULL) {
-  gfx::OzoneDisplay::SetInstance(this);
+  ui::OzoneDisplay::SetInstance(this);
 }
 
 WaylandProxyDisplay::~WaylandProxyDisplay() {

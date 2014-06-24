@@ -21,7 +21,6 @@
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"
-#include "ui/gfx/ozone/surface_ozone_egl.h"
 
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
@@ -85,15 +84,15 @@ gfx::AcceleratedWidget WaylandDisplay::GetNativeWindow(unsigned window_handle) {
   return (gfx::AcceleratedWidget)widget->egl_window();
 }
 
-gfx::SurfaceFactoryOzone::HardwareState
+ui::SurfaceFactoryOzone::HardwareState
 WaylandDisplay::InitializeHardware() {
   InitializeDisplay();
   if (!display_) {
     LOG(ERROR) << "WaylandDisplay failed to initialize hardware";
-    return gfx::SurfaceFactoryOzone::FAILED;
+    return ui::SurfaceFactoryOzone::FAILED;
   }
 
-  return gfx::SurfaceFactoryOzone::INITIALIZED;
+  return ui::SurfaceFactoryOzone::INITIALIZED;
 }
 
 void WaylandDisplay::ShutdownHardware() {
@@ -115,14 +114,14 @@ gfx::AcceleratedWidget WaylandDisplay::GetAcceleratedWidget() {
   return (gfx::AcceleratedWidget)opaque_handle;
 }
 
-scoped_ptr<gfx::SurfaceOzoneEGL> WaylandDisplay::CreateEGLSurfaceForWidget(
+scoped_ptr<ui::SurfaceOzoneEGL> WaylandDisplay::CreateEGLSurfaceForWidget(
     gfx::AcceleratedWidget w) {
-  return make_scoped_ptr<gfx::SurfaceOzoneEGL>(new SurfaceOzoneWayland(w));
+  return make_scoped_ptr<ui::SurfaceOzoneEGL>(new SurfaceOzoneWayland(w));
 }
 
 bool WaylandDisplay::LoadEGLGLES2Bindings(
-    gfx::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-    gfx::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback setprocaddress) {
+    ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+    ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback setprocaddress) {
   // The variable EGL_PLATFORM specifies native platform to be used by the
   // drivers (atleast on Mesa). When the variable is not set, Mesa uses the
   // first platform listed in --with-egl-platforms during compilation. Thus, we

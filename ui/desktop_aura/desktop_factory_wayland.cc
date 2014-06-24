@@ -31,7 +31,7 @@ DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
 gfx::Screen* DesktopFactoryWayland::CreateDesktopScreen() {
   if (!desktop_screen_) {
     desktop_screen_ = new DesktopScreenWayland();
-    gfx::OzoneDisplay::GetInstance()->LookAheadOutputGeometry();
+    ui::OzoneDisplay::GetInstance()->LookAheadOutputGeometry();
   }
 
   return desktop_screen_;

@@ -8,12 +8,12 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/gfx/gfx_export.h"
-#include "ui/gfx/ozone/surface_ozone_egl.h"
+#include "ui/ozone/public/surface_ozone_egl.h"
 
 namespace ozonewayland {
 
 // Provides EGL support for SurfaceOzone.
-class SurfaceOzoneWayland : public gfx::SurfaceOzoneEGL {
+class SurfaceOzoneWayland : public ui::SurfaceOzoneEGL {
  public:
   explicit SurfaceOzoneWayland(unsigned handle);
   virtual ~SurfaceOzoneWayland() OVERRIDE;
