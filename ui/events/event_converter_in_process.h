@@ -5,6 +5,8 @@
 #ifndef OZONE_UI_EVENTS_EVENT_CONVERTER_IN_PROCESS_H_
 #define OZONE_UI_EVENTS_EVENT_CONVERTER_IN_PROCESS_H_
 
+#include <string>
+
 #include "base/memory/scoped_ptr.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/keyboard_code_conversion_ozone.h"

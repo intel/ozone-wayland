@@ -10,8 +10,8 @@
 #endif
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
-#include "ozone/ui/public/ozone_channel_host.h"
 #include "ozone/ui/public/ozone_channel.h"
+#include "ozone/ui/public/ozone_channel_host.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/proxy_display.h"
 #include "ui/ozone/ozone_platform.h"

@@ -13,10 +13,6 @@
 namespace ui {
 class RemoteStateChangeHandler;
 class EventConverterInProcess;
-// OzoneChannelHost is responsible for listening to any relevant messages
-// sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
-// always be only one OzoneChannelHost per browser instance. It listens
-// to these messages in IO thread.
 
 class OzoneChannelHost : public GpuPlatformSupportHost {
  public:

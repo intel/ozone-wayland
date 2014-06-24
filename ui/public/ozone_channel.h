@@ -6,14 +6,11 @@
 #define OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
 
 #include "base/strings/string16.h"
-#include "ui/ozone/public/gpu_platform_support.h"
 #include "ozone/ui/events/window_constants.h"
+#include "ui/ozone/public/gpu_platform_support.h"
 
 namespace ui {
 class RemoteEventDispatcher;
-// OzoneChannel is responsible for listening to any messages sent by it's
-// host counterpart in BrowserProcess. There will be always only one
-// OzoneChannel per browser instance.
 
 class OzoneChannel : public GpuPlatformSupport {
  public:

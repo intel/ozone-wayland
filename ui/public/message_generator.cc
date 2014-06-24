@@ -8,26 +8,26 @@
 
 // Generate constructors.
 #include "ipc/struct_constructor_macros.h"
-#include "ozone/ui/public/message_generator.h" // NOLINT(build/include)
+#include "ozone/ui/public/message_generator.h"  // NOLINT(build/include)
 
 // Generate destructors.
 #include "ipc/struct_destructor_macros.h"
-#include "ozone/ui/public/message_generator.h" // NOLINT(build/include)
+#include "ozone/ui/public/message_generator.h"  // NOLINT(build/include)
 
 // Generate param traits write methods.
 #include "ipc/param_traits_write_macros.h"  // NOLINT(build/include_alpha)
 namespace IPC {
-#include "ozone/ui/public/message_generator.h" // NOLINT(build/include)
+#include "ozone/ui/public/message_generator.h"  // NOLINT(build/include)
 }  // namespace IPC
 
 // Generate param traits read methods.
 #include "ipc/param_traits_read_macros.h"  // NOLINT(build/include_alpha)
 namespace IPC {
-#include "ozone/ui/public/message_generator.h" // NOLINT(build/include)
+#include "ozone/ui/public/message_generator.h"  // NOLINT(build/include)
 }  // namespace IPC
 
 // Generate param traits log methods.
 #include "ipc/param_traits_log_macros.h"  // NOLINT(build/include_alpha)
 namespace IPC {
-#include "ozone/ui/public/message_generator.h" // NOLINT(build/include)
+#include "ozone/ui/public/message_generator.h"  // NOLINT(build/include)
 }  // namespace IPC

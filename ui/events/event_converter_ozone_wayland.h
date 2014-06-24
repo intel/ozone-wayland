@@ -5,6 +5,8 @@
 #ifndef OZONE_UI_EVENTS_EVENT_CONVERTER_OZONE_WAYLAND_H_
 #define OZONE_UI_EVENTS_EVENT_CONVERTER_OZONE_WAYLAND_H_
 
+#include <string>
+
 #include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/events/event_constants.h"
