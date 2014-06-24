@@ -55,7 +55,7 @@ class OzonePlatformWayland : public OzonePlatform {
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
 
-    gpu_platform_host_.reset(new content::OzoneChannelHost());
+    gpu_platform_host_.reset(new ui::OzoneChannelHost());
     input_method_factory_.reset(
         new ui::InputMethodContextFactoryWayland());
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
@@ -63,7 +63,7 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   virtual void InitializeGPU() OVERRIDE {
-    gpu_platform_.reset(new content::OzoneChannel());
+    gpu_platform_.reset(new ui::OzoneChannel());
     if (!event_factory_ozone_) {
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
       gpu_platform_.get()->InitializeRemoteDispatcher();
@@ -86,8 +86,8 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
-  scoped_ptr<content::OzoneChannelHost> gpu_platform_host_;
-  scoped_ptr<content::OzoneChannel> gpu_platform_;
+  scoped_ptr<ui::OzoneChannelHost> gpu_platform_host_;
+  scoped_ptr<ui::OzoneChannel> gpu_platform_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };

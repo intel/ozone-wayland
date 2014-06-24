@@ -10,7 +10,7 @@
 #include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 
-namespace content {
+namespace ui {
 
 OzoneChannel::OzoneChannel() : event_converter_(NULL) {
 }
@@ -88,4 +88,4 @@ void OzoneChannel::OnWidgetHideInputPanel() {
   ui::IMEStateChangeHandler::GetInstance()->HideInputPanel();
 }
 
-}  // namespace content
+}  // namespace ui

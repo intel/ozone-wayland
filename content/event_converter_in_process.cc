@@ -8,7 +8,7 @@
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
 
-namespace content {
+namespace ui {
 
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
@@ -264,4 +264,4 @@ void
 EventConverterInProcess::NotifyPreeditStart(EventConverterInProcess* data) {
 }
 
-}  // namespace content
+}  // namespace ui

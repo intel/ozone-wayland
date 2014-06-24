@@ -9,11 +9,11 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/content/event_converter_in_process.h"
 
-namespace content {
+namespace ui {
 
 OzoneChannelHost::OzoneChannelHost()
     : state_handler_(NULL) {
-  event_converter_ = new content::EventConverterInProcess();
+  event_converter_ = new EventConverterInProcess();
   ui::EventFactoryOzoneWayland* event_factory =
       ui::EventFactoryOzoneWayland::GetInstance();
   event_factory->SetEventConverterOzoneWayland(event_converter_);
@@ -141,4 +141,4 @@ void OzoneChannelHost::OnPreeditEnd() {
 void OzoneChannelHost::OnPreeditStart() {
 }
 
-}  // namespace content
+}  // namespace ui

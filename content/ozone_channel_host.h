@@ -9,7 +9,7 @@
 #include "ui/events/event_constants.h"
 #include "ui/ozone/public/gpu_platform_support_host.h"
 
-namespace content {
+namespace ui {
 class RemoteStateChangeHandler;
 class EventConverterInProcess;
 // OzoneChannelHost is responsible for listening to any relevant messages
@@ -17,7 +17,7 @@ class EventConverterInProcess;
 // always be only one OzoneChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneChannelHost : public ui::GpuPlatformSupportHost {
+class OzoneChannelHost : public GpuPlatformSupportHost {
  public:
   OzoneChannelHost();
   virtual ~OzoneChannelHost();
@@ -60,6 +60,6 @@ class OzoneChannelHost : public ui::GpuPlatformSupportHost {
   DISALLOW_COPY_AND_ASSIGN(OzoneChannelHost);
 };
 
-}  // namespace content
+}  // namespace ui
 
 #endif  // OZONE_CONTENT_OZONE_CHANNEL_HOST_H_

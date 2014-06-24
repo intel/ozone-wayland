@@ -7,7 +7,7 @@
 #include "ipc/ipc_sender.h"
 #include "ozone/content/messages.h"
 
-namespace content {
+namespace ui {
 
 RemoteStateChangeHandler::RemoteStateChangeHandler()
     : sender_(NULL) {
@@ -87,4 +87,4 @@ void RemoteStateChangeHandler::Send(IPC::Message* message) {
     sender_->Send(message);
 }
 
-}  // namespace content
+}  // namespace ui

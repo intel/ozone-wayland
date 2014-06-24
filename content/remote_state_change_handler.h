@@ -15,7 +15,7 @@ class Message;
 class Sender;
 }
 
-namespace content {
+namespace ui {
 // RemoteStateChangeHandler implements WindowStateChangeHandler and
 // IMEStateChangeHandler. It is responsible for sending any Ime/Window state
 // change events from Browser to GPU process (i.e IPC).
@@ -58,6 +58,6 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   DISALLOW_COPY_AND_ASSIGN(RemoteStateChangeHandler);
 };
 
-}  // namespace content
+}  // namespace ui
 
 #endif  // OZONE_CONTENT_EVENTS_REMOTE_STATE_CHANGE_HANDLER_H_

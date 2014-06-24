@@ -13,7 +13,7 @@
 #include "ui/events/event.h"
 #include "ui/events/platform/platform_event_source.h"
 
-namespace content {
+namespace ui {
 
 class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                 public ui::PlatformEventSource {
@@ -120,6 +120,6 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   DISALLOW_COPY_AND_ASSIGN(EventConverterInProcess);
 };
 
-}  // namespace content
+}  // namespace ui
 
 #endif  // OZONE_CONTENT_CONVERTER_IN_PROCESS_H_

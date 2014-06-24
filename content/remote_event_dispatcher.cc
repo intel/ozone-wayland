@@ -7,7 +7,7 @@
 #include "base/bind.h"
 #include "ozone/content/messages.h"
 
-namespace content {
+namespace ui {
 
 RemoteEventDispatcher::RemoteEventDispatcher()
     : EventConverterOzoneWayland(),
@@ -111,4 +111,4 @@ void RemoteEventDispatcher::Send(RemoteEventDispatcher* dispatcher,
   dispatcher->sender_->Send(message);
 }
 
-}  // namespace content
+}  // namespace ui

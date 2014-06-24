@@ -5,12 +5,10 @@
 #ifndef OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
 #define OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
 
-#include <string>
-
-#include "content/browser/gpu/gpu_process_host.h"
+#include "ipc/ipc_sender.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 
-namespace content {
+namespace ui {
 
 // RemoteEventDispatcher sends native events from GPU to Browser process over
 // IPC. In Multi-process case, callbacks from Wayland are received in GPU
@@ -65,6 +63,6 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);
 };
 
-}  // namespace content
+}  // namespace ui
 
 #endif  // OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
