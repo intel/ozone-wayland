@@ -5,15 +5,17 @@
 #ifndef OZONE_CONTENT_REMOTE_STATE_CHANGE_HANDLER_H_
 #define OZONE_CONTENT_REMOTE_STATE_CHANGE_HANDLER_H_
 
+#include <queue>
+
 #include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 
 namespace IPC {
 class Message;
+class Sender;
 }
 
 namespace content {
-class BrowserChildProcessHostIterator;
 // RemoteStateChangeHandler implements WindowStateChangeHandler and
 // IMEStateChangeHandler. It is responsible for sending any Ime/Window state
 // change events from Browser to GPU process (i.e IPC).
@@ -21,8 +23,12 @@ class BrowserChildProcessHostIterator;
 class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
                                  public ui::IMEStateChangeHandler {
  public:
+  typedef std::queue<IPC::Message*> DeferredMessages;
   RemoteStateChangeHandler();
   virtual ~RemoteStateChangeHandler();
+
+  void ChannelEstablished(IPC::Sender* sender);
+  void ChannelDestroyed();
 
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
@@ -43,10 +49,12 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   virtual void HideInputPanel() OVERRIDE;
 
  private:
-  bool Send(IPC::Message* message);
-  void EstablishChannel();
+  void Send(IPC::Message* message);
 
-  content::BrowserChildProcessHostIterator* iterator_;
+  IPC::Sender* sender_;
+  // Messages are not sent by host until connection is established. Host queues
+  // all these messages to send after connection is established.
+  DeferredMessages deferred_messages_;
   DISALLOW_COPY_AND_ASSIGN(RemoteStateChangeHandler);
 };
 

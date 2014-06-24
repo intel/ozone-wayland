@@ -17,6 +17,7 @@
         '..',
       ],
       'includes': [
+        'content/content.gypi',
         'ui/ui.gypi',
         'media/video.gypi',
       ],

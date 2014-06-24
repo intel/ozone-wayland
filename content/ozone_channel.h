@@ -6,7 +6,7 @@
 #define OZONE_CONTENT_OZONE_CHANNEL_H_
 
 #include "base/strings/string16.h"
-#include "ipc/ipc_listener.h"
+#include "ui/ozone/public/gpu_platform_support.h"
 #include "ozone/ui/events/window_constants.h"
 
 namespace content {
@@ -15,15 +15,16 @@ class RemoteEventDispatcher;
 // host counterpart in BrowserProcess. There will be always only one
 // OzoneChannel per browser instance.
 
-class OzoneChannel : public IPC::Listener {
+class OzoneChannel : public ui::GpuPlatformSupport {
  public:
   OzoneChannel();
   virtual ~OzoneChannel();
+  void InitializeRemoteDispatcher();
 
-  // IPC::Listener implementation.
+  // GpuPlatformSupport:
+  virtual void OnChannelEstablished(IPC::Sender* sender) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void Register();
   void OnWidgetStateChanged(unsigned handleid,
                             ui::WidgetState state,
                             unsigned width,

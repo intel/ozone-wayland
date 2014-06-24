@@ -78,36 +78,36 @@ IPC_MESSAGE_CONTROL3(WaylandWindow_Resized,  // NOLINT(readability/fn_size)
                      unsigned /* width */,
                      unsigned /* height */)
 
-IPC_MESSAGE_ROUTED4(WaylandWindow_State,  // NOLINT(readability/fn_size)
-                    unsigned /* window handle */,
-                    ui::WidgetState /*state*/,
-                    unsigned /*width*/,
-                    unsigned /*height*/)
+IPC_MESSAGE_CONTROL4(WaylandWindow_State,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     ui::WidgetState /*state*/,
+                     unsigned /*width*/,
+                     unsigned /*height*/)
 
-IPC_MESSAGE_ROUTED5(WaylandWindow_Attributes,  // NOLINT(readability/fn_size)
-                    unsigned /* window handle */,
-                    unsigned /* window parent */,
-                    unsigned /* x */,
-                    unsigned /* y */,
-                    ui::WidgetType /* window type */)
+IPC_MESSAGE_CONTROL5(WaylandWindow_Attributes,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     unsigned /* window parent */,
+                     unsigned /* x */,
+                     unsigned /* y */,
+                     ui::WidgetType /* window type */)
 
-IPC_MESSAGE_ROUTED2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
-                    unsigned /* window handle */,
-                    base::string16 /* window title */)
+IPC_MESSAGE_CONTROL2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     base::string16 /* window title */)
 
-IPC_MESSAGE_ROUTED1(WaylandWindow_Cursor,  // NOLINT(readability/fn_size)
-                    int /* cursor type */)
+IPC_MESSAGE_CONTROL1(WaylandWindow_Cursor,  // NOLINT(readability/fn_size)
+                     int /* cursor type */)
 
-IPC_MESSAGE_ROUTED0(WaylandWindow_ImeReset)  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL0(WaylandWindow_ImeReset)  // NOLINT(readability/fn_size)
 
-IPC_MESSAGE_ROUTED1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/
-                    gfx::Rect /* ImeCaretBoundsChanged */)  //     fn_size)
+IPC_MESSAGE_CONTROL1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/
+                     gfx::Rect /* ImeCaretBoundsChanged */)  //      fn_size)
 
-IPC_MESSAGE_ROUTED0(WaylandWindow_ShowInputPanel)  // NOLINT(readability/
-                                                   //        fn_size)
+IPC_MESSAGE_CONTROL0(WaylandWindow_ShowInputPanel)  // NOLINT(readability/
+                                                   //         fn_size)
 
-IPC_MESSAGE_ROUTED0(WaylandWindow_HideInputPanel)  // NOLINT(readability/
-                                                   //        fn_size)
+IPC_MESSAGE_CONTROL0(WaylandWindow_HideInputPanel)  // NOLINT(readability/
+                                                   //         fn_size)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_Commit,  // NOLINT(readability/fn_size)
                      unsigned,

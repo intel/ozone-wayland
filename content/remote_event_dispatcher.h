@@ -21,6 +21,8 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   RemoteEventDispatcher();
   virtual ~RemoteEventDispatcher();
 
+  void ChannelEstablished(IPC::Sender* sender);
+
   virtual void MotionNotify(float x, float y) OVERRIDE;
   virtual void ButtonNotify(unsigned handle,
                             ui::EventType type,
@@ -56,35 +58,10 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   virtual void PreeditStart() OVERRIDE;
 
  private:
-  static void SendMotionNotify(float x, float y);
-  static void SendButtonNotify(unsigned handle,
-                               ui::EventType type,
-                               ui::EventFlags flags,
-                               float x,
-                               float y);
-  static void SendAxisNotify(float x, float y, int xoffset, int yoffset);
-  static void SendPointerEnter(unsigned handle, float x, float y);
-  static void SendPointerLeave(unsigned handle, float x, float y);
-  static void SendKeyNotify(ui::EventType type,
-                            unsigned code,
-                            unsigned modifiers);
-  static void SendTouchNotify(ui::EventType type,
-                              float x,
-                              float y,
-                              int32_t touch_id,
-                              uint32_t time_stamp);
-  static void SendOutputSizeChanged(unsigned width, unsigned height);
-  static void SendWindowResized(unsigned handle,
-                                unsigned width,
-                                unsigned height);
-  static void SendCloseWidget(unsigned handle);
-  static void SendCommit(unsigned handle, const std::string& text);
-  static void SendPreeditChanged(unsigned handle,
-                              const std::string& text,
-                              const std::string& commit);
-  static void SendPreeditEnd();
-  static void SendPreeditStart();
-  static void Send(IPC::Message* message);
+  void Dispatch(IPC::Message* message);
+  static void Send(RemoteEventDispatcher* dispatcher,
+                   IPC::Message* message);
+  IPC::Sender* sender_;
   DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);
 };
 

@@ -4,73 +4,48 @@
 
 #include "ozone/content/remote_state_change_handler.h"
 
-#include "base/bind.h"
-#include "content/browser/gpu/browser_gpu_channel_host_factory.h"
-#include "content/public/browser/browser_child_process_host_iterator.h"
-#include "content/public/browser/browser_thread.h"
-#include "content/public/common/process_type.h"
+#include "ipc/ipc_sender.h"
 #include "ozone/content/messages.h"
 
 namespace content {
 
-// This should be same as defined in display_channel.
-const int CHANNEL_ROUTE_ID = -0x1;
-
 RemoteStateChangeHandler::RemoteStateChangeHandler()
-    : iterator_(NULL) {
+    : sender_(NULL) {
   WindowStateChangeHandler::SetInstance(this);
   IMEStateChangeHandler::SetInstance(this);
-  BrowserGpuChannelHostFactory* host_factory =
-      BrowserGpuChannelHostFactory::instance();
-  DCHECK(host_factory);
-  // This is a synchronous call and blocks current thread till Channel is
-  // setup.
-  BrowserGpuChannelHostFactory::instance()->EstablishGpuChannelSync(
-      CAUSE_FOR_GPU_LAUNCH_BROWSER_STARTUP);
-
-  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-      base::Bind(&RemoteStateChangeHandler::EstablishChannel,
-          base::Unretained(this)));
 }
 
 RemoteStateChangeHandler::~RemoteStateChangeHandler() {
+  while (!deferred_messages_.empty())
+    deferred_messages_.pop();
+}
+
+void RemoteStateChangeHandler::ChannelEstablished(IPC::Sender* sender) {
+  sender_ = sender;
+  while (!deferred_messages_.empty()) {
+    sender_->Send(deferred_messages_.front());
+    deferred_messages_.pop();
+  }
+}
+
+void RemoteStateChangeHandler::ChannelDestroyed() {
+  sender_ = NULL;
 }
 
 void RemoteStateChangeHandler::SetWidgetState(unsigned w,
                                               ui::WidgetState state,
                                               unsigned width,
                                               unsigned height) {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::SetWidgetState,
-            base::Unretained(this), w, state, width, height));
-    return;
-  }
-
-  Send(new WaylandWindow_State(CHANNEL_ROUTE_ID, w, state, width, height));
+  Send(new WaylandWindow_State(w, state, width, height));
 }
 
 void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,
                                               const base::string16& title) {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::SetWidgetTitle,
-            base::Unretained(this), w, title));
-    return;
-  }
-
-  Send(new WaylandWindow_Title(CHANNEL_ROUTE_ID, w, title));
+  Send(new WaylandWindow_Title(w, title));
 }
 
 void RemoteStateChangeHandler::SetWidgetCursor(int cursor_type) {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::SetWidgetCursor,
-            base::Unretained(this), cursor_type));
-    return;
-  }
-
-  Send(new WaylandWindow_Cursor(CHANNEL_ROUTE_ID, cursor_type));
+  Send(new WaylandWindow_Cursor(cursor_type));
 }
 
 void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
@@ -78,15 +53,7 @@ void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
                                                    unsigned x,
                                                    unsigned y,
                                                    ui::WidgetType type) {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::SetWidgetAttributes,
-            base::Unretained(this), widget, parent, x, y, type));
-    return;
-  }
-
-  Send(new WaylandWindow_Attributes(CHANNEL_ROUTE_ID,
-                                    widget,
+  Send(new WaylandWindow_Attributes(widget,
                                     parent,
                                     x,
                                     y,
@@ -94,61 +61,30 @@ void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
 }
 
 void RemoteStateChangeHandler::ResetIme() {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::ResetIme,
-            base::Unretained(this)));
-    return;
-  }
-
-  Send(new WaylandWindow_ImeReset(CHANNEL_ROUTE_ID));
+  Send(new WaylandWindow_ImeReset());
 }
 
 void RemoteStateChangeHandler::ImeCaretBoundsChanged(gfx::Rect rect) {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::ImeCaretBoundsChanged,
-            base::Unretained(this), rect));
-    return;
-  }
-
-  Send(new WaylandWindow_ImeCaretBoundsChanged(CHANNEL_ROUTE_ID, rect));
+  Send(new WaylandWindow_ImeCaretBoundsChanged(rect));
 }
 
 void RemoteStateChangeHandler::HideInputPanel() {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::HideInputPanel,
-            base::Unretained(this)));
-    return;
-  }
-
-  Send(new WaylandWindow_HideInputPanel(CHANNEL_ROUTE_ID));
+  Send(new WaylandWindow_HideInputPanel());
 }
 
 void RemoteStateChangeHandler::ShowInputPanel() {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&RemoteStateChangeHandler::ShowInputPanel,
-            base::Unretained(this)));
-    return;
-  }
-
-  Send(new WaylandWindow_ShowInputPanel(CHANNEL_ROUTE_ID));
+  Send(new WaylandWindow_ShowInputPanel());
 }
 
-bool RemoteStateChangeHandler::Send(IPC::Message* message) {
+void RemoteStateChangeHandler::Send(IPC::Message* message) {
   // The GPU process never sends synchronous IPC, so clear the unblock flag.
   // This ensures the message is treated as a synchronous one and helps preserve
   // order. Check set_unblock in ipc_messages.h for explanation.
   message->set_unblock(true);
-  return iterator_->Send(message);
-}
-
-void RemoteStateChangeHandler::EstablishChannel() {
-  DCHECK(!iterator_);
-  iterator_ = new BrowserChildProcessHostIterator(PROCESS_TYPE_GPU);
-  DCHECK(!iterator_->Done());
+  if (!sender_)
+    deferred_messages_.push(message);
+  else
+    sender_->Send(message);
 }
 
 }  // namespace content

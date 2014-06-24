@@ -15,6 +15,7 @@ WindowStateChangeHandler::WindowStateChangeHandler() {
 }
 
 WindowStateChangeHandler::~WindowStateChangeHandler() {
+  impl_ = NULL;
 }
 
 WindowStateChangeHandler* WindowStateChangeHandler::GetInstance() {

@@ -14,6 +14,9 @@
 #include "ozone/wayland/proxy_display.h"
 #include "ui/ozone/ozone_platform.h"
 
+#include "ozone/content/ozone_channel_host.h"
+#include "ozone/content/ozone_channel.h"
+
 namespace ui {
 
 namespace {
@@ -40,26 +43,39 @@ class OzonePlatformWayland : public OzonePlatform {
     return cursor_factory_ozone_.get();
   }
 
+  virtual GpuPlatformSupportHost* GetGpuPlatformSupportHost() OVERRIDE {
+    return gpu_platform_host_.get();
+  }
+
+  virtual GpuPlatformSupport* GetGpuPlatformSupport() OVERRIDE {
+    return gpu_platform_.get();
+  }
+
   virtual void InitializeUI() OVERRIDE {
-    input_method_factory_.reset(
-        new ui::InputMethodContextFactoryWayland());
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
+
+    gpu_platform_host_.reset(new content::OzoneChannelHost());
+    input_method_factory_.reset(
+        new ui::InputMethodContextFactoryWayland());
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
     wayland_proxy_display_ = new ozonewayland::WaylandProxyDisplay();
   }
 
   virtual void InitializeGPU() OVERRIDE {
+    gpu_platform_.reset(new content::OzoneChannel());
+    if (!event_factory_ozone_) {
+      event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
+      gpu_platform_.get()->InitializeRemoteDispatcher();
+    } else {
     // We don't need proxy display in case of Single process.
     // TODO(kalyan): Find a better way to handle this.
-    if (wayland_proxy_display_) {
+      gpu_platform_host_.get()->DeleteRemoteStateChangeHandler();
       delete wayland_proxy_display_;
       wayland_proxy_display_ = NULL;
     }
 
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
-    if (!event_factory_ozone_)
-      event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
   }
 
  private:
@@ -70,6 +86,8 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
+  scoped_ptr<content::OzoneChannelHost> gpu_platform_host_;
+  scoped_ptr<content::OzoneChannel> gpu_platform_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };

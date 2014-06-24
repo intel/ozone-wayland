@@ -4,8 +4,6 @@
 
 #include "ozone/content/event_converter_in_process.h"
 
-#include <string>
-
 #include "base/bind.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
@@ -127,6 +125,11 @@ void EventConverterInProcess::SetWindowChangeObserver(
 void EventConverterInProcess::SetOutputChangeObserver(
     ui::OutputChangeObserver* observer) {
   output_observer_ = observer;
+}
+
+void EventConverterInProcess::OnDispatcherListChanged() {
+  if (!loop_)
+    loop_ = base::MessageLoop::current();
 }
 
 void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,

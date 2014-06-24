@@ -4,8 +4,6 @@
 
 #include "ozone/content/ozone_channel.h"
 
-#include "content/child/child_process.h"
-#include "content/child/child_thread.h"
 #include "ozone/content/messages.h"
 #include "ozone/content/remote_event_dispatcher.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
@@ -13,35 +11,25 @@
 #include "ozone/ui/events/window_state_change_handler.h"
 
 namespace content {
-// GpuChannelManager generates unique routeid for every new
-// ImageTransportSurface. In Ozone-Wayland, we register a routeid between
-// DisplayChannel and ChannelHost. Therefore, we hardcore our own routeid with a
-// unique negitive value to avoid any conflicts from the GpuChannelManager ones.
-#define WAYLAND_ROUTE_ID -0x1
 
-namespace {
-
-content::ChildThread* GetProcessMainThread() {
-  content::ChildProcess* process = content::ChildProcess::current();
-  DCHECK(process && process->main_thread());
-  return process->main_thread();
+OzoneChannel::OzoneChannel() : event_converter_(NULL) {
 }
 
+OzoneChannel::~OzoneChannel() {
 }
 
-OzoneChannel::OzoneChannel() {
+void OzoneChannel::InitializeRemoteDispatcher() {
   event_converter_ = new RemoteEventDispatcher();
   ui::EventFactoryOzoneWayland::GetInstance()->
       SetEventConverterOzoneWayland(event_converter_);
 }
 
-OzoneChannel::~OzoneChannel() {
-  ChildThread* thread = GetProcessMainThread();
-  thread->GetRouter()->RemoveRoute(WAYLAND_ROUTE_ID);
+void OzoneChannel::OnChannelEstablished(IPC::Sender* sender) {
+  if (event_converter_)
+    event_converter_->ChannelEstablished(sender);
 }
 
-bool OzoneChannel::OnMessageReceived(
-    const IPC::Message& message) {
+bool OzoneChannel::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(OzoneChannel, message)
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
@@ -55,11 +43,6 @@ bool OzoneChannel::OnMessageReceived(
   IPC_END_MESSAGE_MAP()
 
   return handled;
-}
-
-void OzoneChannel::Register() {
-  ChildThread* thread = GetProcessMainThread();
-  thread->GetRouter()->AddRoute(WAYLAND_ROUTE_ID, this);
 }
 
 void OzoneChannel::OnWidgetStateChanged(unsigned handleid,

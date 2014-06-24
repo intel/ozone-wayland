@@ -15,6 +15,7 @@ IMEStateChangeHandler::IMEStateChangeHandler() {
 }
 
 IMEStateChangeHandler::~IMEStateChangeHandler() {
+  impl_ = NULL;
 }
 
 IMEStateChangeHandler* IMEStateChangeHandler::GetInstance() {

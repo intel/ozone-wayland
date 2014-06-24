@@ -9,8 +9,7 @@
 namespace ui {
 
 EventConverterOzoneWayland::EventConverterOzoneWayland()
-    : loop_(base::MessageLoop::current()) {
-  DCHECK(loop_);
+    : loop_(NULL) {
 }
 
 EventConverterOzoneWayland::~EventConverterOzoneWayland() {

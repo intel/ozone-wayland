@@ -6,27 +6,28 @@
 #define OZONE_CONTENT_OZONE_CHANNEL_HOST_H_
 
 #include <string>
-
-#include "content/browser/gpu/gpu_process_host.h"
-#include "content/public/browser/browser_child_process_observer.h"
-#include "content/public/browser/child_process_data.h"
 #include "ui/events/event_constants.h"
-
-namespace ui {
-class EventConverterOzoneWayland;
-}
+#include "ui/ozone/public/gpu_platform_support_host.h"
 
 namespace content {
 class RemoteStateChangeHandler;
+class EventConverterInProcess;
 // OzoneChannelHost is responsible for listening to any relevant messages
 // sent from gpu process(i.e dispatcher and OzoneDisplayChannel). There will
 // always be only one OzoneChannelHost per browser instance. It listens
 // to these messages in IO thread.
 
-class OzoneChannelHost : public BrowserChildProcessObserver {
+class OzoneChannelHost : public ui::GpuPlatformSupportHost {
  public:
   OzoneChannelHost();
   virtual ~OzoneChannelHost();
+
+  void DeleteRemoteStateChangeHandler();
+
+  // GpuPlatformSupportHost:
+  virtual void OnChannelEstablished(int host_id, IPC::Sender* sender) OVERRIDE;
+  virtual void OnChannelDestroyed(int host_id) OVERRIDE;
+  virtual bool OnMessageReceived(const IPC::Message&) OVERRIDE;
 
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle,
@@ -53,20 +54,9 @@ class OzoneChannelHost : public BrowserChildProcessObserver {
   void OnPreeditEnd();
   void OnPreeditStart();
 
-  // Implement |BrowserChildProcessObserver|.
-  virtual void BrowserChildProcessHostConnected(
-    const ChildProcessData& data) OVERRIDE;
-  virtual void BrowserChildProcessHostDisconnected(
-      const ChildProcessData& data) OVERRIDE;
-  virtual void BrowserChildProcessCrashed(
-      const ChildProcessData& data) OVERRIDE;
-
  private:
-  void OnMessageReceived(const IPC::Message& message);
-  void EstablishChannel();
-  void UpdateConnection();
-  ui::EventConverterOzoneWayland* dispatcher_;
   RemoteStateChangeHandler* state_handler_;
+  EventConverterInProcess* event_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzoneChannelHost);
 };
 

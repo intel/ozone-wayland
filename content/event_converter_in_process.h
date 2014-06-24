@@ -60,6 +60,8 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
       ui::OutputChangeObserver* observer) OVERRIDE;
 
  private:
+  // PlatformEventSource:
+  virtual void OnDispatcherListChanged() OVERRIDE;
   static void NotifyMotion(EventConverterInProcess* data,
                            float x,
                            float y);
