@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/content/remote_state_change_handler.h"
+#include "ozone/ui/events/remote_state_change_handler.h"
 
 #include "ipc/ipc_sender.h"
 #include "ozone/content/messages.h"

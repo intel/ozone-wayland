@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/content/event_converter_in_process.h"
+#include "ozone/ui/events/event_converter_in_process.h"
 
 #include "base/bind.h"
 #include "ozone/ui/events/output_change_observer.h"

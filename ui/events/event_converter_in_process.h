@@ -2,10 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_CONTENT_CONVERTER_IN_PROCESS_H_
-#define OZONE_CONTENT_CONVERTER_IN_PROCESS_H_
-
-#include <string>
+#ifndef OZONE_UI_EVENTS_EVENT_CONVERTER_IN_PROCESS_H_
+#define OZONE_UI_EVENTS_EVENT_CONVERTER_IN_PROCESS_H_
 
 #include "base/memory/scoped_ptr.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
@@ -122,4 +120,4 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
 
 }  // namespace ui
 
-#endif  // OZONE_CONTENT_CONVERTER_IN_PROCESS_H_
+#endif  // OZONE_UI_EVENTS_EVENT_CONVERTER_IN_PROCESS_H_

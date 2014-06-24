@@ -5,9 +5,9 @@
 #include "ozone/content/ozone_channel_host.h"
 
 #include "ozone/content/messages.h"
-#include "ozone/content/remote_state_change_handler.h"
+#include "ozone/ui/events/event_converter_in_process.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/content/event_converter_in_process.h"
+#include "ozone/ui/events/remote_state_change_handler.h"
 
 namespace ui {
 

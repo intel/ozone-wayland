@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
-#define OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
+#ifndef OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
+#define OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
 
 #include "ipc/ipc_sender.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
@@ -65,4 +65,4 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
 
 }  // namespace ui
 
-#endif  // OZONE_CONTENT_REMOTE_EVENT_DISPATCHER_H_
+#endif  // OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
