@@ -6,7 +6,7 @@
 
 #include "media/video/video_decode_accelerator.h"
 #include "media/ozone/media_ozone_platform.h"
-#include "ozone/media/vaapi_video_decode_accelerator.h"
+//#include "ozone/media/vaapi_video_decode_accelerator.h"
 
 namespace media {
 
@@ -21,7 +21,10 @@ class MediaOzonePlatformWayland : public MediaOzonePlatform {
   // MediaOzonePlatform:
   virtual media::VideoDecodeAccelerator* CreateVideoDecodeAccelerator(
       const base::Callback<bool(void)>& make_context_current) OVERRIDE {
-    return new VaapiVideoDecodeAccelerator(make_context_current);
+    // Temporarily disable the support till
+    // https://github.com/01org/ozone-wayland/issues/240 is resolved.
+    //return new VaapiVideoDecodeAccelerator(make_context_current);
+    return NULL;
   }
 
  private:
