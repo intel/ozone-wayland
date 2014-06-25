@@ -5,11 +5,13 @@
 #ifndef OZONE_MEDIA_MEDIA_OZONE_PLATFORM_WAYLAND_H_
 #define OZONE_MEDIA_MEDIA_OZONE_PLATFORM_WAYLAND_H_
 
+#include "ozone/platform/ozone_export_wayland.h"
+
 namespace media {
 
 class MediaOzonePlatform;
 
-MediaOzonePlatform* CreateMediaOzonePlatformWayland();
+OZONE_WAYLAND_EXPORT MediaOzonePlatform* CreateMediaOzonePlatformWayland();
 
 }  // namespace media
 
