@@ -32,7 +32,6 @@
           'wayland-client = <(WAYLAND_VERSION)',
           'wayland-cursor = <(WAYLAND_VERSION)',
           'wayland-egl >= <(MESA_VERSION)',
-          'weston = <(WAYLAND_VERSION)',
           'xkbcommon',
         ],
       },
