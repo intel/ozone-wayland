@@ -12,7 +12,6 @@ Ozone-Wayland is the implementation of Chromium's Ozone for supporting [Wayland]
   - [Contributing](#contributing) - help develop and send patches
   - [License](#license)
 
-
 ## Design
 
 [Ozone](http://www.chromium.org/developers/design-documents/ozone) is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment and event handling:
@@ -31,6 +30,8 @@ We use Ubuntu 12.04 LTS (Precise Pangolin), 32/64-bit but a kernel from Raring t
 Firstly you'd need to set up the Wayland libraries (version >= 1.2.9), and the Weston reference compositor that you will be running Chromium onto. The information on Wayland's web page should be enough for doing so:
 
 http://wayland.freedesktop.org/building.html
+
+_Please note that at the moment support for Wayland's XDG Shell protocol only works with the 1.4 series._
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
@@ -82,7 +83,7 @@ That's all. At this point you should be able to connect Chromium on Weston using
   $ ~/git/weston/src/weston &
   $ ./out/Debug/chrome --no-sandbox
   ```
-  
+
 ###Working with Ozone-Wayland Release branch:
 
 Instructions can be found here: https://github.com/01org/ozone-wayland/wiki/Releasing#wiki-releasebranch

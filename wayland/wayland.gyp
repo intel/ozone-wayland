@@ -25,7 +25,7 @@
       'target_name': 'wayland_toolkit',
       'type': 'static_library',
       'variables': {
-        'WAYLAND_VERSION': '1.4.0',
+        'WAYLAND_VERSION': '1.5.0',
         'MESA_VERSION': '9.1.3',
         'wayland_packages': [
           'egl >= <(MESA_VERSION)',
