@@ -26,8 +26,12 @@
     'intermediate_dir': '<(INTERMEDIATE_DIR)',
     'output_root': '<(SHARED_INTERMEDIATE_DIR)/va',
   },
+  'dependencies': [
+    '<(DEPTH)/ui/gl/gl.gyp:gl',
+  ],
   'include_dirs': [
     '<(DEPTH)/third_party/libva',
+    '<(DEPTH)/third_party/mesa/src/include',
     '<(output_root)',
     '<(SHARED_INTERMEDIATE_DIR)/ui/gl',
   ],
