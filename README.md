@@ -35,6 +35,18 @@ _Please note that at the moment support for Wayland's XDG Shell protocol only wo
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
+Then you'd need some distribution tools and development packages :
+
+  ```
+  $ sudo apt-get install gperf libnss3-dev libpulse-dev libdbus-1-dev libexif-dev libpci-dev libpango1.0-dev libelf-dev libcap-dev libasound2-dev libssl-dev libcups2-dev libgconf2-dev libgnome-keyring-dev
+  ```
+
+If you are running a 64-bit Ubuntu distribution, you'd additionally need :
+
+  ```
+  $ sudo apt-get install ia32-libs
+  ```
+
 Then on Chromium's side, we need to setup Chromium's tree together with the
 Ozone-Wayland implementation. For that you need to use gclient to clone
 Ozone-Wayland; but first you need to download
@@ -75,8 +87,11 @@ Now we can conclude compiling a few targets like Content Shell (content_shell) o
 
   ```
   $ cd src/
+  $ ./build/gyp_chromium
   $ ninja -C out/Debug -j16 chrome
   ```
+(if you get any build errors, please execute "git log" and verify that the first "commit" line matches the "chromium_rev" one found in `src/ozone/.DEPS.git`. If it doesn't, run "git checkout $ID", apply the patches and compile again)
+
 That's all. At this point you should be able to connect Chromium on Weston using:
 
   ```
