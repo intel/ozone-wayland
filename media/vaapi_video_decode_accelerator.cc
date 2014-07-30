@@ -15,8 +15,9 @@
 #include "content/common/gpu/gpu_channel.h"
 #include "media/base/bind_to_current_loop.h"
 #include "media/video/picture.h"
-#include "ui/gl/scoped_binders.h"
-#include "ui/gl/gl_surface_egl.h"
+#include "third_party/khronos/GLES2/gl2.h"
+#include "ui/gfx/size.h"
+#include "ui/ozone/public/surface_factory_ozone.h"
 
 static void ReportToUMA(
     media::VaapiH264Decoder::VAVDAH264DecoderFailure failure) {
@@ -24,6 +25,15 @@ static void ReportToUMA(
       "Media.VAVDAH264.DecoderFailure",
       failure,
       media::VaapiH264Decoder::VAVDA_H264_DECODER_FAILURES_MAX);
+}
+
+namespace {
+
+wl_display* GetPlatformDefaultEGLNativeDisplay() {
+  return reinterpret_cast<wl_display*>(
+      ui::SurfaceFactoryOzone::GetInstance()->GetNativeDisplay());
+}
+
 }
 
 namespace media {
@@ -183,7 +193,7 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Upload(VASurfaceID surface) {
     return false;
   }
 
-  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id_);
+  glBindTexture(GL_TEXTURE_2D, texture_id_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size_.width(), size_.height(),
@@ -244,7 +254,7 @@ bool VaapiVideoDecodeAccelerator::Initialize(media::VideoCodecProfile profile,
 
   vaapi_wrapper_ = VaapiWrapper::Create(
       profile,
-      gfx::GetPlatformDefaultEGLNativeDisplay(),
+      GetPlatformDefaultEGLNativeDisplay(),
       base::Bind(&ReportToUMA, VaapiH264Decoder::VAAPI_ERROR));
 
   if (!vaapi_wrapper_.get()) {
