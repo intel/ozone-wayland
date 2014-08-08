@@ -78,6 +78,10 @@ IPC_MESSAGE_CONTROL3(WaylandWindow_Resized,  // NOLINT(readability/fn_size)
                      unsigned /* width */,
                      unsigned /* height */)
 
+IPC_MESSAGE_CONTROL2(WaylandWindow_FocusChanged,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     bool     /* focus */)
+
 IPC_MESSAGE_CONTROL4(WaylandWindow_State,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
                      ui::WidgetState /*state*/,

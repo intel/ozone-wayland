@@ -234,12 +234,13 @@ uint32_t WindowTreeHostDelegateWayland::DispatchEvent(
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, WindowChangeObserver implementation:
 void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
+  unsigned old_focus_window = current_focus_window_;
   current_focus_window_ = handle;
   // Don't dispatch events in case a window has installed itself as capture
   // window but doesn't have the focus.
   handle_event_ = current_capture_ ? current_focus_window_ ==
           GetWindowHandle(current_capture_->GetAcceleratedWidget()) : true;
-  if (GetWindowHandle(current_active_window_->window_) == handle)
+  if (old_focus_window == handle)
     return;
 
   // A new window should not steal focus in case the current window has a open

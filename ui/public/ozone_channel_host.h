@@ -46,6 +46,7 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
   void OnWindowResized(unsigned handle,
                        unsigned width,
                        unsigned height);
+  void OnWindowFocusChanged(unsigned handle, bool focus);
   void OnCommit(unsigned handle, std::string text);
   void OnPreeditChanged(unsigned handle, std::string text, std::string commit);
   void OnPreeditEnd();

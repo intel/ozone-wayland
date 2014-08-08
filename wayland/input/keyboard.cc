@@ -6,6 +6,8 @@
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/input/keyboard_engine_xkb.h"
+#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/window.h"
 
 namespace ozonewayland {
 
@@ -96,6 +98,14 @@ void WaylandKeyboard::OnKeyboardEnter(void* data,
                                       uint32_t serial,
                                       wl_surface* surface,
                                       wl_array* keys) {
+  WaylandWindow *window = static_cast<WaylandWindow*>(data);
+  ui::EventConverterOzoneWayland* dispatcher =
+      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  unsigned handle = window->Handle();
+  input->SetFocusWindowHandle(handle);
+  dispatcher->WindowFocusChanged(handle, true);
+
   WaylandDisplay::GetInstance()->SetSerial(serial);
 }
 
@@ -103,6 +113,13 @@ void WaylandKeyboard::OnKeyboardLeave(void* data,
                                       wl_keyboard* input_keyboard,
                                       uint32_t serial,
                                       wl_surface* surface) {
+  WaylandWindow *window = static_cast<WaylandWindow*>(data);
+  ui::EventConverterOzoneWayland* dispatcher =
+      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  dispatcher->WindowFocusChanged(window->Handle(), false);
+  input->SetFocusWindowHandle(0);
+
   WaylandDisplay::GetInstance()->SetSerial(serial);
 }
 

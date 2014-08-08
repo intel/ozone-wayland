@@ -78,6 +78,10 @@ void RemoteEventDispatcher::WindowResized(unsigned handle,
   Dispatch(new WaylandWindow_Resized(handle, width, height));
 }
 
+void RemoteEventDispatcher::WindowFocusChanged(unsigned handle, bool focus) {
+  Dispatch(new WaylandWindow_FocusChanged(handle, focus));
+}
+
 void RemoteEventDispatcher::CloseWidget(unsigned handle) {
   Dispatch(new WaylandInput_CloseWidget(handle));
 }

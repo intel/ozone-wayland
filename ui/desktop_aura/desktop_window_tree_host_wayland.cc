@@ -355,10 +355,10 @@ void DesktopWindowTreeHostWayland::GetWindowPlacement(
     ui::WindowShowState* show_state) const {
   *bounds = GetRestoredBounds();
 
-  if (IsFullscreen()) {
-    *show_state = ui::SHOW_STATE_FULLSCREEN;
-  } else if (IsMinimized()) {
+  if (IsMinimized()) {
     *show_state = ui::SHOW_STATE_MINIMIZED;
+  } else if (IsFullscreen()) {
+    *show_state = ui::SHOW_STATE_FULLSCREEN;
   } else if (IsMaximized()) {
     *show_state = ui::SHOW_STATE_MAXIMIZED;
   } else if (!IsActive()) {
@@ -436,7 +436,6 @@ void DesktopWindowTreeHostWayland::Maximize() {
     native_widget_delegate_->AsWidget()->SetInitialFocus(ui::SHOW_STATE_NORMAL);
 
   state_ |= Maximized;
-  state_ &= ~Minimized;
   state_ &= ~Normal;
   previous_bounds_ = bounds_;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
@@ -447,10 +446,7 @@ void DesktopWindowTreeHostWayland::Minimize() {
   if (state_ & Minimized)
     return;
 
-  state_ &= ~Maximized;
   state_ |= Minimized;
-  state_ &= ~Normal;
-  previous_bounds_ = bounds_;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
                                                               ui::MINIMIZED);
 }
@@ -756,8 +752,13 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
   if (!state_)
     return;
 
-  if (active)
+  if (active) {
+    if (IsMinimized())
+      state_ &= ~Minimized;
+    if (!IsVisible())
+      state_ |= Visible;
     OnHostActivated();
+  }
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();

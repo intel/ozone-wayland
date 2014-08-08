@@ -139,10 +139,7 @@ void WaylandPointer::OnPointerEnter(void* data,
                                     wl_surface* surface,
                                     wl_fixed_t sx_w,
                                     wl_fixed_t sy_w) {
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
-
   if (!surface) {
-    input->SetFocusWindowHandle(0);
     return;
   }
 
@@ -155,7 +152,6 @@ void WaylandPointer::OnPointerEnter(void* data,
 
   WaylandDisplay::GetInstance()->SetSerial(serial);
   device->pointer_position_.SetPoint(sx, sy);
-  input->SetFocusWindowHandle(handle);
   device->dispatcher_->PointerEnter(handle,
                                     device->pointer_position_.x(),
                                     device->pointer_position_.y());
@@ -166,13 +162,14 @@ void WaylandPointer::OnPointerLeave(void* data,
                                     uint32_t serial,
                                     wl_surface* surface) {
   WaylandPointer* device = static_cast<WaylandPointer*>(data);
+  WaylandWindow* window =
+      static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
+  unsigned handle = window->Handle();
   WaylandDisplay::GetInstance()->SetSerial(serial);
 
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
-  device->dispatcher_->PointerLeave(input->GetFocusWindowHandle(),
+  device->dispatcher_->PointerLeave(handle,
                                     device->pointer_position_.x(),
                                     device->pointer_position_.y());
-  input->SetFocusWindowHandle(0);
 }
 
 }  // namespace ozonewayland
