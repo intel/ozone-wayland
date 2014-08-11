@@ -94,6 +94,11 @@ void EventConverterInProcess::WindowResized(unsigned handle,
           height));
 }
 
+void EventConverterInProcess::WindowFocusChanged(unsigned handle, bool focus) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyWindowFocusChanged, this, handle, focus));
+}
+
 void EventConverterInProcess::Commit(unsigned handle, const std::string& text) {
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyCommit, this, handle, text));
@@ -237,6 +242,18 @@ EventConverterInProcess::NotifyWindowResized(EventConverterInProcess* data,
                                              unsigned height) {
   if (data->observer_)
     data->observer_->OnWindowResized(handle, width, height);
+}
+
+void
+EventConverterInProcess::NotifyWindowFocusChanged(EventConverterInProcess* data,
+                                                  unsigned handle, bool focus) {
+  if (data->observer_) {
+    if (focus) {
+      data->observer_->OnWindowFocused(handle);
+    } else {
+      data->observer_->OnWindowFocused(0);
+    }
+  }
 }
 
 void
