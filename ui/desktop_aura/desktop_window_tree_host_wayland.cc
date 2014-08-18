@@ -657,7 +657,7 @@ bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
   return false;
 }
 
-bool DesktopWindowTreeHostWin::IsTranslucentWindowOpacitySupported() const {
+bool DesktopWindowTreeHostWayland::IsTranslucentWindowOpacitySupported() const {
   return false;
 }
 
