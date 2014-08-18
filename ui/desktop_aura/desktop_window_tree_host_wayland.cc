@@ -657,6 +657,10 @@ bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
   return false;
 }
 
+bool DesktopWindowTreeHostWayland::IsTranslucentWindowOpacitySupported() const {
+  return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
 
