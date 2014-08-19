@@ -186,6 +186,21 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Upload(VASurfaceID surface) {
   gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+  // See bug https://crosswalk-project.org/jira/browse/XWALK-2265.
+  // The following small piece of code is a workaround for the current VDA
+  // texture output implementation. It can be removed when zero buffer copy
+  // is implemented.
+  unsigned int al = 4 * size_.width();
+  if (al != va_image_.pitches[0]) {
+    // Not aligned phenomenon occurs only in special size video in None-X11.
+    // So re-check RGBA data alignment and realign filled video frame in need.
+    unsigned char* bhandle = static_cast<unsigned char*>(buffer);
+    for (int i = 0; i < size_.height(); i++) {
+      memcpy(bhandle + (i * al), bhandle + (i * (va_image_.pitches[0])), al);
+    }
+  }
+
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size_.width(), size_.height(),
                0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
