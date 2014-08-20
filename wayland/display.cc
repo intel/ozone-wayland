@@ -90,21 +90,12 @@ bool WaylandDisplay::InitializeHardware() {
     LOG(ERROR) << "WaylandDisplay failed to initialize hardware";
     return false;
   }
+
+  return true;
 }
 
 intptr_t WaylandDisplay::GetNativeDisplay() {
   return (intptr_t)display_;
-}
-
-gfx::AcceleratedWidget WaylandDisplay::GetAcceleratedWidget() {
-  static int opaque_handle = 0;
-  opaque_handle++;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
-                                                              ui::CREATE,
-                                                              0,
-                                                              0);
-
-  return (gfx::AcceleratedWidget)opaque_handle;
 }
 
 scoped_ptr<ui::SurfaceOzoneEGL> WaylandDisplay::CreateEGLSurfaceForWidget(

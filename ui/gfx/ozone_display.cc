@@ -36,17 +36,6 @@ intptr_t OzoneDisplay::GetNativeDisplay() {
   return (intptr_t)NULL;
 }
 
-gfx::AcceleratedWidget OzoneDisplay::GetAcceleratedWidget() {
-  static int opaque_handle = 0;
-  opaque_handle++;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(opaque_handle,
-                                                              ui::CREATE,
-                                                              0,
-                                                              0);
-
-  return (gfx::AcceleratedWidget)opaque_handle;
-}
-
 scoped_ptr<SurfaceOzoneEGL> OzoneDisplay::CreateEGLSurfaceForWidget(
     gfx::AcceleratedWidget w) {
   return scoped_ptr<SurfaceOzoneEGL>();

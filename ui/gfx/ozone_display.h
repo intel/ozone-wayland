@@ -27,8 +27,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public SurfaceFactoryOzone {
   // Ozone Display implementation:
   virtual intptr_t GetNativeDisplay() OVERRIDE;
 
-  virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
-
   // Ownership is passed to the caller.
   virtual scoped_ptr<SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
         gfx::AcceleratedWidget widget) OVERRIDE;
