@@ -57,7 +57,7 @@ void WaylandShell::Initialize(struct wl_registry *registry,
     shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));
 #if defined(ENABLE_XDG_SHELL)
-  } else if (strcmp(interface, "xdg_shell") == 0) {
+  } else if ((strcmp(interface, "xdg_shell") == 0) && getenv("OZONE_WAYLAND_USE_XDG_SHELL")) {
       DCHECK(!xdg_shell_);
       xdg_shell_ = static_cast<xdg_shell*>(
           wl_registry_bind(registry, name, &xdg_shell_interface, 1));
