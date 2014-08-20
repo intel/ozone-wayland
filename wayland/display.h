@@ -76,12 +76,10 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   void SyncDisplay();
   void FlushDisplay();
 
-  // Ozone Display implementation:
-  virtual ui::SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
-  virtual void ShutdownHardware() OVERRIDE;
-  virtual intptr_t GetNativeDisplay() OVERRIDE;
+  bool InitializeHardware();
 
-  virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
+  // Ozone Display implementation:
+  virtual intptr_t GetNativeDisplay() OVERRIDE;
 
   // Ownership is passed to the caller.
   virtual scoped_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(

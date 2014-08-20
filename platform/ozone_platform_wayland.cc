@@ -72,6 +72,8 @@ class OzonePlatformWayland : public OzonePlatform {
     }
 
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
+    if (!wayland_display_->InitializeHardware())
+      LOG(FATAL) << "failed to initialize display hardware";
   }
 
  private:

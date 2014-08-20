@@ -25,8 +25,6 @@ class OZONE_WAYLAND_EXPORT OzoneDisplay : public SurfaceFactoryOzone {
   virtual void LookAheadOutputGeometry();
 
   // Ozone Display implementation:
-  virtual SurfaceFactoryOzone::HardwareState InitializeHardware() OVERRIDE;
-  virtual void ShutdownHardware() OVERRIDE;
   virtual intptr_t GetNativeDisplay() OVERRIDE;
 
   virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;

@@ -84,19 +84,12 @@ gfx::AcceleratedWidget WaylandDisplay::GetNativeWindow(unsigned window_handle) {
   return (gfx::AcceleratedWidget)widget->egl_window();
 }
 
-ui::SurfaceFactoryOzone::HardwareState
-WaylandDisplay::InitializeHardware() {
+bool WaylandDisplay::InitializeHardware() {
   InitializeDisplay();
   if (!display_) {
     LOG(ERROR) << "WaylandDisplay failed to initialize hardware";
-    return ui::SurfaceFactoryOzone::FAILED;
+    return false;
   }
-
-  return ui::SurfaceFactoryOzone::INITIALIZED;
-}
-
-void WaylandDisplay::ShutdownHardware() {
-  Terminate();
 }
 
 intptr_t WaylandDisplay::GetNativeDisplay() {

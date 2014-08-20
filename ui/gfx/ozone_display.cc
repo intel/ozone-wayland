@@ -32,14 +32,6 @@ void OzoneDisplay::SetInstance(OzoneDisplay* instance) {
 void OzoneDisplay::LookAheadOutputGeometry() {
 }
 
-SurfaceFactoryOzone::HardwareState
-OzoneDisplay::InitializeHardware() {
-  return SurfaceFactoryOzone::FAILED;
-}
-
-void OzoneDisplay::ShutdownHardware() {
-}
-
 intptr_t OzoneDisplay::GetNativeDisplay() {
   return (intptr_t)NULL;
 }
