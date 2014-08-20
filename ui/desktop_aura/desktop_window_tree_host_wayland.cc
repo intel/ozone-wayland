@@ -363,10 +363,10 @@ void DesktopWindowTreeHostWayland::GetWindowPlacement(
     ui::WindowShowState* show_state) const {
   *bounds = GetRestoredBounds();
 
-  if (IsFullscreen()) {
-    *show_state = ui::SHOW_STATE_FULLSCREEN;
-  } else if (IsMinimized()) {
+  if (IsMinimized()) {
     *show_state = ui::SHOW_STATE_MINIMIZED;
+  } else if (IsFullscreen()) {
+    *show_state = ui::SHOW_STATE_FULLSCREEN;
   } else if (IsMaximized()) {
     *show_state = ui::SHOW_STATE_MAXIMIZED;
   } else if (!IsActive()) {
@@ -455,9 +455,7 @@ void DesktopWindowTreeHostWayland::Minimize() {
   if (state_ & Minimized)
     return;
 
-  state_ &= ~Maximized;
   state_ |= Minimized;
-  state_ &= ~Normal;
   previous_bounds_ = bounds_;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
                                                               ui::MINIMIZED);
@@ -789,6 +787,10 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
     }
     widget->GetRootView()->Layout();
   }
+}
+
+void DesktopWindowTreeHostWayland::HandleWindowUnminimized() {
+  state_ &= ~Minimized;
 }
 
 void DesktopWindowTreeHostWayland::HandleCommit(const std::string& text) {

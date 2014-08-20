@@ -52,4 +52,17 @@ void WaylandShellSurface::WindowResized(void* data,
   dispatcher->WindowResized(window->Handle(), width, height);
 }
 
+void WaylandShellSurface::WindowActivated(void *data) {
+  WaylandWindow *window = static_cast<WaylandWindow*>(data);
+  WaylandShellSurface* shellSurface = window->ShellSurface();
+
+  if (shellSurface->IsMinimized()) {
+    shellSurface->Unminimize();
+
+    ui::EventConverterOzoneWayland* dispatcher =
+      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+    dispatcher->WindowUnminimized(window->Handle());
+  }
+}
+
 }  // namespace ozonewayland

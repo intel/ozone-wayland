@@ -28,6 +28,8 @@ class XDGShellSurface : public WaylandShellSurface {
   virtual void SetWindowTitle(const base::string16& title) OVERRIDE;
   virtual void Maximize() OVERRIDE;
   virtual void Minimize() OVERRIDE;
+  virtual void Unminimize() OVERRIDE;
+  virtual bool IsMinimized() OVERRIDE {return minimized_;};
 
   static void HandleConfigure(void* data,
                               struct xdg_surface* xdg_surface,
@@ -53,6 +55,7 @@ class XDGShellSurface : public WaylandShellSurface {
   xdg_surface* xdg_surface_;
   xdg_popup* xdg_popup_;
   bool maximized_;
+  bool minimized_;
   DISALLOW_COPY_AND_ASSIGN(XDGShellSurface);
 };
 

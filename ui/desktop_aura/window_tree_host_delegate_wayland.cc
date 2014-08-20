@@ -289,6 +289,13 @@ void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
   window->HandleWindowResize(width, height);
 }
 
+void WindowTreeHostDelegateWayland::OnWindowUnminimized(unsigned handle) {
+  DesktopWindowTreeHostWayland* window =
+      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  DCHECK(window);
+  window->HandleWindowUnminimized();
+}
+
 void WindowTreeHostDelegateWayland::OnCommit(unsigned handle,
                                              const std::string& text) {
   DesktopWindowTreeHostWayland* window =
