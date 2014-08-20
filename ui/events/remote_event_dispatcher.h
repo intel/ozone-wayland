@@ -48,6 +48,7 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   virtual void WindowResized(unsigned handle,
                              unsigned width,
                              unsigned height) OVERRIDE;
+  virtual void WindowUnminimized(unsigned windowhandle) OVERRIDE;
   virtual void CloseWidget(unsigned handle) OVERRIDE;
 
   virtual void Commit(unsigned handle, const std::string& text) OVERRIDE;
