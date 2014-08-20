@@ -112,7 +112,7 @@ cd src
 export GYP_GENERATORS=ninja
 ./build/gyp_chromium \
 --no-parallel \
--Duse_ash=0 \
+-Duse_ash=1 \
 -Duse_ozone=1 \
 -Dchromeos=0 \
 -Ddisable_nacl=1 \
