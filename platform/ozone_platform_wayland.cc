@@ -35,9 +35,6 @@ class OzonePlatformWayland : public OzonePlatform {
   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
     return wayland_display_.get();
   }
-  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
-    return event_factory_ozone_.get();
-  }
   virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
     return cursor_factory_ozone_.get();
   }

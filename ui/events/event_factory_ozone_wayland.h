@@ -7,14 +7,13 @@
 
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
-#include "ui/ozone/public/event_factory_ozone.h"
 
 namespace ui {
 
 class WindowChangeObserver;
 class OutputChangeObserver;
 
-class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland : public EventFactoryOzone {
+class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
  public:
   EventFactoryOzoneWayland();
   virtual ~EventFactoryOzoneWayland();
