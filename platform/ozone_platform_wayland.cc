@@ -14,7 +14,7 @@
 #include "ozone/ui/public/ozone_channel_host.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/proxy_display.h"
-#include "ui/ozone/ozone_platform.h"
+#include "ui/ozone/public/ozone_platform.h"
 #include "ui/platform_window/platform_window.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
