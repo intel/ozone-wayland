@@ -15,6 +15,8 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/proxy_display.h"
 #include "ui/ozone/ozone_platform.h"
+#include "ui/platform_window/platform_window.h"
+#include "ui/platform_window/platform_window_delegate.h"
 
 namespace ui {
 
@@ -45,6 +47,12 @@ class OzonePlatformWayland : public OzonePlatform {
 
   virtual GpuPlatformSupport* GetGpuPlatformSupport() OVERRIDE {
     return gpu_platform_.get();
+  }
+
+  virtual scoped_ptr<PlatformWindow> CreatePlatformWindow(
+      PlatformWindowDelegate* delegate,
+      const gfx::Rect& bounds) OVERRIDE {
+    return scoped_ptr<PlatformWindow>();
   }
 
   virtual void InitializeUI() OVERRIDE {

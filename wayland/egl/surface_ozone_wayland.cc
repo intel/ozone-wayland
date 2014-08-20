@@ -28,6 +28,7 @@ bool SurfaceOzoneWayland::ResizeNativeWindow(
   WaylandWindow* window = WaylandDisplay::GetInstance()->GetWindow(handle_);
   DCHECK(window);
   window->Resize(viewport_size.width(), viewport_size.height());
+  return true;
 }
 
 bool SurfaceOzoneWayland::OnSwapBuffers() {
