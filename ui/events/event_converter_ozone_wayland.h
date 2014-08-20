@@ -48,6 +48,7 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void WindowResized(unsigned windowhandle,
                              unsigned width,
                              unsigned height) = 0;
+  virtual void WindowUnminimized(unsigned windowhandle) = 0;
   virtual void CloseWidget(unsigned handle) = 0;
   virtual void Commit(unsigned handle, const std::string& text) = 0;
   virtual void PreeditChanged(unsigned handle, const std::string& text,

@@ -78,6 +78,10 @@ void RemoteEventDispatcher::WindowResized(unsigned handle,
   Dispatch(new WaylandWindow_Resized(handle, width, height));
 }
 
+void RemoteEventDispatcher::WindowUnminimized(unsigned handle) {
+  Dispatch(new WaylandWindow_Unminimized(handle));
+}
+
 void RemoteEventDispatcher::CloseWidget(unsigned handle) {
   Dispatch(new WaylandInput_CloseWidget(handle));
 }

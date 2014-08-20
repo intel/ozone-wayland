@@ -94,6 +94,13 @@ void WLShellSurface::Maximize() {
 void WLShellSurface::Minimize() {
 }
 
+void WLShellSurface::Unminimize() {
+}
+
+bool WLShellSurface::IsMinimized() {
+  return false;
+}
+
 void WLShellSurface::HandleConfigure(void* data,
                                      struct wl_shell_surface* surface,
                                      uint32_t edges,
