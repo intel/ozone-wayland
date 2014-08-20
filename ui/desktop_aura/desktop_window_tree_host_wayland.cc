@@ -640,7 +640,7 @@ void DesktopWindowTreeHostWayland::FlashFrame(bool flash_frame) {
   NOTIMPLEMENTED();
 }
 
-void DesktopWindowTreeHostWayland::OnRootViewLayout() const {
+void DesktopWindowTreeHostWayland::OnRootViewLayout() {
   NOTIMPLEMENTED();
 }
 
@@ -654,6 +654,10 @@ void DesktopWindowTreeHostWayland::OnNativeWidgetBlur() {
 }
 
 bool DesktopWindowTreeHostWayland::IsAnimatingClosed() const {
+  return false;
+}
+
+bool DesktopWindowTreeHostWayland::IsTranslucentWindowOpacitySupported() const {
   return false;
 }
 
@@ -741,10 +745,6 @@ void DesktopWindowTreeHostWayland::MoveCursorToNative(
 void DesktopWindowTreeHostWayland::PostNativeEvent(
     const base::NativeEvent& native_event) {
   NOTIMPLEMENTED();
-}
-
-void DesktopWindowTreeHostWayland::OnDeviceScaleFactorChanged(
-    float device_scale_factor) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
