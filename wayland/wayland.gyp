@@ -7,7 +7,7 @@
   'variables': {
     'variables':  {
       'enable_ozone_wayland_vkb%': 0,
-      'enable_xdg_shell%': 0,
+      'enable_xdg_shell%': 1,
     },
     'enable_ozone_wayland_vkb%': '<(enable_ozone_wayland_vkb)',
     'enable_xdg_shell%': '<(enable_xdg_shell)',
