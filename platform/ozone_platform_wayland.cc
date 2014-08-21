@@ -14,7 +14,6 @@
 #include "ozone/ui/public/ozone_channel.h"
 #include "ozone/ui/public/ozone_channel_host.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/proxy_display.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
@@ -28,10 +27,10 @@ namespace {
 // This platform is Linux with the Wayland display server.
 class OzonePlatformWayland : public OzonePlatform {
  public:
-  OzonePlatformWayland() : wayland_proxy_display_(NULL) {}
+  OzonePlatformWayland() {
+  }
 
   virtual ~OzonePlatformWayland() {
-    delete wayland_proxy_display_;
   }
 
   // OzonePlatform:
@@ -53,8 +52,15 @@ class OzonePlatformWayland : public OzonePlatform {
   virtual scoped_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
       const gfx::Rect& bounds) OVERRIDE {
-      return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow (delegate,
-                                                                bounds));
+    if (delegate) {
+      return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow(delegate,
+                                                               bounds));
+    } else {
+      // This is a hack to ensure we have the correct screen bounds at startup.
+      // DesktopFactroyWayland makes this call.
+      wayland_display_->LookAheadOutputGeometry();
+      return scoped_ptr<PlatformWindow>();
+    }
   }
 
   virtual void InitializeUI() OVERRIDE {
@@ -62,10 +68,11 @@ class OzonePlatformWayland : public OzonePlatform {
         new ui::EventFactoryOzoneWayland());
 
     gpu_platform_host_.reset(new ui::OzoneChannelHost());
+    // Needed as Browser creates accelerated widgets through SFO.
+    wayland_display_.reset(new ozonewayland::WaylandDisplay());
     input_method_factory_.reset(
         new ui::InputMethodContextFactoryWayland());
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
-    wayland_proxy_display_ = new ozonewayland::WaylandProxyDisplay();
   }
 
   virtual void InitializeGPU() OVERRIDE {
@@ -74,14 +81,13 @@ class OzonePlatformWayland : public OzonePlatform {
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
       gpu_platform_.get()->InitializeRemoteDispatcher();
     } else {
-    // We don't need proxy display in case of Single process.
     // TODO(kalyan): Find a better way to handle this.
       gpu_platform_host_.get()->DeleteRemoteStateChangeHandler();
-      delete wayland_proxy_display_;
-      wayland_proxy_display_ = NULL;
     }
 
-    wayland_display_.reset(new ozonewayland::WaylandDisplay());
+    if (!wayland_display_)
+      wayland_display_.reset(new ozonewayland::WaylandDisplay());
+
     if (!wayland_display_->InitializeHardware())
       LOG(FATAL) << "failed to initialize display hardware";
   }
@@ -90,7 +96,6 @@ class OzonePlatformWayland : public OzonePlatform {
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
   views::DesktopFactoryWayland desktop_factory_ozone_;
 #endif
-  ozonewayland::WaylandProxyDisplay* wayland_proxy_display_;
   scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;

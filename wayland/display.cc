@@ -13,7 +13,6 @@
 #include "base/stl_util.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/output_change_observer.h"
-#include "ozone/ui/gfx/ozone_display.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
 #include "ozone/wayland/input/cursor.h"
@@ -25,12 +24,14 @@
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
-WaylandDisplay::WaylandDisplay() : display_(NULL),
+WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
+    display_(NULL),
     registry_(NULL),
     compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
     primary_screen_(NULL),
+    look_ahead_screen_(NULL),
     primary_input_(NULL),
     display_poll_thread_(NULL),
     screen_list_(),
@@ -54,10 +55,6 @@ WaylandWindow* WaylandDisplay::GetWindow(unsigned window_handle) const {
 
 struct wl_text_input_manager* WaylandDisplay::GetTextInputManager() const {
   return text_input_manager_;
-}
-
-void WaylandDisplay::SyncDisplay() {
-  wl_display_roundtrip(display_);
 }
 
 void WaylandDisplay::FlushDisplay() {
@@ -255,6 +252,60 @@ void WaylandDisplay::SetWidgetAttributes(unsigned widget,
   }
 }
 
+
+// TODO(vignatti): GPU process conceptually is the one that deals with hardware
+// details and therefore we assume that the window system connection should
+// happen in there only. There's a glitch with Chrome though, that creates its
+// frame contents requiring access to the window system, before the GPU process
+// even exists. In other words, Chrome runs
+// BrowserMainLoop::PreMainMessageLoopRun before GpuProcessHost::Get. If the
+// assumption of window system connection belongs to the GPU process is valid,
+// then I believe this Chrome behavior needs to be addressed upstream.
+//
+// For now, we create another window system connection to look ahead the needed
+// output properties that Chrome (among others) need and then close right after
+// that. I haven't measured how long it takes to open a Wayland connection,
+// listen all the interface the compositor sends and close it, but _for_ _sure_
+// it slows down the overall initialization time of Chromium targets.
+// Therefore, this is something that has to be solved in the future, moving all
+// Chrome tasks after GPU process is created.
+//
+void WaylandDisplay::LookAheadOutputGeometry() {
+  wl_display* display = wl_display_connect(NULL);
+  if (!display)
+    return;
+
+  static const struct wl_registry_listener registry_output = {
+    WaylandDisplay::DisplayHandleOutputOnly
+  };
+
+  wl_registry* registry = wl_display_get_registry(display);
+  wl_registry_add_listener(registry, &registry_output, this);
+
+  if (wl_display_roundtrip(display) > 0) {
+    while (look_ahead_screen_->Geometry().IsEmpty())
+      wl_display_roundtrip(display);
+
+    ui::EventFactoryOzoneWayland* event_factory =
+        ui::EventFactoryOzoneWayland::GetInstance();
+    DCHECK(event_factory->GetOutputChangeObserver());
+
+    unsigned width = look_ahead_screen_->Geometry().width();
+    unsigned height = look_ahead_screen_->Geometry().height();
+    event_factory->GetOutputChangeObserver()->OnOutputSizeChanged(width,
+                                                                  height);
+  }
+
+  if (look_ahead_screen_) {
+    delete look_ahead_screen_;
+    look_ahead_screen_ = NULL;
+  }
+
+  wl_registry_destroy(registry);
+  wl_display_flush(display);
+  wl_display_disconnect(display);
+}
+
 void WaylandDisplay::InitializeDisplay() {
   DCHECK(!display_);
   display_ = wl_display_connect(NULL);
@@ -384,6 +435,19 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
         wl_registry_bind(registry, name, &wl_text_input_manager_interface, 1));
   } else {
     disp->shell_->Initialize(registry, name, interface, version);
+  }
+}
+
+void WaylandDisplay::DisplayHandleOutputOnly(void *data,
+                                             struct wl_registry *registry,
+                                             uint32_t name,
+                                             const char *interface,
+                                             uint32_t version) {
+  WaylandDisplay* disp = static_cast<WaylandDisplay*>(data);
+
+  if (strcmp(interface, "wl_output") == 0) {
+    WaylandScreen* screen = new WaylandScreen(registry, name);
+    disp->look_ahead_screen_ = screen;
   }
 }
 

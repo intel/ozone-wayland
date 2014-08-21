@@ -6,8 +6,6 @@
     '<(DEPTH)/ui/gfx/gfx.gyp:gfx',
   ],
   'sources': [
-    'ozone_display.h',
-    'ozone_display.cc',
     'vsync_provider_wayland.cc',
     'vsync_provider_wayland.h',
    ],

@@ -6,7 +6,9 @@
 
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
-#include "ozone/ui/gfx/ozone_display.h"
+#include "ui/ozone/public/ozone_platform.h"
+#include "ui/platform_window/platform_window.h"
+#include "ui/platform_window/platform_window_delegate.h"
 
 namespace views {
 
@@ -31,7 +33,7 @@ DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
 gfx::Screen* DesktopFactoryWayland::CreateDesktopScreen() {
   if (!desktop_screen_) {
     desktop_screen_ = new DesktopScreenWayland();
-    ui::OzoneDisplay::GetInstance()->LookAheadOutputGeometry();
+    ui::OzonePlatform::GetInstance()->CreatePlatformWindow(NULL, gfx::Rect());
   }
 
   return desktop_screen_;

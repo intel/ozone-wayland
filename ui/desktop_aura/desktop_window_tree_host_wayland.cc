@@ -9,7 +9,6 @@
 
 #include "base/bind.h"
 #include "base/strings/utf_string_conversions.h"
-#include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
@@ -26,6 +25,7 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
+#include "ui/platform_window/platform_window.h"
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/ime/input_method.h"

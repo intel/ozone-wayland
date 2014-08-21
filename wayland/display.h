@@ -16,7 +16,6 @@
 
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_state_change_handler.h"
-#include "ozone/ui/gfx/ozone_display.h"
 #include "ozone/wayland/input/text-client-protocol.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
 
@@ -73,7 +72,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
 
   // Does a round trip to Wayland server. This call blocks the current thread
   // until all pending request are processed by the server.
-  void SyncDisplay();
   void FlushDisplay();
 
   bool InitializeHardware();
@@ -106,6 +104,8 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
                                    unsigned y,
                                    ui::WidgetType type) OVERRIDE;
 
+  void LookAheadOutputGeometry();
+
  private:
   void InitializeDisplay();
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
@@ -133,6 +133,14 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
       uint32_t name,
       const char *interface,
       uint32_t version);
+  // This handler resolves only screen registration. In general you don't want
+  // to use this but the one below.
+  static void DisplayHandleOutputOnly(
+      void *data,
+      struct wl_registry *registry,
+      uint32_t name,
+      const char *interface,
+      uint32_t version);
 
   // WaylandDisplay manages the memory of all these pointers.
   wl_display* display_;
@@ -142,6 +150,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   wl_shm* shm_;
   struct wl_text_input_manager* text_input_manager_;
   WaylandScreen* primary_screen_;
+  WaylandScreen* look_ahead_screen_;
   WaylandInputDevice* primary_input_;
   WaylandDisplayPollThread* display_poll_thread_;
 

@@ -6,7 +6,6 @@
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
-#include "ozone/ui/gfx/ozone_display.h"
 
 namespace gfx {
 
