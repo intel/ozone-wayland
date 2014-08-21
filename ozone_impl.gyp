@@ -27,6 +27,8 @@
         'platform/ozone_export_wayland.h',
         'platform/ozone_platform_wayland.cc',
         'platform/ozone_platform_wayland.h',
+        'platform/ozone_wayland_window.cc',
+        'platform/ozone_wayland_window.h',
       ],
     },
   ]

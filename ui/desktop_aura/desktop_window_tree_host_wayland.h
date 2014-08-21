@@ -12,7 +12,12 @@
 
 #include "base/basictypes.h"
 #include "ui/aura/window_tree_host.h"
+#include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
+
+namespace ui {
+class PlatformWindow;
+}
 
 namespace views {
 
@@ -25,7 +30,9 @@ class WindowTreeHostDelegateWayland;
 
 class VIEWS_EXPORT DesktopWindowTreeHostWayland
     : public DesktopWindowTreeHost,
-      public aura::WindowTreeHost {
+      public aura::WindowTreeHost,
+      public ui::PlatformWindowDelegate
+{
  public:
   DesktopWindowTreeHostWayland(
       internal::NativeWidgetDelegate* native_widget_delegate,
@@ -70,6 +77,19 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // Called when another DRWHL takes capture, or when capture is released
   // entirely.
   void OnCaptureReleased();
+
+  // ui::PlatformWindowDelegate:
+  // TODO(kalyan) Provide appropriate implementations.
+  virtual void OnBoundsChanged(const gfx::Rect&) OVERRIDE {}
+  virtual void OnDamageRect(const gfx::Rect& damaged_region) OVERRIDE{}
+  virtual void DispatchEvent(ui::Event* event) OVERRIDE{}
+  virtual void OnCloseRequest() OVERRIDE{}
+  virtual void OnClosed() OVERRIDE{}
+  virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) OVERRIDE{}
+  virtual void OnLostCapture() OVERRIDE{}
+  virtual void OnAcceleratedWidgetAvailable(
+      gfx::AcceleratedWidget widget) OVERRIDE;
+  virtual void OnActivationChanged(bool active) OVERRIDE{}
 
   // Overridden from DesktopWindowTreeHost:
   virtual void Init(
@@ -177,6 +197,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // children who we're responsible for closing when we CloseNow().
   DesktopWindowTreeHostWayland* window_parent_;
   std::set<DesktopWindowTreeHostWayland*> window_children_;
+
+  // Platform-specific part of this DesktopWindowTreeHost.
+  scoped_ptr<ui::PlatformWindow> platform_window_;
 
   static WindowTreeHostDelegateWayland* g_delegate_ozone_wayland_;
   friend class WindowTreeHostDelegateWayland;

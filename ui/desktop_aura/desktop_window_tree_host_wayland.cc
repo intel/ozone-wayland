@@ -9,6 +9,7 @@
 
 #include "base/bind.h"
 #include "base/strings/utf_string_conversions.h"
+#include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
@@ -23,7 +24,9 @@
 #include "ui/events/event_utils.h"
 #include "ui/gfx/insets.h"
 #include "ui/native_theme/native_theme.h"
+#include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
+#include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
@@ -110,9 +113,10 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
-  ui::SurfaceFactoryOzone* surface_factory =
-          ui::SurfaceFactoryOzone::GetInstance();
-  window_ = surface_factory->GetAcceleratedWidget();
+  bounds_ = params.bounds;
+  platform_window_ =
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds_);
+  DCHECK(window_);
   // Maintain parent child relation as done in X11 version.
   // If we have a parent, record the parent/child relationship. We use this
   // data during destruction to make sure that when we try to close a parent
@@ -125,7 +129,6 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
     window_parent_->window_children_.insert(this);
   }
 
-  bounds_ = params.bounds;
   ui::WindowStateChangeHandler* state_handler =
       ui::WindowStateChangeHandler::GetInstance();
   switch (params.type) {
@@ -177,6 +180,11 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
   }
 
   CreateCompositor(GetAcceleratedWidget());
+}
+
+void DesktopWindowTreeHostWayland::OnAcceleratedWidgetAvailable(
+      gfx::AcceleratedWidget widget) {
+  window_ = widget;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

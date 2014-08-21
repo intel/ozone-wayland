@@ -8,6 +8,7 @@
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
 #include "ozone/ui/desktop_aura/desktop_factory_wayland.h"
 #endif
+#include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/ui/public/ozone_channel.h"
@@ -15,8 +16,8 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/proxy_display.h"
 #include "ui/ozone/public/ozone_platform.h"
-#include "ui/platform_window/platform_window.h"
 #include "ui/platform_window/platform_window_delegate.h"
+
 
 namespace ui {
 
@@ -52,7 +53,8 @@ class OzonePlatformWayland : public OzonePlatform {
   virtual scoped_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
       const gfx::Rect& bounds) OVERRIDE {
-    return scoped_ptr<PlatformWindow>();
+      return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow (delegate,
+                                                                bounds));
   }
 
   virtual void InitializeUI() OVERRIDE {
