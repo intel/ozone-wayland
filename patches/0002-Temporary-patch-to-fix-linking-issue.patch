@@ -1,12 +1,13 @@
-From e2cc75d072c7e4775d6c9ee4145a8492d2d60cda Mon Sep 17 00:00:00 2001
+From 2b5a26e2666579728da12b847228934ac5c630d7 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Tue, 17 Jun 2014 19:13:41 +0300
 Subject: [PATCH] Temporary patch to fix linking issue.
 
 ---
  .../chrome_browser_main_extra_parts_metrics.cc     |    2 +-
+ chrome/browser/shell_integration_linux.cc          |    2 ++
  ui/views/views.gyp                                 |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc b/chrome/browser/metrics/chrome_browser_main_extra_parts_metrics.cc
 index 93f0f46..394a50c 100644
@@ -21,6 +22,26 @@ index 93f0f46..394a50c 100644
    ui::WindowManagerName name = ui::GuessWindowManager();
    UMALinuxWindowManager uma_name = UMA_LINUX_WINDOW_MANAGER_OTHER;
    switch (name) {
+diff --git a/chrome/browser/shell_integration_linux.cc b/chrome/browser/shell_integration_linux.cc
+index 47a033e..a521610 100644
+--- a/chrome/browser/shell_integration_linux.cc
++++ b/chrome/browser/shell_integration_linux.cc
+@@ -260,6 +260,7 @@ void DeleteShortcutInApplicationsMenu(
+   LaunchXdgUtility(argv, &exit_code);
+ }
+ 
++#if defined(USE_GLIB)
+ // Quote a string such that it appears as one verbatim argument for the Exec
+ // key in a desktop file.
+ std::string QuoteArgForDesktopFileExec(const std::string& arg) {
+@@ -310,6 +311,7 @@ std::string QuoteCommandLineForDesktopFileExec(
+ const char kDesktopEntry[] = "Desktop Entry";
+ 
+ const char kXdgOpenShebang[] = "#!/usr/bin/env xdg-open";
++#endif
+ 
+ const char kXdgSettings[] = "xdg-settings";
+ const char kXdgSettingsDefaultBrowser[] = "default-web-browser";
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
 index 108d0e6..fa7f2eb 100644
 --- a/ui/views/views.gyp
