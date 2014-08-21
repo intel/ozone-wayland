@@ -1,16 +1,15 @@
-From 6ca4b5fa325f20ed0311369cd6d597ebb80c78d5 Mon Sep 17 00:00:00 2001
+From 849379f7e54750dcae61ce73538d1423dbffa2d8 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
-Date: Fri, 7 Mar 2014 23:42:28 +0200
-Subject: [PATCH] browser: Support Desktop Aura creation on Ozone
+Date: Tue, 19 Aug 2014 21:04:58 -0700
+Subject: [PATCH 1/5] browser: Support Desktop Aura creation on Ozone
 
-This CL creates BrowserDesktopRootWindowHostOzone and gives support for Aura
-Ozone implementations.
+This CL creates BrowserDesktopRootWindowHostOzone and gives support
+for Aura Ozone implementations. Different than the BDRWHX11 constructor,
+Ozone's assigns views::DesktopRootWindowHost::Create to desktop_root_window_host_,
+where this pointer is used throughout BDRWHL methods for making reference to it.
 
-Different than the BDRWHX11 constructor, Ozone's assigns
-views::DesktopRootWindowHost::Create to desktop_root_window_host_, where this
-pointer is used throughout BDRWHL methods for making reference to it.
-
-In particular, this CL brings back support for Chrome browser in Ozone-Wayland.
+In particular, this CL brings back support for Chrome browser in
+Ozone-Wayland.
 
 BUG=295089
 ---
@@ -131,18 +130,18 @@ index 0000000..bbfb0c5
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 60c64dd..63b4c84 100644
+index 9b7b3a1..a1b6ec2 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1905,6 +1905,8 @@
-         'browser/ui/views/frame/desktop_browser_frame_aura.cc',
-         'browser/ui/views/frame/desktop_browser_frame_aura.h',
-         'browser/ui/views/frame/browser_desktop_window_tree_host.h',
-+        'browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc',
-+        'browser/ui/views/frame/browser_desktop_root_window_host_ozone.h',
-         'browser/ui/views/frame/browser_desktop_window_tree_host_win.cc',
-         'browser/ui/views/frame/browser_desktop_window_tree_host_win.h',
-         'browser/ui/views/frame/browser_desktop_window_tree_host_x11.cc',
+@@ -2294,6 +2294,8 @@
+       'browser/ui/views/external_protocol_dialog.h',
+       'browser/ui/views/frame/desktop_browser_frame_aura.cc',
+       'browser/ui/views/frame/desktop_browser_frame_aura.h',
++      'browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc',
++      'browser/ui/views/frame/browser_desktop_root_window_host_ozone.h',
+       'browser/ui/views/frame/opaque_browser_frame_view.cc',
+       'browser/ui/views/frame/opaque_browser_frame_view.h',
+       'browser/ui/views/message_center/message_center_frame_view.cc',
 -- 
 1.7.9.5
 

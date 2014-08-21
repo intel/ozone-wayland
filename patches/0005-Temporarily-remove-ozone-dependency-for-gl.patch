@@ -1,7 +1,7 @@
-From f62cb73e2053d5fda4f031abea007e0a455dac38 Mon Sep 17 00:00:00 2001
+From 323a0e6c7dc7e369bd504b6459eda27cee615c74 Mon Sep 17 00:00:00 2001
 From: jiajia qin <jiajia.qin@intel.com>
 Date: Thu, 24 Jul 2014 18:37:35 +0800
-Subject: [PATCH] Temporarily remove ozone dependency for gl
+Subject: [PATCH 5/5] Temporarily remove ozone dependency for gl
 
 The old implementation will result that the third party window system can't depend on ui/gl
 because of cycling dependency. So temporarily remove ozone dependency for gl until we find
@@ -9,14 +9,14 @@ a better method to resolve it.
 
 BUG=240
 ---
- ui/gl/gl.gyp | 6 ------
+ ui/gl/gl.gyp |    6 ------
  1 file changed, 6 deletions(-)
 
 diff --git a/ui/gl/gl.gyp b/ui/gl/gl.gyp
-index ac780d7..ba04c0c 100644
+index 49c12f2..0833511 100644
 --- a/ui/gl/gl.gyp
 +++ b/ui/gl/gl.gyp
-@@ -295,12 +295,6 @@
+@@ -299,12 +299,6 @@
          ['OS!="android"', {
            'sources/': [ ['exclude', '^android/'] ],
          }],
@@ -30,5 +30,5 @@ index ac780d7..ba04c0c 100644
            'dependencies': [
              '../android/ui_android.gyp:ui_java',
 -- 
-1.8.1.2
+1.7.9.5
 
