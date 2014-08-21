@@ -11,7 +11,7 @@ namespace gfx {
 
 class WaylandSyncProvider : public gfx::VSyncProvider {
  public:
-  explicit WaylandSyncProvider();
+  WaylandSyncProvider();
   virtual ~WaylandSyncProvider();
 
   virtual void GetVSyncParameters(const UpdateVSyncCallback& callback) OVERRIDE;

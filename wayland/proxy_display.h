@@ -20,7 +20,7 @@ class WaylandScreen;
 // the Wayland compositor, shell, screens, input devices, ...
 class WaylandProxyDisplay : public ui::OzoneDisplay {
  public:
-  explicit WaylandProxyDisplay();
+  WaylandProxyDisplay();
   virtual ~WaylandProxyDisplay();
 
   virtual void LookAheadOutputGeometry() OVERRIDE;

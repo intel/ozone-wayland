@@ -37,7 +37,7 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 class WaylandDisplay : public ui::WindowStateChangeHandler,
                        public ui::SurfaceFactoryOzone {
  public:
-  explicit WaylandDisplay();
+  WaylandDisplay();
   virtual ~WaylandDisplay();
 
   // Ownership is not passed to the caller.
