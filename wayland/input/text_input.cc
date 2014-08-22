@@ -20,6 +20,7 @@ namespace ozonewayland {
 WaylandTextInput::WaylandTextInput(WaylandInputDevice* inputDevice):
   text_input_(NULL), active_window_(NULL), last_active_window_(NULL),
   input_device_(inputDevice) {
+  enable_vkb_support_ = getenv("USE_OZONE_WAYLAND_VKB");
 }
 
 WaylandTextInput::~WaylandTextInput() {
@@ -173,31 +174,25 @@ void WaylandTextInput::ResetIme() {
       WaylandTextInput::OnTextDirection
   };
 
-#if defined(ENABLE_OZONE_WAYLAND_VKB)
-  if (!text_input_) {
+  if (!text_input_ && enable_vkb_support_) {
     text_input_ = wl_text_input_manager_create_text_input(
         WaylandDisplay::GetInstance()->GetTextInputManager());
     wl_text_input_add_listener(text_input_, &text_input_listener, this);
   }
-#endif
 }
 
 void WaylandTextInput::ShowInputPanel(wl_seat* input_seat) {
-#if defined(ENABLE_OZONE_WAYLAND_VKB)
   if (text_input_ && active_window_) {
     wl_text_input_show_input_panel(text_input_);
     wl_text_input_activate(text_input_,
                            input_seat,
                            active_window_->ShellSurface()->GetWLSurface());
   }
-#endif
 }
 
 void WaylandTextInput::HideInputPanel(wl_seat* input_seat) {
-#if defined(ENABLE_OZONE_WAYLAND_VKB)
   if (text_input_)
     wl_text_input_deactivate(text_input_, input_seat);
-#endif
 }
 
 }  // namespace ozonewayland

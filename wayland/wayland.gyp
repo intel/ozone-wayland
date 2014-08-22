@@ -5,12 +5,6 @@
 
 {
   'variables': {
-    'variables':  {
-      'enable_ozone_wayland_vkb%': 0,
-      'enable_xdg_shell%': 1,
-    },
-    'enable_ozone_wayland_vkb%': '<(enable_ozone_wayland_vkb)',
-    'enable_xdg_shell%': '<(enable_xdg_shell)',
     'conditions': [
       ['sysroot!=""', {
         'pkg-config': '../../build/linux/pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
@@ -93,24 +87,10 @@
         'shell/shell_surface.cc',
         'shell/wl_shell_surface.cc',
         'shell/wl_shell_surface.h',
-      ],
-      'conditions': [
-        ['<(enable_ozone_wayland_vkb)==1', {
-          'defines': [
-            'ENABLE_OZONE_WAYLAND_VKB',
-          ],
-        }],
-        ['<(enable_xdg_shell)==1', {
-          'defines': [
-            'ENABLE_XDG_SHELL',
-          ],
-          'sources': [
-            'shell/xdg_shell_surface.cc',
-            'shell/xdg_shell_surface.h',
-            'shell/xdg-shell-protocol.c',
-            'shell/xdg-shell-client-protocol.h',
-          ],
-        }],
+        'shell/xdg_shell_surface.cc',
+        'shell/xdg_shell_surface.h',
+        'shell/xdg-shell-protocol.c',
+        'shell/xdg-shell-client-protocol.h',
       ],
     },
   ]

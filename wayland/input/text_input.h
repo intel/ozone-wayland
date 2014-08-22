@@ -87,7 +87,7 @@ class WaylandTextInput {
                       struct wl_text_input* text_input,
                       uint32_t serial,
                       uint32_t direction);
-
+  bool enable_vkb_support_;
   struct wl_text_input* text_input_;
   WaylandWindow* active_window_;
   WaylandWindow* last_active_window_;

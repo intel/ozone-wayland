@@ -7,10 +7,8 @@
 #include "base/logging.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
-#if defined(ENABLE_XDG_SHELL)
 #include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/xdg_shell_surface.h"
-#endif
 
 namespace ozonewayland {
 
@@ -22,10 +20,8 @@ WaylandShell::WaylandShell()
 WaylandShell::~WaylandShell() {
   if (shell_)
     wl_shell_destroy(shell_);
-#if defined(ENABLE_XDG_SHELL)
   if (xdg_shell_)
     xdg_shell_destroy(xdg_shell_);
-#endif
 }
 
 WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window) {
@@ -33,10 +29,8 @@ WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window) {
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
   WaylandShellSurface* surface = NULL;
-#if defined(ENABLE_XDG_SHELL)
   if (xdg_shell_)
     surface = new XDGShellSurface();
-#endif
   if (!surface)
     surface = new WLShellSurface();
 
@@ -56,7 +50,6 @@ void WaylandShell::Initialize(struct wl_registry *registry,
     DCHECK(!shell_);
     shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));
-#if defined(ENABLE_XDG_SHELL)
   } else if ((strcmp(interface, "xdg_shell") == 0) && getenv("OZONE_WAYLAND_USE_XDG_SHELL")) {
       DCHECK(!xdg_shell_);
       xdg_shell_ = static_cast<xdg_shell*>(
@@ -67,16 +60,13 @@ void WaylandShell::Initialize(struct wl_registry *registry,
         WaylandShell::XDGHandlePing
       };
       xdg_shell_add_listener(xdg_shell_, &xdg_shell_listener, NULL);
-#endif
   }
 }
 
-#if defined(ENABLE_XDG_SHELL)
 void WaylandShell::XDGHandlePing(void* data,
                                  struct xdg_shell* xdg_shell,
                                  uint32_t serial) {
   xdg_shell_pong(xdg_shell, serial);
 }
-#endif
 
 }  // namespace ozonewayland
