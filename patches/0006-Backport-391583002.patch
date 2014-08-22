@@ -1,0 +1,1381 @@
+From 86f239bb83ac13a2f097beb93a6f838011aa6e6a Mon Sep 17 00:00:00 2001
+From: Kalyan Kondapally <kalyan.kondapally@intel.com>
+Date: Thu, 21 Aug 2014 18:46:04 -0700
+Subject: [PATCH] Backport 391583002
+
+---
+ mojo/mojo_services.gypi                            |    5 +
+ .../native_viewport/platform_viewport_ozone.cc     |    1 -
+ ui/aura/window_tree_host_ozone.cc                  |    7 +-
+ ui/events/ozone/evdev/event_converter_evdev.cc     |    1 -
+ ui/events/ozone/evdev/event_factory_evdev.h        |   14 +-
+ ui/events/ozone/evdev/key_event_converter_evdev.cc |    1 -
+ .../ozone/evdev/touch_event_converter_evdev.cc     |    1 -
+ ui/ozone/BUILD.gn                                  |    2 -
+ ui/ozone/ozone.gyp                                 |    2 -
+ ui/ozone/platform/caca/BUILD.gn                    |    4 +-
+ ui/ozone/platform/caca/caca.gypi                   |    4 +-
+ ui/ozone/platform/caca/caca_event_factory.cc       |  235 --------------------
+ ui/ozone/platform/caca/caca_event_factory.h        |   50 -----
+ ui/ozone/platform/caca/caca_event_source.cc        |  230 +++++++++++++++++++
+ ui/ozone/platform/caca/caca_event_source.h         |   44 ++++
+ ui/ozone/platform/caca/caca_window.cc              |    8 +-
+ ui/ozone/platform/caca/caca_window.h               |    6 +-
+ ui/ozone/platform/caca/ozone_platform_caca.cc      |   11 +-
+ ui/ozone/platform/dri/dri_window.cc                |   14 +-
+ ui/ozone/platform/dri/dri_window.h                 |    5 +-
+ ui/ozone/platform/dri/ozone_platform_dri.cc        |    8 +-
+ ui/ozone/platform/dri/ozone_platform_gbm.cc        |    8 +-
+ .../platform/egltest/ozone_platform_egltest.cc     |   14 +-
+ ui/ozone/platform/test/BUILD.gn                    |    2 -
+ ui/ozone/platform/test/ozone_platform_test.cc      |   12 +-
+ ui/ozone/platform/test/test.gypi                   |    2 -
+ ui/ozone/platform/test/test_event_factory.cc       |   27 ---
+ ui/ozone/platform/test/test_event_factory.h        |   31 ---
+ ui/ozone/public/event_factory_ozone.cc             |   34 ---
+ ui/ozone/public/event_factory_ozone.h              |   50 -----
+ ui/ozone/public/ozone_platform.h                   |    2 -
+ 31 files changed, 342 insertions(+), 493 deletions(-)
+ delete mode 100644 ui/ozone/platform/caca/caca_event_factory.cc
+ delete mode 100644 ui/ozone/platform/caca/caca_event_factory.h
+ create mode 100644 ui/ozone/platform/caca/caca_event_source.cc
+ create mode 100644 ui/ozone/platform/caca/caca_event_source.h
+ delete mode 100644 ui/ozone/platform/test/test_event_factory.cc
+ delete mode 100644 ui/ozone/platform/test/test_event_factory.h
+ delete mode 100644 ui/ozone/public/event_factory_ozone.cc
+ delete mode 100644 ui/ozone/public/event_factory_ozone.h
+
+diff --git a/mojo/mojo_services.gypi b/mojo/mojo_services.gypi
+index 2ec0a1e..c46baf4 100644
+--- a/mojo/mojo_services.gypi
++++ b/mojo/mojo_services.gypi
+@@ -287,6 +287,11 @@
+             '../ui/events/platform/x11/x11_events_platform.gyp:x11_events_platform',
+           ],
+         }],
++        ['use_ozone==1', {
++          'dependencies': [
++            '../ui/ozone/ozone.gyp:ozone',
++          ],
++        }],
+       ],
+     },
+     {
+diff --git a/mojo/services/native_viewport/platform_viewport_ozone.cc b/mojo/services/native_viewport/platform_viewport_ozone.cc
+index f0694cb..b8076fb 100644
+--- a/mojo/services/native_viewport/platform_viewport_ozone.cc
++++ b/mojo/services/native_viewport/platform_viewport_ozone.cc
+@@ -8,7 +8,6 @@
+ #include "ui/events/platform/platform_event_dispatcher.h"
+ #include "ui/events/platform/platform_event_source.h"
+ #include "ui/ozone/public/cursor_factory_ozone.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
+ #include "ui/ozone/public/ozone_platform.h"
+ #include "ui/ozone/public/surface_factory_ozone.h"
+ #include "ui/platform_window/platform_window.h"
+diff --git a/ui/aura/window_tree_host_ozone.cc b/ui/aura/window_tree_host_ozone.cc
+index 13b099a..6c332d7 100644
+--- a/ui/aura/window_tree_host_ozone.cc
++++ b/ui/aura/window_tree_host_ozone.cc
+@@ -6,7 +6,6 @@
+ 
+ #include "ui/aura/window_event_dispatcher.h"
+ #include "ui/ozone/public/cursor_factory_ozone.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
+ #include "ui/ozone/public/ozone_platform.h"
+ #include "ui/platform_window/platform_window.h"
+ 
+@@ -101,13 +100,11 @@ void WindowTreeHostOzone::PostNativeEvent(
+ }
+ 
+ void WindowTreeHostOzone::SetCursorNative(gfx::NativeCursor cursor) {
+-  ui::CursorFactoryOzone::GetInstance()->SetCursor(GetAcceleratedWidget(),
+-                                                   cursor.platform());
++  platform_window_->SetCursor(cursor.platform());
+ }
+ 
+ void WindowTreeHostOzone::MoveCursorToNative(const gfx::Point& location) {
+-  ui::EventFactoryOzone::GetInstance()->WarpCursorTo(GetAcceleratedWidget(),
+-                                                     location);
++  platform_window_->MoveCursorTo(location);
+ }
+ 
+ void WindowTreeHostOzone::OnCursorVisibilityChangedNative(bool show) {
+diff --git a/ui/events/ozone/evdev/event_converter_evdev.cc b/ui/events/ozone/evdev/event_converter_evdev.cc
+index 5b1e9a5..7db1cd0 100644
+--- a/ui/events/ozone/evdev/event_converter_evdev.cc
++++ b/ui/events/ozone/evdev/event_converter_evdev.cc
+@@ -5,7 +5,6 @@
+ #include "ui/events/ozone/evdev/event_converter_evdev.h"
+ 
+ #include "ui/events/event.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
+ 
+ namespace ui {
+ 
+diff --git a/ui/events/ozone/evdev/event_factory_evdev.h b/ui/events/ozone/evdev/event_factory_evdev.h
+index 3eb11d2..5ce5a9b 100644
+--- a/ui/events/ozone/evdev/event_factory_evdev.h
++++ b/ui/events/ozone/evdev/event_factory_evdev.h
+@@ -15,7 +15,11 @@
+ #include "ui/events/ozone/evdev/event_modifiers_evdev.h"
+ #include "ui/events/ozone/evdev/events_ozone_evdev_export.h"
+ #include "ui/events/platform/platform_event_source.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
++#include "ui/gfx/native_widget_types.h"
++
++namespace gfx {
++class PointF;
++}  // namespace gfx
+ 
+ namespace ui {
+ 
+@@ -23,8 +27,7 @@ class CursorDelegateEvdev;
+ class DeviceManager;
+ 
+ // Ozone events implementation for the Linux input subsystem ("evdev").
+-class EVENTS_OZONE_EVDEV_EXPORT EventFactoryEvdev : public EventFactoryOzone,
+-                                                    public DeviceEventObserver,
++class EVENTS_OZONE_EVDEV_EXPORT EventFactoryEvdev : public DeviceEventObserver,
+                                                     public PlatformEventSource {
+  public:
+   EventFactoryEvdev(CursorDelegateEvdev* cursor,
+@@ -33,9 +36,8 @@ class EVENTS_OZONE_EVDEV_EXPORT EventFactoryEvdev : public EventFactoryOzone,
+ 
+   void DispatchUiEvent(Event* event);
+ 
+-  // EventFactoryOzone:
+-  virtual void WarpCursorTo(gfx::AcceleratedWidget widget,
+-                            const gfx::PointF& location) OVERRIDE;
++  void WarpCursorTo(gfx::AcceleratedWidget widget,
++                    const gfx::PointF& location);
+ 
+  private:
+   // Open device at path & starting processing events (on UI thread).
+diff --git a/ui/events/ozone/evdev/key_event_converter_evdev.cc b/ui/events/ozone/evdev/key_event_converter_evdev.cc
+index d56a640..d59aa83 100644
+--- a/ui/events/ozone/evdev/key_event_converter_evdev.cc
++++ b/ui/events/ozone/evdev/key_event_converter_evdev.cc
+@@ -11,7 +11,6 @@
+ #include "ui/events/event.h"
+ #include "ui/events/keycodes/keyboard_codes.h"
+ #include "ui/events/ozone/evdev/event_modifiers_evdev.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
+ 
+ namespace ui {
+ 
+diff --git a/ui/events/ozone/evdev/touch_event_converter_evdev.cc b/ui/events/ozone/evdev/touch_event_converter_evdev.cc
+index 9cfab5b..b460b25 100644
+--- a/ui/events/ozone/evdev/touch_event_converter_evdev.cc
++++ b/ui/events/ozone/evdev/touch_event_converter_evdev.cc
+@@ -27,7 +27,6 @@
+ #include "ui/events/event_constants.h"
+ #include "ui/events/event_switches.h"
+ #include "ui/gfx/screen.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
+ 
+ namespace {
+ 
+diff --git a/ui/ozone/BUILD.gn b/ui/ozone/BUILD.gn
+index 4d9144f..b23cf66 100644
+--- a/ui/ozone/BUILD.gn
++++ b/ui/ozone/BUILD.gn
+@@ -49,8 +49,6 @@ component("ozone_base") {
+   sources = [
+     "public/cursor_factory_ozone.cc",
+     "public/cursor_factory_ozone.h",
+-    "public/event_factory_ozone.cc",
+-    "public/event_factory_ozone.h",
+     "public/gpu_platform_support.cc",
+     "public/gpu_platform_support.h",
+     "public/gpu_platform_support_host.cc",
+diff --git a/ui/ozone/ozone.gyp b/ui/ozone/ozone.gyp
+index 39b1100..123ea2a 100644
+--- a/ui/ozone/ozone.gyp
++++ b/ui/ozone/ozone.gyp
+@@ -29,8 +29,6 @@
+       'sources': [
+         'public/cursor_factory_ozone.cc',
+         'public/cursor_factory_ozone.h',
+-        'public/event_factory_ozone.cc',
+-        'public/event_factory_ozone.h',
+         'public/gpu_platform_support.cc',
+         'public/gpu_platform_support.h',
+         'public/gpu_platform_support_host.cc',
+diff --git a/ui/ozone/platform/caca/BUILD.gn b/ui/ozone/platform/caca/BUILD.gn
+index 079750f..085925d 100644
+--- a/ui/ozone/platform/caca/BUILD.gn
++++ b/ui/ozone/platform/caca/BUILD.gn
+@@ -6,8 +6,8 @@ import("//build/config/linux/pkg_config.gni")
+ 
+ source_set("caca") {
+   sources = [
+-    "caca_event_factory.cc",
+-    "caca_event_factory.h",
++    "caca_event_source.cc",
++    "caca_event_source.h",
+     "caca_window.cc",
+     "caca_window.h",
+     "caca_window_manager.cc",
+diff --git a/ui/ozone/platform/caca/caca.gypi b/ui/ozone/platform/caca/caca.gypi
+index 76e1c08..34a5e69 100644
+--- a/ui/ozone/platform/caca/caca.gypi
++++ b/ui/ozone/platform/caca/caca.gypi
+@@ -31,8 +31,8 @@
+         ],
+       },
+       'sources': [
+-        'caca_event_factory.cc',
+-        'caca_event_factory.h',
++        'caca_event_source.cc',
++        'caca_event_source.h',
+         'caca_window.cc',
+         'caca_window.h',
+         'caca_window_manager.cc',
+diff --git a/ui/ozone/platform/caca/caca_event_factory.cc b/ui/ozone/platform/caca/caca_event_factory.cc
+deleted file mode 100644
+index bdcc2e2..0000000
+--- a/ui/ozone/platform/caca/caca_event_factory.cc
++++ /dev/null
+@@ -1,235 +0,0 @@
+-// Copyright 2014 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#include "ui/ozone/platform/caca/caca_event_factory.h"
+-
+-#include <caca.h>
+-
+-#include "base/bind.h"
+-#include "base/message_loop/message_loop.h"
+-#include "ui/events/event.h"
+-#include "ui/events/keycodes/keyboard_codes.h"
+-#include "ui/ozone/platform/caca/caca_window.h"
+-
+-namespace ui {
+-
+-namespace {
+-
+-ui::KeyboardCode GetKeyboardCode(const caca_event_t& event) {
+-  // List of special mappings the Caca provides.
+-  static const ui::KeyboardCode kCacaKeyMap[] = {
+-    ui::VKEY_UNKNOWN,
+-    ui::VKEY_A,
+-    ui::VKEY_B,
+-    ui::VKEY_C,
+-    ui::VKEY_D,
+-    ui::VKEY_E,
+-    ui::VKEY_F,
+-    ui::VKEY_G,
+-    ui::VKEY_BACK,
+-    ui::VKEY_TAB,
+-    ui::VKEY_J,
+-    ui::VKEY_K,
+-    ui::VKEY_L,
+-    ui::VKEY_RETURN,
+-    ui::VKEY_N,
+-    ui::VKEY_O,
+-    ui::VKEY_P,
+-    ui::VKEY_Q,
+-    ui::VKEY_R,
+-    ui::VKEY_PAUSE,
+-    ui::VKEY_T,
+-    ui::VKEY_U,
+-    ui::VKEY_V,
+-    ui::VKEY_W,
+-    ui::VKEY_X,
+-    ui::VKEY_Y,
+-    ui::VKEY_Z,
+-    ui::VKEY_ESCAPE,
+-    ui::VKEY_DELETE,
+-    ui::VKEY_UP,
+-    ui::VKEY_DOWN,
+-    ui::VKEY_LEFT,
+-    ui::VKEY_RIGHT,
+-    ui::VKEY_INSERT,
+-    ui::VKEY_HOME,
+-    ui::VKEY_END,
+-    ui::VKEY_PRIOR,
+-    ui::VKEY_NEXT,
+-    ui::VKEY_F1,
+-    ui::VKEY_F2,
+-    ui::VKEY_F3,
+-    ui::VKEY_F4,
+-    ui::VKEY_F5,
+-    ui::VKEY_F6,
+-    ui::VKEY_F7,
+-    ui::VKEY_F8,
+-    ui::VKEY_F9,
+-    ui::VKEY_F10,
+-    ui::VKEY_F11,
+-    ui::VKEY_F12,
+-  };
+-
+-  int key_code = caca_get_event_key_ch(&event);
+-  if (key_code >= 'a' && key_code <= 'z')
+-    return static_cast<ui::KeyboardCode>(key_code - ('a' - 'A'));
+-  if (key_code >= '0' && key_code <= 'Z')
+-    return static_cast<ui::KeyboardCode>(key_code);
+-  if (static_cast<unsigned int>(key_code) < arraysize(kCacaKeyMap))
+-    return kCacaKeyMap[key_code];
+-
+-  return ui::VKEY_UNKNOWN;
+-}
+-
+-int ModifierFromKey(const caca_event_t& event) {
+-  int key_code = caca_get_event_key_ch(&event);
+-  if (key_code >= 'A' && key_code <= 'Z')
+-    return ui::EF_SHIFT_DOWN;
+-  if ((key_code >= CACA_KEY_CTRL_A && key_code <= CACA_KEY_CTRL_G) ||
+-      (key_code >= CACA_KEY_CTRL_J && key_code <= CACA_KEY_CTRL_L) ||
+-      (key_code >= CACA_KEY_CTRL_N && key_code <= CACA_KEY_CTRL_R) ||
+-      (key_code >= CACA_KEY_CTRL_T && key_code <= CACA_KEY_CTRL_Z))
+-    return ui::EF_CONTROL_DOWN;
+-
+-  return ui::EF_NONE;
+-}
+-
+-int ModifierFromButton(const caca_event_t& event) {
+-  switch (caca_get_event_mouse_button(&event)) {
+-    case 1:
+-      return ui::EF_LEFT_MOUSE_BUTTON;
+-    case 2:
+-      return ui::EF_RIGHT_MOUSE_BUTTON;
+-    case 3:
+-      return ui::EF_MIDDLE_MOUSE_BUTTON;
+-  }
+-  return 0;
+-}
+-
+-// Translate coordinates to bitmap coordinates.
+-gfx::PointF TranslateLocation(const gfx::PointF& location, CacaWindow* window) {
+-  gfx::Size physical_size = window->physical_size();
+-  gfx::Size bitmap_size = window->bitmap_size();
+-  return gfx::PointF(
+-      location.x() * bitmap_size.width() / physical_size.width(),
+-      location.y() * bitmap_size.height() / physical_size.height());
+-}
+-
+-ui::EventType GetEventTypeFromNative(const caca_event_t& event) {
+-  switch (caca_get_event_type(&event)) {
+-    case CACA_EVENT_KEY_PRESS:
+-      return ui::ET_KEY_PRESSED;
+-    case CACA_EVENT_KEY_RELEASE:
+-      return ui::ET_KEY_RELEASED;
+-    case CACA_EVENT_MOUSE_PRESS:
+-      return ui::ET_MOUSE_PRESSED;
+-    case CACA_EVENT_MOUSE_RELEASE:
+-      return ui::ET_MOUSE_RELEASED;
+-    case CACA_EVENT_MOUSE_MOTION:
+-      return ui::ET_MOUSE_MOVED;
+-    default:
+-      return ui::ET_UNKNOWN;
+-  }
+-}
+-
+-}  // namespace
+-
+-CacaEventFactory::CacaEventFactory() : modifier_flags_(0) {
+-}
+-
+-CacaEventFactory::~CacaEventFactory() {
+-}
+-
+-void CacaEventFactory::WarpCursorTo(gfx::AcceleratedWidget widget,
+-                                    const gfx::PointF& location) {
+-  NOTIMPLEMENTED();
+-}
+-
+-void CacaEventFactory::TryProcessingEvent(CacaWindow* window) {
+-  if (!window->display())
+-    return;
+-
+-  caca_event_t event;
+-  int event_mask = CACA_EVENT_KEY_PRESS | CACA_EVENT_KEY_RELEASE |
+-                   CACA_EVENT_MOUSE_PRESS | CACA_EVENT_MOUSE_RELEASE |
+-                   CACA_EVENT_MOUSE_MOTION | CACA_EVENT_RESIZE |
+-                   CACA_EVENT_QUIT;
+-
+-  if (!caca_get_event(window->display(), event_mask, &event, 0))
+-    return;
+-
+-  switch (caca_get_event_type(&event)) {
+-    case CACA_EVENT_KEY_PRESS:
+-    case CACA_EVENT_KEY_RELEASE:
+-    case CACA_EVENT_MOUSE_PRESS:
+-    case CACA_EVENT_MOUSE_RELEASE:
+-    case CACA_EVENT_MOUSE_MOTION:
+-      OnInputEvent(&event, window);
+-      break;
+-    case CACA_EVENT_RESIZE:
+-      window->OnCacaResize();
+-      break;
+-    case CACA_EVENT_QUIT:
+-      window->OnCacaQuit();
+-      break;
+-    default:
+-      NOTIMPLEMENTED();
+-  }
+-}
+-
+-void CacaEventFactory::OnInputEvent(caca_event_t* event, CacaWindow* window) {
+-  ui::EventType type = GetEventTypeFromNative(*event);
+-  bool pressed = type == ui::ET_KEY_PRESSED || type == ui::ET_MOUSE_PRESSED;
+-
+-  switch (type) {
+-    case ui::ET_KEY_PRESSED:
+-    case ui::ET_KEY_RELEASED: {
+-      if (pressed)
+-        modifier_flags_ |= ModifierFromKey(*event);
+-      else
+-        modifier_flags_ &= ~ModifierFromKey(*event);
+-
+-      ui::KeyEvent key_event(
+-          type, GetKeyboardCode(*event), modifier_flags_);
+-      window->OnCacaEvent(&key_event);
+-      break;
+-    }
+-    case ui::ET_MOUSE_MOVED:
+-      last_cursor_location_.SetPoint(caca_get_event_mouse_x(event),
+-                                     caca_get_event_mouse_y(event));
+-      // Update cursor location.
+-      caca_gotoxy(caca_get_canvas(window->display()),
+-                  last_cursor_location_.x(),
+-                  last_cursor_location_.y());
+-
+-    // fallthrough
+-    case ui::ET_MOUSE_PRESSED:
+-    case ui::ET_MOUSE_RELEASED: {
+-      int flags = 0;
+-      int changed_flags = 0;
+-      if (type != ui::ET_MOUSE_MOVED) {
+-        if (pressed) {
+-          changed_flags = ModifierFromButton(*event);
+-          modifier_flags_ |= changed_flags;
+-        } else {
+-          modifier_flags_ &= ~changed_flags;
+-        }
+-        // On release the button pressed is removed from |modifier_flags_|,
+-        // but sending the event needs it set.
+-        flags = modifier_flags_ | changed_flags;
+-      }
+-      gfx::PointF location = TranslateLocation(last_cursor_location_, window);
+-      ui::MouseEvent mouse_event(
+-          type, location, location, flags, changed_flags);
+-      ui::MouseEvent mouse_event2(&mouse_event);
+-      window->OnCacaEvent(&mouse_event2);
+-      break;
+-    }
+-    default:
+-      NOTIMPLEMENTED();
+-      break;
+-  }
+-}
+-
+-}  // namespace ui
+diff --git a/ui/ozone/platform/caca/caca_event_factory.h b/ui/ozone/platform/caca/caca_event_factory.h
+deleted file mode 100644
+index 9db633b..0000000
+--- a/ui/ozone/platform/caca/caca_event_factory.h
++++ /dev/null
+@@ -1,50 +0,0 @@
+-// Copyright 2014 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#ifndef UI_OZONE_PLATFORM_CACA_CACA_EVENT_FACTORY_H_
+-#define UI_OZONE_PLATFORM_CACA_CACA_EVENT_FACTORY_H_
+-
+-#include <caca.h>
+-
+-#include "base/memory/ref_counted.h"
+-#include "base/time/time.h"
+-#include "ui/events/platform/platform_event_source.h"
+-#include "ui/events/platform/scoped_event_dispatcher.h"
+-#include "ui/gfx/geometry/point_f.h"
+-#include "ui/ozone/public/event_factory_ozone.h"
+-
+-namespace ui {
+-
+-class CacaWindow;
+-
+-class CacaEventFactory : public EventFactoryOzone,
+-                         public PlatformEventSource {
+- public:
+-  CacaEventFactory();
+-  virtual ~CacaEventFactory();
+-
+-  // ui::EventFactoryOzone:
+-  virtual void WarpCursorTo(gfx::AcceleratedWidget widget,
+-                            const gfx::PointF& location) OVERRIDE;
+-
+-  // Poll for an event on a particular window. Input events will be
+-  // dispatched on the given dispatcher.
+-  void TryProcessingEvent(CacaWindow* window);
+-
+-  // Process an input event on a particular window.
+-  void OnInputEvent(caca_event_t* event, CacaWindow* window);
+-
+- private:
+-  // Keep track of last cursor position to dispatch correct mouse push/release
+-  // events.
+-  gfx::PointF last_cursor_location_;
+-
+-  int modifier_flags_;
+-
+-  DISALLOW_COPY_AND_ASSIGN(CacaEventFactory);
+-};
+-
+-}  // namespace ui
+-
+-#endif  // UI_OZONE_PLATFORM_CACA_CACA_EVENT_FACTORY_H_
+diff --git a/ui/ozone/platform/caca/caca_event_source.cc b/ui/ozone/platform/caca/caca_event_source.cc
+new file mode 100644
+index 0000000..90050f5
+--- /dev/null
++++ b/ui/ozone/platform/caca/caca_event_source.cc
+@@ -0,0 +1,230 @@
++// Copyright 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/ozone/platform/caca/caca_event_source.h"
++
++#include <caca.h>
++
++#include "base/bind.h"
++#include "base/message_loop/message_loop.h"
++#include "ui/events/event.h"
++#include "ui/events/keycodes/keyboard_codes.h"
++#include "ui/ozone/platform/caca/caca_window.h"
++
++namespace ui {
++
++namespace {
++
++ui::KeyboardCode GetKeyboardCode(const caca_event_t& event) {
++  // List of special mappings the Caca provides.
++  static const ui::KeyboardCode kCacaKeyMap[] = {
++    ui::VKEY_UNKNOWN,
++    ui::VKEY_A,
++    ui::VKEY_B,
++    ui::VKEY_C,
++    ui::VKEY_D,
++    ui::VKEY_E,
++    ui::VKEY_F,
++    ui::VKEY_G,
++    ui::VKEY_BACK,
++    ui::VKEY_TAB,
++    ui::VKEY_J,
++    ui::VKEY_K,
++    ui::VKEY_L,
++    ui::VKEY_RETURN,
++    ui::VKEY_N,
++    ui::VKEY_O,
++    ui::VKEY_P,
++    ui::VKEY_Q,
++    ui::VKEY_R,
++    ui::VKEY_PAUSE,
++    ui::VKEY_T,
++    ui::VKEY_U,
++    ui::VKEY_V,
++    ui::VKEY_W,
++    ui::VKEY_X,
++    ui::VKEY_Y,
++    ui::VKEY_Z,
++    ui::VKEY_ESCAPE,
++    ui::VKEY_DELETE,
++    ui::VKEY_UP,
++    ui::VKEY_DOWN,
++    ui::VKEY_LEFT,
++    ui::VKEY_RIGHT,
++    ui::VKEY_INSERT,
++    ui::VKEY_HOME,
++    ui::VKEY_END,
++    ui::VKEY_PRIOR,
++    ui::VKEY_NEXT,
++    ui::VKEY_F1,
++    ui::VKEY_F2,
++    ui::VKEY_F3,
++    ui::VKEY_F4,
++    ui::VKEY_F5,
++    ui::VKEY_F6,
++    ui::VKEY_F7,
++    ui::VKEY_F8,
++    ui::VKEY_F9,
++    ui::VKEY_F10,
++    ui::VKEY_F11,
++    ui::VKEY_F12,
++  };
++
++  int key_code = caca_get_event_key_ch(&event);
++  if (key_code >= 'a' && key_code <= 'z')
++    return static_cast<ui::KeyboardCode>(key_code - ('a' - 'A'));
++  if (key_code >= '0' && key_code <= 'Z')
++    return static_cast<ui::KeyboardCode>(key_code);
++  if (static_cast<unsigned int>(key_code) < arraysize(kCacaKeyMap))
++    return kCacaKeyMap[key_code];
++
++  return ui::VKEY_UNKNOWN;
++}
++
++int ModifierFromKey(const caca_event_t& event) {
++  int key_code = caca_get_event_key_ch(&event);
++  if (key_code >= 'A' && key_code <= 'Z')
++    return ui::EF_SHIFT_DOWN;
++  if ((key_code >= CACA_KEY_CTRL_A && key_code <= CACA_KEY_CTRL_G) ||
++      (key_code >= CACA_KEY_CTRL_J && key_code <= CACA_KEY_CTRL_L) ||
++      (key_code >= CACA_KEY_CTRL_N && key_code <= CACA_KEY_CTRL_R) ||
++      (key_code >= CACA_KEY_CTRL_T && key_code <= CACA_KEY_CTRL_Z))
++    return ui::EF_CONTROL_DOWN;
++
++  return ui::EF_NONE;
++}
++
++int ModifierFromButton(const caca_event_t& event) {
++  switch (caca_get_event_mouse_button(&event)) {
++    case 1:
++      return ui::EF_LEFT_MOUSE_BUTTON;
++    case 2:
++      return ui::EF_RIGHT_MOUSE_BUTTON;
++    case 3:
++      return ui::EF_MIDDLE_MOUSE_BUTTON;
++  }
++  return 0;
++}
++
++// Translate coordinates to bitmap coordinates.
++gfx::PointF TranslateLocation(const gfx::PointF& location, CacaWindow* window) {
++  gfx::Size physical_size = window->physical_size();
++  gfx::Size bitmap_size = window->bitmap_size();
++  return gfx::PointF(
++      location.x() * bitmap_size.width() / physical_size.width(),
++      location.y() * bitmap_size.height() / physical_size.height());
++}
++
++ui::EventType GetEventTypeFromNative(const caca_event_t& event) {
++  switch (caca_get_event_type(&event)) {
++    case CACA_EVENT_KEY_PRESS:
++      return ui::ET_KEY_PRESSED;
++    case CACA_EVENT_KEY_RELEASE:
++      return ui::ET_KEY_RELEASED;
++    case CACA_EVENT_MOUSE_PRESS:
++      return ui::ET_MOUSE_PRESSED;
++    case CACA_EVENT_MOUSE_RELEASE:
++      return ui::ET_MOUSE_RELEASED;
++    case CACA_EVENT_MOUSE_MOTION:
++      return ui::ET_MOUSE_MOVED;
++    default:
++      return ui::ET_UNKNOWN;
++  }
++}
++
++}  // namespace
++
++CacaEventSource::CacaEventSource() : modifier_flags_(0) {
++}
++
++CacaEventSource::~CacaEventSource() {
++}
++
++void CacaEventSource::TryProcessingEvent(CacaWindow* window) {
++  if (!window->display())
++    return;
++
++  caca_event_t event;
++  int event_mask = CACA_EVENT_KEY_PRESS | CACA_EVENT_KEY_RELEASE |
++                   CACA_EVENT_MOUSE_PRESS | CACA_EVENT_MOUSE_RELEASE |
++                   CACA_EVENT_MOUSE_MOTION | CACA_EVENT_RESIZE |
++                   CACA_EVENT_QUIT;
++
++  if (!caca_get_event(window->display(), event_mask, &event, 0))
++    return;
++
++  switch (caca_get_event_type(&event)) {
++    case CACA_EVENT_KEY_PRESS:
++    case CACA_EVENT_KEY_RELEASE:
++    case CACA_EVENT_MOUSE_PRESS:
++    case CACA_EVENT_MOUSE_RELEASE:
++    case CACA_EVENT_MOUSE_MOTION:
++      OnInputEvent(&event, window);
++      break;
++    case CACA_EVENT_RESIZE:
++      window->OnCacaResize();
++      break;
++    case CACA_EVENT_QUIT:
++      window->OnCacaQuit();
++      break;
++    default:
++      NOTIMPLEMENTED();
++  }
++}
++
++void CacaEventSource::OnInputEvent(caca_event_t* event, CacaWindow* window) {
++  ui::EventType type = GetEventTypeFromNative(*event);
++  bool pressed = type == ui::ET_KEY_PRESSED || type == ui::ET_MOUSE_PRESSED;
++
++  switch (type) {
++    case ui::ET_KEY_PRESSED:
++    case ui::ET_KEY_RELEASED: {
++      if (pressed)
++        modifier_flags_ |= ModifierFromKey(*event);
++      else
++        modifier_flags_ &= ~ModifierFromKey(*event);
++
++      ui::KeyEvent key_event(
++          type, GetKeyboardCode(*event), modifier_flags_);
++      window->OnCacaEvent(&key_event);
++      break;
++    }
++    case ui::ET_MOUSE_MOVED:
++      last_cursor_location_.SetPoint(caca_get_event_mouse_x(event),
++                                     caca_get_event_mouse_y(event));
++      // Update cursor location.
++      caca_gotoxy(caca_get_canvas(window->display()),
++                  last_cursor_location_.x(),
++                  last_cursor_location_.y());
++
++    // fallthrough
++    case ui::ET_MOUSE_PRESSED:
++    case ui::ET_MOUSE_RELEASED: {
++      int flags = 0;
++      int changed_flags = 0;
++      if (type != ui::ET_MOUSE_MOVED) {
++        if (pressed) {
++          changed_flags = ModifierFromButton(*event);
++          modifier_flags_ |= changed_flags;
++        } else {
++          modifier_flags_ &= ~changed_flags;
++        }
++        // On release the button pressed is removed from |modifier_flags_|,
++        // but sending the event needs it set.
++        flags = modifier_flags_ | changed_flags;
++      }
++      gfx::PointF location = TranslateLocation(last_cursor_location_, window);
++      ui::MouseEvent mouse_event(
++          type, location, location, flags, changed_flags);
++      ui::MouseEvent mouse_event2(&mouse_event);
++      window->OnCacaEvent(&mouse_event2);
++      break;
++    }
++    default:
++      NOTIMPLEMENTED();
++      break;
++  }
++}
++
++}  // namespace ui
+diff --git a/ui/ozone/platform/caca/caca_event_source.h b/ui/ozone/platform/caca/caca_event_source.h
+new file mode 100644
+index 0000000..daa7fc9
+--- /dev/null
++++ b/ui/ozone/platform/caca/caca_event_source.h
+@@ -0,0 +1,44 @@
++// Copyright 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef UI_OZONE_PLATFORM_CACA_CACA_EVENT_SOURCE_H_
++#define UI_OZONE_PLATFORM_CACA_CACA_EVENT_SOURCE_H_
++
++#include <caca.h>
++
++#include "base/memory/ref_counted.h"
++#include "base/time/time.h"
++#include "ui/events/platform/platform_event_source.h"
++#include "ui/events/platform/scoped_event_dispatcher.h"
++#include "ui/gfx/geometry/point_f.h"
++
++namespace ui {
++
++class CacaWindow;
++
++class CacaEventSource : public PlatformEventSource {
++ public:
++  CacaEventSource();
++  virtual ~CacaEventSource();
++
++  // Poll for an event on a particular window. Input events will be
++  // dispatched on the given dispatcher.
++  void TryProcessingEvent(CacaWindow* window);
++
++  // Process an input event on a particular window.
++  void OnInputEvent(caca_event_t* event, CacaWindow* window);
++
++ private:
++  // Keep track of last cursor position to dispatch correct mouse push/release
++  // events.
++  gfx::PointF last_cursor_location_;
++
++  int modifier_flags_;
++
++  DISALLOW_COPY_AND_ASSIGN(CacaEventSource);
++};
++
++}  // namespace ui
++
++#endif  // UI_OZONE_PLATFORM_CACA_CACA_EVENT_SOURCE_H_
+diff --git a/ui/ozone/platform/caca/caca_window.cc b/ui/ozone/platform/caca/caca_window.cc
+index 5386271..03a8ce3 100644
+--- a/ui/ozone/platform/caca/caca_window.cc
++++ b/ui/ozone/platform/caca/caca_window.cc
+@@ -9,7 +9,7 @@
+ #include "base/logging.h"
+ #include "base/message_loop/message_loop.h"
+ #include "ui/events/platform/platform_event_source.h"
+-#include "ui/ozone/platform/caca/caca_event_factory.h"
++#include "ui/ozone/platform/caca/caca_event_source.h"
+ #include "ui/ozone/platform/caca/caca_window_manager.h"
+ #include "ui/platform_window/platform_window_delegate.h"
+ 
+@@ -27,11 +27,11 @@ const int kDefaultCanvasHeight = 48;
+ // |physical_size_| and font size.
+ CacaWindow::CacaWindow(PlatformWindowDelegate* delegate,
+                        CacaWindowManager* manager,
+-                       CacaEventFactory* event_factory,
++                       CacaEventSource* event_source,
+                        const gfx::Rect& bounds)
+     : delegate_(delegate),
+       manager_(manager),
+-      event_factory_(event_factory),
++      event_source_(event_source),
+       weak_ptr_factory_(this) {
+   widget_ = manager_->AddWindow(this);
+   ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
+@@ -70,7 +70,7 @@ bool CacaWindow::Initialize() {
+ }
+ 
+ void CacaWindow::TryProcessingEvent() {
+-  event_factory_->TryProcessingEvent(this);
++  event_source_->TryProcessingEvent(this);
+ 
+   // Caca uses a poll based event retrieval. Since we don't want to block we'd
+   // either need to spin up a new thread or just poll. For simplicity just poll
+diff --git a/ui/ozone/platform/caca/caca_window.h b/ui/ozone/platform/caca/caca_window.h
+index f9aa6b9..444f3d5 100644
+--- a/ui/ozone/platform/caca/caca_window.h
++++ b/ui/ozone/platform/caca/caca_window.h
+@@ -18,7 +18,7 @@
+ 
+ namespace ui {
+ 
+-class CacaEventFactory;
++class CacaEventSource;
+ class CacaWindowManager;
+ class PlatformWindowDelegate;
+ 
+@@ -30,7 +30,7 @@ class CacaWindow : public PlatformWindow, public PlatformEventDispatcher {
+  public:
+   CacaWindow(PlatformWindowDelegate* delegate,
+              CacaWindowManager* manager,
+-             CacaEventFactory* event_factory,
++             CacaEventSource* event_source,
+              const gfx::Rect& bounds);
+   virtual ~CacaWindow();
+ 
+@@ -74,7 +74,7 @@ class CacaWindow : public PlatformWindow, public PlatformEventDispatcher {
+ 
+   PlatformWindowDelegate* delegate_;
+   CacaWindowManager* manager_;
+-  CacaEventFactory* event_factory_;
++  CacaEventSource* event_source_;
+   gfx::AcceleratedWidget widget_;
+ 
+   ScopedCacaCanvas canvas_;
+diff --git a/ui/ozone/platform/caca/ozone_platform_caca.cc b/ui/ozone/platform/caca/ozone_platform_caca.cc
+index e4e7b91..6746129 100644
+--- a/ui/ozone/platform/caca/ozone_platform_caca.cc
++++ b/ui/ozone/platform/caca/ozone_platform_caca.cc
+@@ -4,7 +4,7 @@
+ 
+ #include "ui/ozone/platform/caca/ozone_platform_caca.h"
+ 
+-#include "ui/ozone/platform/caca/caca_event_factory.h"
++#include "ui/ozone/platform/caca/caca_event_source.h"
+ #include "ui/ozone/platform/caca/caca_window.h"
+ #include "ui/ozone/platform/caca/caca_window_manager.h"
+ #include "ui/ozone/public/cursor_factory_ozone.h"
+@@ -28,9 +28,6 @@ class OzonePlatformCaca : public OzonePlatform {
+   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+     return window_manager_.get();
+   }
+-  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
+-    return event_factory_ozone_.get();
+-  }
+   virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+     return cursor_factory_ozone_.get();
+   }
+@@ -44,7 +41,7 @@ class OzonePlatformCaca : public OzonePlatform {
+       PlatformWindowDelegate* delegate,
+       const gfx::Rect& bounds) OVERRIDE {
+     scoped_ptr<CacaWindow> caca_window(new CacaWindow(
+-        delegate, window_manager_.get(), event_factory_ozone_.get(), bounds));
++        delegate, window_manager_.get(), event_source_.get(), bounds));
+     if (!caca_window->Initialize())
+       return scoped_ptr<PlatformWindow>();
+     return caca_window.PassAs<PlatformWindow>();
+@@ -64,7 +61,7 @@ class OzonePlatformCaca : public OzonePlatform {
+ 
+   virtual void InitializeUI() OVERRIDE {
+     window_manager_.reset(new CacaWindowManager);
+-    event_factory_ozone_.reset(new CacaEventFactory());
++    event_source_.reset(new CacaEventSource());
+     cursor_factory_ozone_.reset(new CursorFactoryOzone());
+   }
+ 
+@@ -72,7 +69,7 @@ class OzonePlatformCaca : public OzonePlatform {
+ 
+  private:
+   scoped_ptr<CacaWindowManager> window_manager_;
+-  scoped_ptr<CacaEventFactory> event_factory_ozone_;
++  scoped_ptr<CacaEventSource> event_source_;
+   scoped_ptr<CursorFactoryOzone> cursor_factory_ozone_;
+ 
+   DISALLOW_COPY_AND_ASSIGN(OzonePlatformCaca);
+diff --git a/ui/ozone/platform/dri/dri_window.cc b/ui/ozone/platform/dri/dri_window.cc
+index a4a9a125..1f0b567 100644
+--- a/ui/ozone/platform/dri/dri_window.cc
++++ b/ui/ozone/platform/dri/dri_window.cc
+@@ -5,6 +5,7 @@
+ #include "ui/ozone/platform/dri/dri_window.h"
+ 
+ #include "ui/events/event.h"
++#include "ui/events/ozone/evdev/event_factory_evdev.h"
+ #include "ui/events/platform/platform_event_source.h"
+ #include "ui/ozone/platform/dri/dri_surface_factory.h"
+ #include "ui/ozone/public/cursor_factory_ozone.h"
+@@ -15,8 +16,9 @@ namespace ui {
+ 
+ DriWindow::DriWindow(PlatformWindowDelegate* delegate,
+                      const gfx::Rect& bounds,
+-                     DriSurfaceFactory* surface_factory)
+-    : delegate_(delegate), bounds_(bounds) {
++                     DriSurfaceFactory* surface_factory,
++                     EventFactoryEvdev* event_factory)
++    : delegate_(delegate), bounds_(bounds), event_factory_(event_factory) {
+   widget_ = surface_factory->GetAcceleratedWidget();
+   delegate_->OnAcceleratedWidgetAvailable(widget_);
+   PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
+@@ -53,9 +55,13 @@ void DriWindow::Minimize() {}
+ 
+ void DriWindow::Restore() {}
+ 
+-void DriWindow::SetCursor(PlatformCursor cursor) {}
++void DriWindow::SetCursor(PlatformCursor cursor) {
++  ui::CursorFactoryOzone::GetInstance()->SetCursor(widget_, cursor);
++}
+ 
+-void DriWindow::MoveCursorTo(const gfx::Point& location) {}
++void DriWindow::MoveCursorTo(const gfx::Point& location) {
++  event_factory_->WarpCursorTo(widget_, location);
++}
+ 
+ bool DriWindow::CanDispatchEvent(const PlatformEvent& ne) {
+   DCHECK(ne);
+diff --git a/ui/ozone/platform/dri/dri_window.h b/ui/ozone/platform/dri/dri_window.h
+index c417032..d13a5e6 100644
+--- a/ui/ozone/platform/dri/dri_window.h
++++ b/ui/ozone/platform/dri/dri_window.h
+@@ -13,13 +13,15 @@
+ namespace ui {
+ 
+ class DriSurfaceFactory;
++class EventFactoryEvdev;
+ 
+ class DriWindow : public PlatformWindow,
+                   public PlatformEventDispatcher {
+  public:
+   DriWindow(PlatformWindowDelegate* delegate,
+             const gfx::Rect& bounds,
+-            DriSurfaceFactory* surface_factory);
++            DriSurfaceFactory* surface_factory,
++            EventFactoryEvdev* event_factory);
+   virtual ~DriWindow();
+ 
+   // PlatformWindow:
+@@ -45,6 +47,7 @@ class DriWindow : public PlatformWindow,
+   PlatformWindowDelegate* delegate_;
+   gfx::Rect bounds_;
+   gfx::AcceleratedWidget widget_;
++  EventFactoryEvdev* event_factory_;
+ 
+   DISALLOW_COPY_AND_ASSIGN(DriWindow);
+ };
+diff --git a/ui/ozone/platform/dri/ozone_platform_dri.cc b/ui/ozone/platform/dri/ozone_platform_dri.cc
+index 780664a..7087a90 100644
+--- a/ui/ozone/platform/dri/ozone_platform_dri.cc
++++ b/ui/ozone/platform/dri/ozone_platform_dri.cc
+@@ -50,9 +50,6 @@ class OzonePlatformDri : public OzonePlatform {
+   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+     return surface_factory_ozone_.get();
+   }
+-  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
+-    return event_factory_ozone_.get();
+-  }
+   virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+     return cursor_factory_ozone_.get();
+   }
+@@ -66,7 +63,10 @@ class OzonePlatformDri : public OzonePlatform {
+       PlatformWindowDelegate* delegate,
+       const gfx::Rect& bounds) OVERRIDE {
+     return scoped_ptr<PlatformWindow>(
+-        new DriWindow(delegate, bounds, surface_factory_ozone_.get()));
++        new DriWindow(delegate,
++                      bounds,
++                      surface_factory_ozone_.get(),
++                      event_factory_ozone_.get()));
+   }
+ #if defined(OS_CHROMEOS)
+   virtual scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate()
+diff --git a/ui/ozone/platform/dri/ozone_platform_gbm.cc b/ui/ozone/platform/dri/ozone_platform_gbm.cc
+index 3b417c2..37b49b7 100644
+--- a/ui/ozone/platform/dri/ozone_platform_gbm.cc
++++ b/ui/ozone/platform/dri/ozone_platform_gbm.cc
+@@ -82,9 +82,6 @@ class OzonePlatformGbm : public OzonePlatform {
+   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+     return surface_factory_ozone_.get();
+   }
+-  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
+-    return event_factory_ozone_.get();
+-  }
+   virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+     return cursor_factory_ozone_.get();
+   }
+@@ -98,7 +95,10 @@ class OzonePlatformGbm : public OzonePlatform {
+       PlatformWindowDelegate* delegate,
+       const gfx::Rect& bounds) OVERRIDE {
+     return scoped_ptr<PlatformWindow>(
+-        new DriWindow(delegate, bounds, surface_factory_ozone_.get()));
++        new DriWindow(delegate,
++                      bounds,
++                      surface_factory_ozone_.get(),
++                      event_factory_ozone_.get()));
+   }
+ #if defined(OS_CHROMEOS)
+   virtual scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate()
+diff --git a/ui/ozone/platform/egltest/ozone_platform_egltest.cc b/ui/ozone/platform/egltest/ozone_platform_egltest.cc
+index 57d3549..638c830 100644
+--- a/ui/ozone/platform/egltest/ozone_platform_egltest.cc
++++ b/ui/ozone/platform/egltest/ozone_platform_egltest.cc
+@@ -51,6 +51,7 @@ class EgltestWindow : public PlatformWindow, public PlatformEventDispatcher {
+  public:
+   EgltestWindow(PlatformWindowDelegate* delegate,
+                 LibeglplatformShimLoader* eglplatform_shim,
++                EventFactoryEvdev* event_factory,
+                 const gfx::Rect& bounds);
+   virtual ~EgltestWindow();
+ 
+@@ -76,6 +77,7 @@ class EgltestWindow : public PlatformWindow, public PlatformEventDispatcher {
+  private:
+   PlatformWindowDelegate* delegate_;
+   LibeglplatformShimLoader* eglplatform_shim_;
++  EventFactoryEvdev* event_factory_;
+   gfx::Rect bounds_;
+   ShimNativeWindowId window_id_;
+ 
+@@ -84,9 +86,11 @@ class EgltestWindow : public PlatformWindow, public PlatformEventDispatcher {
+ 
+ EgltestWindow::EgltestWindow(PlatformWindowDelegate* delegate,
+                              LibeglplatformShimLoader* eglplatform_shim,
++                             EventFactoryEvdev* event_factory,
+                              const gfx::Rect& bounds)
+     : delegate_(delegate),
+       eglplatform_shim_(eglplatform_shim),
++      event_factory_(event_factory),
+       bounds_(bounds),
+       window_id_(SHIM_NO_WINDOW_ID) {
+   window_id_ = eglplatform_shim_->ShimCreateWindow();
+@@ -137,9 +141,11 @@ void EgltestWindow::Restore() {
+ }
+ 
+ void EgltestWindow::SetCursor(PlatformCursor cursor) {
++  CursorFactoryOzone::GetInstance()->SetCursor(window_id_, cursor);
+ }
+ 
+ void EgltestWindow::MoveCursorTo(const gfx::Point& location) {
++  event_factory_->WarpCursorTo(window_id_, location);
+ }
+ 
+ bool EgltestWindow::CanDispatchEvent(const ui::PlatformEvent& ne) {
+@@ -314,9 +320,6 @@ class OzonePlatformEgltest : public OzonePlatform {
+   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+     return surface_factory_ozone_.get();
+   }
+-  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
+-    return event_factory_ozone_.get();
+-  }
+   virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+     return cursor_factory_ozone_.get();
+   }
+@@ -330,7 +333,10 @@ class OzonePlatformEgltest : public OzonePlatform {
+       PlatformWindowDelegate* delegate,
+       const gfx::Rect& bounds) OVERRIDE {
+     return make_scoped_ptr<PlatformWindow>(
+-        new EgltestWindow(delegate, &eglplatform_shim_, bounds));
++        new EgltestWindow(delegate,
++                          &eglplatform_shim_,
++                          event_factory_ozone_.get(),
++                          bounds));
+   }
+ 
+ #if defined(OS_CHROMEOS)
+diff --git a/ui/ozone/platform/test/BUILD.gn b/ui/ozone/platform/test/BUILD.gn
+index 28e1a01..5ca51b4 100644
+--- a/ui/ozone/platform/test/BUILD.gn
++++ b/ui/ozone/platform/test/BUILD.gn
+@@ -8,8 +8,6 @@ source_set("test") {
+     "ozone_platform_test.h",
+     "test_cursor_factory.cc",
+     "test_cursor_factory.h",
+-    "test_event_factory.cc",
+-    "test_event_factory.h",
+     "test_window.cc",
+     "test_window.h",
+     "test_window_manager.cc",
+diff --git a/ui/ozone/platform/test/ozone_platform_test.cc b/ui/ozone/platform/test/ozone_platform_test.cc
+index afe2c95..230eb77 100644
+--- a/ui/ozone/platform/test/ozone_platform_test.cc
++++ b/ui/ozone/platform/test/ozone_platform_test.cc
+@@ -6,8 +6,8 @@
+ 
+ #include "base/command_line.h"
+ #include "base/files/file_path.h"
++#include "ui/events/platform/platform_event_source.h"
+ #include "ui/ozone/platform/test/test_cursor_factory.h"
+-#include "ui/ozone/platform/test/test_event_factory.h"
+ #include "ui/ozone/platform/test/test_window.h"
+ #include "ui/ozone/platform/test/test_window_manager.h"
+ #include "ui/ozone/public/cursor_factory_ozone.h"
+@@ -37,9 +37,6 @@ class OzonePlatformTest : public OzonePlatform {
+   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+     return window_manager_.get();
+   }
+-  virtual EventFactoryOzone* GetEventFactoryOzone() OVERRIDE {
+-    return event_factory_ozone_.get();
+-  }
+   virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+     return cursor_factory_ozone_.get();
+   }
+@@ -71,7 +68,10 @@ class OzonePlatformTest : public OzonePlatform {
+   virtual void InitializeUI() OVERRIDE {
+     window_manager_.reset(new TestWindowManager(file_path_));
+     window_manager_->Initialize();
+-    event_factory_ozone_.reset(new TestEventFactory());
++    // This unbreaks tests that create their own.
++    if (!PlatformEventSource::GetInstance())
++      platform_event_source_ = PlatformEventSource::CreateDefault();
++
+     cursor_factory_ozone_.reset(new TestCursorFactory());
+     gpu_platform_support_host_.reset(CreateStubGpuPlatformSupportHost());
+   }
+@@ -82,7 +82,7 @@ class OzonePlatformTest : public OzonePlatform {
+ 
+  private:
+   scoped_ptr<TestWindowManager> window_manager_;
+-  scoped_ptr<TestEventFactory> event_factory_ozone_;
++  scoped_ptr<PlatformEventSource> platform_event_source_;
+   scoped_ptr<CursorFactoryOzone> cursor_factory_ozone_;
+   scoped_ptr<GpuPlatformSupport> gpu_platform_support_;
+   scoped_ptr<GpuPlatformSupportHost> gpu_platform_support_host_;
+diff --git a/ui/ozone/platform/test/test.gypi b/ui/ozone/platform/test/test.gypi
+index 073e1e4..8ef1935 100644
+--- a/ui/ozone/platform/test/test.gypi
++++ b/ui/ozone/platform/test/test.gypi
+@@ -28,8 +28,6 @@
+         'ozone_platform_test.h',
+         'test_cursor_factory.cc',
+         'test_cursor_factory.h',
+-        'test_event_factory.cc',
+-        'test_event_factory.h',
+         'test_window.cc',
+         'test_window.h',
+         'test_window_manager.cc',
+diff --git a/ui/ozone/platform/test/test_event_factory.cc b/ui/ozone/platform/test/test_event_factory.cc
+deleted file mode 100644
+index 510d41b..0000000
+--- a/ui/ozone/platform/test/test_event_factory.cc
++++ /dev/null
+@@ -1,27 +0,0 @@
+-// Copyright 2014 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#include "ui/ozone/platform/test/test_event_factory.h"
+-
+-#include "ui/events/platform/platform_event_source.h"
+-
+-namespace ui {
+-
+-class TestPlatformEventSource : public PlatformEventSource {
+- public:
+-  TestPlatformEventSource() {}
+-};
+-
+-TestEventFactory::TestEventFactory() {
+-  // This unbreaks tests that create their own.
+-  if (!PlatformEventSource::GetInstance())
+-    event_source_.reset(new TestPlatformEventSource);
+-}
+-
+-TestEventFactory::~TestEventFactory() {}
+-
+-void TestEventFactory::WarpCursorTo(gfx::AcceleratedWidget widget,
+-                                    const gfx::PointF& location) {}
+-
+-}  // namespace ui
+diff --git a/ui/ozone/platform/test/test_event_factory.h b/ui/ozone/platform/test/test_event_factory.h
+deleted file mode 100644
+index b8e0b93..0000000
+--- a/ui/ozone/platform/test/test_event_factory.h
++++ /dev/null
+@@ -1,31 +0,0 @@
+-// Copyright 2014 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#ifndef UI_OZONE_PLATFORM_TEST_TEST_EVENT_FACTORY_H_
+-#define UI_OZONE_PLATFORM_TEST_TEST_EVENT_FACTORY_H_
+-
+-#include "ui/ozone/public/event_factory_ozone.h"
+-
+-namespace ui {
+-
+-class PlatformEventSource;
+-
+-class TestEventFactory : public EventFactoryOzone {
+- public:
+-  TestEventFactory();
+-  virtual ~TestEventFactory();
+-
+-  // EventFactoryOzone:
+-  virtual void WarpCursorTo(gfx::AcceleratedWidget widget,
+-                            const gfx::PointF& location) OVERRIDE;
+-
+- private:
+-  scoped_ptr<PlatformEventSource> event_source_;
+-
+-  DISALLOW_COPY_AND_ASSIGN(TestEventFactory);
+-};
+-
+-}  // namespace ui
+-
+-#endif  // UI_OZONE_PLATFORM_TEST_TEST_EVENT_FACTORY_H_
+diff --git a/ui/ozone/public/event_factory_ozone.cc b/ui/ozone/public/event_factory_ozone.cc
+deleted file mode 100644
+index 0a55602..0000000
+--- a/ui/ozone/public/event_factory_ozone.cc
++++ /dev/null
+@@ -1,34 +0,0 @@
+-// Copyright (c) 2013 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#include "ui/ozone/public/event_factory_ozone.h"
+-
+-#include "base/logging.h"
+-
+-namespace ui {
+-
+-// static
+-EventFactoryOzone* EventFactoryOzone::impl_ = NULL;
+-
+-EventFactoryOzone::EventFactoryOzone() {
+-  DCHECK(!impl_) << "There should only be a single EventFactoryOzone";
+-  impl_ = this;
+-}
+-
+-EventFactoryOzone::~EventFactoryOzone() {
+-  DCHECK_EQ(impl_, this);
+-  impl_ = NULL;
+-}
+-
+-EventFactoryOzone* EventFactoryOzone::GetInstance() {
+-  DCHECK(impl_) << "No EventFactoryOzone implementation set.";
+-  return impl_;
+-}
+-
+-void EventFactoryOzone::WarpCursorTo(gfx::AcceleratedWidget widget,
+-                                     const gfx::PointF& location) {
+-  NOTIMPLEMENTED();
+-}
+-
+-}  // namespace ui
+diff --git a/ui/ozone/public/event_factory_ozone.h b/ui/ozone/public/event_factory_ozone.h
+deleted file mode 100644
+index bbca9fd..0000000
+--- a/ui/ozone/public/event_factory_ozone.h
++++ /dev/null
+@@ -1,50 +0,0 @@
+-// Copyright (c) 2013 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-#ifndef UI_OZONE_PUBLIC_EVENT_FACTORY_OZONE_H_
+-#define UI_OZONE_PUBLIC_EVENT_FACTORY_OZONE_H_
+-
+-#include <map>
+-
+-#include "base/memory/scoped_ptr.h"
+-#include "base/message_loop/message_pump_libevent.h"
+-#include "ui/gfx/native_widget_types.h"
+-#include "ui/ozone/ozone_base_export.h"
+-
+-namespace gfx {
+-class PointF;
+-}
+-
+-namespace ui {
+-
+-class Event;
+-
+-// Creates and dispatches |ui.Event|'s. Ozone assumes that events arrive on file
+-// descriptors with one  |EventConverterOzone| instance for each descriptor.
+-// Ozone presumes that the set of file descriptors can vary at runtime so this
+-// class supports dynamically adding and removing |EventConverterOzone|
+-// instances as necessary.
+-class OZONE_BASE_EXPORT EventFactoryOzone {
+- public:
+-  EventFactoryOzone();
+-  virtual ~EventFactoryOzone();
+-
+-  // Warp the cursor to a location within an AccelerateWidget.
+-  // If the cursor actually moves, the implementation must dispatch a mouse
+-  // move event with the new location.
+-  virtual void WarpCursorTo(gfx::AcceleratedWidget widget,
+-                            const gfx::PointF& location);
+-
+-  // Returns the singleton instance.
+-  static EventFactoryOzone* GetInstance();
+-
+- private:
+-  static EventFactoryOzone* impl_;  // not owned
+-
+-  DISALLOW_COPY_AND_ASSIGN(EventFactoryOzone);
+-};
+-
+-}  // namespace ui
+-
+-#endif  // UI_OZONE_PUBLIC_EVENT_FACTORY_OZONE_H_
+diff --git a/ui/ozone/public/ozone_platform.h b/ui/ozone/public/ozone_platform.h
+index 8620bf5..a283774 100644
+--- a/ui/ozone/public/ozone_platform.h
++++ b/ui/ozone/public/ozone_platform.h
+@@ -15,7 +15,6 @@ class Rect;
+ namespace ui {
+ 
+ class CursorFactoryOzone;
+-class EventFactoryOzone;
+ class NativeDisplayDelegate;
+ class SurfaceFactoryOzone;
+ class TouchscreenDeviceManager;
+@@ -56,7 +55,6 @@ class OZONE_EXPORT OzonePlatform {
+   // injected into the appropriate layer at startup. Subclasses should not
+   // inject these objects themselves. Ownership is retained by OzonePlatform.
+   virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() = 0;
+-  virtual ui::EventFactoryOzone* GetEventFactoryOzone() = 0;
+   virtual ui::CursorFactoryOzone* GetCursorFactoryOzone() = 0;
+   virtual ui::GpuPlatformSupport* GetGpuPlatformSupport() = 0;
+   virtual ui::GpuPlatformSupportHost* GetGpuPlatformSupportHost() = 0;
+-- 
+1.7.9.5
+
