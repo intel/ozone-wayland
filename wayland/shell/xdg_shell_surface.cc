@@ -18,7 +18,8 @@ XDGShellSurface::XDGShellSurface()
     : WaylandShellSurface(),
       xdg_surface_(NULL),
       xdg_popup_(NULL),
-      maximized_(false) {
+      maximized_(false),
+      minimized_(false) {
 }
 
 XDGShellSurface::~XDGShellSurface() {
@@ -118,6 +119,11 @@ void XDGShellSurface::Maximize() {
 
 void XDGShellSurface::Minimize() {
   xdg_surface_set_minimized(xdg_surface_);
+  minimized_ = true;
+}
+
+void XDGShellSurface::Unminimize() {
+  minimized_ = false;
 }
 
 void XDGShellSurface::HandleConfigure(void* data,
@@ -137,6 +143,7 @@ void XDGShellSurface::HandleChangeState(void* data,
 
 void XDGShellSurface::HandleActivate(void* data,
                                  struct xdg_surface* xdg_surface) {
+  WaylandShellSurface::WindowActivated(data);
 }
 
 void XDGShellSurface::HandleDeactivate(void* data,

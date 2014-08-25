@@ -28,6 +28,7 @@ class OZONE_WAYLAND_EXPORT WindowChangeObserver {
   virtual void OnWindowResized(unsigned windowhandle,
                                unsigned width,
                                unsigned height) = 0;
+  virtual void OnWindowUnminimized(unsigned windowhandle) = 0;
   // FIXME(joone): Move to IMEChangeObserver?
   virtual void OnPreeditChanged(unsigned handle,
                                 const std::string& text,

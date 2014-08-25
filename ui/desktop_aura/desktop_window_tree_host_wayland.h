@@ -171,6 +171,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
 
   void HandleNativeWidgetActivationChanged(bool active);
   void HandleWindowResize(unsigned width, unsigned height);
+  void HandleWindowUnminimized();
 
   void HandlePreeditChanged(const std::string& text, const std::string& commit);
   void HandleCommit(const std::string& text);

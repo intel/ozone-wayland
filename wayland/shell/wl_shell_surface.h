@@ -25,6 +25,8 @@ class WLShellSurface : public WaylandShellSurface {
   virtual void SetWindowTitle(const base::string16& title) OVERRIDE;
   virtual void Maximize() OVERRIDE;
   virtual void Minimize() OVERRIDE;
+  virtual void Unminimize() OVERRIDE;
+  virtual bool IsMinimized() OVERRIDE;
 
   static void HandleConfigure(void* data,
                               struct wl_shell_surface* shell_surface,
