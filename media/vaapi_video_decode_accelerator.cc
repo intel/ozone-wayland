@@ -259,7 +259,7 @@ bool VaapiVideoDecodeAccelerator::Initialize(media::VideoCodecProfile profile,
 
   vaapi_wrapper_ = VaapiWrapper::Create(
       profile,
-      gfx::GetPlatformDefaultEGLNativeDisplay(),
+      gfx::GLSurfaceEGL::GetNativeDisplay(),
       base::Bind(&ReportToUMA, VaapiH264Decoder::VAAPI_ERROR));
 
   if (!vaapi_wrapper_.get()) {
