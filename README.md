@@ -55,13 +55,38 @@ need:
   $ export PATH=`pwd`/depot_tools:"$PATH"
   ```
 
+We support HWA Video Decoding using Libva and VAAPI. To enable the support one needs to build
+and install these packages. Note: This is still work in progress. You can skip these dependencies if
+you don’t need this support.
+
+One needs to set the installation prefix $WLD(Below)  to be same as the one used for setting up Wayland environment.
+  ```
+  $ git clone git://anongit.freedesktop.org/libva  
+  $ cd libva/
+  $ git checkout libva-1.2.1
+  $ ./autogen.sh --prefix=$WLD  
+  $ make -j4 && make install
+  ```
+  ```
+  $ git clone git://anongit.freedesktop.org/vaapi/intel-driver
+  $ cd intel-driver/
+  $ git checkout libva-1.2.1
+  $ ./autogen.sh --prefix=$WLD  
+  $ make -j4 && make install
+  ```
 now we can clone Ozone-Wayland and fetch all the dependencies of it, including Chromium itself:
 
   ```
   $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --git-deps
-  $ GYP_DEFINES='use_ash=1 use_aura=1 chromeos=0 use_ozone=1' gclient sync
+  $ export GYP_DEFINES='use_ash=1 use_aura=1 chromeos=0 use_ozone=1' 
   ```
-
+  If you want to enable HWA Video Decoding, you need to have the following GYP_DEFINES:
+  ```
+   $ export GYP_DEFINES='use_ash=1 use_aura=1 chromeos=0 use_ozone=1 proprietary_codecs=1 ffmpeg_branding=Chrome'
+   ```
+  ```
+   $ gclient sync 
+   ```
 It may take a considerable time for downloading the trees. If everything went
 fine, now we're able to build.
 
