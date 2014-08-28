@@ -29,7 +29,7 @@ class XDGShellSurface : public WaylandShellSurface {
   virtual void Maximize() OVERRIDE;
   virtual void Minimize() OVERRIDE;
   virtual void Unminimize() OVERRIDE;
-  virtual bool IsMinimized() OVERRIDE {return minimized_;};
+  virtual bool IsMinimized() const OVERRIDE;
 
   static void HandleConfigure(void* data,
                               struct xdg_surface* xdg_surface,

@@ -26,7 +26,7 @@ class WLShellSurface : public WaylandShellSurface {
   virtual void Maximize() OVERRIDE;
   virtual void Minimize() OVERRIDE;
   virtual void Unminimize() OVERRIDE;
-  virtual bool IsMinimized() OVERRIDE;
+  virtual bool IsMinimized() const OVERRIDE;
 
   static void HandleConfigure(void* data,
                               struct wl_shell_surface* shell_surface,

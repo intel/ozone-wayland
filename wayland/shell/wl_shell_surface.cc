@@ -97,7 +97,7 @@ void WLShellSurface::Minimize() {
 void WLShellSurface::Unminimize() {
 }
 
-bool WLShellSurface::IsMinimized() {
+bool WLShellSurface::IsMinimized() const {
   return false;
 }
 
