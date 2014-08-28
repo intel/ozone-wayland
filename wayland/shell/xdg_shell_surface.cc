@@ -126,6 +126,10 @@ void XDGShellSurface::Unminimize() {
   minimized_ = false;
 }
 
+bool XDGShellSurface::IsMinimized() const {
+  return minimized_;
+}
+
 void XDGShellSurface::HandleConfigure(void* data,
                                  struct xdg_surface* xdg_surface,
                                  int32_t width,

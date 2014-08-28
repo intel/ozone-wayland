@@ -32,7 +32,7 @@ class WaylandShellSurface {
   virtual void Maximize() = 0;
   virtual void Minimize() = 0;
   virtual void Unminimize() = 0;
-  virtual bool IsMinimized() = 0;
+  virtual bool IsMinimized() const = 0;
 
   // static functions.
   static void PopupDone();
