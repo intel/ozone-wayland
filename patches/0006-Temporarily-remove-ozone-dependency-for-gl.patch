@@ -8,6 +8,8 @@ because of cycling dependency. So temporarily remove ozone dependency for gl unt
 a better method to resolve it.
 
 BUG=240
+
+[Patch modified for 37.0.2062.94 compatibility]
 ---
  ui/gl/gl.gyp | 6 ------
  1 file changed, 6 deletions(-)
@@ -16,14 +18,13 @@ diff --git a/ui/gl/gl.gyp b/ui/gl/gl.gyp
 index ac780d7..ba04c0c 100644
 --- a/ui/gl/gl.gyp
 +++ b/ui/gl/gl.gyp
-@@ -295,12 +295,6 @@
+@@ -295,11 +295,6 @@
          ['OS!="android"', {
            'sources/': [ ['exclude', '^android/'] ],
          }],
 -        ['use_ozone==1', {
 -          'dependencies': [
 -            '../ozone/ozone.gyp:ozone',
--            '../ozone/ozone.gyp:ozone_base',
 -          ],
 -        }],
          ['OS=="android" and android_webview_build==0', {
@@ -31,4 +32,3 @@ index ac780d7..ba04c0c 100644
              '../android/ui_android.gyp:ui_java',
 -- 
 1.8.1.2
-
