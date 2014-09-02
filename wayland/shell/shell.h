@@ -10,6 +10,7 @@
 #include "base/basictypes.h"
 
 struct xdg_shell;
+struct ivi_application;
 namespace ozonewayland {
 
 class WaylandShellSurface;
@@ -30,6 +31,7 @@ class WaylandShell {
 
   wl_shell* GetWLShell() const { return shell_; }
   xdg_shell* GetXDGShell() const { return xdg_shell_; }
+  ivi_application* GetIVIShell() const { return ivi_application_; }
 
  private:
   static void XDGHandlePing(void* data,
@@ -37,6 +39,7 @@ class WaylandShell {
                             uint32_t serial);
   wl_shell* shell_;
   xdg_shell* xdg_shell_;
+  ivi_application* ivi_application_;
   DISALLOW_COPY_AND_ASSIGN(WaylandShell);
 };
 
