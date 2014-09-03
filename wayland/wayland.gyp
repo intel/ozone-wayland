@@ -91,6 +91,10 @@
         'shell/xdg_shell_surface.h',
         'shell/xdg-shell-protocol.c',
         'shell/xdg-shell-client-protocol.h',
+        'shell/ivi_shell_surface.cc',
+        'shell/ivi_shell_surface.h',
+        'shell/ivi-application-protocol.c',
+        'shell/ivi-application-client-protocol.h',
       ],
     },
   ]

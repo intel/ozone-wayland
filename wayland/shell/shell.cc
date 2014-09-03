@@ -9,12 +9,15 @@
 #include "ozone/wayland/shell/wl_shell_surface.h"
 #include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/xdg_shell_surface.h"
+#include "ozone/wayland/shell/ivi-application-client-protocol.h"
+#include "ozone/wayland/shell/ivi_shell_surface.h"
 
 namespace ozonewayland {
 
 WaylandShell::WaylandShell()
     : shell_(NULL),
-      xdg_shell_(NULL) {
+      xdg_shell_(NULL),
+      ivi_application_(NULL) {
 }
 
 WaylandShell::~WaylandShell() {
@@ -22,13 +25,17 @@ WaylandShell::~WaylandShell() {
     wl_shell_destroy(shell_);
   if (xdg_shell_)
     xdg_shell_destroy(xdg_shell_);
+  if (ivi_application_)
+    ivi_application_destroy(ivi_application_);
 }
 
 WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window) {
-  DCHECK(shell_ || xdg_shell_);
+  DCHECK(shell_ || xdg_shell_ || ivi_application_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
   WaylandShellSurface* surface = NULL;
+  if (ivi_application_)
+    surface = new IVIShellSurface();
   if (xdg_shell_)
     surface = new XDGShellSurface();
   if (!surface)
@@ -60,6 +67,10 @@ void WaylandShell::Initialize(struct wl_registry *registry,
         WaylandShell::XDGHandlePing
       };
       xdg_shell_add_listener(xdg_shell_, &xdg_shell_listener, NULL);
+  } else if (strcmp(interface, "ivi_application") == 0) {
+      DCHECK(!ivi_application_);
+      ivi_application_ = static_cast<ivi_application*>(
+          wl_registry_bind(registry, name, &ivi_application_interface, 1));
   }
 }
 
