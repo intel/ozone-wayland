@@ -15,6 +15,7 @@
 #include "media/media/va_stubs.h"
 
 #include "third_party/libva/va/wayland/va_wayland.h"
+#include "third_party/libva/va/va_drmcommon.h"
 
 using media_media::kModuleVa_wayland;
 using media_media::InitializeStubs;
@@ -22,6 +23,9 @@ using media_media::StubPathMap;
 
 static const base::FilePath::CharType kVaLib[] =
     FILE_PATH_LITERAL("libva-wayland.so.1");
+
+static const char kVaLockBufferSymbol[] = "vaLockBuffer";
+static const char kVaUnlockBufferSymbol[] = "vaUnlockBuffer";
 
 #define LOG_VA_ERROR_AND_REPORT(va_error, err_msg)         \
   do {                                                     \
@@ -370,14 +374,15 @@ bool VaapiWrapper::CreateRGBImage(gfx::Size size, VAImage* image) {
   base::AutoLock auto_lock(va_lock_);
   VAStatus va_res;
   VAImageFormat format;
-  format.fourcc = VA_FOURCC_RGBX;
+  format.fourcc = VA_FOURCC_BGRX;
   format.byte_order = VA_LSB_FIRST;
   format.bits_per_pixel = 32;
   format.depth = 24;
-  format.red_mask = 0xff;
-  format.green_mask = 0xff00;
+  format.red_mask = 0x0000ff;
+  format.green_mask = 0x00ff00;
   format.blue_mask = 0xff0000;
   format.alpha_mask = 0;
+
   va_res = vaCreateImage(va_display_,
                          &format,
                          size.width(),
@@ -421,6 +426,32 @@ bool VaapiWrapper::PutSurfaceIntoImage(VASurfaceID va_surface_id,
   VA_SUCCESS_OR_RETURN(va_res, "Failed to put surface into image", false);
   return true;
 }
+
+bool VaapiWrapper::LockBuffer(VASurfaceID va_surface_id,
+                              VABufferID buf_id,
+                              VABufferInfo* buf_info) {
+  DCHECK(buf_info);
+  base::AutoLock auto_lock(va_lock_);
+
+  buf_info->mem_type = VA_SURFACE_ATTRIB_MEM_TYPE_KERNEL_DRM;
+  VAStatus va_res = vaLockBuffer(va_display_, buf_id, buf_info);
+  VA_SUCCESS_OR_RETURN(va_res, "Failed to lock vabuffer", false);
+
+  return true;
+}
+
+bool VaapiWrapper::UnlockBuffer(VASurfaceID va_surface_id,
+                                VABufferID buf_id,
+                                VABufferInfo* buf_info) {
+  DCHECK(buf_info);
+  base::AutoLock auto_lock(va_lock_);
+  VAStatus va_res = vaUnlockBuffer(va_display_, buf_id, buf_info);
+  VA_SUCCESS_OR_RETURN(va_res, "Failed to unlock vabuffer", false);
+
+  return true;
+}
+
+
 bool VaapiWrapper::GetVaImageForTesting(VASurfaceID va_surface_id,
                                         VAImage* image,
                                         void** mem) {
@@ -460,6 +491,16 @@ bool VaapiWrapper::PostSandboxInitialization() {
   if (ret == false)
     LOG(WARNING) << "Could not open " << kVaLib;
   return ret;
+}
+
+bool VaapiWrapper::SupportsVaLockBufferApis() {
+  void* handle = dlopen(kVaLib, RTLD_LAZY);
+  if (!handle) {
+    LOG(ERROR) << "Could not open " << kVaLib;
+    return false;
+  }
+  return dlsym(handle, kVaLockBufferSymbol) &&
+         dlsym(handle, kVaUnlockBufferSymbol);
 }
 
 }  // namespace media

@@ -82,6 +82,14 @@ class CONTENT_EXPORT VaapiWrapper {
   // Put data from |va_surface_id| into |va_image|, converting/scaling it.
   bool PutSurfaceIntoImage(VASurfaceID va_surface_id,
                            VAImage* va_image);
+
+  bool LockBuffer(VASurfaceID va_surface_id,
+                  VABufferID buf_id,
+                  VABufferInfo* buf_info);
+  bool UnlockBuffer(VASurfaceID va_surface_id,
+                    VABufferID buf_id,
+                    VABufferInfo* buf_info);
+
   // Returns true if the VAAPI version is less than the specified version.
   bool VAAPIVersionLessThan(int major, int minor);
 
@@ -95,6 +103,9 @@ class CONTENT_EXPORT VaapiWrapper {
   // Release the VAImage (and the associated memory mapping) obtained from
   // GetVaImage(). This is intended for testing only.
   void ReturnVaImageForTesting(VAImage* image);
+
+  // Return true if libva supports vaLockBuffer & vaUnlockBuffer apis.
+  bool SupportsVaLockBufferApis();
 
  private:
   VaapiWrapper();
