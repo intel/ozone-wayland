@@ -32,7 +32,8 @@ VAStatus vaSetDisplayAttributes(VADisplay dpy, VADisplayAttribute *attr_list, in
 VAStatus vaSyncSurface(VADisplay dpy, VASurfaceID render_target);
 VAStatus vaTerminate(VADisplay dpy);
 VAStatus vaUnmapBuffer(VADisplay dpy, VABufferID buf_id);
-
+VAStatus vaLockBuffer(VADisplay dpy, VABufferID buf_id, VABufferInfo *buf_info_ptr);
+VAStatus vaUnlockBuffer(VADisplay dpy, VABufferID buf_id, VABufferInfo *buf_info_ptr);
 
 #------------------------------------------------
 # Functions from libva-wayland used in chromium code.

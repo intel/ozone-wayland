@@ -268,6 +268,9 @@ private:
   // The WeakPtrFactory for |weak_this_|.
   base::WeakPtrFactory<VaapiVideoDecodeAccelerator> weak_this_factory_;
 
+  // Whether VaapiWrapper supports vaLockBuffer apis.
+  bool supports_valockBuffer_apis_;
+
   DISALLOW_COPY_AND_ASSIGN(VaapiVideoDecodeAccelerator);
 };
 
