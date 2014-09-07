@@ -160,7 +160,7 @@ void EventConverterInProcess::NotifyButtonPress(EventConverterInProcess* data,
                            position,
                            position,
                            flags,
-                           1);
+                           flags);
     data->DispatchEvent(&mouseev);
 
     if (type == ui::ET_MOUSE_RELEASED && data->observer_)

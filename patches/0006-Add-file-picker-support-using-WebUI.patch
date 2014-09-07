@@ -1,6 +1,7 @@
-From 0ae9a183f4e7de8d3d2601f180d1751b19abb1dc Mon Sep 17 00:00:00 2001
-From: Joone Hur <joone.hur@intel.com>
-Date: Thu, 26 Jun 2014 17:11:00 -0700
+From 5d1a8ad0e593a61c90938f97d57548e381ed28ab Mon Sep 17 00:00:00 2001
+From: "joone.hur@intel.com"
+ <joone.hur@intel.com@0039d316-1c4b-4281-b951-d872f2087c98>
+Date: Sat, 6 Sep 2014 12:30:11 -0700
 Subject: [PATCH] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
@@ -10,13 +11,13 @@ This implementation allows for oz-wl to show a web based file picker UI.
 Currently, the WebUI only supports basic functionality for opening a file.
 File browsing UI will be added later.
 ---
- chrome/app/generated_resources.grd                 |    8 +
+ chrome/app/generated_resources.grd                 |    9 +-
  chrome/browser/browser_resources.grd               |    3 +
  .../browser/download/save_package_file_picker.cc   |    2 +-
  .../browser/resources/file_picker/file_picker.css  |   72 +++++++++
  .../browser/resources/file_picker/file_picker.html |   37 +++++
  .../browser/resources/file_picker/file_picker.js   |   51 ++++++
- .../aura/chrome_browser_main_extra_parts_aura.cc   |   13 +-
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |   11 +-
  .../ui/webui/chrome_web_ui_controller_factory.cc   |    5 +
  .../browser/ui/webui/file_picker/file_picker_ui.cc |   47 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |   24 +++
@@ -25,7 +26,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |    3 +
  chrome/common/url_constants.h                      |    2 +
  tools/gritsettings/resource_ids                    |    2 +-
- 15 files changed, 434 insertions(+), 4 deletions(-)
+ 15 files changed, 432 insertions(+), 5 deletions(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -34,26 +35,34 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 9732bb1..37dce66 100644
+index 58b209d..2130960 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -14675,6 +14675,14 @@ Do you accept?
-     <message name="IDS_FLAGS_ENABLE_EXPERIMENTAL_HOTWORDING_DESCRIPTION" desc="Description of about:flags option for hotword detection.">
-       Enables experimental 'Ok Google' hotword detection features, such as using the built-in extension. The hotword extension from the Chrome Web Store will no longer be used.
+@@ -4197,7 +4197,7 @@ Make sure you do not expose any sensitive information.
+       </message>
+ 
+       <message name="IDS_EXTENSION_PERMISSION_LINE" desc="Template for item in list of privileges that an extension or app has">
+-          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
++          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
+       </message>
+       <message name="IDS_EXTENSION_RATING_COUNT" desc="Number of ratings an app or extensions has (displayed after star icons)">
+         (<ph name="RATING_COUNT">$1<ex>46</ex></ph>)
+@@ -14690,6 +14690,13 @@ Do you accept?
+     <message name="IDS_FLAGS_ENABLE_MESSAGE_CENTER_ALWAYS_SCROLL_UP_UPON_REMOVAL_DESCRIPTION" desc="Description of about:flags option for message center always scroll up experiment.">
+       Enables experiment that message center always scroll up when a notification is removed.
      </message>
-+
 +    <!-- File-picker strings -->
-+    <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
-+      Save file as
-+    </message>
-+    <message name="IDS_FILE_PICKER_FILE_NAME" desc="File Name">
-+      File name
-+    </message>
++      <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
++        Save file as
++      </message>
++      <message name="IDS_FILE_PICKER_FILE_NAME" desc="File Name">
++        File name
++      </message>
    </messages>
    </release>
  </grit>
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index f352fc8..46b3020 100644
+index 7a36987..fec58a1 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
 @@ -445,6 +445,9 @@
@@ -67,7 +76,7 @@ index f352fc8..46b3020 100644
    </release>
  </grit>
 diff --git a/chrome/browser/download/save_package_file_picker.cc b/chrome/browser/download/save_package_file_picker.cc
-index f45440c..7c4c1d3 100644
+index df38dbc..a36603b 100644
 --- a/chrome/browser/download/save_package_file_picker.cc
 +++ b/chrome/browser/download/save_package_file_picker.cc
 @@ -216,7 +216,7 @@ SavePackageFilePicker::SavePackageFilePicker(
@@ -258,10 +267,10 @@ index 0000000..4161330
 +document.addEventListener('DOMContentLoaded',
 +                          filePicker.initialize);
 diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-index 259b073..cf342a5 100644
+index c0cd472..66e2e53 100644
 --- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 +++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-@@ -18,17 +18,21 @@
+@@ -19,17 +19,21 @@
  #include "ui/gfx/screen.h"
  #include "ui/views/widget/native_widget_aura.h"
  
@@ -278,27 +287,25 @@ index 259b073..cf342a5 100644
  #include "ui/views/linux_ui/linux_ui.h"
  #endif
  
-+#if defined(USE_X11) && !defined(OS_CHROMEOS)
++#if defined(USE_X11)
 +#include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
 +#endif
 +
  #if defined(USE_ASH)
  #include "chrome/browser/ui/ash/ash_init.h"
- #if defined(OS_WIN)
-@@ -102,6 +106,11 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
+ #endif  // defined(USE_ASH)
+@@ -97,6 +101,9 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
+     // TODO(erg): Eventually, we'll need to somehow support IMEs in ash on
+     // Linux.
      ui::InitializeInputMethodForTesting();
++#if defined(OS_LINUX) && defined(USE_OZONE)
++    views::LinuxUI::SetInstance(BuildWebUI());
++#endif
    }
  #endif
-+
-+#if defined(OS_LINUX) && defined(USE_OZONE)
-+  views::LinuxUI::SetInstance(BuildWebUI());
-+#endif
-+
  }
- 
- void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-index b4acde4..f3774a2 100644
+index 9a0c2c0..af7f107 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 @@ -27,6 +27,9 @@
@@ -575,10 +582,10 @@ index 0000000..7711b44
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 91e0549..28b0356 100644
+index 3913f5d..a1835e7 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1051,6 +1051,9 @@
+@@ -1060,6 +1060,9 @@
        'browser/ui/webui/favicon_source.h',
        'browser/ui/webui/fileicon_source.cc',
        'browser/ui/webui/fileicon_source.h',
@@ -587,8 +594,8 @@ index 91e0549..28b0356 100644
 +      'browser/ui/webui/file_picker/file_picker_web_dialog.cc',
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
-       'browser/ui/webui/flash_ui.cc',
-@@ -2903,6 +2906,7 @@
+       'browser/ui/webui/gcm_internals_ui.cc',
+@@ -2923,6 +2926,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',
@@ -645,7 +652,7 @@ index 0f59363..856eda7 100644
  extern const char kChromeUIFlashHost[];
  extern const char kChromeUIGCMInternalsHost[];
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index 6cf6292..0d6e2e0 100644
+index 4e3388b..fbe4647 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
 @@ -18,7 +18,7 @@

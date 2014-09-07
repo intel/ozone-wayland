@@ -27,7 +27,6 @@
 #include "media/base/bitstream_buffer.h"
 #include "media/video/picture.h"
 #include "media/video/video_decode_accelerator.h"
-#include "ui/gl/gl_bindings.h"
 #include "vaapi_h264_decoder.h"
 #include "vaapi_wrapper.h"
 
