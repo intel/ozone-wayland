@@ -1,5 +1,5 @@
 Name:           chromium
-Version:        35.0.1906.0
+Version:        39.0.2149.0
 Release:        0
 Summary:        Chromium ozone-wayland
 License:        BSD-3-Clause
