@@ -1,8 +1,7 @@
-From 5d1a8ad0e593a61c90938f97d57548e381ed28ab Mon Sep 17 00:00:00 2001
-From: "joone.hur@intel.com"
- <joone.hur@intel.com@0039d316-1c4b-4281-b951-d872f2087c98>
+From 0f6390e3adf368e8136cd57ec63679c9a724ca49 Mon Sep 17 00:00:00 2001
+From: "joone.hur@intel.com" <joone.hur@intel.com>
 Date: Sat, 6 Sep 2014 12:30:11 -0700
-Subject: [PATCH] Add file picker support using WebUI
+Subject: [PATCH 3/5] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
 Wayland. Chromium Linux version still uses Gtk+ for file-picker.
@@ -17,7 +16,7 @@ File browsing UI will be added later.
  .../browser/resources/file_picker/file_picker.css  |   72 +++++++++
  .../browser/resources/file_picker/file_picker.html |   37 +++++
  .../browser/resources/file_picker/file_picker.js   |   51 ++++++
- .../aura/chrome_browser_main_extra_parts_aura.cc   |   11 +-
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |   12 +-
  .../ui/webui/chrome_web_ui_controller_factory.cc   |    5 +
  .../browser/ui/webui/file_picker/file_picker_ui.cc |   47 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |   24 +++
@@ -26,7 +25,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |    3 +
  chrome/common/url_constants.h                      |    2 +
  tools/gritsettings/resource_ids                    |    2 +-
- 15 files changed, 432 insertions(+), 5 deletions(-)
+ 15 files changed, 433 insertions(+), 5 deletions(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -267,7 +266,7 @@ index 0000000..4161330
 +document.addEventListener('DOMContentLoaded',
 +                          filePicker.initialize);
 diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-index c0cd472..66e2e53 100644
+index c0cd472..e641bc8 100644
 --- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 +++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 @@ -19,17 +19,21 @@
@@ -294,16 +293,17 @@ index c0cd472..66e2e53 100644
  #if defined(USE_ASH)
  #include "chrome/browser/ui/ash/ash_init.h"
  #endif  // defined(USE_ASH)
-@@ -97,6 +101,9 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
-     // TODO(erg): Eventually, we'll need to somehow support IMEs in ash on
-     // Linux.
+@@ -99,6 +103,10 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
      ui::InitializeInputMethodForTesting();
+   }
+ #endif
++
 +#if defined(OS_LINUX) && defined(USE_OZONE)
 +    views::LinuxUI::SetInstance(BuildWebUI());
 +#endif
-   }
- #endif
  }
+ 
+ void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 index 9a0c2c0..af7f107 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
