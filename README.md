@@ -70,7 +70,7 @@ One needs to set the installation prefix $WLD(Below)  to be same as the one used
   ```
   $ git clone git://anongit.freedesktop.org/vaapi/intel-driver
   $ cd intel-driver/
-  $ git checkout libva-1.2.1
+  $ git checkout 1.2.1
   $ ./autogen.sh --prefix=$WLD  
   $ make -j4 && make install
   ```
