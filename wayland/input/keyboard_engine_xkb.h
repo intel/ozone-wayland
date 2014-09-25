@@ -41,6 +41,7 @@ class KeyboardEngineXKB {
   uint32_t mods_locked_;
   uint32_t group_;
   int last_key_;
+  uint32_t last_modifiers_;
   xkb_keysym_t cached_sym_;
 
   // keymap used to transform keyboard events.
