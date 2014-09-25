@@ -17,6 +17,7 @@ KeyboardEngineXKB::KeyboardEngineXKB() : keyboard_modifiers_(0),
     mods_locked_(0),
     group_(0),
     last_key_(-1),
+    last_modifiers_(0),
     cached_sym_(XKB_KEY_NoSymbol),
     keymap_(NULL),
     state_(NULL),
@@ -92,7 +93,7 @@ void KeyboardEngineXKB::OnKeyModifiers(uint32_t mods_depressed,
 }
 
 unsigned KeyboardEngineXKB::ConvertKeyCodeFromEvdev(unsigned hardwarecode) {
-  if (hardwarecode == last_key_)
+  if (hardwarecode == last_key_ && last_modifiers_ ==  keyboard_modifiers_)
     return cached_sym_;
 
   const xkb_keysym_t *syms;
@@ -105,6 +106,7 @@ unsigned KeyboardEngineXKB::ConvertKeyCodeFromEvdev(unsigned hardwarecode) {
     sym = XKB_KEY_NoSymbol;
 
   last_key_ = hardwarecode;
+  last_modifiers_ =  keyboard_modifiers_;
   cached_sym_ = sym;
   NormalizeKey();
 
