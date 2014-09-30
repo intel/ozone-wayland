@@ -505,6 +505,10 @@ void DesktopWindowTreeHostWayland::SetVisibleOnAllWorkspaces(
   NOTIMPLEMENTED();
 }
 
+void DesktopWindowTreeHostWayland::SizeConstraintsChanged() {
+  NOTIMPLEMENTED();
+}
+
 void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
   // TODO(erg):
   NOTIMPLEMENTED();
