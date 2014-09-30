@@ -1,7 +1,7 @@
-From 0f6390e3adf368e8136cd57ec63679c9a724ca49 Mon Sep 17 00:00:00 2001
-From: "joone.hur@intel.com" <joone.hur@intel.com>
-Date: Sat, 6 Sep 2014 12:30:11 -0700
-Subject: [PATCH 3/5] Add file picker support using WebUI
+From 95fd57aade52b596eb28a2a6729776c5bcc6ebc3 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Sun, 28 Sep 2014 20:01:12 -0700
+Subject: Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
 Wayland. Chromium Linux version still uses Gtk+ for file-picker.
@@ -10,7 +10,7 @@ This implementation allows for oz-wl to show a web based file picker UI.
 Currently, the WebUI only supports basic functionality for opening a file.
 File browsing UI will be added later.
 ---
- chrome/app/generated_resources.grd                 |    9 +-
+ chrome/app/generated_resources.grd                 |    7 +
  chrome/browser/browser_resources.grd               |    3 +
  .../browser/download/save_package_file_picker.cc   |    2 +-
  .../browser/resources/file_picker/file_picker.css  |   72 +++++++++
@@ -18,14 +18,14 @@ File browsing UI will be added later.
  .../browser/resources/file_picker/file_picker.js   |   51 ++++++
  .../aura/chrome_browser_main_extra_parts_aura.cc   |   12 +-
  .../ui/webui/chrome_web_ui_controller_factory.cc   |    5 +
- .../browser/ui/webui/file_picker/file_picker_ui.cc |   47 ++++++
+ .../browser/ui/webui/file_picker/file_picker_ui.cc |   46 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |   24 +++
  .../ui/webui/file_picker/file_picker_web_dialog.cc |  165 ++++++++++++++++++++
  chrome/chrome_browser_ui.gypi                      |    4 +
  chrome/common/url_constants.cc                     |    3 +
  chrome/common/url_constants.h                      |    2 +
  tools/gritsettings/resource_ids                    |    2 +-
- 15 files changed, 433 insertions(+), 5 deletions(-)
+ 15 files changed, 431 insertions(+), 4 deletions(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -34,19 +34,10 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 58b209d..2130960 100644
+index 1a086f7..ef77541 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -4197,7 +4197,7 @@ Make sure you do not expose any sensitive information.
-       </message>
- 
-       <message name="IDS_EXTENSION_PERMISSION_LINE" desc="Template for item in list of privileges that an extension or app has">
--          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
-+          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
-       </message>
-       <message name="IDS_EXTENSION_RATING_COUNT" desc="Number of ratings an app or extensions has (displayed after star icons)">
-         (<ph name="RATING_COUNT">$1<ex>46</ex></ph>)
-@@ -14690,6 +14690,13 @@ Do you accept?
+@@ -14735,6 +14735,13 @@ Do you accept?
      <message name="IDS_FLAGS_ENABLE_MESSAGE_CENTER_ALWAYS_SCROLL_UP_UPON_REMOVAL_DESCRIPTION" desc="Description of about:flags option for message center always scroll up experiment.">
        Enables experiment that message center always scroll up when a notification is removed.
      </message>
@@ -61,10 +52,10 @@ index 58b209d..2130960 100644
    </release>
  </grit>
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index 7a36987..fec58a1 100644
+index 61a83df..1b2fc41 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -445,6 +445,9 @@
+@@ -446,6 +446,9 @@
          <include name="IDR_BRAILLE_MANIFEST" file="resources\chromeos\braille_ime\manifest.json" type="BINDATA" />
        </if>
        <include name="IDR_WHISPERNET_PROXY_MANIFEST" file="resources\whispernet_proxy\manifest.json" type="BINDATA" />
@@ -305,10 +296,10 @@ index c0cd472..e641bc8 100644
  
  void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-index 9a0c2c0..af7f107 100644
+index 50bffa6..7d41190 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -27,6 +27,9 @@
+@@ -26,6 +26,9 @@
  #include "chrome/browser/ui/webui/devtools_ui.h"
  #include "chrome/browser/ui/webui/domain_reliability_internals_ui.h"
  #include "chrome/browser/ui/webui/downloads_ui.h"
@@ -318,7 +309,7 @@ index 9a0c2c0..af7f107 100644
  #include "chrome/browser/ui/webui/flags_ui.h"
  #include "chrome/browser/ui/webui/flash_ui.h"
  #include "chrome/browser/ui/webui/gcm_internals_ui.h"
-@@ -285,6 +288,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+@@ -284,6 +287,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
      return &NewWebUI<DomainReliabilityInternalsUI>;
    if (url.host() == chrome::kChromeUIFlagsHost)
      return &NewWebUI<FlagsUI>;
@@ -329,10 +320,10 @@ index 9a0c2c0..af7f107 100644
    if (url.host() == chrome::kChromeUIInstantHost)
 diff --git a/chrome/browser/ui/webui/file_picker/file_picker_ui.cc b/chrome/browser/ui/webui/file_picker/file_picker_ui.cc
 new file mode 100644
-index 0000000..9663fbb
+index 0000000..d151be1
 --- /dev/null
 +++ b/chrome/browser/ui/webui/file_picker/file_picker_ui.cc
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,46 @@
 +// Copyright 2014 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -356,7 +347,6 @@ index 0000000..9663fbb
 +  : WebDialogUI(web_ui) {
 +  content::WebUIDataSource* html_source = content::WebUIDataSource::Create(
 +      chrome::kChromeUIFilePickerHost);
-+  html_source->SetUseJsonJSFormatV2();
 +
 +  html_source->AddLocalizedString(
 +       "filePickerFileNameLabel",
@@ -412,7 +402,7 @@ index 0000000..908eb06
 +#endif  // CHROME_BROWSER_UI_WEBUI_FILE_PICKER_UI_H_
 diff --git a/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 new file mode 100644
-index 0000000..7711b44
+index 0000000..cae75b6
 --- /dev/null
 +++ b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 @@ -0,0 +1,165 @@
@@ -431,7 +421,7 @@ index 0000000..7711b44
 +#include "chrome/grit/generated_resources.h"
 +#include "content/public/browser/web_ui.h"
 +#include "content/public/browser/web_ui_message_handler.h"
-+#include "grit/ui_strings.h"
++#include "ui/strings/grit/ui_strings.h"
 +#include "ui/base/l10n/l10n_util.h"
 +#include "ui/gfx/size.h"
 +
@@ -582,10 +572,10 @@ index 0000000..7711b44
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 3913f5d..a1835e7 100644
+index 15f3fb4..2fb671d 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1060,6 +1060,9 @@
+@@ -1056,6 +1056,9 @@
        'browser/ui/webui/favicon_source.h',
        'browser/ui/webui/fileicon_source.cc',
        'browser/ui/webui/fileicon_source.h',
@@ -595,7 +585,7 @@ index 3913f5d..a1835e7 100644
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
        'browser/ui/webui/gcm_internals_ui.cc',
-@@ -2923,6 +2926,7 @@
+@@ -2914,6 +2917,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',
@@ -604,7 +594,7 @@ index 3913f5d..a1835e7 100644
                ],
              }],
 diff --git a/chrome/common/url_constants.cc b/chrome/common/url_constants.cc
-index 6ac57c5..138c718 100644
+index bb01727..a9630fe 100644
 --- a/chrome/common/url_constants.cc
 +++ b/chrome/common/url_constants.cc
 @@ -49,6 +49,7 @@ const char kChromeUIExtensionsFrameURL[] = "chrome://extensions-frame/";
@@ -615,7 +605,7 @@ index 6ac57c5..138c718 100644
  const char kChromeUIFlagsURL[] = "chrome://flags/";
  const char kChromeUIFlashURL[] = "chrome://flash/";
  const char kChromeUIGCMInternalsURL[] = "chrome://gcm-internals/";
-@@ -187,6 +188,7 @@ const char kChromeUIExtensionsFrameHost[] = "extensions-frame";
+@@ -186,6 +187,7 @@ const char kChromeUIExtensionsFrameHost[] = "extensions-frame";
  const char kChromeUIExtensionsHost[] = "extensions";
  const char kChromeUIFaviconHost[] = "favicon";
  const char kChromeUIFeedbackHost[] = "feedback";
@@ -623,7 +613,7 @@ index 6ac57c5..138c718 100644
  const char kChromeUIFlagsHost[] = "flags";
  const char kChromeUIFlashHost[] = "flash";
  const char kChromeUIGCMInternalsHost[] = "gcm-internals";
-@@ -574,6 +576,7 @@ const char* const kChromeHostURLs[] = {
+@@ -572,6 +574,7 @@ const char* const kChromeHostURLs[] = {
    kChromeUICrashesHost,
    kChromeUICreditsHost,
    kChromeUIDNSHost,
@@ -632,7 +622,7 @@ index 6ac57c5..138c718 100644
    kChromeUIHistoryHost,
    kChromeUIInvalidationsHost,
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index 0f59363..856eda7 100644
+index dd5c7cc..fb8036f 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
 @@ -43,6 +43,7 @@ extern const char kChromeUIExtensionsFrameURL[];
@@ -643,7 +633,7 @@ index 0f59363..856eda7 100644
  extern const char kChromeUIFlagsURL[];
  extern const char kChromeUIFlashURL[];
  extern const char kChromeUIGCMInternalsURL[];
-@@ -176,6 +177,7 @@ extern const char kChromeUIExtensionsFrameHost[];
+@@ -175,6 +176,7 @@ extern const char kChromeUIExtensionsFrameHost[];
  extern const char kChromeUIExtensionsHost[];
  extern const char kChromeUIFaviconHost[];
  extern const char kChromeUIFeedbackHost[];
@@ -652,13 +642,13 @@ index 0f59363..856eda7 100644
  extern const char kChromeUIFlashHost[];
  extern const char kChromeUIGCMInternalsHost[];
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index 4e3388b..fbe4647 100644
+index c4a6337..a1b402d 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
-@@ -18,7 +18,7 @@
+@@ -16,7 +16,7 @@
  
    "chrome/browser/browser_resources.grd": {
-     "includes": [500],
+     "includes": [400],
 -    "structures": [750],
 +    "structures": [800],
    },
