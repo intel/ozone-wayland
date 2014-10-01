@@ -457,8 +457,10 @@ void DesktopWindowTreeHostWayland::Minimize() {
 
   state_ |= Minimized;
   previous_bounds_ = bounds_;
+  bounds_ = gfx::Rect();
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
                                                               ui::MINIMIZED);
+  OnHostResized(bounds_.size());
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
@@ -795,6 +797,9 @@ void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
 
 void DesktopWindowTreeHostWayland::HandleWindowUnminimized() {
   state_ &= ~Minimized;
+  bounds_ = previous_bounds_;
+  previous_bounds_ = gfx::Rect();
+  OnHostResized(bounds_.size());
 }
 
 void DesktopWindowTreeHostWayland::HandleCommit(const std::string& text) {
