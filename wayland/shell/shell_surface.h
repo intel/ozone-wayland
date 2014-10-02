@@ -23,7 +23,8 @@ class WaylandShellSurface {
 
   // The implementation should initialize the shell and set up all
   // necessary callbacks.
-  virtual void InitializeShellSurface(WaylandWindow* window) = 0;
+  virtual void InitializeShellSurface(WaylandWindow* window,
+                                      WaylandWindow::ShellType type) = 0;
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
                                   unsigned x,

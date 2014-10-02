@@ -27,7 +27,8 @@ IVIShellSurface::~IVIShellSurface() {
   ivi_surface_destroy(ivi_surface_);
 }
 
-void IVIShellSurface::InitializeShellSurface(WaylandWindow* window) {
+void IVIShellSurface::InitializeShellSurface(WaylandWindow* window,
+                                             WaylandWindow::ShellType type) {
   DCHECK(!ivi_surface_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
