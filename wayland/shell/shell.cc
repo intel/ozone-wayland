@@ -29,7 +29,8 @@ WaylandShell::~WaylandShell() {
     ivi_application_destroy(ivi_application_);
 }
 
-WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window) {
+WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window,
+                                                      WaylandWindow::ShellType type) {
   DCHECK(shell_ || xdg_shell_ || ivi_application_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
@@ -42,7 +43,7 @@ WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window) {
     surface = new WLShellSurface();
 
   DCHECK(surface);
-  surface->InitializeShellSurface(window);
+  surface->InitializeShellSurface(window, type);
   wl_surface_set_user_data(surface->GetWLSurface(), window);
   display->FlushDisplay();
 
