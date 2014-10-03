@@ -29,28 +29,33 @@ XDGShellSurface::~XDGShellSurface() {
     xdg_popup_destroy(xdg_popup_);
 }
 
-void XDGShellSurface::InitializeShellSurface(WaylandWindow* window) {
+void XDGShellSurface::InitializeShellSurface(WaylandWindow* window,
+                                             WaylandWindow::ShellType type) {
   DCHECK(!xdg_surface_);
+  DCHECK(!xdg_popup_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
   WaylandShell* shell = WaylandDisplay::GetInstance()->GetShell();
   DCHECK(shell && shell->GetXDGShell());
-  xdg_surface_ = xdg_shell_get_xdg_surface(shell->GetXDGShell(),
-                                           GetWLSurface());
 
-  static const xdg_surface_listener xdg_surface_listener = {
-    XDGShellSurface::HandleConfigure,
-    XDGShellSurface::HandleChangeState,
-    XDGShellSurface::HandleActivate,
-    XDGShellSurface::HandleDeactivate,
-    XDGShellSurface::HandleDelete
-  };
+  if (type != WaylandWindow::POPUP) {
+    xdg_surface_ = xdg_shell_get_xdg_surface(shell->GetXDGShell(),
+                                             GetWLSurface());
 
-  xdg_surface_add_listener(xdg_surface_,
-                           &xdg_surface_listener,
-                           window);
+    static const xdg_surface_listener xdg_surface_listener = {
+      XDGShellSurface::HandleConfigure,
+      XDGShellSurface::HandleChangeState,
+      XDGShellSurface::HandleActivate,
+      XDGShellSurface::HandleDeactivate,
+      XDGShellSurface::HandleDelete
+    };
 
-  DCHECK(xdg_surface_);
+    xdg_surface_add_listener(xdg_surface_,
+                             &xdg_surface_listener,
+                             window);
+
+    DCHECK(xdg_surface_);
+  }
 }
 
 void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,

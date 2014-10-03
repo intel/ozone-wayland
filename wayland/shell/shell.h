@@ -8,6 +8,7 @@
 #include <wayland-client.h>
 
 #include "base/basictypes.h"
+#include "ozone/wayland/window.h"
 
 struct xdg_shell;
 namespace ozonewayland {
@@ -22,7 +23,8 @@ class WaylandShell {
   // Creates shell surface for a given WaylandWindow. This can be either
   // wl_shell, xdg_shell or any shell which supports wayland protocol.
   // Ownership is passed to the caller.
-  WaylandShellSurface* CreateShellSurface(WaylandWindow* parent);
+  WaylandShellSurface* CreateShellSurface(WaylandWindow* parent,
+                                          WaylandWindow::ShellType type);
   void Initialize(struct wl_registry *registry,
                   uint32_t name,
                   const char *interface,
