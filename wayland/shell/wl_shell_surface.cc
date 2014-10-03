@@ -22,7 +22,8 @@ WLShellSurface::~WLShellSurface() {
   wl_shell_surface_destroy(shell_surface_);
 }
 
-void WLShellSurface::InitializeShellSurface(WaylandWindow* window) {
+void WLShellSurface::InitializeShellSurface(WaylandWindow* window,
+                                            WaylandWindow::ShellType type) {
   DCHECK(!shell_surface_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
