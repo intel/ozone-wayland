@@ -6,7 +6,8 @@ License:        BSD-3-Clause
 Group:          Web Framework/chromium
 Url:            https://01.org/ozone-wayland
 Source:         %{name}.tar
-Source1:        chromium-browser.sh
+Source1:        chromium-browser-ia32.sh
+Source2:        chromium-browser-x64.sh
 Source1001:     chromium.manifest
 
 BuildRequires:  bison
@@ -130,7 +131,11 @@ export GYP_GENERATORS=ninja
 -Duse_system_nspr=1 \
 -Denable_xi21_mt=1 \
 -Duse_xi2_mt=0 \
+%ifarch x86_64
+-Dtarget_arch=x64 \
+%else
 -Dtarget_arch=ia32 \
+%endif
 -Duse_alsa=0 \
 -Duse_gnome_keyring=0 \
 -Dlogging_like_official_build=1 \
@@ -163,7 +168,11 @@ fi
 cd src
 
 # Binaries.
+%ifarch x86_64
+install -p -D %{SOURCE2} %{buildroot}%{_bindir}/chromium-browser
+%else
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/chromium-browser
+%endif
 install -p -D ${BUILDDIR_NAME}/out/Release/chrome %{buildroot}%{_libdir}/chromium/chrome
 cp -R ${BUILDDIR_NAME}/out/Release/locales %{buildroot}%{_libdir}/chromium/
 
