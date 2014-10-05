@@ -74,6 +74,12 @@ cp -a src/ozone/LICENSE LICENSE.ozone-wayland
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
+%ifarch %{ix86}
+# Remove debug symbols
+export CFLAGS=`echo $CFLAGS | sed s,-g,,g`
+export CXXFLAGS=`echo $CXXFLAGS | sed s,-g,,g`
+%endif
+
 # Building the RPM in the GBS chroot fails with errors such as
 #   /usr/lib/gcc/i586-tizen-linux/4.7/../../../../i586-tizen-linux/bin/ld:
 #       failed to set dynamic section sizes: Memory exhausted
