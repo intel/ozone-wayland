@@ -130,6 +130,11 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
   return platform_window_->GetBounds();
 }
 
+WindowTreeHostDelegateWayland*
+DesktopWindowTreeHostWayland::GetDelegate() const {
+  return g_delegate_ozone_wayland_;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, private:
 
@@ -740,11 +745,11 @@ gfx::Point DesktopWindowTreeHostWayland::GetLocationOnNativeScreen() const {
 }
 
 void DesktopWindowTreeHostWayland::SetCapture() {
-  g_delegate_ozone_wayland_->SetCapture(this);
+  platform_window_->SetCapture();
 }
 
 void DesktopWindowTreeHostWayland::ReleaseCapture() {
-  g_delegate_ozone_wayland_->SetCapture(NULL);
+  platform_window_->ReleaseCapture();
 }
 
 void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {

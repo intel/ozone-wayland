@@ -77,10 +77,12 @@ WindowTreeHostDelegateWayland::GetActiveWindow() const {
   return current_active_window_;
 }
 
-void WindowTreeHostDelegateWayland::SetCapture(
-    DesktopWindowTreeHostWayland* dispatcher) {
+void WindowTreeHostDelegateWayland::SetCapture(unsigned handle) {
   if (current_capture_)
     current_capture_->OnCaptureReleased();
+
+  DesktopWindowTreeHostWayland* dispatcher =
+      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
 
   current_capture_ = dispatcher;
   stop_propogation_ = current_capture_ ? true : false;
@@ -101,7 +103,7 @@ void WindowTreeHostDelegateWayland::DispatchMouseEvent(
   if (handle_event_)
     SendEventToProcessor(event);
   else if (event->type() == ui::ET_MOUSE_PRESSED)
-    SetCapture(NULL);
+    SetCapture(0);
 
   // Stop event propogation as this window is acting as event grabber. All
   // event's we create are "cancelable". If in future we use events that are not
@@ -206,7 +208,8 @@ void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
   if (!window || window->window_parent_)
     return;
 
-  current_active_window_->HandleNativeWidgetActivationChanged(false);
+  if (current_active_window_)
+    current_active_window_->HandleNativeWidgetActivationChanged(false);
 
   SetActiveWindow(window);
   window->HandleNativeWidgetActivationChanged(true);

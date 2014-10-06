@@ -60,6 +60,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // belongs to a particular window.
   gfx::Rect GetBoundsInScreen() const;
 
+  // Expose delegate temporarily
+  WindowTreeHostDelegateWayland* GetDelegate() const;
+
  private:
   enum {
     Uninitialized = 0x00,
