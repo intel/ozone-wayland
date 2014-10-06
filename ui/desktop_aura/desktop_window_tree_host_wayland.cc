@@ -471,9 +471,9 @@ void DesktopWindowTreeHostWayland::Restore() {
   state_ &= ~Maximized;
   state_ &= ~Minimized;
   state_ |= Normal;
+  platform_window_->Restore();
   platform_window_->SetBounds(previous_bounds_);
   previous_bounds_ = gfx::Rect();
-  platform_window_->Restore();
   Relayout();
 }
 

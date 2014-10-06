@@ -175,7 +175,6 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     {
       WaylandWindow* widget = GetWidget(w);
       widget->SetFullscreen();
-      widget->Resize(width, height);
       break;
     }
     case ui::MAXIMIZED:
@@ -194,7 +193,6 @@ void WaylandDisplay::SetWidgetState(unsigned w,
     {
       WaylandWindow* widget = GetWidget(w);
       widget->Restore();
-      widget->Resize(width, height);
       break;
     }
     case ui::ACTIVE:

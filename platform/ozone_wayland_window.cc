@@ -17,9 +17,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   opaque_handle++;
   handle_ = opaque_handle;
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              CREATE,
-                                                              0,
-                                                              0);
+                                                              CREATE);
   delegate_->OnAcceleratedWidgetAvailable(handle_);
 }
 
@@ -61,17 +59,8 @@ void OzoneWaylandWindow::ToggleFullscreen() {
     NOTREACHED() << "Unable to retrieve valid gfx::Screen";
 
   SetBounds(screen->GetPrimaryDisplay().bounds());
-  // We could use HandleConfigure in ShellSurface to set the correct bounds of
-  // egl window associated with this opaque handle. How ever, this would need
-  // to handle race conditions and ensure correct size is set for
-  // wl_egl_window_resize before eglsurface is resized. Passing window size
-  // attributes already here, ensures that wl_egl_window_resize is resized
-  // before eglsurface is resized. This doesn't add any extra overhead as the
-  // IPC call needs to be done.
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::FULLSCREEN,
-                                                              bounds_.width(),
-                                                              bounds_.height());
+                                                              ui::FULLSCREEN);
 }
 
 void OzoneWaylandWindow::Maximize() {
@@ -87,9 +76,7 @@ void OzoneWaylandWindow::Minimize() {
 
 void OzoneWaylandWindow::Restore() {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::RESTORE,
-                                                              bounds_.width(),
-                                                              bounds_.height());
+                                                              ui::RESTORE);
 }
 
 void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
