@@ -135,6 +135,7 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 
 WindowTreeHostDelegateWayland*
 DesktopWindowTreeHostWayland::GetDelegate() const {
+  DCHECK(g_delegate_ozone_wayland_);
   return g_delegate_ozone_wayland_;
 }
 
@@ -295,7 +296,6 @@ void DesktopWindowTreeHostWayland::Close() {
 }
 
 void DesktopWindowTreeHostWayland::CloseNow() {
-  DCHECK(g_delegate_ozone_wayland_);
   unsigned widgetId = window_;
   native_widget_delegate_->OnNativeWidgetDestroying();
 
@@ -321,7 +321,8 @@ void DesktopWindowTreeHostWayland::CloseNow() {
     delete aura_windows_;
     aura_windows_ = NULL;
   }
-  g_delegate_ozone_wayland_->OnRootWindowClosed(widgetId);
+
+  platform_window_->Close();
 
   if (open_windows().empty())
     CleanUpWindowList();

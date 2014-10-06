@@ -47,6 +47,8 @@ void OzoneWaylandWindow::Hide() {
 }
 
 void OzoneWaylandWindow::Close() {
+  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
+      GetDelegate()->OnRootWindowClosed(handle_);
 }
 
 void OzoneWaylandWindow::SetCapture() {
