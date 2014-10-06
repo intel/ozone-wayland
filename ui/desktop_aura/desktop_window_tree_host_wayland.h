@@ -49,6 +49,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // is the topmost window.
   static const std::vector<aura::Window*>& GetAllOpenWindows();
 
+  // Deallocates the internal list of open windows.
+  static void CleanUpWindowList();
+
   // Accepts a opaque handle widget and returns associated aura::Window.
   static aura::Window* GetContentWindowForAcceleratedWidget(
       gfx::AcceleratedWidget widget);
@@ -180,6 +183,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   void HandlePreeditChanged(const std::string& text, const std::string& commit);
   void HandleCommit(const std::string& text);
 
+  static std::list<gfx::AcceleratedWidget>& open_windows();
+
   RootWindowState state_;
 
   // Original bounds of DRWH.
@@ -204,6 +209,11 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // Platform-specific part of this DesktopWindowTreeHost.
   scoped_ptr<ui::PlatformWindow> platform_window_;
 
+  // A list of all (top-level) windows that have been created but not yet
+  // destroyed.
+  static std::list<gfx::AcceleratedWidget>* open_windows_;
+  // List of all open aura::Window.
+  static std::vector<aura::Window*>* aura_windows_;
   static WindowTreeHostDelegateWayland* g_delegate_ozone_wayland_;
   friend class WindowTreeHostDelegateWayland;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);

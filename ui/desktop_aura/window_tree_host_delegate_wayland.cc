@@ -8,6 +8,7 @@
 
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ui/aura/window.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/platform/platform_event_source.h"
 
@@ -19,9 +20,7 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
       stop_propogation_(false),
       current_dispatcher_(NULL),
       current_capture_(NULL),
-      current_active_window_(NULL),
-      open_windows_(NULL),
-      aura_windows_(NULL) {
+      current_active_window_(NULL) {
   if (ui::PlatformEventSource::GetInstance())
     ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
   ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
@@ -30,39 +29,25 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
 WindowTreeHostDelegateWayland::~WindowTreeHostDelegateWayland() {
 }
 
-void WindowTreeHostDelegateWayland::OnRootWindowCreated(unsigned handle) {
-  open_windows().push_back(handle);
-
-  if (aura_windows_) {
-    aura_windows_->clear();
-    delete aura_windows_;
-    aura_windows_ = NULL;
-  }
-}
-
 void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
-  open_windows().remove(handle);
-  if (open_windows().empty()) {
-    delete open_windows_;
-    open_windows_ = NULL;
-    SetActiveWindow(NULL);
-
+  const std::vector<aura::Window*>& windows =
+      DesktopWindowTreeHostWayland::GetAllOpenWindows();
+  if (windows.empty()) {
     ui::PlatformEventSource* event_source =
         ui::PlatformEventSource::GetInstance();
     if (event_source)
       event_source->RemovePlatformEventDispatcher(this);
     ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
-  }
 
-  if (aura_windows_) {
-    aura_windows_->clear();
-    delete aura_windows_;
-    aura_windows_ = NULL;
+    current_active_window_ = NULL;
+    current_capture_ = NULL;
+    current_dispatcher_ = NULL;
+    current_focus_window_ = 0;
+    return;
   }
 
   if (!current_active_window_ ||
-      GetWindowHandle(current_active_window_->window_) != handle ||
-      !open_windows_) {
+      GetWindowHandle(current_active_window_->window_) != handle) {
      return;
   }
 
@@ -70,10 +55,9 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
   // Set first top level window in the list of open windows as dispatcher.
   // This is just a guess of the window which would eventually be focussed.
   // We should set the correct root window as dispatcher in OnWindowFocused.
-  const std::list<unsigned>& windows = open_windows();
   DesktopWindowTreeHostWayland* rootWindow =
       DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
-          windows.front());
+          windows.front()->GetHost()->GetAcceleratedWidget());
   SetActiveWindow(rootWindow);
   rootWindow->HandleNativeWidgetActivationChanged(true);
 }
@@ -84,16 +68,6 @@ void WindowTreeHostDelegateWayland::SetActiveWindow(
   current_dispatcher_ = current_active_window_;
   if (!current_active_window_)
     return;
-
-  // Make sure the stacking order is correct. The activated window should be
-  // first one in list of open windows.
-  std::list<unsigned>& windows = open_windows();
-  DCHECK(windows.size());
-  unsigned window_handle = current_active_window_->window_;
-  if (windows.front() != window_handle) {
-    windows.remove(window_handle);
-    windows.insert(windows.begin(), window_handle);
-  }
 
   current_active_window_->Activate();
 }
@@ -120,20 +94,6 @@ WindowTreeHostDelegateWayland::GetCurrentCapture() const {
   return current_capture_;
 }
 
-const std::vector<aura::Window*>&
-WindowTreeHostDelegateWayland::GetAllOpenWindows() {
-  if (!aura_windows_) {
-    const std::list<unsigned>& windows = open_windows();
-    DCHECK(windows.size());
-    aura_windows_ = new std::vector<aura::Window*>(windows.size());
-    std::transform(
-        windows.begin(), windows.end(), aura_windows_->begin(),
-            DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget);
-  }
-
-  return *aura_windows_;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, Private implementation:
 void WindowTreeHostDelegateWayland::DispatchMouseEvent(
@@ -148,14 +108,6 @@ void WindowTreeHostDelegateWayland::DispatchMouseEvent(
   // cancelable, then a check for cancelable events needs to be added here.
   if (stop_propogation_)
     event->StopPropagation();
-}
-
-std::list<unsigned>&
-WindowTreeHostDelegateWayland::open_windows() {
-  if (!open_windows_)
-    open_windows_ = new std::list<unsigned>();
-
-  return *open_windows_;
 }
 
 unsigned

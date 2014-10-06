@@ -44,6 +44,12 @@ namespace views {
 WindowTreeHostDelegateWayland*
     DesktopWindowTreeHostWayland::g_delegate_ozone_wayland_ = NULL;
 
+std::list<gfx::AcceleratedWidget>*
+DesktopWindowTreeHostWayland::open_windows_ = NULL;
+
+std::vector<aura::Window*>*
+DesktopWindowTreeHostWayland::aura_windows_ = NULL;
+
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
 
@@ -88,8 +94,25 @@ DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
 // static
 const std::vector<aura::Window*>&
 DesktopWindowTreeHostWayland::GetAllOpenWindows() {
-  DCHECK(g_delegate_ozone_wayland_);
-  return g_delegate_ozone_wayland_->GetAllOpenWindows();
+  if (!aura_windows_) {
+    const std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    aura_windows_ = new std::vector<aura::Window*>(windows.size());
+    std::transform(
+        windows.begin(), windows.end(), aura_windows_->begin(),
+            DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget);
+    }
+
+  return *aura_windows_;
+}
+
+void DesktopWindowTreeHostWayland::CleanUpWindowList() {
+  delete open_windows_;
+  open_windows_ = NULL;
+  if (aura_windows_) {
+    aura_windows_->clear();
+    delete aura_windows_;
+    aura_windows_ = NULL;
+  }
 }
 
 // static
@@ -222,7 +245,12 @@ void DesktopWindowTreeHostWayland::OnNativeWidgetCreated(
   if (!g_delegate_ozone_wayland_)
     g_delegate_ozone_wayland_ = new WindowTreeHostDelegateWayland();
 
-  g_delegate_ozone_wayland_->OnRootWindowCreated(window_);
+  open_windows().push_back(window_);
+  if (aura_windows_) {
+    aura_windows_->clear();
+    delete aura_windows_;
+    aura_windows_ = NULL;
+  }
 
   // Add DesktopWindowTreeHostWayland as dispatcher.
   bool root_window = params.type == Widget::InitParams::TYPE_BUBBLE ||
@@ -278,7 +306,16 @@ void DesktopWindowTreeHostWayland::CloseNow() {
   if (window_parent_)
     window_parent_->window_children_.erase(this);
 
+  open_windows().remove(widgetId);
+  if (aura_windows_) {
+    aura_windows_->clear();
+    delete aura_windows_;
+    aura_windows_ = NULL;
+  }
   g_delegate_ozone_wayland_->OnRootWindowClosed(widgetId);
+
+  if (open_windows().empty())
+    CleanUpWindowList();
   // Destroy the compositor before destroying the window since shutdown
   // may try to swap, and the swap without a window causes an error, which
   // causes a crash with in-process renderer.
@@ -740,8 +777,18 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
   if (!state_)
     return;
 
-  if (active)
+  if (active) {
+    // Make sure the stacking order is correct. The activated window should be
+    // first one in list of open windows.
+    std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    DCHECK(windows.size());
+    if (windows.front() != window_) {
+      windows.remove(window_);
+      windows.insert(windows.begin(), window_);
+    }
+
     OnHostActivated();
+  }
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
@@ -788,6 +835,14 @@ void DesktopWindowTreeHostWayland::HandlePreeditChanged(const std::string& text,
       static_cast<ui::InputMethodAuraLinux*>(desktop_native_widget_aura_->
       input_method_event_filter()->input_method());
   inputMethod->OnPreeditChanged(composition_text);
+}
+
+std::list<gfx::AcceleratedWidget>&
+DesktopWindowTreeHostWayland::open_windows() {
+  if (!open_windows_)
+    open_windows_ = new std::list<gfx::AcceleratedWidget>();
+
+  return *open_windows_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

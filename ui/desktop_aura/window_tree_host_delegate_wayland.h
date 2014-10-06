@@ -31,7 +31,6 @@ class WindowTreeHostDelegateWayland
   WindowTreeHostDelegateWayland();
   virtual ~WindowTreeHostDelegateWayland();
 
-  void OnRootWindowCreated(unsigned handle);
   void OnRootWindowClosed(unsigned handle);
 
   void SetActiveWindow(DesktopWindowTreeHostWayland* dispatcher);
@@ -39,8 +38,6 @@ class WindowTreeHostDelegateWayland
 
   void SetCapture(DesktopWindowTreeHostWayland* dispatcher);
   DesktopWindowTreeHostWayland* GetCurrentCapture() const;
-
-  const std::vector<aura::Window*>& GetAllOpenWindows();
 
   // Overridden frm ui::EventSource
   virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
@@ -65,7 +62,6 @@ class WindowTreeHostDelegateWayland
 
   // Dispatches a mouse event.
   void DispatchMouseEvent(ui::MouseEvent* event);
-  std::list<unsigned>& open_windows();
   unsigned GetWindowHandle(gfx::AcceleratedWidget widget);
 
   unsigned current_focus_window_;
@@ -79,10 +75,6 @@ class WindowTreeHostDelegateWayland
   // things in views like hiding menus.
   DesktopWindowTreeHostWayland* current_capture_;
   DesktopWindowTreeHostWayland* current_active_window_;
-  // List of all open windows.
-  std::list<unsigned>* open_windows_;
-  // List of all open aura::Window.
-  std::vector<aura::Window*>* aura_windows_;
   DISALLOW_COPY_AND_ASSIGN(WindowTreeHostDelegateWayland);
 };
 
