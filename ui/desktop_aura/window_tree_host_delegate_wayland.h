@@ -37,7 +37,6 @@ class WindowTreeHostDelegateWayland
   DesktopWindowTreeHostWayland* GetActiveWindow() const;
 
   void SetCapture(unsigned handle);
-  DesktopWindowTreeHostWayland* GetCurrentCapture() const;
 
   // Overridden frm ui::EventSource
   virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;

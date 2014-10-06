@@ -44,6 +44,9 @@ namespace views {
 WindowTreeHostDelegateWayland*
     DesktopWindowTreeHostWayland::g_delegate_ozone_wayland_ = NULL;
 
+DesktopWindowTreeHostWayland*
+    DesktopWindowTreeHostWayland::current_capture_ = NULL;
+
 std::list<gfx::AcceleratedWidget>*
 DesktopWindowTreeHostWayland::open_windows_ = NULL;
 
@@ -311,6 +314,7 @@ void DesktopWindowTreeHostWayland::CloseNow() {
   if (window_parent_)
     window_parent_->window_children_.erase(this);
 
+  ReleaseCapture();
   open_windows().remove(widgetId);
   if (aura_windows_) {
     aura_windows_->clear();
@@ -528,12 +532,14 @@ bool DesktopWindowTreeHostWayland::IsMinimized() const {
 }
 
 void DesktopWindowTreeHostWayland::OnCaptureReleased() {
+  DCHECK(current_capture_ == this);
   OnHostLostWindowCapture();
   native_widget_delegate_->OnMouseCaptureLost();
+  current_capture_ = NULL;
 }
 
 bool DesktopWindowTreeHostWayland::HasCapture() const {
-  return g_delegate_ozone_wayland_->GetCurrentCapture() == this;
+  return current_capture_ == this;
 }
 
 bool DesktopWindowTreeHostWayland::IsAlwaysOnTop() const {
@@ -746,10 +752,14 @@ gfx::Point DesktopWindowTreeHostWayland::GetLocationOnNativeScreen() const {
 
 void DesktopWindowTreeHostWayland::SetCapture() {
   platform_window_->SetCapture();
+  current_capture_ = this;
 }
 
 void DesktopWindowTreeHostWayland::ReleaseCapture() {
-  platform_window_->ReleaseCapture();
+  if (current_capture_ == this) {
+    platform_window_->ReleaseCapture();
+    current_capture_ = NULL;
+  }
 }
 
 void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {

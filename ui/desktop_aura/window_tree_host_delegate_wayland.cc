@@ -91,11 +91,6 @@ void WindowTreeHostDelegateWayland::SetCapture(unsigned handle) {
     current_dispatcher_ = current_active_window_;
 }
 
-DesktopWindowTreeHostWayland*
-WindowTreeHostDelegateWayland::GetCurrentCapture() const {
-  return current_capture_;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, Private implementation:
 void WindowTreeHostDelegateWayland::DispatchMouseEvent(
