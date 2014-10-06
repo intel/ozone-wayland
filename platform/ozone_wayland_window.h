@@ -37,6 +37,7 @@ class OzoneWaylandWindow : public PlatformWindow {
  private:
   PlatformWindowDelegate* delegate_;
   gfx::Rect bounds_;
+  unsigned handle_;
 
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandWindow);
 };

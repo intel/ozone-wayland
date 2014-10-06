@@ -55,7 +55,6 @@ DesktopWindowTreeHostWayland::DesktopWindowTreeHostWayland(
     DesktopNativeWidgetAura* desktop_native_widget_aura)
     : aura::WindowTreeHost(),
       state_(Uninitialized),
-      bounds_(0, 0, 0, 0),
       previous_bounds_(0, 0, 0, 0),
       previous_maximize_bounds_(0, 0, 0, 0),
       window_(0),
@@ -105,7 +104,7 @@ DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget(
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
-  return bounds_;
+  return platform_window_->GetBounds();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +112,9 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
 
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
-  bounds_ = params.bounds;
+  const gfx::Rect& bounds = params.bounds;
   platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds_);
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
   DCHECK(window_);
   // Maintain parent child relation as done in X11 version.
   // If we have a parent, record the parent/child relationship. We use this
@@ -144,9 +143,11 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
         parent = GetHostForAcceleratedWidget(
                      g_delegate_ozone_wayland_->GetActiveWindow()->window_);
 
+      DCHECK(parent);
+      const gfx::Rect& parent_bounds = parent->platform_window_->GetBounds();
       // Transient type expects a position relative to the parent
-      gfx::Point transientPos(bounds_.x() - parent->bounds_.x(),
-                              bounds_.y() - parent->bounds_.y());
+      gfx::Point transientPos(bounds.x() - parent_bounds.x(),
+                              bounds.y() - parent_bounds.y());
 
       // Different platforms implement different input grab pointer behaviors
       // on Chromium. While the Linux GTK+ grab button clicks but not the
@@ -325,9 +326,9 @@ bool DesktopWindowTreeHostWayland::IsVisible() const {
 }
 
 void DesktopWindowTreeHostWayland::SetSize(const gfx::Size& size) {
-  gfx::Rect new_bounds = bounds_;
+  gfx::Rect new_bounds = platform_window_->GetBounds();
   new_bounds.set_size(size);
-  SetBounds(new_bounds);
+  platform_window_->SetBounds(new_bounds);
 }
 
 void DesktopWindowTreeHostWayland::StackAtTop() {
@@ -355,7 +356,7 @@ void DesktopWindowTreeHostWayland::CenterWindow(const gfx::Size& size) {
   // Don't size the window bigger than the parent, otherwise the user may not be
   // able to close or move it.
   window_bounds.AdjustToFit(parent_bounds);
-  SetBounds(window_bounds);
+  platform_window_->SetBounds(window_bounds);
 }
 
 void DesktopWindowTreeHostWayland::GetWindowPlacement(
@@ -377,7 +378,7 @@ void DesktopWindowTreeHostWayland::GetWindowPlacement(
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetWindowBoundsInScreen() const {
-  return bounds_;
+  return platform_window_->GetBounds();
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetClientAreaBoundsInScreen() const {
@@ -389,7 +390,7 @@ gfx::Rect DesktopWindowTreeHostWayland::GetClientAreaBoundsInScreen() const {
   // Attempts to calculate the rect by asking the NonClientFrameView what it
   // thought its GetBoundsForClientView() were broke combobox drop down
   // placement.
-  return bounds_;
+  return platform_window_->GetBounds();
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetRestoredBounds() const {
@@ -446,9 +447,9 @@ void DesktopWindowTreeHostWayland::Maximize() {
   state_ |= Maximized;
   state_ &= ~Minimized;
   state_ &= ~Normal;
-  previous_bounds_ = bounds_;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                              ui::MAXIMIZED);
+  previous_bounds_ = platform_window_->GetBounds();
+  platform_window_->Maximize();
+  Relayout();
 }
 
 void DesktopWindowTreeHostWayland::Minimize() {
@@ -456,11 +457,9 @@ void DesktopWindowTreeHostWayland::Minimize() {
     return;
 
   state_ |= Minimized;
-  previous_bounds_ = bounds_;
-  bounds_ = gfx::Rect();
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                              ui::MINIMIZED);
-  OnHostResized(bounds_.size());
+  const gfx::Rect& bounds = platform_window_->GetBounds();
+  previous_bounds_ = bounds;
+  platform_window_->Minimize();
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
@@ -472,12 +471,10 @@ void DesktopWindowTreeHostWayland::Restore() {
   state_ &= ~Maximized;
   state_ &= ~Minimized;
   state_ |= Normal;
-  bounds_ = previous_bounds_;
+  platform_window_->SetBounds(previous_bounds_);
   previous_bounds_ = gfx::Rect();
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-      window_, ui::RESTORE, bounds_.width(), bounds_.height());
-  native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
-  OnHostResized(bounds_.size());
+  platform_window_->Restore();
+  Relayout();
 }
 
 bool DesktopWindowTreeHostWayland::IsMaximized() const {
@@ -592,8 +589,7 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
     if (state_ & Maximized) {
       previous_bounds_ = previous_maximize_bounds_;
       previous_maximize_bounds_ = gfx::Rect();
-      ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-          window_, ui::MAXIMIZED);
+      platform_window_->Maximize();
     } else {
       Restore();
     }
@@ -601,23 +597,11 @@ void DesktopWindowTreeHostWayland::SetFullscreen(bool fullscreen) {
     if (state_ & Maximized)
       previous_maximize_bounds_ = previous_bounds_;
 
-    previous_bounds_ = bounds_;
-    gfx::Screen *screen = gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE);
-    if (!screen)
-      NOTREACHED() << "Unable to retrieve valid gfx::Screen";
-
-    bounds_ = screen->GetPrimaryDisplay().bounds();
-    // We could use HandleConfigure in ShellSurface to set the correct bounds of
-    // egl window associated with this opaque handle. How ever, this would need
-    // to handle race conditions and ensure correct size is set for
-    // wl_egl_window_resize before eglsurface is resized. Passing window size
-    // attributes already here, ensures that wl_egl_window_resize is resized
-    // before eglsurface is resized. This doesn't add any extra overhead as the
-    // IPC call needs to be done.
-    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(
-        window_, ui::FULLSCREEN, bounds_.width(), bounds_.height());
-    OnHostResized(bounds_.size());
+    previous_bounds_ = platform_window_->GetBounds();
+    platform_window_->ToggleFullscreen();
   }
+
+  Relayout();
 }
 
 bool DesktopWindowTreeHostWayland::IsFullscreen() const {
@@ -693,8 +677,7 @@ void DesktopWindowTreeHostWayland::Show() {
   Activate();
 
   state_ |= Visible;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                              ui::SHOW);
+  platform_window_->Show();
   native_widget_delegate_->OnNativeWidgetVisibilityChanged(true);
 }
 
@@ -703,31 +686,20 @@ void DesktopWindowTreeHostWayland::Hide() {
     return;
 
   state_ &= ~Visible;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                              ui::HIDE);
+  platform_window_->Hide();
   native_widget_delegate_->OnNativeWidgetVisibilityChanged(false);
 }
 
 gfx::Rect DesktopWindowTreeHostWayland::GetBounds() const {
-  return bounds_;
+  return platform_window_->GetBounds();
 }
 
 void DesktopWindowTreeHostWayland::SetBounds(const gfx::Rect& bounds) {
-  bool origin_changed = bounds_.origin() != bounds.origin();
-  bool size_changed = bounds_.size() != bounds.size();
-
-  bounds_ = bounds;
-
-  if (origin_changed)
-    native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
-  if (size_changed)
-    OnHostResized(bounds.size());
-  else
-    compositor()->ScheduleRedrawRect(bounds);
+  platform_window_->SetBounds(bounds);
 }
 
 gfx::Point DesktopWindowTreeHostWayland::GetLocationOnNativeScreen() const {
-  return bounds_.origin();
+  return platform_window_->GetBounds().origin();
 }
 
 void DesktopWindowTreeHostWayland::SetCapture() {
@@ -775,31 +747,30 @@ void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
 }
 
+void DesktopWindowTreeHostWayland::Relayout() {
+  Widget* widget = native_widget_delegate_->AsWidget();
+  NonClientView* non_client_view = widget->non_client_view();
+  // non_client_view may be NULL, especially during creation.
+  if (non_client_view) {
+    non_client_view->client_view()->InvalidateLayout();
+    non_client_view->InvalidateLayout();
+  }
+  widget->GetRootView()->Layout();
+}
+
 void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
                                                       unsigned height) {
-  unsigned current_width = bounds_.width();
-  unsigned current_height = bounds_.height();
-  if ((current_width == width) && (current_height == height)) {
-    compositor()->ScheduleRedrawRect(bounds_);
-  } else {
-    bounds_ = gfx::Rect(bounds_.x(), bounds_.y(), width, height);
-    OnHostResized(bounds_.size());
-    Widget* widget = native_widget_delegate_->AsWidget();
-    NonClientView* non_client_view = widget->non_client_view();
-    // non_client_view may be NULL, especially during creation.
-    if (non_client_view) {
-      non_client_view->client_view()->InvalidateLayout();
-      non_client_view->InvalidateLayout();
-    }
-    widget->GetRootView()->Layout();
-  }
+  const gfx::Rect& current_bounds = platform_window_->GetBounds();
+  platform_window_->SetBounds(gfx::Rect(current_bounds.x(),
+                                        current_bounds.y(),
+                                        width,
+                                        height));
 }
 
 void DesktopWindowTreeHostWayland::HandleWindowUnminimized() {
   state_ &= ~Minimized;
-  bounds_ = previous_bounds_;
+  platform_window_->SetBounds(previous_bounds_);
   previous_bounds_ = gfx::Rect();
-  OnHostResized(bounds_.size());
 }
 
 void DesktopWindowTreeHostWayland::HandleCommit(const std::string& text) {
@@ -817,6 +788,22 @@ void DesktopWindowTreeHostWayland::HandlePreeditChanged(const std::string& text,
       static_cast<ui::InputMethodAuraLinux*>(desktop_native_widget_aura_->
       input_method_event_filter()->input_method());
   inputMethod->OnPreeditChanged(composition_text);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ui::PlatformWindowDelegate implementation:
+void DesktopWindowTreeHostWayland::OnBoundChanged(
+    const gfx::Rect& old_bounds, const gfx::Rect& new_bounds){
+  bool origin_changed = old_bounds.origin() != new_bounds.origin();
+  bool size_changed = old_bounds.size() != new_bounds.size();
+
+  if (origin_changed)
+    native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
+
+  if (size_changed)
+    OnHostResized(new_bounds.size());
+  else
+    compositor()->ScheduleRedrawRect(new_bounds);
 }
 
 // static

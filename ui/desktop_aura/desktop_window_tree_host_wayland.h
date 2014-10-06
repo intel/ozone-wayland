@@ -81,6 +81,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // ui::PlatformWindowDelegate:
   // TODO(kalyan) Provide appropriate implementations.
   virtual void OnBoundsChanged(const gfx::Rect&) OVERRIDE {}
+  virtual void OnBoundChanged(const gfx::Rect& old_bounds,
+                              const gfx::Rect& new_bounds) OVERRIDE;
   virtual void OnDamageRect(const gfx::Rect& damaged_region) OVERRIDE{}
   virtual void DispatchEvent(ui::Event* event) OVERRIDE{}
   virtual void OnCloseRequest() OVERRIDE{}
@@ -173,14 +175,13 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   void HandleNativeWidgetActivationChanged(bool active);
   void HandleWindowResize(unsigned width, unsigned height);
   void HandleWindowUnminimized();
+  void Relayout();
 
   void HandlePreeditChanged(const std::string& text, const std::string& commit);
   void HandleCommit(const std::string& text);
 
   RootWindowState state_;
 
-  // Current bounds of DRWH.
-  gfx::Rect bounds_;
   // Original bounds of DRWH.
   gfx::Rect previous_bounds_;
   gfx::Rect previous_maximize_bounds_;
