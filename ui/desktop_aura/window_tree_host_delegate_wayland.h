@@ -39,6 +39,7 @@ class WindowTreeHostDelegateWayland
   void OnRootWindowClosed(ui::OzoneWaylandWindow* window);
 
   void SetActiveWindow(ui::OzoneWaylandWindow* window);
+  ui::OzoneWaylandWindow* GetActiveWindow() const;
   void DeActivateWindow(ui::OzoneWaylandWindow* window);
   unsigned GetActiveWindowHandle() const;
 

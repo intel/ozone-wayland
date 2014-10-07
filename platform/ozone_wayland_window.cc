@@ -28,6 +28,57 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
 OzoneWaylandWindow::~OzoneWaylandWindow() {
 }
 
+void OzoneWaylandWindow::InitPlatformWindow(PlatformWindowType type) {
+  ui::WindowStateChangeHandler* state_handler =
+      ui::WindowStateChangeHandler::GetInstance();
+  switch (type) {
+    case PLATFORM_WINDOW_TYPE_TOOLTIP:
+    case PLATFORM_WINDOW_TYPE_POPUP:
+    case PLATFORM_WINDOW_TYPE_MENU: {
+      // Wayland surfaces don't know their position on the screen and transient
+      // surfaces always require a parent surface for relative placement. Here
+      // there's a catch because content_shell menus don't have parent and
+      // therefore we use root window to calculate their position.
+      OzoneWaylandWindow* active_window =
+          views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
+              handle_)->GetDelegate()->GetActiveWindow();
+      DCHECK(active_window);
+      const gfx::Rect& parent_bounds = active_window->GetBounds();
+      // Transient type expects a position relative to the parent
+      gfx::Point transientPos(bounds_.x() - parent_bounds.x(),
+                              bounds_.y() - parent_bounds.y());
+      // Different platforms implement different input grab pointer behaviors
+      // on Chromium. While the Linux GTK+ grab button clicks but not the
+      // pointer movement, the MS Windows implementation don't implement any
+      // pointer grab. In here we're using another different behavior for
+      // Chromium, but which is the common sense on most Wayland UI
+      // environments, where the input pointer is grabbed as a whole when a
+      // menu type of window is opened. I.e. both pointer clicks and movements
+      // will be routed only to the newly created window (grab installed). For
+      // more information please refer to the Wayland protocol.
+      state_handler->SetWidgetAttributes(handle_,
+                                         active_window->GetHandle(),
+                                         transientPos.x(),
+                                         transientPos.y(),
+                                         ui::POPUP);
+      break;
+    }
+    case PLATFORM_WINDOW_TYPE_BUBBLE:
+    case PLATFORM_WINDOW_TYPE_WINDOW:
+      state_handler->SetWidgetAttributes(handle_,
+                                         0,
+                                         0,
+                                         0,
+                                         ui::WINDOW);
+      break;
+    case PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS:
+      NOTIMPLEMENTED();
+      break;
+    default:
+      break;
+  }
+}
+
 void OzoneWaylandWindow::Activate() {
   views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
       GetDelegate()->SetActiveWindow(this);

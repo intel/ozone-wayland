@@ -92,6 +92,10 @@ void WindowTreeHostDelegateWayland::DeActivateWindow(
     }
 }
 
+ui::OzoneWaylandWindow* WindowTreeHostDelegateWayland::GetActiveWindow() const {
+  return current_active_window_;
+}
+
 unsigned
 WindowTreeHostDelegateWayland::GetActiveWindowHandle() const {
   return current_active_window_ ? current_active_window_->GetHandle() : 0;

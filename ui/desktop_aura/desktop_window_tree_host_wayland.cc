@@ -163,58 +163,38 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
     window_parent_->window_children_.insert(this);
   }
 
-  ui::WindowStateChangeHandler* state_handler =
-      ui::WindowStateChangeHandler::GetInstance();
+  ui::PlatformWindow::PlatformWindowType type =
+      ui::PlatformWindow::PLATFORM_WINDOW_UNKNOWN;
   switch (params.type) {
-    case Widget::InitParams::TYPE_TOOLTIP:
-    case Widget::InitParams::TYPE_POPUP:
-    case Widget::InitParams::TYPE_MENU: {
-      // Wayland surfaces don't know their position on the screen and transient
-      // surfaces always require a parent surface for relative placement. Here
-      // there's a catch because content_shell menus don't have parent and
-      // therefore we use root window to calculate their position.
-      DesktopWindowTreeHostWayland* parent = window_parent_;
-      if (!parent)
-        parent = GetHostForAcceleratedWidget(
-                     g_delegate_ozone_wayland_->GetActiveWindowHandle());
-
-      DCHECK(parent);
-      const gfx::Rect& parent_bounds = parent->platform_window_->GetBounds();
-      // Transient type expects a position relative to the parent
-      gfx::Point transientPos(bounds.x() - parent_bounds.x(),
-                              bounds.y() - parent_bounds.y());
-
-      // Different platforms implement different input grab pointer behaviors
-      // on Chromium. While the Linux GTK+ grab button clicks but not the
-      // pointer movement, the MS Windows implementation don't implement any
-      // pointer grab. In here we're using another different behavior for
-      // Chromium, but which is the common sense on most Wayland UI
-      // environments, where the input pointer is grabbed as a whole when a
-      // menu type of window is opened. I.e. both pointer clicks and movements
-      // will be routed only to the newly created window (grab installed). For
-      // more information please refer to the Wayland protocol.
-      state_handler->SetWidgetAttributes(window_,
-                                         parent->window_,
-                                         transientPos.x(),
-                                         transientPos.y(),
-                                         ui::POPUP);
+    case Widget::InitParams::TYPE_TOOLTIP: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_TOOLTIP;
       break;
     }
-    case Widget::InitParams::TYPE_BUBBLE:
-    case Widget::InitParams::TYPE_WINDOW:
-      state_handler->SetWidgetAttributes(window_,
-                                         0,
-                                         0,
-                                         0,
-                                         ui::WINDOW);
+    case Widget::InitParams::TYPE_POPUP: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_POPUP;
       break;
-    case Widget::InitParams::TYPE_WINDOW_FRAMELESS:
-      NOTIMPLEMENTED();
+    }
+    case Widget::InitParams::TYPE_MENU: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_MENU;
       break;
+    }
+    case Widget::InitParams::TYPE_BUBBLE: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_BUBBLE;
+      break;
+    }
+    case Widget::InitParams::TYPE_WINDOW: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_WINDOW;
+      break;
+    }
+    case Widget::InitParams::TYPE_WINDOW_FRAMELESS: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS;
+      break;
+    }
     default:
       break;
   }
 
+  platform_window_->InitPlatformWindow(type);
   CreateCompositor(GetAcceleratedWidget());
 }
 
