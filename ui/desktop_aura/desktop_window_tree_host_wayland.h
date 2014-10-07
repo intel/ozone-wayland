@@ -178,9 +178,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   void HandleWindowUnminimized();
   void Relayout();
 
-  void HandlePreeditChanged(const std::string& text, const std::string& commit);
-  void HandleCommit(const std::string& text);
-
   static std::list<gfx::AcceleratedWidget>& open_windows();
 
   RootWindowState state_;
