@@ -145,6 +145,9 @@ DesktopWindowTreeHostWayland::GetDelegate() const {
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
   const gfx::Rect& bounds = params.bounds;
+  if (!g_delegate_ozone_wayland_)
+    g_delegate_ozone_wayland_ = new WindowTreeHostDelegateWayland();
+
   platform_window_ =
       ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
   DCHECK(window_);
@@ -173,7 +176,7 @@ void DesktopWindowTreeHostWayland::InitWaylandWindow(
       DesktopWindowTreeHostWayland* parent = window_parent_;
       if (!parent)
         parent = GetHostForAcceleratedWidget(
-                     g_delegate_ozone_wayland_->GetActiveWindow()->window_);
+                     g_delegate_ozone_wayland_->GetActiveWindowHandle());
 
       DCHECK(parent);
       const gfx::Rect& parent_bounds = parent->platform_window_->GetBounds();
@@ -250,10 +253,6 @@ void DesktopWindowTreeHostWayland::OnNativeWidgetCreated(
     wm::AddTransientChild(parent, content_window_);
 
   native_widget_delegate_->OnNativeWidgetCreated(true);
-
-  if (!g_delegate_ozone_wayland_)
-    g_delegate_ozone_wayland_ = new WindowTreeHostDelegateWayland();
-
   open_windows().push_back(window_);
   if (aura_windows_) {
     aura_windows_->clear();
@@ -266,7 +265,7 @@ void DesktopWindowTreeHostWayland::OnNativeWidgetCreated(
       params.type == Widget::InitParams::TYPE_WINDOW ||
       params.type == Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   if (!window_parent_ && root_window)
-    g_delegate_ozone_wayland_->SetActiveWindow(this);
+    Activate();
 }
 
 scoped_ptr<corewm::Tooltip>
@@ -331,7 +330,7 @@ void DesktopWindowTreeHostWayland::CloseNow() {
   // causes a crash with in-process renderer.
   DestroyCompositor();
   window_parent_ = NULL;
-  if (!g_delegate_ozone_wayland_->GetActiveWindow()) {
+  if (!g_delegate_ozone_wayland_->GetActiveWindowHandle()) {
     // We have no open windows, free g_delegate_ozone_wayland_.
     delete g_delegate_ozone_wayland_;
     g_delegate_ozone_wayland_ = NULL;
@@ -467,9 +466,10 @@ void DesktopWindowTreeHostWayland::Activate() {
     return;
 
   state_ |= Active;
-  if (state_ & Visible)
-    ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                                ui::ACTIVE);
+  if (state_ & Visible) {
+    platform_window_->Activate();
+    OnActivationChanged(true);
+  }
 }
 
 void DesktopWindowTreeHostWayland::Deactivate() {
@@ -477,8 +477,8 @@ void DesktopWindowTreeHostWayland::Deactivate() {
     return;
 
   state_ &= ~Active;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(window_,
-                                                              ui::INACTIVE);
+  platform_window_->DeActivate();
+  OnActivationChanged(false);
 }
 
 bool DesktopWindowTreeHostWayland::IsActive() const {
@@ -787,29 +787,6 @@ void DesktopWindowTreeHostWayland::PostNativeEvent(
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, Private implementation:
 
-void DesktopWindowTreeHostWayland::HandleNativeWidgetActivationChanged(
-    bool active) {
-  // We can skip during initialization phase.
-  if (!state_)
-    return;
-
-  if (active) {
-    // Make sure the stacking order is correct. The activated window should be
-    // first one in list of open windows.
-    std::list<gfx::AcceleratedWidget>& windows = open_windows();
-    DCHECK(windows.size());
-    if (windows.front() != window_) {
-      windows.remove(window_);
-      windows.insert(windows.begin(), window_);
-    }
-
-    OnHostActivated();
-  }
-
-  desktop_native_widget_aura_->HandleActivationChanged(active);
-  native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
-}
-
 void DesktopWindowTreeHostWayland::Relayout() {
   Widget* widget = native_widget_delegate_->AsWidget();
   NonClientView* non_client_view = widget->non_client_view();
@@ -875,6 +852,34 @@ void DesktopWindowTreeHostWayland::OnBoundChanged(
     OnHostResized(new_bounds.size());
   else
     compositor()->ScheduleRedrawRect(new_bounds);
+}
+
+void DesktopWindowTreeHostWayland::OnActivationChanged(bool active) {
+  // We can skip during initialization phase.
+  if (!state_)
+    return;
+
+  if (active) {
+    // Make sure the stacking order is correct. The activated window should be
+    // first one in list of open windows.
+    std::list<gfx::AcceleratedWidget>& windows = open_windows();
+    DCHECK(windows.size());
+    if (windows.front() != window_) {
+      windows.remove(window_);
+      windows.insert(windows.begin(), window_);
+    }
+
+    state_ |= Active;
+    OnHostActivated();
+  } else
+    state_ &= ~Active;
+
+  desktop_native_widget_aura_->HandleActivationChanged(active);
+  native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
+}
+
+void DesktopWindowTreeHostWayland::OnLostCapture() {
+  OnCaptureReleased();
 }
 
 // static

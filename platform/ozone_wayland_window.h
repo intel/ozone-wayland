@@ -19,7 +19,12 @@ class OzoneWaylandWindow : public PlatformWindow {
                      const gfx::Rect& bounds);
   virtual ~OzoneWaylandWindow();
 
+  unsigned GetHandle() const { return handle_; }
+  PlatformWindowDelegate* GetDelegate() const { return delegate_; }
+
   // PlatformWindow:
+  virtual void Activate() OVERRIDE;
+  virtual void DeActivate() OVERRIDE;
   virtual gfx::Rect GetBounds() OVERRIDE;
   virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
   virtual void Show() OVERRIDE;

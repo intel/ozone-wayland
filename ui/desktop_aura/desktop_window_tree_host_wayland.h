@@ -94,10 +94,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void OnCloseRequest() OVERRIDE{}
   virtual void OnClosed() OVERRIDE{}
   virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) OVERRIDE{}
-  virtual void OnLostCapture() OVERRIDE{}
+  virtual void OnLostCapture() OVERRIDE;
   virtual void OnAcceleratedWidgetAvailable(
       gfx::AcceleratedWidget widget) OVERRIDE;
-  virtual void OnActivationChanged(bool active) OVERRIDE{}
+  virtual void OnActivationChanged(bool active) OVERRIDE;
 
   // Overridden from DesktopWindowTreeHost:
   virtual void Init(
@@ -178,7 +178,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void MoveCursorToNative(const gfx::Point& location) OVERRIDE;
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
 
-  void HandleNativeWidgetActivationChanged(bool active);
   void HandleWindowResize(unsigned width, unsigned height);
   void HandleWindowUnminimized();
   void Relayout();

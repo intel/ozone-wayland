@@ -21,9 +21,26 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
                                                               CREATE);
   delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
+  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
+      GetDelegate()->OnRootWindowCreated(this);
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
+}
+
+void OzoneWaylandWindow::Activate() {
+  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
+      GetDelegate()->SetActiveWindow(this);
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
+                                                              ui::ACTIVE);
+}
+
+void OzoneWaylandWindow::DeActivate()  {
+  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
+                                                              ui::INACTIVE);
+  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
+      GetDelegate()->DeActivateWindow(this);
+
 }
 
 gfx::Rect OzoneWaylandWindow::GetBounds() {
@@ -48,7 +65,7 @@ void OzoneWaylandWindow::Hide() {
 
 void OzoneWaylandWindow::Close() {
   views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->OnRootWindowClosed(handle_);
+      GetDelegate()->OnRootWindowClosed(this);
 }
 
 void OzoneWaylandWindow::SetCapture() {

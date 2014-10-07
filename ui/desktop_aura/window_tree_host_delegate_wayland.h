@@ -17,6 +17,10 @@
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/native_widget_types.h"
 
+namespace ui {
+class OzoneWaylandWindow;
+}
+
 namespace views {
 
 class DesktopWindowTreeHostWayland;
@@ -31,10 +35,12 @@ class WindowTreeHostDelegateWayland
   WindowTreeHostDelegateWayland();
   virtual ~WindowTreeHostDelegateWayland();
 
-  void OnRootWindowClosed(unsigned handle);
+  void OnRootWindowCreated(ui::OzoneWaylandWindow* window);
+  void OnRootWindowClosed(ui::OzoneWaylandWindow* window);
 
-  void SetActiveWindow(DesktopWindowTreeHostWayland* dispatcher);
-  DesktopWindowTreeHostWayland* GetActiveWindow() const;
+  void SetActiveWindow(ui::OzoneWaylandWindow* window);
+  void DeActivateWindow(ui::OzoneWaylandWindow* window);
+  unsigned GetActiveWindowHandle() const;
 
   void SetCapture(unsigned handle);
 
@@ -62,10 +68,15 @@ class WindowTreeHostDelegateWayland
   // Dispatches a mouse event.
   void DispatchMouseEvent(ui::MouseEvent* event);
   unsigned GetWindowHandle(gfx::AcceleratedWidget widget);
+  std::list<ui::OzoneWaylandWindow*>& open_windows();
+  ui::OzoneWaylandWindow* GetWindow(unsigned handle);
 
   unsigned current_focus_window_;
   bool handle_event_ :1;
   bool stop_propogation_ :1;
+
+  // List of all open aura::Window.
+  std::list<ui::OzoneWaylandWindow*>* open_windows_;
 
   // Current dispatcher.
   DesktopWindowTreeHostWayland* current_dispatcher_;
@@ -73,7 +84,7 @@ class WindowTreeHostDelegateWayland
   // can notify widgets when they have lost capture, which controls a bunch of
   // things in views like hiding menus.
   DesktopWindowTreeHostWayland* current_capture_;
-  DesktopWindowTreeHostWayland* current_active_window_;
+  ui::OzoneWaylandWindow* current_active_window_;
   DISALLOW_COPY_AND_ASSIGN(WindowTreeHostDelegateWayland);
 };
 

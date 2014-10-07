@@ -6,11 +6,13 @@
 
 #include <string>
 
+#include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/platform/platform_event_source.h"
+#include "ui/platform_window/platform_window_delegate.h"
 
 namespace views {
 
@@ -18,6 +20,7 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
     : current_focus_window_(0),
       handle_event_(true),
       stop_propogation_(false),
+      open_windows_(NULL),
       current_dispatcher_(NULL),
       current_capture_(NULL),
       current_active_window_(NULL) {
@@ -29,10 +32,17 @@ WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
 WindowTreeHostDelegateWayland::~WindowTreeHostDelegateWayland() {
 }
 
-void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
-  const std::vector<aura::Window*>& windows =
-      DesktopWindowTreeHostWayland::GetAllOpenWindows();
-  if (windows.empty()) {
+void WindowTreeHostDelegateWayland::OnRootWindowCreated(
+    ui::OzoneWaylandWindow* window) {
+  open_windows().push_back(window);
+}
+
+void WindowTreeHostDelegateWayland::OnRootWindowClosed(
+    ui::OzoneWaylandWindow* window) {
+  open_windows().remove(window);
+  if (open_windows().empty()) {
+    delete open_windows_;
+    open_windows_ = NULL;
     ui::PlatformEventSource* event_source =
         ui::PlatformEventSource::GetInstance();
     if (event_source)
@@ -47,34 +57,44 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(unsigned handle) {
   }
 
   if (!current_active_window_ ||
-      GetWindowHandle(current_active_window_->window_) != handle) {
+      GetWindowHandle(current_active_window_->GetHandle()) !=
+          window->GetHandle()) {
      return;
   }
 
-  DCHECK(!current_active_window_->window_parent_);
   // Set first top level window in the list of open windows as dispatcher.
   // This is just a guess of the window which would eventually be focussed.
   // We should set the correct root window as dispatcher in OnWindowFocused.
-  DesktopWindowTreeHostWayland* rootWindow =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
-          windows.front()->GetHost()->GetAcceleratedWidget());
-  SetActiveWindow(rootWindow);
-  rootWindow->HandleNativeWidgetActivationChanged(true);
+  SetActiveWindow(open_windows().front());
+  current_active_window_->GetDelegate()->OnActivationChanged(true);
 }
 
 void WindowTreeHostDelegateWayland::SetActiveWindow(
-    DesktopWindowTreeHostWayland* dispatcher) {
-  current_active_window_ = dispatcher;
-  current_dispatcher_ = current_active_window_;
+    ui::OzoneWaylandWindow* window) {
+  current_active_window_ = window;
   if (!current_active_window_)
     return;
 
-  current_active_window_->Activate();
+  current_dispatcher_ =
+      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
+          current_active_window_->GetHandle());
 }
 
-DesktopWindowTreeHostWayland*
-WindowTreeHostDelegateWayland::GetActiveWindow() const {
-  return current_active_window_;
+void WindowTreeHostDelegateWayland::DeActivateWindow(
+    ui::OzoneWaylandWindow* window) {
+    if (current_active_window_ != window)
+      return;
+
+    current_active_window_ = NULL;
+    if (GetWindowHandle(current_dispatcher_->GetAcceleratedWidget()) ==
+        current_active_window_->GetHandle()) {
+      current_dispatcher_ = NULL;
+    }
+}
+
+unsigned
+WindowTreeHostDelegateWayland::GetActiveWindowHandle() const {
+  return current_active_window_ ? current_active_window_->GetHandle() : 0;
 }
 
 void WindowTreeHostDelegateWayland::SetCapture(unsigned handle) {
@@ -87,8 +107,11 @@ void WindowTreeHostDelegateWayland::SetCapture(unsigned handle) {
   current_capture_ = dispatcher;
   stop_propogation_ = current_capture_ ? true : false;
   current_dispatcher_ = current_capture_;
-  if (!current_dispatcher_)
-    current_dispatcher_ = current_active_window_;
+  if (!current_dispatcher_) {
+    current_dispatcher_ =
+        DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
+            current_active_window_->GetHandle());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +133,21 @@ void WindowTreeHostDelegateWayland::DispatchMouseEvent(
 unsigned
 WindowTreeHostDelegateWayland::GetWindowHandle(gfx::AcceleratedWidget widget) {
   return static_cast<unsigned>(widget);
+}
+
+ui::OzoneWaylandWindow*
+WindowTreeHostDelegateWayland::GetWindow(unsigned handle) {
+  ui::OzoneWaylandWindow* window = NULL;
+  const std::list<ui::OzoneWaylandWindow*>& windows = open_windows();
+  std::list<ui::OzoneWaylandWindow*>::const_iterator it;
+  for (it = windows.begin(); it != windows.end(); ++it) {
+    if ((*it)->GetHandle() == handle) {
+      window = *it;
+      break;
+    }
+  }
+
+  return window;
 }
 
 ui::EventProcessor* WindowTreeHostDelegateWayland::GetEventProcessor() {
@@ -188,13 +226,17 @@ void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
   // window but doesn't have the focus.
   handle_event_ = current_capture_ ? current_focus_window_ ==
           GetWindowHandle(current_capture_->GetAcceleratedWidget()) : true;
-  if (GetWindowHandle(current_active_window_->window_) == handle)
-    return;
+  if (current_active_window_) {
+    if (current_active_window_->GetHandle() == handle)
+      return;
 
   // A new window should not steal focus in case the current window has a open
   // popup.
-  if (current_capture_ && current_capture_ != current_active_window_)
+    if (current_capture_ && (GetWindowHandle(current_capture_->window_) !=
+      current_active_window_->GetHandle())) {
     return;
+    }
+  }
 
   DesktopWindowTreeHostWayland* window = NULL;
   if (handle)
@@ -204,10 +246,10 @@ void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
     return;
 
   if (current_active_window_)
-    current_active_window_->HandleNativeWidgetActivationChanged(false);
+    current_active_window_->GetDelegate()->OnActivationChanged(false);
 
-  SetActiveWindow(window);
-  window->HandleNativeWidgetActivationChanged(true);
+  SetActiveWindow(GetWindow(handle));
+  current_active_window_->GetDelegate()->OnActivationChanged(true);
 }
 
 void WindowTreeHostDelegateWayland::OnWindowEnter(unsigned handle) {
@@ -261,6 +303,14 @@ void WindowTreeHostDelegateWayland::OnPreeditChanged(unsigned handle,
       DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
   DCHECK(window);
   window->HandlePreeditChanged(text, commit);
+}
+
+std::list<ui::OzoneWaylandWindow*>&
+WindowTreeHostDelegateWayland::open_windows() {
+  if (!open_windows_)
+    open_windows_ = new std::list<ui::OzoneWaylandWindow*>();
+
+  return *open_windows_;
 }
 
 }  // namespace views
