@@ -10,8 +10,9 @@
 
 namespace ui {
 
-class WindowChangeObserver;
+class IMEChangeObserver;
 class OutputChangeObserver;
+class WindowChangeObserver;
 
 class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
  public:
@@ -31,6 +32,12 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   void SetOutputChangeObserver(OutputChangeObserver* observer);
   // Registered OutputChangeObserver. Ownership is not passed to the caller.
   OutputChangeObserver* GetOutputChangeObserver() const;
+
+  // Sets the ime change observer. Ownership is retained by the caller.
+  void SetIMEChangeObserver(IMEChangeObserver* observer);
+  // Registered IMEChangeObserver. Ownership is not passed to the caller.
+  IMEChangeObserver* GetIMEChangeObserver() const;
+
   void SetEventConverterOzoneWayland(EventConverterOzoneWayland* converter);
   // EventConverter used to convert native input events to |ui::Event|.
   // Ownership is not passed to the caller.
@@ -39,6 +46,7 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
  protected:
   EventConverterOzoneWayland* event_converter_;
   WindowChangeObserver* observer_;
+  IMEChangeObserver* ime_observer_;
   OutputChangeObserver* output_observer_;
   static EventFactoryOzoneWayland* impl_;  // not owned
 };

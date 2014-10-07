@@ -9,6 +9,7 @@
 
 #include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
+#include "ozone/ui/events/ime_change_observer.h"
 #include "ui/events/event_constants.h"
 
 namespace ui {
@@ -60,6 +61,8 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);
   // Sets the output change observer. Ownership is retained by the caller.
   virtual void SetOutputChangeObserver(OutputChangeObserver* observer);
+  // Sets the ime change observer. Ownership is retained by the caller.
+  virtual void SetIMEChangeObserver(ui::IMEChangeObserver* observer);
 
  protected:
   // Posts task to main loop of the thread on which Dispatcher was initialized.

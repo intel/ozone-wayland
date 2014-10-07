@@ -57,6 +57,8 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
 
   virtual void SetWindowChangeObserver(
       ui::WindowChangeObserver* observer) OVERRIDE;
+  virtual void SetIMEChangeObserver(
+      ui::IMEChangeObserver* observer) OVERRIDE;
   virtual void SetOutputChangeObserver(
       ui::OutputChangeObserver* observer) OVERRIDE;
 
@@ -117,6 +119,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   static void NotifyPreeditStart(EventConverterInProcess* data);
 
   ui::WindowChangeObserver* observer_;
+  ui::IMEChangeObserver* ime_observer_;
   ui::OutputChangeObserver* output_observer_;
   base::Callback<void(void*)> dispatch_callback_;  // NOLINT(readability/
                                                    // function)

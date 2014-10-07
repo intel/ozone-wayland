@@ -22,6 +22,8 @@ OzoneChannelHost::OzoneChannelHost()
     event_factory->GetWindowChangeObserver());
   event_converter_->SetOutputChangeObserver(
     event_factory->GetOutputChangeObserver());
+  event_converter_->SetIMEChangeObserver(
+    event_factory->GetIMEChangeObserver());
 }
 
 OzoneChannelHost::~OzoneChannelHost() {

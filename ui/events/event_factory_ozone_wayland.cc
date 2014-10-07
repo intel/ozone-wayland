@@ -14,6 +14,7 @@ EventFactoryOzoneWayland* EventFactoryOzoneWayland::impl_ = NULL;
 EventFactoryOzoneWayland::EventFactoryOzoneWayland()
     : event_converter_(NULL),
       observer_(NULL),
+      ime_observer_(NULL),
       output_observer_(NULL) {
   EventFactoryOzoneWayland::SetInstance(this);
 }
@@ -36,6 +37,18 @@ void EventFactoryOzoneWayland::SetWindowChangeObserver(
   observer_ = observer;
   if (event_converter_)
     event_converter_->SetWindowChangeObserver(observer_);
+}
+
+void EventFactoryOzoneWayland::SetIMEChangeObserver(
+    IMEChangeObserver* observer) {
+  ime_observer_ = observer;
+  if (event_converter_)
+    event_converter_->SetIMEChangeObserver(ime_observer_);
+}
+
+IMEChangeObserver*
+EventFactoryOzoneWayland::GetIMEChangeObserver() const {
+  return ime_observer_;
 }
 
 WindowChangeObserver*

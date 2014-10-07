@@ -23,6 +23,10 @@ void EventConverterOzoneWayland::SetOutputChangeObserver(
     OutputChangeObserver* observer) {
 }
 
+void EventConverterOzoneWayland::SetIMEChangeObserver(
+    IMEChangeObserver* observer) {
+}
+
 void EventConverterOzoneWayland::PostTaskOnMainLoop(const base::Closure& task) {
   DCHECK(loop_);
   loop_->message_loop_proxy()->PostTask(FROM_HERE, task);

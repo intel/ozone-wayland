@@ -13,6 +13,7 @@ namespace ui {
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
       observer_(NULL),
+      ime_observer_(NULL),
       output_observer_(NULL) {
 }
 
@@ -126,6 +127,12 @@ void EventConverterInProcess::SetWindowChangeObserver(
     ui::WindowChangeObserver* observer) {
   observer_ = observer;
 }
+
+void EventConverterInProcess::SetIMEChangeObserver(
+    ui::IMEChangeObserver* observer) {
+  ime_observer_ = observer;
+}
+
 
 void EventConverterInProcess::SetOutputChangeObserver(
     ui::OutputChangeObserver* observer) {
@@ -255,8 +262,8 @@ void
 EventConverterInProcess::NotifyCommit(EventConverterInProcess* data,
                                       unsigned handle,
                                       const std::string& text) {
-  if (data->observer_)
-    data->observer_->OnCommit(handle, text);
+  if (data->ime_observer_)
+    data->ime_observer_->OnCommit(handle, text);
 }
 
 void
@@ -264,8 +271,8 @@ EventConverterInProcess::NotifyPreeditChanged(EventConverterInProcess* data,
                                               unsigned handle,
                                               const std::string& text,
                                               const std::string& commit) {
-  if (data->observer_)
-    data->observer_->OnPreeditChanged(handle, text, commit);
+  if (data->ime_observer_)
+    data->ime_observer_->OnPreeditChanged(handle, text, commit);
 }
 
 void

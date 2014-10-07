@@ -293,23 +293,6 @@ void WindowTreeHostDelegateWayland::OnWindowUnminimized(unsigned handle) {
   window->HandleWindowUnminimized();
 }
 
-void WindowTreeHostDelegateWayland::OnCommit(unsigned handle,
-                                             const std::string& text) {
-  DesktopWindowTreeHostWayland* window =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
-  DCHECK(window);
-  window->HandleCommit(text);
-}
-
-void WindowTreeHostDelegateWayland::OnPreeditChanged(unsigned handle,
-                                                   const std::string& text,
-                                                   const std::string& commit) {
-  DesktopWindowTreeHostWayland* window =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
-  DCHECK(window);
-  window->HandlePreeditChanged(text, commit);
-}
-
 std::list<ui::OzoneWaylandWindow*>&
 WindowTreeHostDelegateWayland::open_windows() {
   if (!open_windows_)
