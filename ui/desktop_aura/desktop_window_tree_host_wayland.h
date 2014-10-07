@@ -88,7 +88,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
                               const gfx::Rect& new_bounds) OVERRIDE;
   virtual void OnDamageRect(const gfx::Rect& damaged_region) OVERRIDE{}
   virtual void DispatchEvent(ui::Event* event) OVERRIDE{}
-  virtual void OnCloseRequest() OVERRIDE{}
+  virtual void OnCloseRequest() OVERRIDE;
   virtual void OnClosed() OVERRIDE{}
   virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) OVERRIDE{}
   virtual void OnLostCapture() OVERRIDE;
@@ -175,7 +175,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void MoveCursorToNative(const gfx::Point& location) OVERRIDE;
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
 
-  void HandleWindowResize(unsigned width, unsigned height);
   void HandleWindowUnminimized();
   void Relayout();
 

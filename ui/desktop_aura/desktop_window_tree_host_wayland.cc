@@ -759,15 +759,6 @@ void DesktopWindowTreeHostWayland::Relayout() {
   widget->GetRootView()->Layout();
 }
 
-void DesktopWindowTreeHostWayland::HandleWindowResize(unsigned width,
-                                                      unsigned height) {
-  const gfx::Rect& current_bounds = platform_window_->GetBounds();
-  platform_window_->SetBounds(gfx::Rect(current_bounds.x(),
-                                        current_bounds.y(),
-                                        width,
-                                        height));
-}
-
 void DesktopWindowTreeHostWayland::HandleWindowUnminimized() {
   state_ &= ~Minimized;
   platform_window_->SetBounds(previous_bounds_);
@@ -841,6 +832,10 @@ void DesktopWindowTreeHostWayland::OnActivationChanged(bool active) {
 
 void DesktopWindowTreeHostWayland::OnLostCapture() {
   OnCaptureReleased();
+}
+
+void DesktopWindowTreeHostWayland::OnCloseRequest() {
+  Close();
 }
 
 // static

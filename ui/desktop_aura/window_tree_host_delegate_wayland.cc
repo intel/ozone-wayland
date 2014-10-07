@@ -82,14 +82,14 @@ void WindowTreeHostDelegateWayland::SetActiveWindow(
 
 void WindowTreeHostDelegateWayland::DeActivateWindow(
     ui::OzoneWaylandWindow* window) {
-    if (current_active_window_ != window)
-      return;
+  if (current_active_window_ != window)
+    return;
 
-    current_active_window_ = NULL;
-    if (GetWindowHandle(current_dispatcher_->GetAcceleratedWidget()) ==
-        current_active_window_->GetHandle()) {
-      current_dispatcher_ = NULL;
-    }
+  current_active_window_ = NULL;
+  if (GetWindowHandle(current_dispatcher_->GetAcceleratedWidget()) ==
+      current_active_window_->GetHandle()) {
+    current_dispatcher_ = NULL;
+  }
 }
 
 ui::OzoneWaylandWindow* WindowTreeHostDelegateWayland::GetActiveWindow() const {
@@ -236,17 +236,14 @@ void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
 
   // A new window should not steal focus in case the current window has a open
   // popup.
-    if (current_capture_ && (GetWindowHandle(current_capture_->window_) !=
-      current_active_window_->GetHandle())) {
-    return;
+    if (current_capture_ && (GetWindowHandle(current_capture_->
+        GetAcceleratedWidget()) != current_active_window_->GetHandle())) {
+      return;
     }
   }
 
-  DesktopWindowTreeHostWayland* window = NULL;
-  if (handle)
-    window = DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
-
-  if (!window || window->window_parent_)
+  ui::OzoneWaylandWindow* window = GetWindow(handle);
+  if (!window)
     return;
 
   if (current_active_window_)
@@ -268,21 +265,25 @@ void WindowTreeHostDelegateWayland::OnWindowClose(unsigned handle) {
   // current_capture_ always be a valid pointer.
   if (!handle || !current_capture_)
     return;
-  if (GetWindowHandle(current_capture_->window_) != handle)
+  if (GetWindowHandle(current_capture_->GetAcceleratedWidget()) != handle)
     return;
-  DesktopWindowTreeHostWayland* window = NULL;
-  window = DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
-  window->OnCaptureReleased();
-  window->Close();
+
+  ui::OzoneWaylandWindow* window = GetWindow(handle);
+  DCHECK(window);
+  window->GetDelegate()->OnLostCapture();
+  window->GetDelegate()->OnCloseRequest();
 }
 
 void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
                                                     unsigned width,
                                                     unsigned height) {
-  DesktopWindowTreeHostWayland* window =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  ui::OzoneWaylandWindow* window = GetWindow(handle);
   DCHECK(window);
-  window->HandleWindowResize(width, height);
+  const gfx::Rect& current_bounds = window->GetBounds();
+  window->SetBounds(gfx::Rect(current_bounds.x(),
+                              current_bounds.y(),
+                              width,
+                              height));
 }
 
 void WindowTreeHostDelegateWayland::OnWindowUnminimized(unsigned handle) {
