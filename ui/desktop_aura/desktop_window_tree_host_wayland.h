@@ -60,9 +60,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // belongs to a particular window.
   gfx::Rect GetBoundsInScreen() const;
 
-  // Expose delegate temporarily
-  WindowTreeHostDelegateWayland* GetDelegate() const;
-
  private:
   enum {
     Uninitialized = 0x00,
@@ -217,7 +214,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
   static DesktopWindowTreeHostWayland* current_capture_;
-  static WindowTreeHostDelegateWayland* g_delegate_ozone_wayland_;
   friend class WindowTreeHostDelegateWayland;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };

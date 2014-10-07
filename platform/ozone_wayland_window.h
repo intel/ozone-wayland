@@ -9,6 +9,10 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/platform_window/platform_window.h"
 
+namespace views {
+class WindowTreeHostDelegateWayland;
+}
+
 namespace ui {
 
 class PlatformWindowDelegate;
@@ -45,6 +49,7 @@ class OzoneWaylandWindow : public PlatformWindow {
   gfx::Rect bounds_;
   unsigned handle_;
 
+  static views::WindowTreeHostDelegateWayland* g_delegate_ozone_wayland_;
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandWindow);
 };
 

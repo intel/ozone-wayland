@@ -12,6 +12,9 @@
 
 namespace ui {
 
+views::WindowTreeHostDelegateWayland*
+    OzoneWaylandWindow::g_delegate_ozone_wayland_ = NULL;
+
 OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
                                        const gfx::Rect& bounds)
     : delegate_(delegate), bounds_(bounds) {
@@ -21,8 +24,11 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
                                                               CREATE);
   delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
-  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->OnRootWindowCreated(this);
+
+  if (!g_delegate_ozone_wayland_)
+    g_delegate_ozone_wayland_ = new views::WindowTreeHostDelegateWayland();
+
+  g_delegate_ozone_wayland_->OnRootWindowCreated(this);
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
@@ -40,8 +46,7 @@ void OzoneWaylandWindow::InitPlatformWindow(PlatformWindowType type) {
       // there's a catch because content_shell menus don't have parent and
       // therefore we use root window to calculate their position.
       OzoneWaylandWindow* active_window =
-          views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
-              handle_)->GetDelegate()->GetActiveWindow();
+          g_delegate_ozone_wayland_->GetActiveWindow();
       DCHECK(active_window);
       const gfx::Rect& parent_bounds = active_window->GetBounds();
       // Transient type expects a position relative to the parent
@@ -80,8 +85,7 @@ void OzoneWaylandWindow::InitPlatformWindow(PlatformWindowType type) {
 }
 
 void OzoneWaylandWindow::Activate() {
-  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->SetActiveWindow(this);
+  g_delegate_ozone_wayland_->SetActiveWindow(this);
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
                                                               ui::ACTIVE);
 }
@@ -89,8 +93,7 @@ void OzoneWaylandWindow::Activate() {
 void OzoneWaylandWindow::DeActivate()  {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
                                                               ui::INACTIVE);
-  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->DeActivateWindow(this);
+  g_delegate_ozone_wayland_->DeActivateWindow(this);
 
 }
 
@@ -115,18 +118,20 @@ void OzoneWaylandWindow::Hide() {
 }
 
 void OzoneWaylandWindow::Close() {
-  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->OnRootWindowClosed(this);
+  g_delegate_ozone_wayland_->OnRootWindowClosed(this);
+  if (!g_delegate_ozone_wayland_->GetActiveWindowHandle()) {
+    // We have no open windows, free g_delegate_ozone_wayland_.
+    delete g_delegate_ozone_wayland_;
+    g_delegate_ozone_wayland_ = NULL;
+  }
 }
 
 void OzoneWaylandWindow::SetCapture() {
-  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->SetCapture(handle_);
+  g_delegate_ozone_wayland_->SetCapture(handle_);
 }
 
 void OzoneWaylandWindow::ReleaseCapture() {
-  views::DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle_)->
-      GetDelegate()->SetCapture(0);
+  g_delegate_ozone_wayland_->SetCapture(0);
 }
 
 void OzoneWaylandWindow::ToggleFullscreen() {

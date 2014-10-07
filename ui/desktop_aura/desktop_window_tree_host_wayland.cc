@@ -11,7 +11,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
-#include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
@@ -40,9 +39,6 @@
 #include "ui/wm/public/window_move_client.h"
 
 namespace views {
-
-WindowTreeHostDelegateWayland*
-    DesktopWindowTreeHostWayland::g_delegate_ozone_wayland_ = NULL;
 
 DesktopWindowTreeHostWayland*
     DesktopWindowTreeHostWayland::current_capture_ = NULL;
@@ -133,21 +129,12 @@ gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
   return platform_window_->GetBounds();
 }
 
-WindowTreeHostDelegateWayland*
-DesktopWindowTreeHostWayland::GetDelegate() const {
-  DCHECK(g_delegate_ozone_wayland_);
-  return g_delegate_ozone_wayland_;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, private:
 
 void DesktopWindowTreeHostWayland::InitWaylandWindow(
     const Widget::InitParams& params) {
   const gfx::Rect& bounds = params.bounds;
-  if (!g_delegate_ozone_wayland_)
-    g_delegate_ozone_wayland_ = new WindowTreeHostDelegateWayland();
-
   platform_window_ =
       ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
   DCHECK(window_);
@@ -310,12 +297,6 @@ void DesktopWindowTreeHostWayland::CloseNow() {
   // causes a crash with in-process renderer.
   DestroyCompositor();
   window_parent_ = NULL;
-  if (!g_delegate_ozone_wayland_->GetActiveWindowHandle()) {
-    // We have no open windows, free g_delegate_ozone_wayland_.
-    delete g_delegate_ozone_wayland_;
-    g_delegate_ozone_wayland_ = NULL;
-  }
-
   desktop_native_widget_aura_->OnHostClosed();
 }
 
