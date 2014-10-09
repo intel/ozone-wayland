@@ -1,9 +1,12 @@
+%bcond_with x
+%bcond_with wayland
+
 Name:           chromium
 Version:        40.0.2173.0
 Release:        0
 Summary:        Chromium ozone-wayland
 License:        BSD-3-Clause
-Group:          Web Framework/chromium
+Group:          Applications
 Url:            https://01.org/ozone-wayland
 Source:         %{name}.tar
 Source1:        chromium-browser-ia32.sh
@@ -14,6 +17,7 @@ BuildRequires:  bison
 BuildRequires:  bzip2-devel
 BuildRequires:  expat-devel
 BuildRequires:  flex
+BuildRequires:  binutils-gold
 BuildRequires:  gperf
 BuildRequires:  libcap-devel
 BuildRequires:  ninja
@@ -49,10 +53,28 @@ BuildRequires:  pkgconfig(pkgmgr-parser)
 BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(vconf)
+
+%if %{with x}
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xcomposite)
+BuildRequires:  pkgconfig(xcursor)
+BuildRequires:  pkgconfig(xdamage)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(xi)
+BuildRequires:  pkgconfig(xrandr)
+BuildRequires:  pkgconfig(xrender)
+BuildRequires:  pkgconfig(xscrnsaver)
+BuildRequires:  pkgconfig(xt)
+BuildRequires:  pkgconfig(xtst)
+%endif
+
+%if %{with wayland}
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-cursor)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(xkbcommon)
+%endif
 
 %description
 # Ozone is a set of classes in Chromium for abstracting different window systems on Linux. It provides abstraction for the construction of accelerated surfaces underlying Aura UI framework, input devices assignment, and event handling.
@@ -74,10 +96,20 @@ cp -a src/ozone/LICENSE LICENSE.ozone-wayland
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
-%ifarch %{ix86}
 # Remove debug symbols
+%ifarch %{ix86}
 export CFLAGS=`echo $CFLAGS | sed s,-g,,g`
 export CXXFLAGS=`echo $CXXFLAGS | sed s,-g,,g`
+%endif
+
+%ifarch %{arm}
+export CFLAGS=`echo $CFLAGS | sed s,-g2,,g`
+export CXXFLAGS=`echo $CXXFLAGS | sed s,-g2,,g`
+export CFLAGS=`echo $CFLAGS | sed s,-g,,g`
+export CXXFLAGS=`echo $CXXFLAGS | sed s,-g,,g`
+export CFLAGS=`echo $CFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
+export CXXFLAGS=`echo $CXXFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
+export FFLAGS=`echo $FFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 %endif
 
 # Building the RPM in the GBS chroot fails with errors such as
@@ -121,12 +153,18 @@ export GYP_GENERATORS=ninja
 ./build/gyp_chromium \
 --no-parallel \
 -Duse_ash=1 \
+%if %{with wayland}
 -Duse_ozone=1 \
+-Duse_x11=0 \
+%endif
+%if %{with x}
+-Duse_ozone=0 \
+-Duse_x11=1 \
+%endif
 -Dchromeos=0 \
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
--Duse_x11=0 \
 -Duse_cups=0 \
 -Duse_gconf=0 \
 -Duse_kerberos=0 \
@@ -139,8 +177,13 @@ export GYP_GENERATORS=ninja
 -Duse_xi2_mt=0 \
 %ifarch x86_64
 -Dtarget_arch=x64 \
-%else
+%endif
+%ifarch %{ix86}
 -Dtarget_arch=ia32 \
+%endif
+%ifarch %{arm}
+-Dtarget_arch=arm \
+-Dsysroot=  \
 %endif
 -Duse_alsa=0 \
 -Duse_gnome_keyring=0 \
@@ -149,7 +192,9 @@ export GYP_GENERATORS=ninja
 -Drelease_unwind_tables=0 \
 -Dlinux_dump_symbols=0 \
 -Denable_ozone_wayland_vkb=1 \
--Dclang=0
+-Dclang=0 \
+-Dlinux_use_bundled_binutils=0 \
+-Dlinux_use_bundled_gold=0
 
 ninja %{?_smp_mflags} -C out/Release chrome
 
