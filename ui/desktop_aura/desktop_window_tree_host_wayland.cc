@@ -757,12 +757,6 @@ void DesktopWindowTreeHostWayland::Relayout() {
   widget->GetRootView()->Layout();
 }
 
-void DesktopWindowTreeHostWayland::HandleWindowUnminimized() {
-  state_ &= ~Minimized;
-  platform_window_->SetBounds(previous_bounds_);
-  previous_bounds_ = gfx::Rect();
-}
-
 std::list<gfx::AcceleratedWidget>&
 DesktopWindowTreeHostWayland::open_windows() {
   if (!open_windows_)
@@ -817,6 +811,21 @@ void DesktopWindowTreeHostWayland::OnLostCapture() {
 
 void DesktopWindowTreeHostWayland::OnCloseRequest() {
   Close();
+}
+
+void DesktopWindowTreeHostWayland::OnWindowStateChanged(
+    ui::PlatformWindowState new_state) {
+  switch (new_state) {
+    case ui::PLATFORM_WINDOW_STATE_MAXIMIZED: {
+      state_ &= ~Minimized;
+      platform_window_->SetBounds(previous_bounds_);
+      previous_bounds_ = gfx::Rect();
+      Relayout();
+      break;
+    }
+    default:
+      break;
+  }
 }
 
 // static

@@ -102,8 +102,12 @@ WindowTreeHostDelegateWayland::GetActiveWindowHandle() const {
 }
 
 void WindowTreeHostDelegateWayland::SetCapture(unsigned handle) {
-  if (current_capture_)
-    current_capture_->OnCaptureReleased();
+  if (current_capture_) {
+    ui::OzoneWaylandWindow* window = GetWindow(
+        GetWindowHandle(current_capture_->GetAcceleratedWidget()));
+    DCHECK(window);
+    window->GetDelegate()->OnLostCapture();
+  }
 
   DesktopWindowTreeHostWayland* dispatcher =
       DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
@@ -287,10 +291,10 @@ void WindowTreeHostDelegateWayland::OnWindowResized(unsigned handle,
 }
 
 void WindowTreeHostDelegateWayland::OnWindowUnminimized(unsigned handle) {
-  DesktopWindowTreeHostWayland* window =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
+  ui::OzoneWaylandWindow* window = GetWindow(handle);
   DCHECK(window);
-  window->HandleWindowUnminimized();
+  window->GetDelegate()->OnWindowStateChanged(
+      ui::PLATFORM_WINDOW_STATE_MAXIMIZED);
 }
 
 std::list<ui::OzoneWaylandWindow*>&

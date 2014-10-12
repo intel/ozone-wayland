@@ -26,7 +26,6 @@ class Tooltip;
 }
 
 class DesktopDragDropClientWayland;
-class WindowTreeHostDelegateWayland;
 
 class VIEWS_EXPORT DesktopWindowTreeHostWayland
     : public DesktopWindowTreeHost,
@@ -60,6 +59,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // belongs to a particular window.
   gfx::Rect GetBoundsInScreen() const;
 
+  virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
+
  private:
   enum {
     Uninitialized = 0x00,
@@ -90,7 +91,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void DispatchEvent(ui::Event* event) OVERRIDE{}
   virtual void OnCloseRequest() OVERRIDE;
   virtual void OnClosed() OVERRIDE{}
-  virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) OVERRIDE{}
+  virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) OVERRIDE;
   virtual void OnLostCapture() OVERRIDE;
   virtual void OnAcceleratedWidgetAvailable(
       gfx::AcceleratedWidget widget) OVERRIDE;
@@ -162,7 +163,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
 
   // Overridden from aura::WindowTreeHost:
   virtual ui::EventSource* GetEventSource() OVERRIDE;
-  virtual gfx::AcceleratedWidget GetAcceleratedWidget() OVERRIDE;
   virtual void Show() OVERRIDE;
   virtual void Hide() OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
@@ -175,7 +175,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void MoveCursorToNative(const gfx::Point& location) OVERRIDE;
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
 
-  void HandleWindowUnminimized();
   void Relayout();
 
   static std::list<gfx::AcceleratedWidget>& open_windows();
@@ -210,7 +209,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
   static DesktopWindowTreeHostWayland* current_capture_;
-  friend class WindowTreeHostDelegateWayland;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };
 
