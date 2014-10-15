@@ -16,10 +16,13 @@ namespace ozonewayland {
 
 WaylandTouchscreen::WaylandTouchscreen()
   : dispatcher_(NULL),
-    pointer_position_(0, 0) {
+    pointer_position_(0, 0),
+    wl_touch_(NULL) {
 }
 
 WaylandTouchscreen::~WaylandTouchscreen() {
+  if (wl_touch_)
+    wl_touch_destroy(wl_touch_);
 }
 
 void WaylandTouchscreen::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
@@ -34,9 +37,9 @@ void WaylandTouchscreen::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_TOUCH)) {
-    wl_touch* input_touch = wl_seat_get_touch(seat);
-    wl_touch_set_user_data(input_touch, this);
-    wl_touch_add_listener(input_touch, &kInputTouchListener, this);
+    wl_touch_ = wl_seat_get_touch(seat);
+    wl_touch_set_user_data(wl_touch_, this);
+    wl_touch_add_listener(wl_touch_, &kInputTouchListener, this);
   }
 }
 
