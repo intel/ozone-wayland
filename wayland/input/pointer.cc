@@ -17,11 +17,14 @@ namespace ozonewayland {
 WaylandPointer::WaylandPointer()
   : cursor_(NULL),
     dispatcher_(NULL),
-    pointer_position_(0, 0) {
+    pointer_position_(0, 0),
+    input_pointer_(NULL) {
 }
 
 WaylandPointer::~WaylandPointer() {
   delete cursor_;
+  if (input_pointer_)
+    wl_pointer_destroy(input_pointer_);
 }
 
 void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
@@ -39,10 +42,10 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !cursor_->GetInputPointer()) {
-    wl_pointer* input_pointer = wl_seat_get_pointer(seat);
-      cursor_->SetInputPointer(input_pointer);
-    wl_pointer_set_user_data(input_pointer, this);
-    wl_pointer_add_listener(input_pointer, &kInputPointerListener, this);
+    input_pointer_ = wl_seat_get_pointer(seat);
+      cursor_->SetInputPointer(input_pointer_);
+    wl_pointer_set_user_data(input_pointer_, this);
+    wl_pointer_add_listener(input_pointer_, &kInputPointerListener, this);
   } else if (!(caps & WL_SEAT_CAPABILITY_POINTER)
                 && cursor_->GetInputPointer()) {
     cursor_->SetInputPointer(NULL);
