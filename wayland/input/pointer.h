@@ -68,6 +68,7 @@ class WaylandPointer {
   // dispatch this with events such as wheel or button which don't have a
   // position associated on Wayland.
   gfx::Point pointer_position_;
+  struct wl_pointer *input_pointer_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandPointer);
 };
