@@ -59,6 +59,7 @@ class WaylandTouchscreen {
 
   ui::EventConverterOzoneWayland* dispatcher_;
   gfx::Point pointer_position_;
+  struct wl_touch* wl_touch_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandTouchscreen);
 };
