@@ -28,7 +28,12 @@ class OZONE_WAYLAND_EXPORT WindowChangeObserver {
   virtual void OnWindowResized(unsigned windowhandle,
                                unsigned width,
                                unsigned height) = 0;
+  // Called when a window is Restored.
   virtual void OnWindowUnminimized(unsigned windowhandle) = 0;
+  // Called when a window is DeActivated.
+  virtual void OnWindowDeActivated(unsigned windowhandle) = 0;
+  // Called when a window is Activate.
+  virtual void OnWindowActivated(unsigned windowhandle) = 0;
 
  protected:
   virtual ~WindowChangeObserver() {}

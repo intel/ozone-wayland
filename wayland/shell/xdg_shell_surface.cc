@@ -156,7 +156,8 @@ void XDGShellSurface::HandleActivate(void* data,
 }
 
 void XDGShellSurface::HandleDeactivate(void* data,
-                                 struct xdg_surface* xdg_surface) {
+                                       struct xdg_surface* xdg_surface) {
+  WaylandShellSurface::WindowDeActivated(data);
 }
 
 void XDGShellSurface::HandleDelete(void* data,

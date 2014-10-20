@@ -100,6 +100,16 @@ void EventConverterInProcess::WindowUnminimized(unsigned handle) {
       &EventConverterInProcess::NotifyWindowUnminimized, this, handle));
 }
 
+void EventConverterInProcess::WindowDeActivated(unsigned windowhandle) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyWindowDeActivated, this, windowhandle));
+}
+
+void EventConverterInProcess::WindowActivated(unsigned windowhandle) {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyWindowActivated, this, windowhandle));
+}
+
 void EventConverterInProcess::Commit(unsigned handle, const std::string& text) {
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyCommit, this, handle, text));
@@ -256,6 +266,20 @@ EventConverterInProcess::NotifyWindowUnminimized(EventConverterInProcess* data,
                                                  unsigned handle) {
   if (data->observer_)
     data->observer_->OnWindowUnminimized(handle);
+}
+
+void
+EventConverterInProcess::NotifyWindowDeActivated(EventConverterInProcess* data,
+                                                 unsigned handle) {
+  if (data->observer_)
+    data->observer_->OnWindowDeActivated(handle);
+}
+
+void
+EventConverterInProcess::NotifyWindowActivated(EventConverterInProcess* data,
+                                                 unsigned handle) {
+  if (data->observer_)
+    data->observer_->OnWindowActivated(handle);
 }
 
 void

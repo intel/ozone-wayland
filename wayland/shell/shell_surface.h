@@ -39,6 +39,7 @@ class WaylandShellSurface {
   static void PopupDone();
   static void WindowResized(void *data, unsigned width, unsigned height);
   static void WindowActivated(void *data);
+  static void WindowDeActivated(void *data);
 
  protected:
   void FlushDisplay() const;

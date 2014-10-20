@@ -48,6 +48,8 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                              unsigned width,
                              unsigned height) OVERRIDE;
   virtual void WindowUnminimized(unsigned windowhandle) OVERRIDE;
+  virtual void WindowDeActivated(unsigned windowhandle) OVERRIDE;
+  virtual void WindowActivated(unsigned windowhandle) OVERRIDE;
 
   virtual void Commit(unsigned handle, const std::string& text) OVERRIDE;
   virtual void PreeditChanged(unsigned handle, const std::string& text,
@@ -109,6 +111,10 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                   unsigned height);
   static void NotifyWindowUnminimized(EventConverterInProcess* data,
                                       unsigned handle);
+  static void NotifyWindowDeActivated(EventConverterInProcess* data,
+                                      unsigned handle);
+  static void NotifyWindowActivated(EventConverterInProcess* data,
+                                    unsigned handle);
   static void NotifyCommit(EventConverterInProcess* data, unsigned handle,
                            const std::string& text);
   static void NotifyPreeditChanged(EventConverterInProcess* data,

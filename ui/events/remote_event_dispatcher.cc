@@ -82,6 +82,14 @@ void RemoteEventDispatcher::WindowUnminimized(unsigned handle) {
   Dispatch(new WaylandWindow_Unminimized(handle));
 }
 
+void RemoteEventDispatcher::WindowDeActivated(unsigned windowhandle) {
+  Dispatch(new WaylandWindow_DeActivated(windowhandle));
+}
+
+void RemoteEventDispatcher::WindowActivated(unsigned windowhandle) {
+  Dispatch(new WaylandWindow_Activated(windowhandle));
+}
+
 void RemoteEventDispatcher::CloseWidget(unsigned handle) {
   Dispatch(new WaylandInput_CloseWidget(handle));
 }
