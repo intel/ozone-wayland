@@ -82,11 +82,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // initialization related to talking to the Ozone server.
   void InitWaylandWindow(const views::Widget::InitParams& params);
 
-  // Called when another DRWHL takes capture, or when capture is released
-  // entirely.
-  void OnCaptureReleased();
-
-
   // ui::PlatformWindowDelegate:
   // TODO(kalyan) Provide appropriate implementations.
   virtual void OnBoundsChanged(const gfx::Rect&) OVERRIDE {}
@@ -187,6 +182,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual uint32_t DispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
 
   void Relayout();
+  gfx::Size AdjustSize(const gfx::Size& requested_size);
   void DispatchMouseEvent(ui::MouseEvent* event);
 
   static std::list<gfx::AcceleratedWidget>& open_windows();
@@ -220,7 +216,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   static std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
-  static DesktopWindowTreeHostWayland* g_current_dispatcher;
+  static DesktopWindowTreeHostWayland* g_current_capture;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };
 
