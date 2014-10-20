@@ -45,6 +45,12 @@ namespace views {
 DesktopWindowTreeHostWayland*
     DesktopWindowTreeHostWayland::g_current_capture = NULL;
 
+DesktopWindowTreeHostWayland*
+    DesktopWindowTreeHostWayland::g_current_dispatcher = NULL;
+
+DesktopWindowTreeHostWayland*
+    DesktopWindowTreeHostWayland::g_active_window = NULL;
+
 std::list<gfx::AcceleratedWidget>*
 DesktopWindowTreeHostWayland::open_windows_ = NULL;
 
@@ -306,6 +312,12 @@ void DesktopWindowTreeHostWayland::CloseNow() {
     delete aura_windows_;
     aura_windows_ = NULL;
   }
+
+  if (g_active_window == this)
+    g_active_window = NULL;
+
+  if (g_current_dispatcher == this)
+    g_current_dispatcher = NULL;
 
   // Actually free our native resources.
   platform_window_->Close();
@@ -744,6 +756,7 @@ void DesktopWindowTreeHostWayland::SetCapture() {
     old_capturer->OnHostLostWindowCapture();
   }
 
+  g_current_dispatcher = this;
   platform_window_->SetCapture();
 }
 
@@ -754,6 +767,7 @@ void DesktopWindowTreeHostWayland::ReleaseCapture() {
   platform_window_->ReleaseCapture();
   OnHostLostWindowCapture();
   g_current_capture = NULL;
+  g_current_dispatcher = g_active_window;
 }
 
 void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
@@ -873,12 +887,23 @@ void DesktopWindowTreeHostWayland::OnActivationChanged(bool active) {
       windows.insert(windows.begin(), window_);
     } else {
       ReleaseCapture();
+      if (g_active_window) {
+        g_active_window->Deactivate();
+        g_active_window = NULL;
+      }
     }
 
     state_ |= Active;
+    g_active_window = this;
+    g_current_dispatcher = g_active_window;
     OnHostActivated();
   } else {
     state_ &= ~Active;
+    if (g_active_window == this)
+      g_active_window = NULL;
+
+    if (g_current_dispatcher == this)
+      g_current_dispatcher = NULL;
   }
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
@@ -921,7 +946,11 @@ void DesktopWindowTreeHostWayland::DispatchEvent(ui::Event* event) {
 bool DesktopWindowTreeHostWayland::CanDispatchEvent(
     const ui::PlatformEvent& ne) {
   DCHECK(ne);
-  return true;
+
+  if (g_current_dispatcher && g_current_dispatcher == this)
+    return true;
+
+  return false;
 }
 
 uint32_t DesktopWindowTreeHostWayland::DispatchEvent(

@@ -27,9 +27,8 @@ class OzoneWaylandWindow : public PlatformWindow {
   PlatformWindowDelegate* GetDelegate() const { return delegate_; }
 
   // PlatformWindow:
-  virtual void InitPlatformWindow(PlatformWindowType type) OVERRIDE;
-  virtual void Activate() OVERRIDE;
-  virtual void DeActivate() OVERRIDE;
+  virtual void InitPlatformWindow(
+       PlatformWindowType type, gfx::AcceleratedWidget parent_window) OVERRIDE;
   virtual gfx::Rect GetBounds() OVERRIDE;
   virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
   virtual void Show() OVERRIDE;

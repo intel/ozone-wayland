@@ -36,12 +36,8 @@ class WindowTreeHostDelegateWayland
   void OnRootWindowCreated(ui::OzoneWaylandWindow* window);
   void OnRootWindowClosed(ui::OzoneWaylandWindow* window);
 
-  void SetActiveWindow(ui::OzoneWaylandWindow* window);
-  ui::OzoneWaylandWindow* GetActiveWindow() const;
-  void DeActivateWindow(ui::OzoneWaylandWindow* window);
-  unsigned GetActiveWindowHandle() const;
-
-  void SetCapture(unsigned handle);
+  ui::OzoneWaylandWindow* GetWindow(unsigned handle);
+  bool HasWindowsOpen() const;
 
  private:
 
@@ -54,27 +50,14 @@ class WindowTreeHostDelegateWayland
                                unsigned width,
                                unsigned height) OVERRIDE;
   virtual void OnWindowUnminimized(unsigned windowhandle) OVERRIDE;
+  virtual void OnWindowDeActivated(unsigned windowhandle) OVERRIDE;
+  virtual void OnWindowActivated(unsigned windowhandle) OVERRIDE;
 
   // Dispatches a mouse event.
-  void DispatchMouseEvent(ui::MouseEvent* event);
-  unsigned GetWindowHandle(gfx::AcceleratedWidget widget);
   std::list<ui::OzoneWaylandWindow*>& open_windows();
-  ui::OzoneWaylandWindow* GetWindow(unsigned handle);
-
-  unsigned current_focus_window_;
-  bool handle_event_ :1;
-  bool stop_propogation_ :1;
 
   // List of all open aura::Window.
   std::list<ui::OzoneWaylandWindow*>* open_windows_;
-
-  // Current dispatcher.
-  DesktopWindowTreeHostWayland* current_dispatcher_;
-  // The current root window host that has capture. We need to track this so we
-  // can notify widgets when they have lost capture, which controls a bunch of
-  // things in views like hiding menus.
-  DesktopWindowTreeHostWayland* current_capture_;
-  ui::OzoneWaylandWindow* current_active_window_;
   DISALLOW_COPY_AND_ASSIGN(WindowTreeHostDelegateWayland);
 };
 

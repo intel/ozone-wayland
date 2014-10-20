@@ -17,15 +17,7 @@
 namespace views {
 
 WindowTreeHostDelegateWayland::WindowTreeHostDelegateWayland()
-    : current_focus_window_(0),
-      handle_event_(true),
-      stop_propogation_(false),
-      open_windows_(NULL),
-      current_dispatcher_(NULL),
-      current_capture_(NULL),
-      current_active_window_(NULL) {
-  if (ui::PlatformEventSource::GetInstance())
-    ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
+    : open_windows_(NULL) {
   ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
 }
 
@@ -43,106 +35,23 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(
   if (open_windows().empty()) {
     delete open_windows_;
     open_windows_ = NULL;
-    ui::PlatformEventSource* event_source =
-        ui::PlatformEventSource::GetInstance();
-    if (event_source)
-      event_source->RemovePlatformEventDispatcher(this);
     ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
-
-    current_active_window_ = NULL;
-    current_capture_ = NULL;
-    current_dispatcher_ = NULL;
-    current_focus_window_ = 0;
     return;
-  }
-
-  if (!current_active_window_ ||
-      GetWindowHandle(current_active_window_->GetHandle()) !=
-          window->GetHandle()) {
-     return;
   }
 
   // Set first top level window in the list of open windows as dispatcher.
   // This is just a guess of the window which would eventually be focussed.
   // We should set the correct root window as dispatcher in OnWindowFocused.
-  SetActiveWindow(open_windows().front());
-  current_active_window_->GetDelegate()->OnActivationChanged(true);
+  ui::OzoneWaylandWindow* new_window = open_windows().front();
+  new_window->GetDelegate()->OnActivationChanged(true);
 }
 
-void WindowTreeHostDelegateWayland::SetActiveWindow(
-    ui::OzoneWaylandWindow* window) {
-  current_active_window_ = window;
-  if (!current_active_window_)
-    return;
-
-  current_dispatcher_ =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
-          current_active_window_->GetHandle());
-}
-
-void WindowTreeHostDelegateWayland::DeActivateWindow(
-    ui::OzoneWaylandWindow* window) {
-  if (current_active_window_ != window)
-    return;
-
-  current_active_window_ = NULL;
-  if (GetWindowHandle(current_dispatcher_->GetAcceleratedWidget()) ==
-      current_active_window_->GetHandle()) {
-    current_dispatcher_ = NULL;
-  }
-}
-
-ui::OzoneWaylandWindow* WindowTreeHostDelegateWayland::GetActiveWindow() const {
-  return current_active_window_;
-}
-
-unsigned
-WindowTreeHostDelegateWayland::GetActiveWindowHandle() const {
-  return current_active_window_ ? current_active_window_->GetHandle() : 0;
-}
-
-void WindowTreeHostDelegateWayland::SetCapture(unsigned handle) {
-  if (current_capture_) {
-    ui::OzoneWaylandWindow* window = GetWindow(
-        GetWindowHandle(current_capture_->GetAcceleratedWidget()));
-    DCHECK(window);
-    window->GetDelegate()->OnLostCapture();
-  }
-
-  DesktopWindowTreeHostWayland* dispatcher =
-      DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(handle);
-
-  current_capture_ = dispatcher;
-  stop_propogation_ = current_capture_ ? true : false;
-  current_dispatcher_ = current_capture_;
-  if (!current_dispatcher_) {
-    current_dispatcher_ =
-        DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
-            current_active_window_->GetHandle());
-  }
-}
+ bool WindowTreeHostDelegateWayland::HasWindowsOpen() const {
+  return open_windows_ ? !open_windows_->empty() : false;
+ }
 
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, Private implementation:
-void WindowTreeHostDelegateWayland::DispatchMouseEvent(
-         ui::MouseEvent* event) {
-  if (handle_event_)
-    SendEventToProcessor(event);
-  else if (event->type() == ui::ET_MOUSE_PRESSED)
-    SetCapture(0);
-
-  // Stop event propogation as this window is acting as event grabber. All
-  // event's we create are "cancelable". If in future we use events that are not
-  // cancelable, then a check for cancelable events needs to be added here.
-  if (stop_propogation_)
-    event->StopPropagation();
-}
-
-unsigned
-WindowTreeHostDelegateWayland::GetWindowHandle(gfx::AcceleratedWidget widget) {
-  return static_cast<unsigned>(widget);
-}
-
 ui::OzoneWaylandWindow*
 WindowTreeHostDelegateWayland::GetWindow(unsigned handle) {
   ui::OzoneWaylandWindow* window = NULL;
@@ -161,32 +70,10 @@ WindowTreeHostDelegateWayland::GetWindow(unsigned handle) {
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, WindowChangeObserver implementation:
 void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
-  current_focus_window_ = handle;
-  // Don't dispatch events in case a window has installed itself as capture
-  // window but doesn't have the focus.
-  handle_event_ = current_capture_ ? current_focus_window_ ==
-          GetWindowHandle(current_capture_->GetAcceleratedWidget()) : true;
-  if (current_active_window_) {
-    if (current_active_window_->GetHandle() == handle)
-      return;
-
-  // A new window should not steal focus in case the current window has a open
-  // popup.
-    if (current_capture_ && (GetWindowHandle(current_capture_->
-        GetAcceleratedWidget()) != current_active_window_->GetHandle())) {
-      return;
-    }
-  }
-
+  DCHECK(handle);
   ui::OzoneWaylandWindow* window = GetWindow(handle);
-  if (!window)
-    return;
-
-  if (current_active_window_)
-    current_active_window_->GetDelegate()->OnActivationChanged(false);
-
-  SetActiveWindow(GetWindow(handle));
-  current_active_window_->GetDelegate()->OnActivationChanged(true);
+  DCHECK(window);
+  window->GetDelegate()->OnActivationChanged(true);
 }
 
 void WindowTreeHostDelegateWayland::OnWindowEnter(unsigned handle) {
@@ -197,16 +84,9 @@ void WindowTreeHostDelegateWayland::OnWindowLeave(unsigned handle) {
 }
 
 void WindowTreeHostDelegateWayland::OnWindowClose(unsigned handle) {
-  // we specially treat grabbed windows in this function, thus the need for
-  // current_capture_ always be a valid pointer.
-  if (!handle || !current_capture_)
-    return;
-  if (GetWindowHandle(current_capture_->GetAcceleratedWidget()) != handle)
-    return;
-
+  DCHECK(handle);
   ui::OzoneWaylandWindow* window = GetWindow(handle);
   DCHECK(window);
-  window->GetDelegate()->OnLostCapture();
   window->GetDelegate()->OnCloseRequest();
 }
 
@@ -227,6 +107,18 @@ void WindowTreeHostDelegateWayland::OnWindowUnminimized(unsigned handle) {
   DCHECK(window);
   window->GetDelegate()->OnWindowStateChanged(
       ui::PLATFORM_WINDOW_STATE_MAXIMIZED);
+}
+
+void WindowTreeHostDelegateWayland::OnWindowDeActivated(unsigned windowhandle) {
+  DCHECK(windowhandle);
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  DCHECK(window);
+  window->GetDelegate()->OnActivationChanged(false);
+}
+
+void WindowTreeHostDelegateWayland::OnWindowActivated(unsigned windowhandle) {
+  DCHECK(windowhandle);
+  OnWindowFocused(windowhandle);
 }
 
 std::list<ui::OzoneWaylandWindow*>&
