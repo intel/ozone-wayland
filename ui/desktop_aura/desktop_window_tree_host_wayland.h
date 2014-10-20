@@ -12,6 +12,8 @@
 
 #include "base/basictypes.h"
 #include "ui/aura/window_tree_host.h"
+#include "ui/events/event_source.h"
+#include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 
@@ -30,7 +32,9 @@ class DesktopDragDropClientWayland;
 class VIEWS_EXPORT DesktopWindowTreeHostWayland
     : public DesktopWindowTreeHost,
       public aura::WindowTreeHost,
-      public ui::PlatformWindowDelegate
+      public ui::PlatformWindowDelegate,
+      public ui::PlatformEventDispatcher,
+      public ui::EventSource
 {
  public:
   DesktopWindowTreeHostWayland(
@@ -82,13 +86,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // entirely.
   void OnCaptureReleased();
 
+
   // ui::PlatformWindowDelegate:
   // TODO(kalyan) Provide appropriate implementations.
   virtual void OnBoundsChanged(const gfx::Rect&) OVERRIDE {}
   virtual void OnBoundChanged(const gfx::Rect& old_bounds,
                               const gfx::Rect& new_bounds) OVERRIDE;
   virtual void OnDamageRect(const gfx::Rect& damaged_region) OVERRIDE{}
-  virtual void DispatchEvent(ui::Event* event) OVERRIDE{}
+  virtual void DispatchEvent(ui::Event* event) OVERRIDE;
   virtual void OnCloseRequest() OVERRIDE;
   virtual void OnClosed() OVERRIDE{}
   virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) OVERRIDE;
@@ -175,7 +180,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void MoveCursorToNative(const gfx::Point& location) OVERRIDE;
   virtual void PostNativeEvent(const base::NativeEvent& native_event) OVERRIDE;
 
+  // Overridden frm ui::EventSource
+  virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
+  // ui::PlatformEventDispatcher:
+  virtual bool CanDispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
+  virtual uint32_t DispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
+
   void Relayout();
+  void DispatchMouseEvent(ui::MouseEvent* event);
 
   static std::list<gfx::AcceleratedWidget>& open_windows();
 
@@ -208,7 +220,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   static std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
-  static DesktopWindowTreeHostWayland* g_current_capture;
+  static DesktopWindowTreeHostWayland* g_current_dispatcher;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };
 

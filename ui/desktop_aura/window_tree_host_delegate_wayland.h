@@ -28,9 +28,7 @@ class DesktopWindowTreeHostWayland;
 // A static class used by DesktopWindowTreeHostWayland to dispatch native events
 // and basic window management.
 class WindowTreeHostDelegateWayland
-    : public ui::PlatformEventDispatcher,
-      public ui::EventSource,
-      public ui::WindowChangeObserver {
+    : public ui::WindowChangeObserver {
  public:
   WindowTreeHostDelegateWayland();
   virtual ~WindowTreeHostDelegateWayland();
@@ -45,12 +43,7 @@ class WindowTreeHostDelegateWayland
 
   void SetCapture(unsigned handle);
 
-  // Overridden frm ui::EventSource
-  virtual ui::EventProcessor* GetEventProcessor() OVERRIDE;
  private:
-  // ui::PlatformEventDispatcher:
-  virtual bool CanDispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
-  virtual uint32_t DispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
 
   // Window Change Observer.
   virtual void OnWindowFocused(unsigned handle) OVERRIDE;
