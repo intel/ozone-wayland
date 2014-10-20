@@ -208,7 +208,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   static std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
-  static DesktopWindowTreeHostWayland* current_capture_;
+  static DesktopWindowTreeHostWayland* g_current_capture;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
 };
 

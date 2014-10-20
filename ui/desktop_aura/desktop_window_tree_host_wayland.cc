@@ -39,7 +39,7 @@
 namespace views {
 
 DesktopWindowTreeHostWayland*
-    DesktopWindowTreeHostWayland::current_capture_ = NULL;
+    DesktopWindowTreeHostWayland::g_current_capture = NULL;
 
 std::list<gfx::AcceleratedWidget>*
 DesktopWindowTreeHostWayland::open_windows_ = NULL;
@@ -492,14 +492,14 @@ bool DesktopWindowTreeHostWayland::IsMinimized() const {
 }
 
 void DesktopWindowTreeHostWayland::OnCaptureReleased() {
-  DCHECK(current_capture_ == this);
+  DCHECK(g_current_capture == this);
   OnHostLostWindowCapture();
   native_widget_delegate_->OnMouseCaptureLost();
-  current_capture_ = NULL;
+  g_current_capture = NULL;
 }
 
 bool DesktopWindowTreeHostWayland::HasCapture() const {
-  return current_capture_ == this;
+  return g_current_capture == this;
 }
 
 bool DesktopWindowTreeHostWayland::IsAlwaysOnTop() const {
@@ -712,13 +712,13 @@ gfx::Point DesktopWindowTreeHostWayland::GetLocationOnNativeScreen() const {
 
 void DesktopWindowTreeHostWayland::SetCapture() {
   platform_window_->SetCapture();
-  current_capture_ = this;
+  g_current_capture = this;
 }
 
 void DesktopWindowTreeHostWayland::ReleaseCapture() {
-  if (current_capture_ == this) {
+  if (g_current_capture == this) {
     platform_window_->ReleaseCapture();
-    current_capture_ = NULL;
+    g_current_capture = NULL;
   }
 }
 
