@@ -507,6 +507,8 @@ void DesktopWindowTreeHostWayland::Minimize() {
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
+  g_active_window = this;
+
   if (state_ & Normal)
     return;
 
