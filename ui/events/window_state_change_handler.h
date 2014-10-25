@@ -27,9 +27,7 @@ class OZONE_WAYLAND_EXPORT WindowStateChangeHandler {
 
   // Called when AcceleratedWidget widget state has changed.
   virtual void SetWidgetState(unsigned widget,
-                              ui::WidgetState state,
-                              unsigned width = 0,
-                              unsigned height = 0) = 0;
+                              ui::WidgetState state) = 0;
 
   // Called when AcceleratedWidget widget title has changed.
   virtual void SetWidgetTitle(unsigned widget, const base::string16& title) = 0;

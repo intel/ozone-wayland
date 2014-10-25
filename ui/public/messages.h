@@ -89,11 +89,9 @@ IPC_MESSAGE_CONTROL1(WaylandWindow_DeActivated,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandWindow_Activated,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/)
 
-IPC_MESSAGE_CONTROL4(WaylandWindow_State,  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL2(WaylandWindow_State,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
-                     ui::WidgetState /*state*/,
-                     unsigned /*width*/,
-                     unsigned /*height*/)
+                     ui::WidgetState /*state*/)
 
 IPC_MESSAGE_CONTROL5(WaylandWindow_Create,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,

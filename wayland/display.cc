@@ -162,9 +162,7 @@ WaylandDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
 }
 
 void WaylandDisplay::SetWidgetState(unsigned w,
-                                    ui::WidgetState state,
-                                    unsigned width,
-                                    unsigned height) {
+                                    ui::WidgetState state) {
   switch (state) {
     case ui::FULLSCREEN:
     {

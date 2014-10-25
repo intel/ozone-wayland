@@ -46,13 +46,9 @@ bool OzoneChannel::OnMessageReceived(const IPC::Message& message) {
 }
 
 void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
-                                        ui::WidgetState state,
-                                        unsigned width,
-                                        unsigned height) {
+                                        ui::WidgetState state) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handleid,
-                                                              state,
-                                                              width,
-                                                              height);
+                                                              state);
 }
 
 void OzoneChannel::OnWidgetTitleChanged(unsigned widget,

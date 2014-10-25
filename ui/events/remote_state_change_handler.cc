@@ -33,10 +33,8 @@ void RemoteStateChangeHandler::ChannelDestroyed() {
 }
 
 void RemoteStateChangeHandler::SetWidgetState(unsigned w,
-                                              ui::WidgetState state,
-                                              unsigned width,
-                                              unsigned height) {
-  Send(new WaylandWindow_State(w, state, width, height));
+                                              ui::WidgetState state) {
+  Send(new WaylandWindow_State(w, state));
 }
 
 void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,

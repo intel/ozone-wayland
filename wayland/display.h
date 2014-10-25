@@ -92,9 +92,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
 
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
-                              ui::WidgetState state,
-                              unsigned width = 0,
-                              unsigned height = 0) override;
+                              ui::WidgetState state) override;
   virtual void SetWidgetTitle(unsigned w,
                               const base::string16& title) override;
   virtual void SetWidgetCursor(int cursor_type) override;

@@ -23,9 +23,7 @@ class OzoneChannel : public GpuPlatformSupport {
   virtual bool OnMessageReceived(const IPC::Message& message) override;
 
   void OnWidgetStateChanged(unsigned handleid,
-                            ui::WidgetState state,
-                            unsigned width,
-                            unsigned height);
+                            ui::WidgetState state);
   void OnWidgetTitleChanged(unsigned widget, base::string16 title);
   void OnWidgetCursorChanged(int cursor_type);
   void OnWidgetCreate(unsigned widget,
