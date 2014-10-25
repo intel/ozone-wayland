@@ -464,6 +464,8 @@ void DesktopWindowTreeHostWayland::Minimize() {
 }
 
 void DesktopWindowTreeHostWayland::Restore() {
+  g_delegate_ozone_wayland_->SetActiveWindow(this);
+
   if (state_ & Normal)
     return;
 
