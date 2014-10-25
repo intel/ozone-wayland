@@ -106,7 +106,8 @@ ui::NativeTheme* OzoneWebUI::GetNativeTheme(aura::Window* window) const {
   return 0;
 }
 
-void OzoneWebUI::SetNativeThemeOverride(const NativeThemeGetter& callback) {
+void OzoneWebUI::SetNativeThemeOverride(
+      const NativeThemeGetter& callback) {
 }
 
 bool OzoneWebUI::GetDefaultUsesSystemTheme() const {
@@ -137,7 +138,7 @@ gfx::Image OzoneWebUI::GetIconForContentType(
 scoped_ptr<Border> OzoneWebUI::CreateNativeBorder(
   views::LabelButton* owning_button,
   scoped_ptr<views::LabelButtonBorder> border){
-  return  border.PassAs<views::Border>();
+  return border.Pass();
 }
 
 void OzoneWebUI::AddWindowButtonOrderObserver(

@@ -14,6 +14,7 @@
 #include "ozone/ui/public/ozone_channel.h"
 #include "ozone/ui/public/ozone_channel_host.h"
 #include "ozone/wayland/display.h"
+#include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
@@ -61,6 +62,11 @@ class OzonePlatformWayland : public OzonePlatform {
       wayland_display_->LookAheadOutputGeometry();
       return scoped_ptr<PlatformWindow>();
     }
+  }
+
+  virtual scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate()
+      override {
+    return scoped_ptr<NativeDisplayDelegate>(new NativeDisplayDelegateOzone());
   }
 
   virtual void InitializeUI() override {

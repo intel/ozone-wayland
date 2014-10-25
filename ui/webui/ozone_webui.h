@@ -78,8 +78,8 @@ class OzoneWebUI : public views::LinuxUI {
   virtual SkColor GetInactiveSelectionFgColor() const override;
   virtual double GetCursorBlinkInterval() const override;
   virtual ui::NativeTheme* GetNativeTheme(aura::Window* window) const override;
-  virtual void SetNativeThemeoverride(const NativeThemeGetter& callback)
-      override;
+  virtual void SetNativeThemeOverride(
+      const NativeThemeGetter& callback) override;
   virtual bool GetDefaultUsesSystemTheme() const override;
   virtual void SetDownloadCount(int count) const override;
   virtual void SetProgressFraction(float percentage) const override;

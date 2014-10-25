@@ -9,7 +9,7 @@
 #include <string>
 
 #include "base/environment.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/nix/xdg_util.h"
 #include "base/threading/thread_restrictions.h"
