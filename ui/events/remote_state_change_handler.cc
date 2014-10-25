@@ -48,12 +48,12 @@ void RemoteStateChangeHandler::SetWidgetCursor(int cursor_type) {
   Send(new WaylandWindow_Cursor(cursor_type));
 }
 
-void RemoteStateChangeHandler::SetWidgetAttributes(unsigned widget,
-                                                   unsigned parent,
-                                                   unsigned x,
-                                                   unsigned y,
-                                                   ui::WidgetType type) {
-  Send(new WaylandWindow_Attributes(widget,
+void RemoteStateChangeHandler::CreateWidget(unsigned widget,
+                                            unsigned parent,
+                                            unsigned x,
+                                            unsigned y,
+                                            ui::WidgetType type) {
+  Send(new WaylandWindow_Create(widget,
                                     parent,
                                     x,
                                     y,

@@ -95,7 +95,7 @@ IPC_MESSAGE_CONTROL4(WaylandWindow_State,  // NOLINT(readability/fn_size)
                      unsigned /*width*/,
                      unsigned /*height*/)
 
-IPC_MESSAGE_CONTROL5(WaylandWindow_Attributes,  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL5(WaylandWindow_Create,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
                      unsigned /* window parent */,
                      unsigned /* x */,

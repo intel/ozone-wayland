@@ -8,17 +8,16 @@
 namespace ui {
 
   enum WidgetState {
-    CREATE = 1,  // Create a new Widget
-    SHOW = 2,  // Widget is visible.
-    HIDE = 3,  // Widget is hidden.
-    FULLSCREEN = 4,  // Widget is in fullscreen mode.
-    MAXIMIZED = 5,  // Widget is maximized,
-    MINIMIZED = 6,  // Widget is minimized.
-    RESTORE = 7,  // Restore Widget.
-    ACTIVE = 8,  // Widget is Activated.
-    INACTIVE = 9,  // Widget is DeActivated.
-    RESIZE = 10,  // Widget is Resized.
-    DESTROYED = 11  // Widget is Destroyed.
+    SHOW = 1,  // Widget is visible.
+    HIDE = 2,  // Widget is hidden.
+    FULLSCREEN = 3,  // Widget is in fullscreen mode.
+    MAXIMIZED = 4,  // Widget is maximized,
+    MINIMIZED = 5,  // Widget is minimized.
+    RESTORE = 6,  // Restore Widget.
+    ACTIVE = 7,  // Widget is Activated.
+    INACTIVE = 8,  // Widget is DeActivated.
+    RESIZE = 9,  // Widget is Resized.
+    DESTROYED = 10  // Widget is Destroyed.
   };
 
   enum WidgetType {

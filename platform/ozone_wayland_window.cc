@@ -21,8 +21,6 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   static int opaque_handle = 0;
   opaque_handle++;
   handle_ = opaque_handle;
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              CREATE);
   delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
 
   if (!g_delegate_ozone_wayland_)
@@ -58,20 +56,20 @@ void OzoneWaylandWindow::InitPlatformWindow(
       gfx::Point transientPos(bounds_.x() - parent_bounds.x(),
                               bounds_.y() - parent_bounds.y());
 
-      state_handler->SetWidgetAttributes(handle_,
-                                         active_window->GetHandle(),
-                                         transientPos.x(),
-                                         transientPos.y(),
-                                         ui::POPUP);
+      state_handler->CreateWidget(handle_,
+                                  active_window->GetHandle(),
+                                  transientPos.x(),
+                                  transientPos.y(),
+                                  ui::POPUP);
       break;
     }
     case PLATFORM_WINDOW_TYPE_BUBBLE:
     case PLATFORM_WINDOW_TYPE_WINDOW:
-      state_handler->SetWidgetAttributes(handle_,
-                                         0,
-                                         0,
-                                         0,
-                                         ui::WINDOW);
+      state_handler->CreateWidget(handle_,
+                                  0,
+                                  0,
+                                  0,
+                                  ui::WINDOW);
       break;
     case PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS:
       NOTIMPLEMENTED();

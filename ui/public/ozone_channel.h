@@ -28,11 +28,11 @@ class OzoneChannel : public GpuPlatformSupport {
                             unsigned height);
   void OnWidgetTitleChanged(unsigned widget, base::string16 title);
   void OnWidgetCursorChanged(int cursor_type);
-  void OnWidgetAttributesChanged(unsigned widget,
-                                 unsigned parent,
-                                 unsigned x,
-                                 unsigned y,
-                                 ui::WidgetType type);
+  void OnWidgetCreate(unsigned widget,
+                      unsigned parent,
+                      unsigned x,
+                      unsigned y,
+                      ui::WidgetType type);
   void OnWidgetImeReset();
   void OnWidgetShowInputPanel();
   void OnWidgetHideInputPanel();

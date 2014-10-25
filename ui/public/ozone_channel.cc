@@ -33,7 +33,7 @@ bool OzoneChannel::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(OzoneChannel, message)
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Attributes, OnWidgetAttributesChanged)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Create, OnWidgetCreate)
   IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Cursor, OnWidgetCursorChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_ImeReset, OnWidgetImeReset)
@@ -64,16 +64,16 @@ void OzoneChannel::OnWidgetCursorChanged(int cursor_type) {
   ui::WindowStateChangeHandler::GetInstance()->SetWidgetCursor(cursor_type);
 }
 
-void OzoneChannel::OnWidgetAttributesChanged(unsigned widget,
-                                             unsigned parent,
-                                             unsigned x,
-                                             unsigned y,
-                                             ui::WidgetType type) {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetAttributes(widget,
-                                                                   parent,
-                                                                   x,
-                                                                   y,
-                                                                   type);
+void OzoneChannel::OnWidgetCreate(unsigned widget,
+                                  unsigned parent,
+                                  unsigned x,
+                                  unsigned y,
+                                  ui::WidgetType type) {
+  ui::WindowStateChangeHandler::GetInstance()->CreateWidget(widget,
+                                                            parent,
+                                                            x,
+                                                            y,
+                                                            type);
 }
 
 void OzoneChannel::OnWidgetImeReset() {

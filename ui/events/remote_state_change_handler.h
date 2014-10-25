@@ -38,11 +38,11 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   virtual void SetWidgetTitle(unsigned w,
                               const base::string16& title) override;
   virtual void SetWidgetCursor(int cursor_type) override;
-  virtual void SetWidgetAttributes(unsigned widget,
-                                   unsigned parent,
-                                   unsigned x,
-                                   unsigned y,
-                                   ui::WidgetType type) override;
+  virtual void CreateWidget(unsigned widget,
+                            unsigned parent,
+                            unsigned x,
+                            unsigned y,
+                            ui::WidgetType type) override;
   virtual void ResetIme() override;
   virtual void ImeCaretBoundsChanged(gfx::Rect rect) override;
   virtual void ShowInputPanel() override;

@@ -37,11 +37,11 @@ class OZONE_WAYLAND_EXPORT WindowStateChangeHandler {
   virtual void SetWidgetCursor(int cursor_type) = 0;
 
   // This is called when we want to create an AcceleratedWidget widget.
-  virtual void SetWidgetAttributes(unsigned widget,
-                                   unsigned parent,
-                                   unsigned x,
-                                   unsigned y,
-                                   ui::WidgetType type) = 0;
+  virtual void CreateWidget(unsigned handle,
+                            unsigned parent,
+                            unsigned x,
+                            unsigned y,
+                            ui::WidgetType type) = 0;
 
  private:
   static WindowStateChangeHandler* impl_;  // not owned

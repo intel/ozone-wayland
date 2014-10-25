@@ -166,11 +166,6 @@ void WaylandDisplay::SetWidgetState(unsigned w,
                                     unsigned width,
                                     unsigned height) {
   switch (state) {
-    case ui::CREATE:
-    {
-      CreateAcceleratedSurface(w);
-      break;
-    }
     case ui::FULLSCREEN:
     {
       WaylandWindow* widget = GetWidget(w);
@@ -223,12 +218,14 @@ void WaylandDisplay::SetWidgetCursor(int cursor_type) {
   primary_input_->SetCursorType(cursor_type);
 }
 
-void WaylandDisplay::SetWidgetAttributes(unsigned widget,
-                                         unsigned parent,
-                                         unsigned x,
-                                         unsigned y,
-                                         ui::WidgetType type) {
-  WaylandWindow* window = GetWidget(widget);
+void WaylandDisplay::CreateWidget(unsigned widget,
+                                  unsigned parent,
+                                  unsigned x,
+                                  unsigned y,
+                                  ui::WidgetType type) {
+  DCHECK(!GetWidget(widget));
+  WaylandWindow* window = CreateAcceleratedSurface(widget);
+
   WaylandWindow* parent_window = GetWidget(parent);
   DCHECK(window);
   switch (type) {
