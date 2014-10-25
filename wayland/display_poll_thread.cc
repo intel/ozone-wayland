@@ -66,6 +66,7 @@ WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
 
 WaylandDisplayPollThread::~WaylandDisplayPollThread() {
   DCHECK(!polling_.IsSignaled());
+  StopProcessingEvents();
   Stop();
 }
 
@@ -82,6 +83,7 @@ void WaylandDisplayPollThread::StartProcessingEvents() {
 void WaylandDisplayPollThread::StopProcessingEvents() {
   if (polling_.IsSignaled())
     stop_polling_.Signal();
+  Stop();
 }
 
 void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
@@ -110,7 +112,7 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
 
   // Adopted from:
   // http://cgit.freedesktop.org/wayland/weston/tree/clients/window.c#n5531.
-  while (1) {
+  while (!data->stop_polling_.IsSignaled()) {
     wl_display_dispatch_pending(data->display_);
     ret = wl_display_flush(data->display_);
     if (ret < 0 && errno == EAGAIN) {

@@ -358,7 +358,7 @@ void WaylandDisplay::Terminate() {
     STLDeleteValues(&widget_map_);
     widget_map_.clear();
   }
-
+  StopProcessingEvents();
   for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
       i != input_list_.end(); ++i) {
       delete *i;
