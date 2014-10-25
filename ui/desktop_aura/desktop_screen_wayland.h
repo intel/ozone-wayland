@@ -28,7 +28,6 @@ class DesktopScreenWayland : public gfx::Screen,
  private:
   void SetGeometry(const gfx::Rect& geometry);
   // Overridden from gfx::Screen:
-  virtual bool IsDIPEnabled() override;
   virtual gfx::Point GetCursorScreenPoint() override;
   virtual gfx::NativeWindow GetWindowUnderCursor() override;
   virtual gfx::NativeWindow GetWindowAtScreenPoint(const gfx::Point& point)

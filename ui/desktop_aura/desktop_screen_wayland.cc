@@ -38,10 +38,6 @@ void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
     displays_.push_back(gfx::Display(displays_.size(), rect_));
 }
 
-bool DesktopScreenWayland::IsDIPEnabled() {
-  return false;
-}
-
 gfx::Point DesktopScreenWayland::GetCursorScreenPoint() {
   return gfx::Point();
 }
