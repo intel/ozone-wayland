@@ -65,8 +65,7 @@ WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
 }
 
 WaylandDisplayPollThread::~WaylandDisplayPollThread() {
-  DCHECK(!polling_.IsSignaled());
-  Stop();
+  StopProcessingEvents();
 }
 
 void WaylandDisplayPollThread::StartProcessingEvents() {
@@ -82,6 +81,12 @@ void WaylandDisplayPollThread::StartProcessingEvents() {
 void WaylandDisplayPollThread::StopProcessingEvents() {
   if (polling_.IsSignaled())
     stop_polling_.Signal();
+
+  Stop();
+}
+
+void WaylandDisplayPollThread::CleanUp() {
+  SetThreadWasQuitProperly(true);
 }
 
 void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
