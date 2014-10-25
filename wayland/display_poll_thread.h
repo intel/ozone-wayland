@@ -17,13 +17,17 @@ namespace ozonewayland {
 class WaylandDisplayPollThread : public base::Thread {
  public:
   explicit WaylandDisplayPollThread(wl_display* display);
-  virtual ~WaylandDisplayPollThread();
+  ~WaylandDisplayPollThread() override;
 
   // Starts polling on wl_display fd and read/flush requests coming from Wayland
   // compositor.
   void StartProcessingEvents();
   // Stops polling and handling of any events from Wayland compositor.
   void StopProcessingEvents();
+
+ protected:
+  void CleanUp() override;
+
  private:
   static void DisplayRun(WaylandDisplayPollThread* data);
   base::WaitableEvent polling_;  // Is set as long as the thread is polling.
