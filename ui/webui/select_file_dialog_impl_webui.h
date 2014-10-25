@@ -21,8 +21,8 @@ class SelectFileDialogImplWebUI : public SelectFileDialog {
   static ui::SelectFileDialog* Create(Listener* listener,
                                       ui::SelectFilePolicy* policy);
   // BaseShellDialog implementation.
-  virtual bool IsRunning(gfx::NativeWindow parent_window) const OVERRIDE;
-  virtual void ListenerDestroyed() OVERRIDE;
+  virtual bool IsRunning(gfx::NativeWindow parent_window) const override;
+  virtual void ListenerDestroyed() override;
 
  protected:
   explicit SelectFileDialogImplWebUI(Listener* listener,
@@ -39,8 +39,8 @@ class SelectFileDialogImplWebUI : public SelectFileDialog {
       int file_type_index,
       const base::FilePath::StringType& default_extension,
       gfx::NativeWindow owning_window,
-      void* params) OVERRIDE;
-  virtual bool HasMultipleFileTypeChoicesImpl() OVERRIDE;
+      void* params) override;
+  virtual bool HasMultipleFileTypeChoicesImpl() override;
 
   // Wrapper for base::DirectoryExists() that allow access on the UI
   // thread. Use this only in the file dialog functions, where it's ok

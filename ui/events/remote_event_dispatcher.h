@@ -23,42 +23,42 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
 
   void ChannelEstablished(IPC::Sender* sender);
 
-  virtual void MotionNotify(float x, float y) OVERRIDE;
+  virtual void MotionNotify(float x, float y) override;
   virtual void ButtonNotify(unsigned handle,
                             ui::EventType type,
                             ui::EventFlags flags,
                             float x,
-                            float y) OVERRIDE;
+                            float y) override;
   virtual void AxisNotify(float x,
                           float y,
                           int xoffset,
-                          int yoffset) OVERRIDE;
-  virtual void PointerEnter(unsigned handle, float x, float y) OVERRIDE;
-  virtual void PointerLeave(unsigned handle, float x, float y) OVERRIDE;
+                          int yoffset) override;
+  virtual void PointerEnter(unsigned handle, float x, float y) override;
+  virtual void PointerLeave(unsigned handle, float x, float y) override;
   virtual void KeyNotify(ui::EventType type,
                          unsigned code,
-                         unsigned modifiers) OVERRIDE;
+                         unsigned modifiers) override;
   virtual void TouchNotify(ui::EventType type,
                            float x,
                            float y,
                            int32_t touch_id,
-                           uint32_t time_stamp) OVERRIDE;
+                           uint32_t time_stamp) override;
 
-  virtual void OutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
+  virtual void OutputSizeChanged(unsigned width, unsigned height) override;
   virtual void WindowResized(unsigned handle,
                              unsigned width,
-                             unsigned height) OVERRIDE;
-  virtual void WindowUnminimized(unsigned windowhandle) OVERRIDE;
-  virtual void WindowDeActivated(unsigned windowhandle) OVERRIDE;
-  virtual void WindowActivated(unsigned windowhandle) OVERRIDE;
-  virtual void CloseWidget(unsigned handle) OVERRIDE;
+                             unsigned height) override;
+  virtual void WindowUnminimized(unsigned windowhandle) override;
+  virtual void WindowDeActivated(unsigned windowhandle) override;
+  virtual void WindowActivated(unsigned windowhandle) override;
+  virtual void CloseWidget(unsigned handle) override;
 
-  virtual void Commit(unsigned handle, const std::string& text) OVERRIDE;
+  virtual void Commit(unsigned handle, const std::string& text) override;
   virtual void PreeditChanged(unsigned handle,
                               const std::string& text,
-                              const std::string& commit) OVERRIDE;
-  virtual void PreeditEnd() OVERRIDE;
-  virtual void PreeditStart() OVERRIDE;
+                              const std::string& commit) override;
+  virtual void PreeditEnd() override;
+  virtual void PreeditStart() override;
 
  private:
   void Dispatch(IPC::Message* message);

@@ -34,24 +34,24 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   // OzonePlatform:
-  virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() OVERRIDE {
+  virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() override {
     return wayland_display_.get();
   }
-  virtual CursorFactoryOzone* GetCursorFactoryOzone() OVERRIDE {
+  virtual CursorFactoryOzone* GetCursorFactoryOzone() override {
     return cursor_factory_ozone_.get();
   }
 
-  virtual GpuPlatformSupportHost* GetGpuPlatformSupportHost() OVERRIDE {
+  virtual GpuPlatformSupportHost* GetGpuPlatformSupportHost() override {
     return gpu_platform_host_.get();
   }
 
-  virtual GpuPlatformSupport* GetGpuPlatformSupport() OVERRIDE {
+  virtual GpuPlatformSupport* GetGpuPlatformSupport() override {
     return gpu_platform_.get();
   }
 
   virtual scoped_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
-      const gfx::Rect& bounds) OVERRIDE {
+      const gfx::Rect& bounds) override {
     if (delegate) {
       return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow(delegate,
                                                                bounds));
@@ -63,7 +63,7 @@ class OzonePlatformWayland : public OzonePlatform {
     }
   }
 
-  virtual void InitializeUI() OVERRIDE {
+  virtual void InitializeUI() override {
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
 
@@ -75,7 +75,7 @@ class OzonePlatformWayland : public OzonePlatform {
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
   }
 
-  virtual void InitializeGPU() OVERRIDE {
+  virtual void InitializeGPU() override {
     gpu_platform_.reset(new ui::OzoneChannel());
     if (!event_factory_ozone_) {
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());

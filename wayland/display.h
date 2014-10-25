@@ -77,32 +77,32 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   bool InitializeHardware();
 
   // Ozone Display implementation:
-  virtual intptr_t GetNativeDisplay() OVERRIDE;
+  virtual intptr_t GetNativeDisplay() override;
 
   // Ownership is passed to the caller.
   virtual scoped_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
-        gfx::AcceleratedWidget widget) OVERRIDE;
+        gfx::AcceleratedWidget widget) override;
 
   virtual bool LoadEGLGLES2Bindings(
     ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
     ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
-        proc_address) OVERRIDE;
+        proc_address) override;
   virtual const int32* GetEGLSurfaceProperties(
-      const int32* desired_list) OVERRIDE;
+      const int32* desired_list) override;
 
   // WindowStateChangeHandler implementation:
   virtual void SetWidgetState(unsigned widget,
                               ui::WidgetState state,
                               unsigned width = 0,
-                              unsigned height = 0) OVERRIDE;
+                              unsigned height = 0) override;
   virtual void SetWidgetTitle(unsigned w,
-                              const base::string16& title) OVERRIDE;
-  virtual void SetWidgetCursor(int cursor_type) OVERRIDE;
+                              const base::string16& title) override;
+  virtual void SetWidgetCursor(int cursor_type) override;
   virtual void SetWidgetAttributes(unsigned widget,
                                    unsigned parent,
                                    unsigned x,
                                    unsigned y,
-                                   ui::WidgetType type) OVERRIDE;
+                                   ui::WidgetType type) override;
 
   void LookAheadOutputGeometry();
 

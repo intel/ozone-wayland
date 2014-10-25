@@ -20,16 +20,16 @@ class IVIShellSurface : public WaylandShellSurface {
   virtual ~IVIShellSurface();
 
   virtual void InitializeShellSurface(WaylandWindow* window,
-                                      WaylandWindow::ShellType type) OVERRIDE;
+                                      WaylandWindow::ShellType type) override;
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
                                   unsigned x,
-                                  unsigned y) OVERRIDE;
-  virtual void SetWindowTitle(const base::string16& title) OVERRIDE;
-  virtual void Maximize() OVERRIDE;
-  virtual void Minimize() OVERRIDE;
-  virtual void Unminimize() OVERRIDE;
-  virtual bool IsMinimized() const OVERRIDE;
+                                  unsigned y) override;
+  virtual void SetWindowTitle(const base::string16& title) override;
+  virtual void Maximize() override;
+  virtual void Minimize() override;
+  virtual void Unminimize() override;
+  virtual bool IsMinimized() const override;
 
  private:
   ivi_surface* ivi_surface_;

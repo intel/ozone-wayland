@@ -17,7 +17,7 @@ class OZONE_WAYLAND_EXPORT InputMethodContextFactoryWayland
   virtual ~InputMethodContextFactoryWayland();
 
   virtual scoped_ptr<LinuxInputMethodContext> CreateInputMethodContext(
-      ui::LinuxInputMethodContextDelegate* delegate) const OVERRIDE;
+      ui::LinuxInputMethodContextDelegate* delegate) const override;
 };
 
 }  // namespace ui

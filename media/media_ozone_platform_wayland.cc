@@ -20,7 +20,7 @@ class MediaOzonePlatformWayland : public MediaOzonePlatform {
 
   // MediaOzonePlatform:
   virtual media::VideoDecodeAccelerator* CreateVideoDecodeAccelerator(
-      const base::Callback<bool(void)>& make_context_current) OVERRIDE {
+      const base::Callback<bool(void)>& make_context_current) override {
     return new VaapiVideoDecodeAccelerator(make_context_current);
   }
 

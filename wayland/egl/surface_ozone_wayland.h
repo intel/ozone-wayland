@@ -16,13 +16,13 @@ namespace ozonewayland {
 class SurfaceOzoneWayland : public ui::SurfaceOzoneEGL {
  public:
   explicit SurfaceOzoneWayland(unsigned handle);
-  virtual ~SurfaceOzoneWayland() OVERRIDE;
+  virtual ~SurfaceOzoneWayland() override;
 
   // SurfaceOzone:
-  virtual intptr_t GetNativeWindow() OVERRIDE;
-  virtual bool ResizeNativeWindow(const gfx::Size& viewport_size) OVERRIDE;
-  virtual bool OnSwapBuffers() OVERRIDE;
-  virtual scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider() OVERRIDE;
+  virtual intptr_t GetNativeWindow() override;
+  virtual bool ResizeNativeWindow(const gfx::Size& viewport_size) override;
+  virtual bool OnSwapBuffers() override;
+  virtual scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider() override;
 
  private:
   unsigned handle_;

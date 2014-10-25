@@ -14,11 +14,11 @@ class CursorFactoryOzoneWayland : public CursorFactoryOzone {
   CursorFactoryOzoneWayland();
   virtual ~CursorFactoryOzoneWayland();
 
-  virtual PlatformCursor GetDefaultCursor(int type) OVERRIDE;
+  virtual PlatformCursor GetDefaultCursor(int type) override;
   virtual PlatformCursor CreateImageCursor(const SkBitmap& bitmap,
-                                           const gfx::Point& hotspot) OVERRIDE;
-  virtual void RefImageCursor(PlatformCursor cursor) OVERRIDE;
-  virtual void UnrefImageCursor(PlatformCursor cursor) OVERRIDE;
+                                           const gfx::Point& hotspot) override;
+  virtual void RefImageCursor(PlatformCursor cursor) override;
+  virtual void UnrefImageCursor(PlatformCursor cursor) override;
 };
 
 }  // namespace ui

@@ -42,16 +42,16 @@ class WindowTreeHostDelegateWayland
  private:
 
   // Window Change Observer.
-  virtual void OnWindowFocused(unsigned handle) OVERRIDE;
-  virtual void OnWindowEnter(unsigned handle) OVERRIDE;
-  virtual void OnWindowLeave(unsigned handle) OVERRIDE;
-  virtual void OnWindowClose(unsigned handle) OVERRIDE;
+  virtual void OnWindowFocused(unsigned handle) override;
+  virtual void OnWindowEnter(unsigned handle) override;
+  virtual void OnWindowLeave(unsigned handle) override;
+  virtual void OnWindowClose(unsigned handle) override;
   virtual void OnWindowResized(unsigned windowhandle,
                                unsigned width,
-                               unsigned height) OVERRIDE;
-  virtual void OnWindowUnminimized(unsigned windowhandle) OVERRIDE;
-  virtual void OnWindowDeActivated(unsigned windowhandle) OVERRIDE;
-  virtual void OnWindowActivated(unsigned windowhandle) OVERRIDE;
+                               unsigned height) override;
+  virtual void OnWindowUnminimized(unsigned windowhandle) override;
+  virtual void OnWindowDeActivated(unsigned windowhandle) override;
+  virtual void OnWindowActivated(unsigned windowhandle) override;
 
   // Dispatches a mouse event.
   std::list<ui::OzoneWaylandWindow*>& open_windows();

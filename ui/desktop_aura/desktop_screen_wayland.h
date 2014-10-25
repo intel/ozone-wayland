@@ -23,27 +23,27 @@ class DesktopScreenWayland : public gfx::Screen,
   virtual ~DesktopScreenWayland();
 
   // OutputChangeObserver overrides.
-  virtual void OnOutputSizeChanged(unsigned width, unsigned height) OVERRIDE;
+  virtual void OnOutputSizeChanged(unsigned width, unsigned height) override;
 
  private:
   void SetGeometry(const gfx::Rect& geometry);
   // Overridden from gfx::Screen:
-  virtual bool IsDIPEnabled() OVERRIDE;
-  virtual gfx::Point GetCursorScreenPoint() OVERRIDE;
-  virtual gfx::NativeWindow GetWindowUnderCursor() OVERRIDE;
+  virtual bool IsDIPEnabled() override;
+  virtual gfx::Point GetCursorScreenPoint() override;
+  virtual gfx::NativeWindow GetWindowUnderCursor() override;
   virtual gfx::NativeWindow GetWindowAtScreenPoint(const gfx::Point& point)
-      OVERRIDE;
-  virtual int GetNumDisplays() const OVERRIDE;
-  virtual std::vector<gfx::Display> GetAllDisplays() const OVERRIDE;
+      override;
+  virtual int GetNumDisplays() const override;
+  virtual std::vector<gfx::Display> GetAllDisplays() const override;
   virtual gfx::Display GetDisplayNearestWindow(
-      gfx::NativeView window) const OVERRIDE;
+      gfx::NativeView window) const override;
   virtual gfx::Display GetDisplayNearestPoint(
-      const gfx::Point& point) const OVERRIDE;
+      const gfx::Point& point) const override;
   virtual gfx::Display GetDisplayMatching(
-      const gfx::Rect& match_rect) const OVERRIDE;
-  virtual gfx::Display GetPrimaryDisplay() const OVERRIDE;
-  virtual void AddObserver(gfx::DisplayObserver* observer) OVERRIDE;
-  virtual void RemoveObserver(gfx::DisplayObserver* observer) OVERRIDE;
+      const gfx::Rect& match_rect) const override;
+  virtual gfx::Display GetPrimaryDisplay() const override;
+  virtual void AddObserver(gfx::DisplayObserver* observer) override;
+  virtual void RemoveObserver(gfx::DisplayObserver* observer) override;
 
   gfx::Rect rect_;
   // The display objects we present to chrome.

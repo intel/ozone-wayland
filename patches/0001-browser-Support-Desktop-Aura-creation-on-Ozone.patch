@@ -116,9 +116,9 @@ index 0000000..bbfb0c5
 +
 + private:
 +  // Overridden from BrowserDesktopWindowTreeHost:
-+  virtual views::DesktopWindowTreeHost* AsDesktopWindowTreeHost() OVERRIDE;
-+  virtual int GetMinimizeButtonOffset() const OVERRIDE;
-+  virtual bool UsesNativeSystemMenu() const OVERRIDE;
++  virtual views::DesktopWindowTreeHost* AsDesktopWindowTreeHost() override;
++  virtual int GetMinimizeButtonOffset() const override;
++  virtual bool UsesNativeSystemMenu() const override;
 +
 +  BrowserView* browser_view_;
 +

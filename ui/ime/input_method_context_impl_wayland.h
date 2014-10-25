@@ -22,18 +22,18 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
       ui::LinuxInputMethodContextDelegate* delegate);
   virtual ~InputMethodContextImplWayland();
 
-  // Overriden from ui::LinuxInputMethodContext
-  virtual bool DispatchKeyEvent(const ui::KeyEvent& key_event) OVERRIDE;
-  virtual void Reset() OVERRIDE;
+  // overriden from ui::LinuxInputMethodContext
+  virtual bool DispatchKeyEvent(const ui::KeyEvent& key_event) override;
+  virtual void Reset() override;
   virtual void OnTextInputTypeChanged(ui::TextInputType text_input_type)
-      OVERRIDE;
-  virtual void OnCaretBoundsChanged(const gfx::Rect& caret_bounds) OVERRIDE;
+      override;
+  virtual void OnCaretBoundsChanged(const gfx::Rect& caret_bounds) override;
 
-  // Overriden from ui::IMEChangeObserver
+  // overriden from ui::IMEChangeObserver
   virtual void OnPreeditChanged(unsigned handle,
                                 const std::string& text,
-                                const std::string& commit) OVERRIDE;
-  virtual void OnCommit(unsigned handle, const std::string& text) OVERRIDE;
+                                const std::string& commit) override;
+  virtual void OnCommit(unsigned handle, const std::string& text) override;
 
  private:
   // Must not be NULL.
