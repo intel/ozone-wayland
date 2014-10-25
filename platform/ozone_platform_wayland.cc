@@ -4,6 +4,8 @@
 
 #include "ozone/platform/ozone_platform_wayland.h"
 
+#include "base/at_exit.h"
+#include "base/bind.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
 #include "ozone/ui/desktop_aura/desktop_factory_wayland.h"
@@ -28,6 +30,8 @@ namespace {
 class OzonePlatformWayland : public OzonePlatform {
  public:
   OzonePlatformWayland() {
+    base::AtExitManager::RegisterTask(
+        base::Bind(&base::DeletePointer<OzonePlatformWayland>, this));
   }
 
   virtual ~OzonePlatformWayland() {
