@@ -248,6 +248,12 @@ void DesktopWindowTreeHostWayland::OnNativeWidgetCreated(
     delete aura_windows_;
     aura_windows_ = NULL;
   }
+
+  if (!params.parent) {
+    g_active_window = this;
+    g_current_dispatcher = g_active_window;
+    state_ |= Active;
+  }
 }
 
 scoped_ptr<corewm::Tooltip>
@@ -857,6 +863,11 @@ void DesktopWindowTreeHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
   SendEventToProcessor(event);
 }
 
+void DesktopWindowTreeHostWayland::ReleaseCaptureIfNeeded() const {
+  if (g_current_capture && g_current_dispatcher != g_current_capture)
+    g_current_capture->ReleaseCapture();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ui::PlatformWindowDelegate implementation:
 void DesktopWindowTreeHostWayland::OnBoundChanged(
@@ -885,25 +896,19 @@ void DesktopWindowTreeHostWayland::OnActivationChanged(bool active) {
     if (windows.front() != window_) {
       windows.remove(window_);
       windows.insert(windows.begin(), window_);
-    } else {
-      ReleaseCapture();
-      if (g_active_window) {
-        g_active_window->Deactivate();
-        g_active_window = NULL;
-      }
     }
 
-    state_ |= Active;
+    if (g_active_window && !g_current_capture)
+      g_active_window->Deactivate();
+
     g_active_window = this;
-    g_current_dispatcher = g_active_window;
+    state_ |= Active;
+    g_current_dispatcher = this;
     OnHostActivated();
   } else {
     state_ &= ~Active;
     if (g_active_window == this)
       g_active_window = NULL;
-
-    if (g_current_dispatcher == this)
-      g_current_dispatcher = NULL;
   }
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
@@ -958,10 +963,15 @@ uint32_t DesktopWindowTreeHostWayland::DispatchEvent(
   ui::EventType type = ui::EventTypeFromNative(ne);
 
   switch (type) {
+    case ui::ET_TOUCH_RELEASED: {
+      ReleaseCaptureIfNeeded();
+      ui::TouchEvent* touchev = static_cast<ui::TouchEvent*>(ne);
+      SendEventToProcessor(touchev);
+      break;
+    }
     case ui::ET_TOUCH_MOVED:
     case ui::ET_TOUCH_PRESSED:
-    case ui::ET_TOUCH_CANCELLED:
-    case ui::ET_TOUCH_RELEASED: {
+    case ui::ET_TOUCH_CANCELLED: {
       ui::TouchEvent* touchev = static_cast<ui::TouchEvent*>(ne);
       SendEventToProcessor(touchev);
       break;
@@ -976,10 +986,15 @@ uint32_t DesktopWindowTreeHostWayland::DispatchEvent(
       DispatchMouseEvent(wheelev);
       break;
     }
+    case ui::ET_MOUSE_RELEASED: {
+      ReleaseCaptureIfNeeded();
+      ui::MouseEvent* mouseev = static_cast<ui::MouseEvent*>(ne);
+      DispatchMouseEvent(mouseev);
+      break;
+    }
     case ui::ET_MOUSE_MOVED:
     case ui::ET_MOUSE_DRAGGED:
     case ui::ET_MOUSE_PRESSED:
-    case ui::ET_MOUSE_RELEASED:
     case ui::ET_MOUSE_ENTERED:
     case ui::ET_MOUSE_EXITED: {
       ui::MouseEvent* mouseev = static_cast<ui::MouseEvent*>(ne);

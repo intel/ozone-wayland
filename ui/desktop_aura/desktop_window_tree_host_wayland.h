@@ -184,6 +184,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   void Relayout();
   gfx::Size AdjustSize(const gfx::Size& requested_size);
   void DispatchMouseEvent(ui::MouseEvent* event);
+  void ReleaseCaptureIfNeeded() const;
 
   static std::list<gfx::AcceleratedWidget>& open_windows();
 
