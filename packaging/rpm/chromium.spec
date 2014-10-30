@@ -2,7 +2,7 @@
 %bcond_with wayland
 
 Name:           chromium
-Version:        40.0.2173.0
+Version:        40.0.2200.0
 Release:        0
 Summary:        Chromium ozone-wayland
 License:        BSD-3-Clause
