@@ -794,11 +794,6 @@ void DesktopWindowTreeHostWayland::MoveCursorToNative(
   NOTIMPLEMENTED();
 }
 
-void DesktopWindowTreeHostWayland::PostNativeEvent(
-    const base::NativeEvent& native_event) {
-  NOTIMPLEMENTED();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, Private implementation:
 

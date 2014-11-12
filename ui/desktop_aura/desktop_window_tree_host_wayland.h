@@ -173,7 +173,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void SetCursorNative(gfx::NativeCursor cursor) override;
   virtual void OnCursorVisibilityChangedNative(bool show) override;
   virtual void MoveCursorToNative(const gfx::Point& location) override;
-  virtual void PostNativeEvent(const base::NativeEvent& native_event) override;
 
   // Overridden frm ui::EventSource
   virtual ui::EventProcessor* GetEventProcessor() override;
