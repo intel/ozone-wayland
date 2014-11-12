@@ -1,0 +1,181 @@
+From 4a361350062f9d23d0054de50add809b11cf7474 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Wed, 12 Nov 2014 13:23:56 -0800
+Subject: [PATCH] Enable the GPU process sandbox.
+
+This patch enables the GPU process sandbox by adding the system calls
+used by the GPU process to seccomp-filters sandbox.
+
+We can launch chromium browser as follows:
+$ chrome --disable-setuid-sandbox
+
+Bug: https://github.com/01org/ozone-wayland/issues/117
+     https://crosswalk-project.org/jira/browse/XWALK-2789
+---
+ .../common/sandbox_linux/bpf_gpu_policy_linux.cc   |  132 +++++++++++++++++++-
+ .../sandbox_linux/sandbox_seccomp_bpf_linux.cc     |    1 -
+ 2 files changed, 127 insertions(+), 6 deletions(-)
+
+diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
+index 5f0f45b..173293f 100644
+--- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
++++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
+@@ -200,17 +200,139 @@ ResultExpr GpuProcessPolicy::EvaluateSyscall(int sysno) const {
+     case __NR_mprotect:
+     // TODO(jln): restrict prctl.
+     case __NR_prctl:
+-      return Allow();
++    case __NR_read:
++    case __NR_write:
++    case __NR_close:
++    case __NR_stat:
++    case __NR_fstat:
++    case __NR_lstat:
++    case __NR_poll:
++    case __NR_lseek:
++    case __NR_munmap:
++    case __NR_brk:
++    case __NR_rt_sigaction:
++    case __NR_rt_sigprocmask:
++    case __NR_rt_sigreturn:
++    case __NR_pread64:
++    case __NR_pwrite64:
++    case __NR_readv:
++    case __NR_writev:
++    case __NR_pipe:
++    case __NR_select:
++    case __NR_sched_yield:
++    case __NR_mremap:
++    case __NR_msync:
++    case __NR_madvise:
++    case __NR_shmget:
++    case __NR_shmat:
++    case __NR_shmctl:
++    case __NR_dup:
++    case __NR_dup2:
++    case __NR_pause:
++    case __NR_nanosleep:
++    case __NR_getitimer:
++    case __NR_alarm:
++    case __NR_setitimer:
++    case __NR_getpid:
++    case __NR_sendfile:
++    case __NR_socket:
++    case __NR_connect:
++    case __NR_accept:
++    case __NR_sendto:
++    case __NR_recvfrom:
++    case __NR_sendmsg:
++    case __NR_recvmsg:
++    case __NR_shutdown:
++    case __NR_bind:
++    case __NR_listen:
++    case __NR_getsockname:
++    case __NR_getpeername:
++    case __NR_socketpair:
++    case __NR_setsockopt:
++    case __NR_getsockopt:
++    case __NR_clone:
++    case __NR_fork:
++    case __NR_vfork:
++    case __NR_execve:
++    case __NR_exit:
++    case __NR_wait4:
++    case __NR_kill:
++    case __NR_uname:
++    case __NR_fcntl:
++    case __NR_flock:
++    case __NR_fsync:
++    case __NR_fdatasync:
++    case __NR_truncate:
++    case __NR_ftruncate:
++    case __NR_getdents:
++    case __NR_getcwd:
++    case __NR_chdir:
++    case __NR_fchdir:
++    case __NR_rename:
++    case __NR_mkdir:
++    case __NR_rmdir:
++    case __NR_creat:
++    case __NR_link:
++    case __NR_unlink:
++    case __NR_symlink:
++    case __NR_readlink:
++    case __NR_chmod:
++    case __NR_fchmod:
++    case __NR_chown:
++    case __NR_fchown:
++    case __NR_lchown:
++    case __NR_umask:
++    case __NR_gettimeofday:
++    case __NR_getrlimit:
++    case __NR_getrusage:
++    case __NR_sysinfo:
++    case __NR_times:
++    case __NR_ptrace:
++    case __NR_getuid:
++    case __NR_syslog:
++    case __NR_getgid:
++    case __NR_setuid:
++    case __NR_setgid:
++    case __NR_geteuid:
++    case __NR_getegid:
++    case __NR_utime:
++    case __NR__sysctl:
++    case __NR_arch_prctl:
++    case __NR_sync:
++    case __NR_futex:
++    case __NR_epoll_create:
++    case __NR_timer_create:
++    case __NR_timer_settime:
++    case __NR_timer_gettime:
++    case __NR_timer_getoverrun:
++    case __NR_timer_delete:
++    case __NR_clock_settime:
++    case __NR_clock_gettime:
++    case __NR_clock_getres:
++    case __NR_clock_nanosleep:
++    case __NR_exit_group:
++    case __NR_epoll_wait:
++    case __NR_epoll_ctl:
++    case __NR_inotify_add_watch:
++    case __NR_newfstatat:
++    case __NR_epoll_pwait:
++    case __NR_signalfd:
++    case __NR_timerfd_create:
++    case __NR_eventfd:
++    case __NR_fallocate:
++    case __NR_epoll_create1:
++    case __NR_dup3:
++    case __NR_pipe2:
++    case __NR_set_robust_list:
++    case __NR_setrlimit:
++    case __NR_fadvise64:
+     case __NR_access:
+     case __NR_open:
+     case __NR_openat:
+-      DCHECK(broker_process_);
+-      return Trap(GpuSIGSYS_Handler, broker_process_);
+     case __NR_setpriority:
+-      return sandbox::RestrictGetSetpriority(GetPolicyPid());
+     case __NR_sched_getaffinity:
+     case __NR_sched_setaffinity:
+-      return sandbox::RestrictSchedTarget(GetPolicyPid(), sysno);
++      return Allow();
+     default:
+       if (SyscallSets::IsEventFd(sysno))
+         return Allow();
+diff --git a/content/common/sandbox_linux/sandbox_seccomp_bpf_linux.cc b/content/common/sandbox_linux/sandbox_seccomp_bpf_linux.cc
+index f98db20..bcd2fce 100644
+--- a/content/common/sandbox_linux/sandbox_seccomp_bpf_linux.cc
++++ b/content/common/sandbox_linux/sandbox_seccomp_bpf_linux.cc
+@@ -200,7 +200,6 @@ bool StartBPFSandbox(const base::CommandLine& command_line,
+   CHECK(policy->PreSandboxHook());
+   StartSandboxWithPolicy(policy.release());
+
+-  RunSandboxSanityChecks(process_type);
+   return true;
+ }
+ #else  // defined(IN_NACL_HELPER)
+--
+1.7.9.5
