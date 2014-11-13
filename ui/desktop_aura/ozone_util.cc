@@ -20,7 +20,7 @@ VIEWS_EXPORT bool GetCustomFramePrefDefault() {
 
 VIEWS_EXPORT bool IsFullScreenMode() {
   std::vector<aura::Window*> all_windows =
-      views::DesktopWindowTreeHostWayland::GetAllOpenWindows();
+      views::DesktopWindowTreeHostOzone::GetAllOpenWindows();
   // Only the topmost window is checked. This works fine in the most cases, but
   // it may return false when there are multiple displays and one display has
   // a fullscreen window but others don't. See: crbug.com/345484

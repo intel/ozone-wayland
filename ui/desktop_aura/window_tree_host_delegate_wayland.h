@@ -23,9 +23,9 @@ class OzoneWaylandWindow;
 
 namespace views {
 
-class DesktopWindowTreeHostWayland;
+class DesktopWindowTreeHostOzone;
 
-// A static class used by DesktopWindowTreeHostWayland to dispatch native events
+// A static class used by DesktopWindowTreeHostOzone to dispatch native events
 // and basic window management.
 class WindowTreeHostDelegateWayland
     : public ui::WindowChangeObserver {

@@ -68,7 +68,7 @@ WindowTreeHostDelegateWayland::GetWindow(unsigned handle) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopWindowTreeHostWayland, WindowChangeObserver implementation:
+// WindowTreeHostDelegateWayland, WindowChangeObserver implementation:
 void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
   DCHECK(handle);
   ui::OzoneWaylandWindow* window = GetWindow(handle);

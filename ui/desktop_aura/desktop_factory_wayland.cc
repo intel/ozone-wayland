@@ -26,8 +26,8 @@ DesktopFactoryWayland::~DesktopFactoryWayland() {
 DesktopWindowTreeHost* DesktopFactoryWayland::CreateWindowTreeHost(
     internal::NativeWidgetDelegate* native_widget_delegate,
     DesktopNativeWidgetAura* desktop_native_widget_aura) {
-  return new DesktopWindowTreeHostWayland(native_widget_delegate,
-                                          desktop_native_widget_aura);
+  return new DesktopWindowTreeHostOzone(native_widget_delegate,
+                                        desktop_native_widget_aura);
 }
 
 gfx::Screen* DesktopFactoryWayland::CreateDesktopScreen() {

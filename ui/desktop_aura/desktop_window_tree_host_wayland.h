@@ -29,7 +29,7 @@ class Tooltip;
 
 class DesktopDragDropClientWayland;
 
-class VIEWS_EXPORT DesktopWindowTreeHostWayland
+class VIEWS_EXPORT DesktopWindowTreeHostOzone
     : public DesktopWindowTreeHost,
       public aura::WindowTreeHost,
       public ui::PlatformWindowDelegate,
@@ -37,18 +37,18 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
       public ui::EventSource
 {
  public:
-  DesktopWindowTreeHostWayland(
+  DesktopWindowTreeHostOzone(
       internal::NativeWidgetDelegate* native_widget_delegate,
       DesktopNativeWidgetAura* desktop_native_widget_aura);
-  virtual ~DesktopWindowTreeHostWayland();
+  virtual ~DesktopWindowTreeHostOzone();
 
   // Accepts a opaque handle widget and returns associated aura::Window.
   static aura::Window* GetContentWindowForAcceleratedWidget(
       gfx::AcceleratedWidget widget);
 
   // Accepts a opaque handle widget and returns associated
-  // DesktopWindowTreeHostWayland.
-  static DesktopWindowTreeHostWayland* GetHostForAcceleratedWidget(
+  // DesktopWindowTreeHostOzone.
+  static DesktopWindowTreeHostOzone* GetHostForAcceleratedWidget(
       gfx::AcceleratedWidget widget);
 
   // Get all open top-level windows. This includes windows that may not be
@@ -192,7 +192,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   gfx::AcceleratedWidget window_;
   base::string16 title_;
 
-  base::WeakPtrFactory<DesktopWindowTreeHostWayland> close_widget_factory_;
+  base::WeakPtrFactory<DesktopWindowTreeHostOzone> close_widget_factory_;
 
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;
@@ -202,8 +202,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   views::DesktopNativeWidgetAura* desktop_native_widget_aura_;
   // We can optionally have a parent which can order us to close, or own
   // children who we're responsible for closing when we CloseNow().
-  DesktopWindowTreeHostWayland* window_parent_;
-  std::set<DesktopWindowTreeHostWayland*> window_children_;
+  DesktopWindowTreeHostOzone* window_parent_;
+  std::set<DesktopWindowTreeHostOzone*> window_children_;
 
   // Platform-specific part of this DesktopWindowTreeHost.
   scoped_ptr<ui::PlatformWindow> platform_window_;
@@ -213,10 +213,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   static std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
-  static DesktopWindowTreeHostWayland* g_current_capture;
-  static DesktopWindowTreeHostWayland* g_active_window;
-  static DesktopWindowTreeHostWayland* g_current_dispatcher;
-  DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostWayland);
+  static DesktopWindowTreeHostOzone* g_current_capture;
+  static DesktopWindowTreeHostOzone* g_active_window;
+  static DesktopWindowTreeHostOzone* g_current_dispatcher;
+  DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostOzone);
 };
 
 }  // namespace views

@@ -31,7 +31,7 @@ index f6c5a7b..626576ba 100644
    return views::DesktopWindowTreeHostX11::GetContentWindowForXID(
        host->GetAcceleratedWidget()) != NULL;
 +#elif defined(USE_OZONE)
-+  return views::DesktopWindowTreeHostWayland::
++  return views::DesktopWindowTreeHostOzone::
 +      GetContentWindowForAcceleratedWidget(
 +          host->GetAcceleratedWidget()) != NULL;
  #else

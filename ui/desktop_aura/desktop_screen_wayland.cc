@@ -49,7 +49,7 @@ gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
 gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(
     const gfx::Point& point) {
   const std::vector<aura::Window*>& windows =
-      views::DesktopWindowTreeHostWayland::GetAllOpenWindows();
+      views::DesktopWindowTreeHostOzone::GetAllOpenWindows();
   for (std::vector<aura::Window*>::const_iterator it = windows.begin();
          it != windows.end(); ++it) {
     if ((*it)->GetBoundsInScreen().Contains(point))
@@ -83,8 +83,8 @@ gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
   // bounds.
   aura::WindowTreeHost* host = window->GetHost();
   if (host) {
-    DesktopWindowTreeHostWayland* rwh =
-        DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
+    DesktopWindowTreeHostOzone* rwh =
+        DesktopWindowTreeHostOzone::GetHostForAcceleratedWidget(
             host->GetAcceleratedWidget());
     if (rwh)
       return GetDisplayMatching(rwh->GetBoundsInScreen());
