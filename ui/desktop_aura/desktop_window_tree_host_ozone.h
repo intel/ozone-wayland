@@ -167,20 +167,20 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
     FullScreen = 0x02,  // Window is in fullscreen mode.
     Maximized = 0x04,  // Window is maximized,
     Minimized = 0x08,  // Window is minimized.
-    Normal = 0x10,  // Window is in Normal Mode.
-    Active = 0x20  // Window is Active.
+    Active = 0x10  // Window is Active.
   };
 
   typedef unsigned RootWindowState;
 
   // Initializes our Ozone surface to draw on. This method performs all
   // initialization related to talking to the Ozone server.
-  void InitWaylandWindow(const views::Widget::InitParams& params);
+  void InitOzoneWindow(const views::Widget::InitParams& params);
 
   void Relayout();
   gfx::Size AdjustSize(const gfx::Size& requested_size);
   void DispatchMouseEvent(ui::MouseEvent* event);
   void ReleaseCaptureIfNeeded() const;
+  void ShowWindow();
 
   static std::list<gfx::AcceleratedWidget>& open_windows();
 

@@ -152,7 +152,7 @@ void DesktopWindowTreeHostOzone::Init(
   if (sanitized_params.bounds.height() == 0)
     sanitized_params.bounds.set_height(100);
 
-  InitWaylandWindow(sanitized_params);
+  InitOzoneWindow(sanitized_params);
 }
 
 void DesktopWindowTreeHostOzone::OnNativeWidgetCreated(
@@ -271,7 +271,8 @@ aura::WindowTreeHost* DesktopWindowTreeHostOzone::AsWindowTreeHost() {
 void DesktopWindowTreeHostOzone::ShowWindowWithState(
     ui::WindowShowState show_state) {
   if (show_state == ui::SHOW_STATE_NORMAL ||
-      show_state == ui::SHOW_STATE_MAXIMIZED) {
+      show_state == ui::SHOW_STATE_MAXIMIZED ||
+      show_state == ui::SHOW_STATE_FULLSCREEN) {
     Activate();
   }
 
@@ -410,11 +411,10 @@ void DesktopWindowTreeHostOzone::Maximize() {
 
   state_ |= Maximized;
   state_ &= ~Minimized;
-  state_ &= ~Normal;
   previous_bounds_ = platform_window_->GetBounds();
   platform_window_->Maximize();
   if (IsMinimized())
-    ShowWindowWithState(ui::SHOW_STATE_NORMAL);
+    ShowWindowWithState(ui::SHOW_STATE_MAXIMIZED);
   Relayout();
 }
 
@@ -434,27 +434,24 @@ void DesktopWindowTreeHostOzone::Minimize() {
 void DesktopWindowTreeHostOzone::Restore() {
   g_active_window = this;
 
-  if (state_ & Normal)
-    return;
-
   state_ &= ~Maximized;
   if (state_ & Minimized) {
     content_window_->Show();
     compositor()->SetVisible(true);
   }
 
-  state_ &= ~Minimized;
-  state_ |= Normal;
   platform_window_->Restore();
   platform_window_->SetBounds(previous_bounds_);
   previous_bounds_ = gfx::Rect();
   Relayout();
-  if (IsMinimized())
-    ShowWindowWithState(ui::SHOW_STATE_NORMAL);
+  if (state_ & Minimized) {
+    state_ &= ~Minimized;
+    ShowWindow();
+  }
 }
 
 bool DesktopWindowTreeHostOzone::IsMaximized() const {
-  return state_ & Maximized;
+  return !IsFullscreen() && (state_ & Maximized);
 }
 
 bool DesktopWindowTreeHostOzone::IsMinimized() const {
@@ -466,7 +463,6 @@ bool DesktopWindowTreeHostOzone::HasCapture() const {
 }
 
 void DesktopWindowTreeHostOzone::SetAlwaysOnTop(bool always_on_top) {
-  // TODO(erg):
   NOTIMPLEMENTED();
 }
 
@@ -545,12 +541,10 @@ void DesktopWindowTreeHostOzone::SetFullscreen(bool fullscreen) {
   if ((state_ & FullScreen) == fullscreen)
     return;
 
-  if (fullscreen) {
+  if (fullscreen)
     state_ |= FullScreen;
-    state_ &= ~Normal;
-  } else {
+  else
     state_ &= ~FullScreen;
-  }
 
   if (!(state_ & FullScreen)) {
     if (state_ & Maximized) {
@@ -644,7 +638,7 @@ void DesktopWindowTreeHostOzone::Show() {
     return;
 
   platform_window_->Show();
-  ShowWindowWithState(ui::SHOW_STATE_NORMAL);
+  ShowWindow();
   native_widget_delegate_->OnNativeWidgetVisibilityChanged(true);
 }
 
@@ -694,6 +688,21 @@ void DesktopWindowTreeHostOzone::ReleaseCapture() {
   OnHostLostWindowCapture();
   g_current_capture = NULL;
   g_current_dispatcher = g_active_window;
+}
+
+void DesktopWindowTreeHostOzone::ShowWindow() {
+  ui::WindowShowState show_state = ui::SHOW_STATE_NORMAL;
+  if (IsMinimized()) {
+    show_state = ui::SHOW_STATE_MINIMIZED;
+  } else if (IsFullscreen()) {
+    show_state = ui::SHOW_STATE_FULLSCREEN;
+  } else if (IsMaximized()) {
+    show_state = ui::SHOW_STATE_MAXIMIZED;
+  } else if (!IsActive()) {
+    show_state = ui::SHOW_STATE_INACTIVE;
+  }
+
+  ShowWindowWithState(show_state);
 }
 
 void DesktopWindowTreeHostOzone::SetCursorNative(gfx::NativeCursor cursor) {
@@ -776,8 +785,8 @@ void DesktopWindowTreeHostOzone::OnWindowStateChanged(
       if (state_ & Minimized) {
         content_window_->Show();
         compositor()->SetVisible(true);
+        state_ &= ~Minimized;
       }
-      state_ &= ~Minimized;
       platform_window_->SetBounds(previous_bounds_);
       previous_bounds_ = gfx::Rect();
       Relayout();
@@ -872,7 +881,7 @@ uint32_t DesktopWindowTreeHostOzone::DispatchEvent(
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostOzone, private:
 
-void DesktopWindowTreeHostOzone::InitWaylandWindow(
+void DesktopWindowTreeHostOzone::InitOzoneWindow(
     const Widget::InitParams& params) {
   const gfx::Rect& bounds = gfx::Rect(params.bounds.origin(),
                                       AdjustSize(params.bounds.size()));
