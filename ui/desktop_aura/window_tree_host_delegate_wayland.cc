@@ -72,7 +72,9 @@ WindowTreeHostDelegateWayland::GetWindow(unsigned handle) {
 void WindowTreeHostDelegateWayland::OnWindowFocused(unsigned handle) {
   DCHECK(handle);
   ui::OzoneWaylandWindow* window = GetWindow(handle);
-  DCHECK(window);
+  if (!window)
+    return;
+
   window->GetDelegate()->OnActivationChanged(true);
 }
 

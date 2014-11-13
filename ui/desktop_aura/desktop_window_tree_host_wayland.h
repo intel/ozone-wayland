@@ -42,6 +42,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
       DesktopNativeWidgetAura* desktop_native_widget_aura);
   virtual ~DesktopWindowTreeHostWayland();
 
+  // Accepts a opaque handle widget and returns associated aura::Window.
+  static aura::Window* GetContentWindowForAcceleratedWidget(
+      gfx::AcceleratedWidget widget);
+
   // Accepts a opaque handle widget and returns associated
   // DesktopWindowTreeHostWayland.
   static DesktopWindowTreeHostWayland* GetHostForAcceleratedWidget(
@@ -55,59 +59,22 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   // Deallocates the internal list of open windows.
   static void CleanUpWindowList();
 
-  // Accepts a opaque handle widget and returns associated aura::Window.
-  static aura::Window* GetContentWindowForAcceleratedWidget(
-      gfx::AcceleratedWidget widget);
-
   // Returns window bounds. This is used by Screen to determine if a point
   // belongs to a particular window.
   gfx::Rect GetBoundsInScreen() const;
 
-  virtual gfx::AcceleratedWidget GetAcceleratedWidget() override;
-
- private:
-  enum {
-    Uninitialized = 0x00,
-    Visible = 0x01,  // Window is Visible.
-    FullScreen = 0x02,  // Window is in fullscreen mode.
-    Maximized = 0x04,  // Window is maximized,
-    Minimized = 0x08,  // Window is minimized.
-    Normal = 0x10,  // Window is in Normal Mode.
-    Active = 0x20  // Window is Active.
-  };
-
-  typedef unsigned RootWindowState;
-
-  // Initializes our Ozone surface to draw on. This method performs all
-  // initialization related to talking to the Ozone server.
-  void InitWaylandWindow(const views::Widget::InitParams& params);
-
-  // ui::PlatformWindowDelegate:
-  // TODO(kalyan) Provide appropriate implementations.
-  virtual void OnBoundsChanged(const gfx::Rect&) override {}
-  virtual void OnBoundChanged(const gfx::Rect& old_bounds,
-                              const gfx::Rect& new_bounds) override;
-  virtual void OnDamageRect(const gfx::Rect& damaged_region) override{}
-  virtual void DispatchEvent(ui::Event* event) override;
-  virtual void OnCloseRequest() override;
-  virtual void OnClosed() override{}
-  virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) override;
-  virtual void OnLostCapture() override;
-  virtual void OnAcceleratedWidgetAvailable(
-      gfx::AcceleratedWidget widget) override;
-  virtual void OnActivationChanged(bool active) override;
-
+ protected:
   // Overridden from DesktopWindowTreeHost:
   virtual void Init(
       aura::Window* content_window,
       const views::Widget::InitParams& params) override;
   virtual void OnNativeWidgetCreated(
       const views::Widget::InitParams& params) override;
-  virtual scoped_ptr<views::corewm::Tooltip> CreateTooltip() override;
-  virtual scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
-      views::DesktopNativeCursorManager* cursor_manager) override;
-  virtual void Close() override;
-  virtual void CloseNow() override;
+  scoped_ptr<corewm::Tooltip> CreateTooltip() override;
+  scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
+      DesktopNativeCursorManager* cursor_manager) override;
+  void Close() override;
+  void CloseNow() override;
   virtual aura::WindowTreeHost* AsWindowTreeHost() override;
   virtual void ShowWindowWithState(ui::WindowShowState show_state) override;
   virtual void ShowMaximizedWithBounds(
@@ -133,9 +100,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual bool IsMaximized() const override;
   virtual bool IsMinimized() const override;
   virtual bool HasCapture() const override;
+  virtual void SetAlwaysOnTop(bool always_on_top) override;
   virtual bool IsAlwaysOnTop() const override;
   virtual void SetVisibleOnAllWorkspaces(bool always_visible) override;
-  virtual void SetAlwaysOnTop(bool always_on_top) override;
   virtual bool SetWindowTitle(const base::string16& title) override;
   virtual void ClearNativeFocus() override;
   virtual views::Widget::MoveLoopResult RunMoveLoop(
@@ -163,6 +130,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
 
   // Overridden from aura::WindowTreeHost:
   virtual ui::EventSource* GetEventSource() override;
+  virtual gfx::AcceleratedWidget GetAcceleratedWidget() override;
   virtual void Show() override;
   virtual void Hide() override;
   virtual gfx::Rect GetBounds() const override;
@@ -171,14 +139,43 @@ class VIEWS_EXPORT DesktopWindowTreeHostWayland
   virtual void SetCapture() override;
   virtual void ReleaseCapture() override;
   virtual void SetCursorNative(gfx::NativeCursor cursor) override;
-  virtual void OnCursorVisibilityChangedNative(bool show) override;
   virtual void MoveCursorToNative(const gfx::Point& location) override;
+  virtual void OnCursorVisibilityChangedNative(bool show) override;
+
+  // Overridden from ui::PlatformWindowDelegate:
+  virtual void OnBoundsChanged(const gfx::Rect&) override;
+  virtual void OnDamageRect(const gfx::Rect& damaged_region) override;
+  virtual void DispatchEvent(ui::Event* event) override;
+  virtual void OnCloseRequest() override;
+  virtual void OnClosed() override{}
+  virtual void OnWindowStateChanged(ui::PlatformWindowState new_state) override;
+  virtual void OnLostCapture() override;
+  virtual void OnAcceleratedWidgetAvailable(
+      gfx::AcceleratedWidget widget) override;
+  virtual void OnActivationChanged(bool active) override;
 
   // Overridden frm ui::EventSource
   virtual ui::EventProcessor* GetEventProcessor() override;
   // ui::PlatformEventDispatcher:
   virtual bool CanDispatchEvent(const ui::PlatformEvent& event) override;
   virtual uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
+
+ private:
+  enum {
+    Uninitialized = 0x00,
+    Visible = 0x01,  // Window is Visible.
+    FullScreen = 0x02,  // Window is in fullscreen mode.
+    Maximized = 0x04,  // Window is maximized,
+    Minimized = 0x08,  // Window is minimized.
+    Normal = 0x10,  // Window is in Normal Mode.
+    Active = 0x20  // Window is Active.
+  };
+
+  typedef unsigned RootWindowState;
+
+  // Initializes our Ozone surface to draw on. This method performs all
+  // initialization related to talking to the Ozone server.
+  void InitWaylandWindow(const views::Widget::InitParams& params);
 
   void Relayout();
   gfx::Size AdjustSize(const gfx::Size& requested_size);

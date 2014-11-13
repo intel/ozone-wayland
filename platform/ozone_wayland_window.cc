@@ -84,9 +84,8 @@ gfx::Rect OzoneWaylandWindow::GetBounds() {
 }
 
 void OzoneWaylandWindow::SetBounds(const gfx::Rect& bounds) {
-  gfx::Rect previous_bounds = bounds_;
   bounds_ = bounds;
-  delegate_->OnBoundChanged(previous_bounds, bounds_);
+  delegate_->OnBoundsChanged(bounds_);
 }
 
 void OzoneWaylandWindow::Show() {

@@ -89,6 +89,17 @@ DesktopWindowTreeHostWayland::~DesktopWindowTreeHostWayland() {
 }
 
 // static
+aura::Window*
+DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget(
+    gfx::AcceleratedWidget widget) {
+  aura::WindowTreeHost* host =
+      aura::WindowTreeHost::GetForAcceleratedWidget(widget);
+
+  return host ?
+      host->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
+}
+
+// static
 DesktopWindowTreeHostWayland*
 DesktopWindowTreeHostWayland::GetHostForAcceleratedWidget(
     gfx::AcceleratedWidget widget) {
@@ -122,94 +133,8 @@ void DesktopWindowTreeHostWayland::CleanUpWindowList() {
   }
 }
 
-// static
-aura::Window*
-DesktopWindowTreeHostWayland::GetContentWindowForAcceleratedWidget(
-    gfx::AcceleratedWidget widget) {
-  aura::WindowTreeHost* host =
-      aura::WindowTreeHost::GetForAcceleratedWidget(widget);
-
-  return host ?
-      host->window()->GetProperty(kViewsWindowForRootWindow) : NULL;
-}
-
 gfx::Rect DesktopWindowTreeHostWayland::GetBoundsInScreen() const {
   return platform_window_->GetBounds();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// DesktopWindowTreeHostWayland, private:
-
-void DesktopWindowTreeHostWayland::InitWaylandWindow(
-    const Widget::InitParams& params) {
-  const gfx::Rect& bounds = gfx::Rect(params.bounds.origin(),
-                                      AdjustSize(params.bounds.size()));
-  platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
-  DCHECK(window_);
-  // Maintain parent child relation as done in X11 version.
-  // If we have a parent, record the parent/child relationship. We use this
-  // data during destruction to make sure that when we try to close a parent
-  // window, we also destroy all child windows.
-  gfx::AcceleratedWidget parent_window = 0;
-  if (params.parent && params.parent->GetHost()) {
-    parent_window = params.parent->GetHost()->GetAcceleratedWidget();
-    window_parent_ = GetHostForAcceleratedWidget(parent_window);
-    DCHECK(window_parent_);
-    window_parent_->window_children_.insert(this);
-  }
-
-  ui::PlatformWindow::PlatformWindowType type =
-      ui::PlatformWindow::PLATFORM_WINDOW_UNKNOWN;
-  switch (params.type) {
-    case Widget::InitParams::TYPE_TOOLTIP: {
-      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_TOOLTIP;
-      break;
-    }
-    case Widget::InitParams::TYPE_POPUP: {
-      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_POPUP;
-      break;
-    }
-    case Widget::InitParams::TYPE_MENU: {
-      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_MENU;
-      break;
-    }
-    case Widget::InitParams::TYPE_BUBBLE: {
-      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_BUBBLE;
-      break;
-    }
-    case Widget::InitParams::TYPE_WINDOW: {
-      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_WINDOW;
-      break;
-    }
-    case Widget::InitParams::TYPE_WINDOW_FRAMELESS: {
-      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS;
-      break;
-    }
-    default:
-      break;
-  }
-
-  if (!parent_window && g_active_window)
-    parent_window = g_active_window->window_;
-
-  platform_window_->InitPlatformWindow(type, parent_window);
-  // If we have a delegate which is providing a default window icon, use that
-  // icon.
-  gfx::ImageSkia* window_icon = ViewsDelegate::views_delegate ?
-      ViewsDelegate::views_delegate->GetDefaultWindowIcon() : NULL;
-  if (window_icon) {
-    SetWindowIcons(gfx::ImageSkia(), *window_icon);
-  }
-
-  CreateCompositor(GetAcceleratedWidget());
-  if (ui::PlatformEventSource::GetInstance())
-    ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
-}
-
-void DesktopWindowTreeHostWayland::OnAcceleratedWidgetAvailable(
-      gfx::AcceleratedWidget widget) {
-  window_ = widget;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -540,6 +465,11 @@ bool DesktopWindowTreeHostWayland::HasCapture() const {
   return g_current_capture == this;
 }
 
+void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
+  // TODO(erg):
+  NOTIMPLEMENTED();
+}
+
 bool DesktopWindowTreeHostWayland::IsAlwaysOnTop() const {
   NOTIMPLEMENTED();
   return false;
@@ -547,15 +477,6 @@ bool DesktopWindowTreeHostWayland::IsAlwaysOnTop() const {
 
 void DesktopWindowTreeHostWayland::SetVisibleOnAllWorkspaces(
     bool always_visible) {
-  NOTIMPLEMENTED();
-}
-
-void DesktopWindowTreeHostWayland::SizeConstraintsChanged() {
-  NOTIMPLEMENTED();
-}
-
-void DesktopWindowTreeHostWayland::SetAlwaysOnTop(bool always_on_top) {
-  // TODO(erg):
   NOTIMPLEMENTED();
 }
 
@@ -703,18 +624,15 @@ bool DesktopWindowTreeHostWayland::IsTranslucentWindowOpacitySupported() const {
   return false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
-
-ui::EventSource* DesktopWindowTreeHostWayland::GetEventSource() {
-  return this;
+void DesktopWindowTreeHostWayland::SizeConstraintsChanged() {
+  NOTIMPLEMENTED();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// DesktopWindowTreeHostX11, ui::EventSource implementation:
 
-ui::EventProcessor* DesktopWindowTreeHostWayland::GetEventProcessor() {
-  return dispatcher();
+////////////////////////////////////////////////////////////////////////////////
+// DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
+ui::EventSource* DesktopWindowTreeHostWayland::GetEventSource() {
+  return this;
 }
 
 gfx::AcceleratedWidget DesktopWindowTreeHostWayland::GetAcceleratedWidget() {
@@ -784,101 +702,27 @@ void DesktopWindowTreeHostWayland::SetCursorNative(gfx::NativeCursor cursor) {
       cursor.native_type());
 }
 
-void DesktopWindowTreeHostWayland::OnCursorVisibilityChangedNative(bool show) {
-  // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
-  // the same tap-to-click disabling here that chromeos does.
-}
-
 void DesktopWindowTreeHostWayland::MoveCursorToNative(
     const gfx::Point& location) {
   NOTIMPLEMENTED();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// DesktopWindowTreeHostWayland, Private implementation:
-
-void DesktopWindowTreeHostWayland::Relayout() {
-  Widget* widget = native_widget_delegate_->AsWidget();
-  NonClientView* non_client_view = widget->non_client_view();
-  // non_client_view may be NULL, especially during creation.
-  if (non_client_view) {
-    non_client_view->client_view()->InvalidateLayout();
-    non_client_view->InvalidateLayout();
-  }
-  widget->GetRootView()->Layout();
-}
-
-std::list<gfx::AcceleratedWidget>&
-DesktopWindowTreeHostWayland::open_windows() {
-  if (!open_windows_)
-    open_windows_ = new std::list<gfx::AcceleratedWidget>();
-
-  return *open_windows_;
-}
-
-gfx::Size DesktopWindowTreeHostWayland::AdjustSize(
-    const gfx::Size& requested_size) {
-  std::vector<gfx::Display> displays =
-      gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE)->GetAllDisplays();
-  // Compare against all monitor sizes. The window manager can move the window
-  // to whichever monitor it wants.
-  for (size_t i = 0; i < displays.size(); ++i) {
-    if (requested_size == displays[i].size()) {
-      return gfx::Size(requested_size.width() - 1,
-                       requested_size.height() - 1);
-    }
-  }
-  return requested_size;
-}
-
-void DesktopWindowTreeHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
-  // In Windows, the native events sent to chrome are separated into client
-  // and non-client versions of events, which we record on our LocatedEvent
-  // structures. On Desktop Ozone, we emulate the concept of non-client. Before
-  // we pass this event to the cross platform event handling framework, we need
-  // to make sure it is appropriately marked as non-client if it's in the non
-  // client area, or otherwise, we can get into a state where the a window is
-  // set as the |mouse_pressed_handler_| in window_event_dispatcher.cc
-  // despite the mouse button being released.
-  //
-  // We can't do this later in the dispatch process because we share that
-  // with ash, and ash gets confused about event IS_NON_CLIENT-ness on
-  // events, since ash doesn't expect this bit to be set, because it's never
-  // been set before. (This works on ash on Windows because none of the mouse
-  // events on the ash desktop are clicking in what Windows considers to be a
-  // non client area.) Likewise, we won't want to do the following in any
-  // WindowTreeHost that hosts ash.
-  if (content_window_ && content_window_->delegate()) {
-    int flags = event->flags();
-    int hit_test_code =
-        content_window_->delegate()->GetNonClientComponent(event->location());
-    if (hit_test_code != HTCLIENT && hit_test_code != HTNOWHERE)
-      flags |= ui::EF_IS_NON_CLIENT;
-    event->set_flags(flags);
-  }
-
-  SendEventToProcessor(event);
-}
-
-void DesktopWindowTreeHostWayland::ReleaseCaptureIfNeeded() const {
-  if (g_current_capture && g_current_dispatcher != g_current_capture)
-    g_current_capture->ReleaseCapture();
+void DesktopWindowTreeHostWayland::OnCursorVisibilityChangedNative(bool show) {
+  // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
+  // the same tap-to-click disabling here that chromeos does.
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // ui::PlatformWindowDelegate implementation:
-void DesktopWindowTreeHostWayland::OnBoundChanged(
-    const gfx::Rect& old_bounds, const gfx::Rect& new_bounds){
-  bool origin_changed = old_bounds.origin() != new_bounds.origin();
-  bool size_changed = old_bounds.size() != new_bounds.size();
+void DesktopWindowTreeHostWayland::OnBoundsChanged(
+    const gfx::Rect& new_bounds) {
+  // TODO(kalyan): Add support to check if origin has really changed.
+  native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
+  OnHostResized(new_bounds.size());
+}
 
-  if (origin_changed)
-    native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
-
-  if (size_changed)
-    OnHostResized(new_bounds.size());
-  else
-    compositor()->ScheduleRedrawRect(new_bounds);
+void DesktopWindowTreeHostWayland::OnDamageRect(const gfx::Rect& damaged_rect) {
+  compositor()->ScheduleRedrawRect(damaged_rect);
 }
 
 void DesktopWindowTreeHostWayland::OnActivationChanged(bool active) {
@@ -916,6 +760,11 @@ void DesktopWindowTreeHostWayland::OnLostCapture() {
   ReleaseCapture();
 }
 
+void DesktopWindowTreeHostWayland::OnAcceleratedWidgetAvailable(
+      gfx::AcceleratedWidget widget) {
+  window_ = widget;
+}
+
 void DesktopWindowTreeHostWayland::OnCloseRequest() {
   Close();
 }
@@ -941,6 +790,12 @@ void DesktopWindowTreeHostWayland::OnWindowStateChanged(
 
 void DesktopWindowTreeHostWayland::DispatchEvent(ui::Event* event) {
   SendEventToProcessor(event);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// DesktopWindowTreeHostX11, ui::EventSource implementation:
+ui::EventProcessor* DesktopWindowTreeHostWayland::GetEventProcessor() {
+  return dispatcher();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1012,6 +867,144 @@ uint32_t DesktopWindowTreeHostWayland::DispatchEvent(
       NOTIMPLEMENTED() << "WindowTreeHostDelegateWayland: unknown event type.";
   }
   return ui::POST_DISPATCH_STOP_PROPAGATION;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// DesktopWindowTreeHostWayland, private:
+
+void DesktopWindowTreeHostWayland::InitWaylandWindow(
+    const Widget::InitParams& params) {
+  const gfx::Rect& bounds = gfx::Rect(params.bounds.origin(),
+                                      AdjustSize(params.bounds.size()));
+  platform_window_ =
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
+  DCHECK(window_);
+  // Maintain parent child relation as done in X11 version.
+  // If we have a parent, record the parent/child relationship. We use this
+  // data during destruction to make sure that when we try to close a parent
+  // window, we also destroy all child windows.
+  gfx::AcceleratedWidget parent_window = 0;
+  if (params.parent && params.parent->GetHost()) {
+    parent_window = params.parent->GetHost()->GetAcceleratedWidget();
+    window_parent_ = GetHostForAcceleratedWidget(parent_window);
+    DCHECK(window_parent_);
+    window_parent_->window_children_.insert(this);
+  }
+
+  ui::PlatformWindow::PlatformWindowType type =
+      ui::PlatformWindow::PLATFORM_WINDOW_UNKNOWN;
+  switch (params.type) {
+    case Widget::InitParams::TYPE_TOOLTIP: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_TOOLTIP;
+      break;
+    }
+    case Widget::InitParams::TYPE_POPUP: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_POPUP;
+      break;
+    }
+    case Widget::InitParams::TYPE_MENU: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_MENU;
+      break;
+    }
+    case Widget::InitParams::TYPE_BUBBLE: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_BUBBLE;
+      break;
+    }
+    case Widget::InitParams::TYPE_WINDOW: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_WINDOW;
+      break;
+    }
+    case Widget::InitParams::TYPE_WINDOW_FRAMELESS: {
+      type = ui::PlatformWindow::PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS;
+      break;
+    }
+    default:
+      break;
+  }
+
+  if (!parent_window && g_active_window)
+    parent_window = g_active_window->window_;
+
+  platform_window_->InitPlatformWindow(type, parent_window);
+  // If we have a delegate which is providing a default window icon, use that
+  // icon.
+  gfx::ImageSkia* window_icon = ViewsDelegate::views_delegate ?
+      ViewsDelegate::views_delegate->GetDefaultWindowIcon() : NULL;
+  if (window_icon) {
+    SetWindowIcons(gfx::ImageSkia(), *window_icon);
+  }
+
+  CreateCompositor(GetAcceleratedWidget());
+  if (ui::PlatformEventSource::GetInstance())
+    ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
+}
+
+void DesktopWindowTreeHostWayland::Relayout() {
+  Widget* widget = native_widget_delegate_->AsWidget();
+  NonClientView* non_client_view = widget->non_client_view();
+  // non_client_view may be NULL, especially during creation.
+  if (non_client_view) {
+    non_client_view->client_view()->InvalidateLayout();
+    non_client_view->InvalidateLayout();
+  }
+  widget->GetRootView()->Layout();
+}
+
+std::list<gfx::AcceleratedWidget>&
+DesktopWindowTreeHostWayland::open_windows() {
+  if (!open_windows_)
+    open_windows_ = new std::list<gfx::AcceleratedWidget>();
+
+  return *open_windows_;
+}
+
+gfx::Size DesktopWindowTreeHostWayland::AdjustSize(
+    const gfx::Size& requested_size) {
+  std::vector<gfx::Display> displays =
+      gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE)->GetAllDisplays();
+  // Compare against all monitor sizes. The window manager can move the window
+  // to whichever monitor it wants.
+  for (size_t i = 0; i < displays.size(); ++i) {
+    if (requested_size == displays[i].size()) {
+      return gfx::Size(requested_size.width() - 1,
+                       requested_size.height() - 1);
+    }
+  }
+  return requested_size;
+}
+
+void DesktopWindowTreeHostWayland::DispatchMouseEvent(ui::MouseEvent* event) {
+  // In Windows, the native events sent to chrome are separated into client
+  // and non-client versions of events, which we record on our LocatedEvent
+  // structures. On Desktop Ozone, we emulate the concept of non-client. Before
+  // we pass this event to the cross platform event handling framework, we need
+  // to make sure it is appropriately marked as non-client if it's in the non
+  // client area, or otherwise, we can get into a state where the a window is
+  // set as the |mouse_pressed_handler_| in window_event_dispatcher.cc
+  // despite the mouse button being released.
+  //
+  // We can't do this later in the dispatch process because we share that
+  // with ash, and ash gets confused about event IS_NON_CLIENT-ness on
+  // events, since ash doesn't expect this bit to be set, because it's never
+  // been set before. (This works on ash on Windows because none of the mouse
+  // events on the ash desktop are clicking in what Windows considers to be a
+  // non client area.) Likewise, we won't want to do the following in any
+  // WindowTreeHost that hosts ash.
+  if (content_window_ && content_window_->delegate()) {
+    int flags = event->flags();
+    int hit_test_code =
+        content_window_->delegate()->GetNonClientComponent(event->location());
+    if (hit_test_code != HTCLIENT && hit_test_code != HTNOWHERE)
+      flags |= ui::EF_IS_NON_CLIENT;
+    event->set_flags(flags);
+  }
+
+  SendEventToProcessor(event);
+}
+
+void DesktopWindowTreeHostWayland::ReleaseCaptureIfNeeded() const {
+  if (g_current_capture && g_current_dispatcher != g_current_capture)
+    g_current_capture->ReleaseCapture();
 }
 
 // static
