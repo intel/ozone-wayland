@@ -119,7 +119,7 @@ index 0000000..3324d29
 +
 +////////////////////////////////////////////////////////////////////////////////
 +// BrowserDesktopWindowTreeHostOzone,
-+//     views::DesktopWindowTreeHostX11 implementation:
++//     views::DesktopWindowTreeHostOzone implementation:
 +
 +void BrowserDesktopWindowTreeHostOzone::Init(
 +    aura::Window* content_window,
@@ -188,7 +188,7 @@ index 0000000..fd4b354
 +  int GetMinimizeButtonOffset() const override;
 +  bool UsesNativeSystemMenu() const override;
 +
-+  // Overridden from views::DesktopWindowTreeHostX11:
++  // Overridden from views::DesktopWindowTreeHostOzone:
 +  void Init(aura::Window* content_window,
 +            const views::Widget::InitParams& params) override;
 +  void CloseNow() override;
