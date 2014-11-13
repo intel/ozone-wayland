@@ -5,7 +5,7 @@
 #include "ozone/platform/ozone_wayland_window.h"
 
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
-#include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
+#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/platform_window/platform_window_delegate.h"

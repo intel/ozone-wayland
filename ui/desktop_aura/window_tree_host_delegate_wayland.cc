@@ -7,7 +7,7 @@
 #include <string>
 
 #include "ozone/platform/ozone_wayland_window.h"
-#include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
+#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
 #include "ui/events/event_utils.h"

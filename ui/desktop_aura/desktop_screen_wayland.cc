@@ -4,7 +4,7 @@
 
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 
-#include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
+#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
 

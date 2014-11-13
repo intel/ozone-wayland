@@ -22,7 +22,7 @@ index f6c5a7b..626576ba 100644
  #elif defined(OS_WIN)
  #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 +#elif defined(USE_OZONE)
-+#include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
++#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
  #endif
  
  // static

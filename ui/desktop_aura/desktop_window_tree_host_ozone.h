@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_IMPL_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_
-#define OZONE_IMPL_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_
+#ifndef UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_OZONE_H_
+#define UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_OZONE_H_
 
 #include <set>
 #include <string>
@@ -221,4 +221,4 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
 
 }  // namespace views
 
-#endif  // OZONE_IMPL_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_WAYLAND_H_
+#endif  // UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_WINDOW_TREE_HOST_OZONE_H_

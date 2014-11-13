@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/desktop_aura/desktop_window_tree_host_wayland.h"
+#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 
 #include <string>
 
