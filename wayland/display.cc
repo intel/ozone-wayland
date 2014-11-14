@@ -430,6 +430,7 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
+     WaylandCursor::InitializeCursorData(disp->shm_);
   } else if (strcmp(interface, "wl_text_input_manager") == 0) {
     disp->text_input_manager_ = static_cast<wl_text_input_manager*>(
         wl_registry_bind(registry, name, &wl_text_input_manager_interface, 1));
