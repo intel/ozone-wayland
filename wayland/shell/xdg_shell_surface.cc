@@ -44,9 +44,6 @@ void XDGShellSurface::InitializeShellSurface(WaylandWindow* window,
 
     static const xdg_surface_listener xdg_surface_listener = {
       XDGShellSurface::HandleConfigure,
-      XDGShellSurface::HandleChangeState,
-      XDGShellSurface::HandleActivate,
-      XDGShellSurface::HandleDeactivate,
       XDGShellSurface::HandleDelete
     };
 
@@ -65,9 +62,7 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   switch (type) {
   case WaylandWindow::TOPLEVEL: {
     if (maximized_) {
-      xdg_surface_request_change_state(xdg_surface_,
-                                       XDG_SURFACE_STATE_MAXIMIZED,
-                                       false, 0);
+      xdg_surface_unset_maximized(xdg_surface_);
       maximized_ = false;
     }
     break;
@@ -95,9 +90,8 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
     break;
   }
   case WaylandWindow::FULLSCREEN:
-    xdg_surface_request_change_state(xdg_surface_,
-                                     XDG_SURFACE_STATE_FULLSCREEN,
-                                     true, 0);
+    xdg_surface_set_fullscreen(xdg_surface_,
+                               NULL);
     break;
   case WaylandWindow::CUSTOM:
       NOTREACHED() << "Unsupported shell type: " << type;
@@ -115,9 +109,7 @@ void XDGShellSurface::SetWindowTitle(const base::string16& title) {
 }
 
 void XDGShellSurface::Maximize() {
-  xdg_surface_request_change_state(xdg_surface_,
-                                   XDG_SURFACE_STATE_MAXIMIZED,
-                                   true, 0);
+  xdg_surface_set_maximized(xdg_surface_);
   maximized_ = true;
   WaylandShellSurface::FlushDisplay();
 }
@@ -138,26 +130,23 @@ bool XDGShellSurface::IsMinimized() const {
 void XDGShellSurface::HandleConfigure(void* data,
                                  struct xdg_surface* xdg_surface,
                                  int32_t width,
-                                 int32_t height) {
-  WaylandShellSurface::WindowResized(data, width, height);
-}
-
-void XDGShellSurface::HandleChangeState(void* data,
-                                 struct xdg_surface* xdg_surface,
-                                 uint32_t state,
-                                 uint32_t value,
+                                 int32_t height,
+                                 struct wl_array* states,
                                  uint32_t serial) {
-  xdg_surface_ack_change_state(xdg_surface, state, value, serial);
-}
+  uint32_t* state;
 
-void XDGShellSurface::HandleActivate(void* data,
-                                 struct xdg_surface* xdg_surface) {
-  WaylandShellSurface::WindowActivated(data);
-}
+  for (state = (uint32_t*)(states)->data;
+       (const char*)state < ((const char*)(states)->data
+                             + (states)->size);
+       state++) {
+    if (*state == XDG_SURFACE_STATE_ACTIVATED)
+      WaylandShellSurface::WindowActivated(data);
+  }
 
-void XDGShellSurface::HandleDeactivate(void* data,
-                                       struct xdg_surface* xdg_surface) {
-  WaylandShellSurface::WindowDeActivated(data);
+  if ((width > 0) && (height > 0))
+    WaylandShellSurface::WindowResized(data, width, height);
+
+  xdg_surface_ack_configure(xdg_surface, serial);
 }
 
 void XDGShellSurface::HandleDelete(void* data,
