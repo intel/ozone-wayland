@@ -49,6 +49,11 @@ class WaylandCursor {
   // needed. No other class should call this.
   static void Clear();
 
+  // Initializes CursorData. WaylandDisplay is responsible for calling this as
+  // needed. No other class should call this. We do it this way to avoid
+  // initializing theme under sandbox.
+  static void InitializeCursorData(wl_shm* shm);
+
   void Update(CursorType type, uint32_t serial);
 
   wl_pointer* GetInputPointer() const { return input_pointer_; }

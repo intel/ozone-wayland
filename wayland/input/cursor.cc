@@ -106,7 +106,7 @@ WaylandCursorData::~WaylandCursorData() {
 WaylandCursor::WaylandCursor(wl_shm* shm) : input_pointer_(NULL),
     pointer_surface_(NULL),
     current_cursor_(CURSOR_UNSET) {
-  WaylandCursorData::InitializeCursorData(shm);
+  DCHECK(WaylandCursorData::GetInstance());
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   pointer_surface_ = wl_compositor_create_surface(display->GetCompositor());
 }
@@ -118,6 +118,10 @@ WaylandCursor::~WaylandCursor() {
 
 void WaylandCursor::Clear() {
   WaylandCursorData::DestroyCursorData();
+}
+
+void WaylandCursor::InitializeCursorData(wl_shm* shm) {
+  WaylandCursorData::InitializeCursorData(shm);
 }
 
 void WaylandCursor::Update(CursorType type, uint32_t serial) {
