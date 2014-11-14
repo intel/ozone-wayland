@@ -55,6 +55,8 @@ bool OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_PointerEnter, OnPointerEnter)
   IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, OnPointerLeave)
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, OnKeyNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, OnVirtualKeyNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_KeyModifiers, OnKeyModifiers)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
   IPC_MESSAGE_HANDLER(WaylandWindow_Resized, OnWindowResized)
@@ -63,6 +65,7 @@ bool OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, OnPreeditChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_PreeditEnd, OnPreeditEnd)
   IPC_MESSAGE_HANDLER(WaylandInput_PreeditStart, OnPreeditStart)
+  IPC_MESSAGE_HANDLER(WaylandInput_InitializeXKB, OnInitializeXKB)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -109,9 +112,24 @@ void OzoneChannelHost::OnPointerLeave(unsigned handle,
 }
 
 void OzoneChannelHost::OnKeyNotify(ui::EventType type,
-                                   unsigned code,
-                                   unsigned modifiers) {
-  event_converter_->KeyNotify(type, code, modifiers);
+                                   unsigned code) {
+  event_converter_->KeyNotify(type, code);
+}
+
+void OzoneChannelHost::OnVirtualKeyNotify(ui::EventType type,
+                                          uint32_t key,
+                                          uint32_t modifiers) {
+  event_converter_->VirtualKeyNotify(type, key, modifiers);
+}
+
+void OzoneChannelHost::OnKeyModifiers(uint32_t mods_depressed,
+                                      uint32_t mods_latched,
+                                      uint32_t mods_locked,
+                                      uint32_t group) {
+  event_converter_->KeyModifiers(mods_depressed,
+                                 mods_latched,
+                                 mods_locked,
+                                 group);
 }
 
 void OzoneChannelHost::OnOutputSizeChanged(unsigned width,
@@ -146,6 +164,11 @@ void OzoneChannelHost::OnPreeditEnd() {
 }
 
 void OzoneChannelHost::OnPreeditStart() {
+}
+
+void OzoneChannelHost::OnInitializeXKB(base::SharedMemoryHandle fd,
+                                       uint32_t size) {
+  event_converter_->InitializeXKB(fd, size);
 }
 
 }  // namespace ui

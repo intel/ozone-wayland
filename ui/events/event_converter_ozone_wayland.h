@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/memory/shared_memory.h"
 #include "base/message_loop/message_loop.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/ime_change_observer.h"
@@ -37,8 +38,14 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void PointerEnter(unsigned handle, float x, float y) = 0;
   virtual void PointerLeave(unsigned handle, float x, float y) = 0;
   virtual void KeyNotify(ui::EventType type,
-                         unsigned code,
-                         unsigned modifiers) = 0;
+                         unsigned code) = 0;
+  virtual void VirtualKeyNotify(ui::EventType type,
+                                uint32_t key,
+                                uint32_t modifiers) = 0;
+  virtual void KeyModifiers(uint32_t mods_depressed,
+                            uint32_t mods_latched,
+                            uint32_t mods_locked,
+                            uint32_t group) = 0;
   virtual void TouchNotify(ui::EventType type,
                            float x,
                            float y,
@@ -58,6 +65,9 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
                               const std::string& commit) = 0;
   virtual void PreeditEnd() = 0;
   virtual void PreeditStart() = 0;
+  virtual void InitializeXKB(base::SharedMemoryHandle fd,
+                             uint32_t size) = 0;
+
 
   // Sets the window change observer. Ownership is retained by the caller.
   virtual void SetWindowChangeObserver(WindowChangeObserver* observer);

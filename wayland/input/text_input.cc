@@ -10,7 +10,6 @@
 #include "ozone/ui/events/keyboard_codes_ozone.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
-#include "ozone/wayland/input/keyboard_engine_xkb.h"
 #include "ozone/wayland/input_device.h"
 #include "ozone/wayland/shell/shell_surface.h"
 #include "ozone/wayland/window.h"
@@ -93,42 +92,15 @@ void WaylandTextInput::OnKeysym(void* data,
                                 uint32_t key,
                                 uint32_t state,
                                 uint32_t modifiers) {
-  WaylandTextInput* textInuput = static_cast<WaylandTextInput*>(data);
-
   // Copid from WaylandKeyboard::OnKeyNotify()
   ui::EventType type = ui::ET_KEY_PRESSED;
   WaylandDisplay::GetInstance()->SetSerial(serial);
   if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     type = ui::ET_KEY_RELEASED;
 
-  // Check if we can ignore the KeyEvent notification, saves an IPC call.
-  if (textInuput->getInputDevice()->GetKeyBoard()->GetBackend()->
-    IgnoreKeyNotify(key, type == ui::ET_KEY_PRESSED))
-    return;
-
   ui::EventConverterOzoneWayland* dispatcher =
           ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
-
-  switch (key) {
-    case XKB_KEY_KP_Enter:
-    case XKB_KEY_Return:
-    case XKB_KEY_ISO_Enter:
-      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_RETURN, modifiers);
-      break;
-    case XKB_KEY_BackSpace:  // FIXME: Back space is not handled.
-      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_BACK, modifiers);
-      break;
-    case XKB_KEY_Left:
-    case XKB_KEY_KP_Left:
-      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_LEFT, modifiers);
-      break;
-    case XKB_KEY_Right:
-    case XKB_KEY_KP_Right:
-      dispatcher->KeyNotify(type, ui::OZONEACTIONKEY_RIGHT, modifiers);
-      break;
-    default:
-      break;
-  }
+  dispatcher->VirtualKeyNotify(type, key, modifiers);
 }
 
 void WaylandTextInput::OnEnter(void* data,

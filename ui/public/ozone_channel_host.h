@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/memory/shared_memory.h"
 #include "ui/events/event_constants.h"
 #include "ui/ozone/public/gpu_platform_support_host.h"
 
@@ -40,7 +41,14 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
   void OnAxisNotify(float x, float y, int xoffset, int yoffset);
   void OnPointerEnter(unsigned handle, float x, float y);
   void OnPointerLeave(unsigned handle, float x, float y);
-  void OnKeyNotify(ui::EventType type, unsigned code, unsigned modifiers);
+  void OnKeyNotify(ui::EventType type, unsigned code);
+  void OnVirtualKeyNotify(ui::EventType type,
+                          uint32_t key,
+                          uint32_t modifiers);
+  void OnKeyModifiers(uint32_t mods_depressed,
+                      uint32_t mods_latched,
+                      uint32_t mods_locked,
+                      uint32_t group);
   void OnOutputSizeChanged(unsigned width, unsigned height);
   void OnCloseWidget(unsigned handle);
   void OnWindowResized(unsigned handle,
@@ -51,6 +59,7 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
   void OnPreeditChanged(unsigned handle, std::string text, std::string commit);
   void OnPreeditEnd();
   void OnPreeditStart();
+  void OnInitializeXKB(base::SharedMemoryHandle fd, uint32_t size);
 
  private:
   RemoteStateChangeHandler* state_handler_;
