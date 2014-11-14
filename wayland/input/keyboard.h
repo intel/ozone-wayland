@@ -5,8 +5,6 @@
 #ifndef OZONE_WAYLAND_INPUT_KEYBOARD_H_
 #define OZONE_WAYLAND_INPUT_KEYBOARD_H_
 
-#include <xkbcommon/xkbcommon.h>
-
 #include "ozone/wayland/display.h"
 
 namespace ui {
@@ -15,13 +13,10 @@ class EventConverterOzoneWayland;
 
 namespace ozonewayland {
 
-class KeyboardEngineXKB;
-
 class WaylandKeyboard {
  public:
   WaylandKeyboard();
   ~WaylandKeyboard();
-  KeyboardEngineXKB* GetBackend() { return backend_;}
 
   void OnSeatCapabilities(wl_seat *seat, uint32_t caps);
 
@@ -60,7 +55,6 @@ class WaylandKeyboard {
 
   wl_keyboard* input_keyboard_;
   ui::EventConverterOzoneWayland* dispatcher_;
-  KeyboardEngineXKB* backend_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandKeyboard);
 };

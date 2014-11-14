@@ -36,8 +36,14 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   virtual void PointerEnter(unsigned handle, float x, float y) OVERRIDE;
   virtual void PointerLeave(unsigned handle, float x, float y) OVERRIDE;
   virtual void KeyNotify(ui::EventType type,
-                         unsigned code,
-                         unsigned modifiers) OVERRIDE;
+                         unsigned code) override;
+  virtual void VirtualKeyNotify(ui::EventType type,
+                                uint32_t key,
+                                uint32_t modifiers) override;
+  virtual void KeyModifiers(uint32_t mods_depressed,
+                            uint32_t mods_latched,
+                            uint32_t mods_locked,
+                            uint32_t group) override;
   virtual void TouchNotify(ui::EventType type,
                            float x,
                            float y,
@@ -54,9 +60,11 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   virtual void Commit(unsigned handle, const std::string& text) OVERRIDE;
   virtual void PreeditChanged(unsigned handle,
                               const std::string& text,
-                              const std::string& commit) OVERRIDE;
-  virtual void PreeditEnd() OVERRIDE;
-  virtual void PreeditStart() OVERRIDE;
+                              const std::string& commit) override;
+  virtual void PreeditEnd() override;
+  virtual void PreeditStart() override;
+  virtual void InitializeXKB(base::SharedMemoryHandle fd,
+                             uint32_t size) override;
 
  private:
   void Dispatch(IPC::Message* message);

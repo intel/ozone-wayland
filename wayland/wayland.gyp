@@ -77,8 +77,6 @@
         'input/cursor.h',
         'input/keyboard.cc',
         'input/keyboard.h',
-        'input/keyboard_engine_xkb.h',
-        'input/keyboard_engine_xkb.cc',
         'input/pointer.cc',
         'input/pointer.h',
         'input/text_input.h',
