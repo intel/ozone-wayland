@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/memory/shared_memory.h"
 #include "base/strings/string16.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_utils.h"
@@ -28,6 +29,25 @@ IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetState,
                           ui::DESTROYED)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetType,
                           ui::POPUP)
+
+IPC_MESSAGE_CONTROL2(WaylandInput_InitializeXKB,  // NOLINT(readability/fn_size)
+                     base::SharedMemoryHandle /*fd*/,
+                     uint32_t /*size*/)
+
+IPC_MESSAGE_CONTROL2(WaylandInput_KeyNotify,  // NOLINT(readability/fn_size)
+                     ui::EventType /*type*/,
+                     unsigned /*code*/)
+
+IPC_MESSAGE_CONTROL3(WaylandInput_VirtualKeyNotify,  // NOLINT(readability/fn_size)
+                     ui::EventType /*type*/,
+                     uint32_t /*key*/,
+                     uint32_t /*modifiers*/)
+
+IPC_MESSAGE_CONTROL4(WaylandInput_KeyModifiers,  // NOLINT(readability/fn_size)
+                     uint32_t /*mods_depressed*/,
+                     uint32_t /*mods_latched*/,
+                     uint32_t /*mods_locked*/,
+                     uint32_t /*group*/)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
@@ -62,11 +82,6 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PointerLeave,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/,
                      float /*x*/,
                      float /*y*/)
-
-IPC_MESSAGE_CONTROL3(WaylandInput_KeyNotify,  // NOLINT(readability/fn_size)
-                     ui::EventType /*type*/,
-                     unsigned /*code*/,
-                     unsigned /*modifiers*/)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize,  // NOLINT(readability/fn_size)
                      unsigned /*width*/,

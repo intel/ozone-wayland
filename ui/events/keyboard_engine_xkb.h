@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_INPUT_KEYBOARD_ENGINE_XKB_H_
-#define OZONE_WAYLAND_INPUT_KEYBOARD_ENGINE_XKB_H_
+#ifndef OZONE_UI_EVENTS_INPUT_KEYBOARD_ENGINE_XKB_H_
+#define OZONE_UI_EVENTS_INPUT_KEYBOARD_ENGINE_XKB_H_
 
 #include <xkbcommon/xkbcommon.h>
 
 #include "base/basictypes.h"
 
-namespace ozonewayland {
+namespace ui {
 
 class KeyboardEngineXKB {
  public:
@@ -22,14 +22,12 @@ class KeyboardEngineXKB {
                       uint32_t mods_locked,
                       uint32_t group);
   unsigned ConvertKeyCodeFromEvdev(unsigned hardwarecode);
-  bool IgnoreKeyNotify(unsigned hardwarecode, bool pressed);
 
   uint32_t GetKeyBoardModifiers() const { return keyboard_modifiers_; }
 
  private:
   void InitXKB();
   void FiniXKB();
-  bool IsSpecialModifier(unsigned hardwarecode);
   bool IsOnlyCapsLocked() const;
   void NormalizeKey();
 
@@ -52,6 +50,6 @@ class KeyboardEngineXKB {
   DISALLOW_COPY_AND_ASSIGN(KeyboardEngineXKB);
 };
 
-}  // namespace ozonewayland
+}  // namespace ui
 
-#endif  // OZONE_WAYLAND_INPUT_KEYBOARD_ENGINE_XKB_H_
+#endif  // OZONE_UI_EVENTS_INPUT_KEYBOARD_ENGINE_XKB_H_

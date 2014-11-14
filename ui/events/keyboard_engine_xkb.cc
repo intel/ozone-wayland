@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/input/keyboard_engine_xkb.h"
+#include "ozone/ui/events/keyboard_engine_xkb.h"
 
 #include <sys/mman.h>
 
 #include "ozone/ui/events/keyboard_codes_ozone.h"
 #include "ui/events/event.h"
 
-namespace ozonewayland {
+namespace ui {
 
 KeyboardEngineXKB::KeyboardEngineXKB() : keyboard_modifiers_(0),
     mods_depressed_(0),
@@ -113,22 +113,6 @@ unsigned KeyboardEngineXKB::ConvertKeyCodeFromEvdev(unsigned hardwarecode) {
   return cached_sym_;
 }
 
-bool KeyboardEngineXKB::IgnoreKeyNotify(
-         unsigned hardwarecode, bool pressed) {
-  // If the key is pressed or it's a special modifier key i.e altgr, we cannot
-  // ignore it.
-  // TODO(kalyan): Handle all needed cases here.
-  if (pressed || IsSpecialModifier(hardwarecode))
-    return false;
-
-  // No modifiers set, we don't have to deal with any special cases. Ignore the
-  // release events.
-  if (!keyboard_modifiers_ || IsOnlyCapsLocked())
-    return true;
-
-  return false;
-}
-
 void KeyboardEngineXKB::InitXKB() {
   if (context_)
     return;
@@ -150,16 +134,6 @@ void KeyboardEngineXKB::FiniXKB() {
   if (context_) {
     xkb_context_unref(context_);
     context_ = NULL;
-  }
-}
-
-bool KeyboardEngineXKB::IsSpecialModifier(unsigned hardwarecode) {
-    switch (ConvertKeyCodeFromEvdev(hardwarecode)) {
-    case XKB_KEY_ISO_Level3_Shift:  // altgr
-      return true;
-    break;
-    default:
-    return false;
   }
 }
 
@@ -529,4 +503,4 @@ void KeyboardEngineXKB::NormalizeKey() {
   }
 }
 
-}  // namespace ozonewayland
+}  // namespace ui

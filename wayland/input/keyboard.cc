@@ -5,18 +5,14 @@
 #include "ozone/wayland/input/keyboard.h"
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/wayland/input/keyboard_engine_xkb.h"
 
 namespace ozonewayland {
 
 WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
-    dispatcher_(NULL),
-    backend_(NULL) {
+    dispatcher_(NULL) {
 }
 
 WaylandKeyboard::~WaylandKeyboard() {
-  delete backend_;
-
   if (input_keyboard_)
     wl_keyboard_destroy(input_keyboard_);
 }
@@ -33,17 +29,10 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
-    DCHECK(!backend_);
-    backend_ =  new KeyboardEngineXKB();
     input_keyboard_ = wl_seat_get_keyboard(seat);
     wl_keyboard_add_listener(input_keyboard_, &kInputKeyboardListener,
         this);
   } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && input_keyboard_) {
-    if (backend_) {
-      delete backend_;
-      backend_ = NULL;
-    }
-
     wl_keyboard_destroy(input_keyboard_);
     input_keyboard_ = NULL;
   }
@@ -61,13 +50,7 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     type = ui::ET_KEY_RELEASED;
 
-  // Check if we can ignore the KeyEvent notification, saves an IPC call.
-  if (device->backend_->IgnoreKeyNotify(key, type == ui::ET_KEY_PRESSED))
-    return;
-
-  device->dispatcher_->KeyNotify(type,
-                                 device->backend_->ConvertKeyCodeFromEvdev(key),
-                                 device->backend_->GetKeyBoardModifiers());
+  device->dispatcher_->KeyNotify(type, key);
 }
 
 void WaylandKeyboard::OnKeyboardKeymap(void *data,
@@ -87,8 +70,8 @@ void WaylandKeyboard::OnKeyboardKeymap(void *data,
     return;
   }
 
-  device->backend_->OnKeyboardKeymap(fd, size);
-  close(fd);
+  base::SharedMemoryHandle section =  base::FileDescriptor(fd, true);
+  device->dispatcher_->InitializeXKB(section, size);
 }
 
 void WaylandKeyboard::OnKeyboardEnter(void* data,
@@ -114,7 +97,7 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                                      uint32_t mods_locked,
                                      uint32_t group) {
   WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  device->backend_->OnKeyModifiers(mods_depressed,
+  device->dispatcher_->KeyModifiers(mods_depressed,
                                    mods_latched,
                                    mods_locked,
                                    group);
