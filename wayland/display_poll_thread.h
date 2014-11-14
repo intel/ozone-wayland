@@ -32,6 +32,7 @@ class WaylandDisplayPollThread : public base::Thread {
   static void DisplayRun(WaylandDisplayPollThread* data);
   base::WaitableEvent polling_;  // Is set as long as the thread is polling.
   base::WaitableEvent stop_polling_;
+  int epoll_fd_;
   wl_display* display_;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplayPollThread);
 };

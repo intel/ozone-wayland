@@ -62,6 +62,9 @@ WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
       polling_(true, false),
       stop_polling_(true, false) {
   DCHECK(display_);
+  epoll_fd_ = osEpollCreateCloExec();
+  if (epoll_fd_ < 0)
+    LOG(ERROR) << "Epoll creation failed.";
 }
 
 WaylandDisplayPollThread::~WaylandDisplayPollThread() {
@@ -69,7 +72,7 @@ WaylandDisplayPollThread::~WaylandDisplayPollThread() {
 }
 
 void WaylandDisplayPollThread::StartProcessingEvents() {
-  DCHECK(!polling_.IsSignaled());
+  DCHECK(!polling_.IsSignaled() && epoll_fd_);
   base::Thread::Options options;
   options.message_loop_type = base::MessageLoop::TYPE_IO;
   StartWithOptions(options);
@@ -87,6 +90,8 @@ void WaylandDisplayPollThread::StopProcessingEvents() {
 
 void WaylandDisplayPollThread::CleanUp() {
   SetThreadWasQuitProperly(true);
+  if (epoll_fd_)
+    close(epoll_fd_);
 }
 
 void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
@@ -95,16 +100,12 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   uint32_t event = 0;
   bool epoll_err = false;
   unsigned display_fd = wl_display_get_fd(data->display_);
-  int epoll_fd = osEpollCreateCloExec();
-  if (epoll_fd < 0) {
-    LOG(ERROR) << "Epoll creation failed.";
-    return;
-  }
-
+  int epoll_fd = data->epoll_fd_;
   ep[0].events = EPOLLIN;
   ep[0].data.ptr = 0;
   if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, display_fd, &ep[0]) < 0) {
     close(epoll_fd);
+    data->epoll_fd_ = 0;
     LOG(ERROR) << "epoll_ctl Add failed";
     return;
   }
@@ -163,7 +164,6 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
       break;
   }
 
-  close(epoll_fd);
   data->polling_.Reset();
   data->stop_polling_.Reset();
 }
