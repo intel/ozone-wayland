@@ -34,8 +34,10 @@ void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
     }
   }
 
-  if (!matching)
+  if (!matching) {
     displays_.push_back(gfx::Display(displays_.size(), rect_));
+    change_notifier_.NotifyDisplaysChanged(displays_, displays_);
+  }
 }
 
 gfx::Point DesktopScreenWayland::GetCursorScreenPoint() {
@@ -135,9 +137,11 @@ gfx::Display DesktopScreenWayland::GetPrimaryDisplay() const {
 }
 
 void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
+  change_notifier_.AddObserver(observer);
 }
 
 void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
+  change_notifier_.RemoveObserver(observer);
 }
 
 void DesktopScreenWayland::OnOutputSizeChanged(unsigned width,

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ozone/ui/events/output_change_observer.h"
+#include "ui/gfx/display_change_notifier.h"
 #include "ui/gfx/screen.h"
 
 namespace aura {
@@ -45,6 +46,8 @@ class DesktopScreenWayland : public gfx::Screen,
   virtual void RemoveObserver(gfx::DisplayObserver* observer) override;
 
   gfx::Rect rect_;
+  gfx::DisplayChangeNotifier change_notifier_;
+
   // The display objects we present to chrome.
   std::vector<gfx::Display> displays_;
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
