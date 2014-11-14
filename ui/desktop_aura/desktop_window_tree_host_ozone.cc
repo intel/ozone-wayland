@@ -386,7 +386,6 @@ void DesktopWindowTreeHostOzone::Activate() {
   if (state_ & Active)
     return;
 
-  state_ |= Active;
   if (state_ & Visible) {
     OnActivationChanged(true);
   }
@@ -396,7 +395,6 @@ void DesktopWindowTreeHostOzone::Deactivate() {
   if (!(state_ & Active))
     return;
 
-  state_ &= ~Active;
   ReleaseCapture();
   OnActivationChanged(false);
 }
