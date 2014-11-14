@@ -117,6 +117,9 @@ That's all. At this point you should be able to connect Chromium on Weston using
   $ ~/git/weston/src/weston &
   $ ./out/Debug/chrome --no-sandbox
   ```
+###Sandboxing
+If you want to enable Sandboxing provided by Chromium, please follow the instructions from here:
+https://code.google.com/p/chromium/wiki/LinuxSUIDSandbox
 
 ###Working with Ozone-Wayland Release branch:
 
