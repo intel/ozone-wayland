@@ -22,7 +22,16 @@ FILTERS="+build,-build/header_guard,+whitespace,+readability,+legal,+runtime"
 
 cpplint.py --filter="$FILTERS" $(find \
                                \( -name '*.h' -o -name '*.cc' \) | grep -v text-client-protocol.h \
-                                                                 | grep -v xdg-shell-client-protocol.h)
+                                                                 | grep -v xdg-shell-client-protocol.h \
+                                                                 | grep -v ivi-application-client-protocol.h \
+                                                                 | grep -v vaapi_h264_decoder.cc \
+                                                                 | grep -v vaapi_h264_decoder.h \
+                                                                 | grep -v media_ozone_platform_wayland.cc \
+                                                                 | grep -v vaapi_video_decode_accelerator.h \
+                                                                 | grep -v vaapi_wrapper.cc \
+                                                                 | grep -v h264_dpb.cc \
+                                                                 | grep -v h264_dpb.h \
+                                                                 | grep -v vaapi_wrapper.h)
 
 # Return to previous dir and return the code returned by cpplint.py
 RET_VAL=$?

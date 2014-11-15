@@ -136,22 +136,22 @@ bool XDGShellSurface::IsMinimized() const {
 }
 
 void XDGShellSurface::HandleConfigure(void* data,
-                                 struct xdg_surface* xdg_surface,
-                                 int32_t width,
-                                 int32_t height) {
+                                      struct xdg_surface* xdg_surface,
+                                      int32_t width,
+                                      int32_t height) {
   WaylandShellSurface::WindowResized(data, width, height);
 }
 
 void XDGShellSurface::HandleChangeState(void* data,
-                                 struct xdg_surface* xdg_surface,
-                                 uint32_t state,
-                                 uint32_t value,
-                                 uint32_t serial) {
+                                        struct xdg_surface* xdg_surface,
+                                        uint32_t state,
+                                        uint32_t value,
+                                        uint32_t serial) {
   xdg_surface_ack_change_state(xdg_surface, state, value, serial);
 }
 
 void XDGShellSurface::HandleActivate(void* data,
-                                 struct xdg_surface* xdg_surface) {
+                                     struct xdg_surface* xdg_surface) {
   WaylandShellSurface::WindowActivated(data);
 }
 
@@ -161,12 +161,12 @@ void XDGShellSurface::HandleDeactivate(void* data,
 }
 
 void XDGShellSurface::HandleDelete(void* data,
-                                 struct xdg_surface* xdg_surface) {
+                                   struct xdg_surface* xdg_surface) {
 }
 
 void XDGShellSurface::HandlePopupPopupDone(void* data,
-                                      struct xdg_popup* xdg_popup,
-                                      uint32_t serial) {
+                                           struct xdg_popup* xdg_popup,
+                                           uint32_t serial) {
   WaylandShellSurface::PopupDone();
 }
 

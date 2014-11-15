@@ -325,8 +325,8 @@ index 0000000..cae75b6
 + public:
 +  FilePickerMessageHandler(
 +      const ui::FilePickerWebDialog* dialog);
-+  virtual ~FilePickerMessageHandler();
-+  virtual void RegisterMessages() override;
++   virtual ~FilePickerMessageHandler();
++   void RegisterMessages() override;
 +
 + private:
 +  // content::WebUIMessageHandler implementation.

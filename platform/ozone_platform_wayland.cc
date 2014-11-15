@@ -39,22 +39,23 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   // OzonePlatform:
-  virtual ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() override {
+  ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() override {
     return wayland_display_.get();
   }
-  virtual CursorFactoryOzone* GetCursorFactoryOzone() override {
+
+  CursorFactoryOzone* GetCursorFactoryOzone() override {
     return cursor_factory_ozone_.get();
   }
 
-  virtual GpuPlatformSupportHost* GetGpuPlatformSupportHost() override {
+  GpuPlatformSupportHost* GetGpuPlatformSupportHost() override {
     return gpu_platform_host_.get();
   }
 
-  virtual GpuPlatformSupport* GetGpuPlatformSupport() override {
+  GpuPlatformSupport* GetGpuPlatformSupport() override {
     return gpu_platform_.get();
   }
 
-  virtual scoped_ptr<PlatformWindow> CreatePlatformWindow(
+  scoped_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
       const gfx::Rect& bounds) override {
     if (delegate) {
@@ -68,12 +69,11 @@ class OzonePlatformWayland : public OzonePlatform {
     }
   }
 
-  virtual scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate()
-      override {
+  scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {
     return scoped_ptr<NativeDisplayDelegate>(new NativeDisplayDelegateOzone());
   }
 
-  virtual void InitializeUI() override {
+  void InitializeUI() override {
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
 
@@ -85,7 +85,7 @@ class OzonePlatformWayland : public OzonePlatform {
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
   }
 
-  virtual void InitializeGPU() override {
+  void InitializeGPU() override {
     gpu_platform_.reset(new ui::OzoneChannel());
     if (!event_factory_ozone_) {
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());

@@ -77,30 +77,29 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   bool InitializeHardware();
 
   // Ozone Display implementation:
-  virtual intptr_t GetNativeDisplay() override;
+  intptr_t GetNativeDisplay() override;
 
   // Ownership is passed to the caller.
-  virtual scoped_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
-        gfx::AcceleratedWidget widget) override;
+  scoped_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
+      gfx::AcceleratedWidget widget) override;
 
-  virtual bool LoadEGLGLES2Bindings(
-    ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
-    ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
-        proc_address) override;
-  virtual const int32* GetEGLSurfaceProperties(
-      const int32* desired_list) override;
+  bool LoadEGLGLES2Bindings(
+      ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
+      ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
+      proc_address) override;
+  const int32* GetEGLSurfaceProperties(const int32* desired_list) override;
 
   // WindowStateChangeHandler implementation:
-  virtual void SetWidgetState(unsigned widget,
-                              ui::WidgetState state) override;
-  virtual void SetWidgetTitle(unsigned w,
-                              const base::string16& title) override;
-  virtual void SetWidgetCursor(int cursor_type) override;
-  virtual void CreateWidget(unsigned widget,
-                            unsigned parent,
-                            unsigned x,
-                            unsigned y,
-                            ui::WidgetType type) override;
+  void SetWidgetState(unsigned widget,
+                      ui::WidgetState state) override;
+  void SetWidgetTitle(unsigned w,
+                      const base::string16& title) override;
+  void SetWidgetCursor(int cursor_type) override;
+  void CreateWidget(unsigned widget,
+                    unsigned parent,
+                    unsigned x,
+                    unsigned y,
+                    ui::WidgetType type) override;
 
   void LookAheadOutputGeometry();
 

@@ -19,8 +19,8 @@ class OzoneChannel : public GpuPlatformSupport {
   void InitializeRemoteDispatcher();
 
   // GpuPlatformSupport:
-  virtual void OnChannelEstablished(IPC::Sender* sender) override;
-  virtual bool OnMessageReceived(const IPC::Message& message) override;
+  void OnChannelEstablished(IPC::Sender* sender) override;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   void OnWidgetStateChanged(unsigned handleid,
                             ui::WidgetState state);

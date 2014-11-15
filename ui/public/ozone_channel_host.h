@@ -23,9 +23,9 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
   void DeleteRemoteStateChangeHandler();
 
   // GpuPlatformSupportHost:
-  virtual void OnChannelEstablished(int host_id, IPC::Sender* sender) override;
-  virtual void OnChannelDestroyed(int host_id) override;
-  virtual bool OnMessageReceived(const IPC::Message&) override;
+  void OnChannelEstablished(int host_id, IPC::Sender* sender) override;
+  void OnChannelDestroyed(int host_id) override;
+  bool OnMessageReceived(const IPC::Message&) override;
 
   void OnMotionNotify(float x, float y);
   void OnButtonNotify(unsigned handle,

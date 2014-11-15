@@ -24,26 +24,22 @@ class DesktopScreenWayland : public gfx::Screen,
   virtual ~DesktopScreenWayland();
 
   // OutputChangeObserver overrides.
-  virtual void OnOutputSizeChanged(unsigned width, unsigned height) override;
+  void OnOutputSizeChanged(unsigned width, unsigned height) override;
 
  private:
   void SetGeometry(const gfx::Rect& geometry);
   // Overridden from gfx::Screen:
-  virtual gfx::Point GetCursorScreenPoint() override;
-  virtual gfx::NativeWindow GetWindowUnderCursor() override;
-  virtual gfx::NativeWindow GetWindowAtScreenPoint(const gfx::Point& point)
-      override;
-  virtual int GetNumDisplays() const override;
-  virtual std::vector<gfx::Display> GetAllDisplays() const override;
-  virtual gfx::Display GetDisplayNearestWindow(
-      gfx::NativeView window) const override;
-  virtual gfx::Display GetDisplayNearestPoint(
-      const gfx::Point& point) const override;
-  virtual gfx::Display GetDisplayMatching(
-      const gfx::Rect& match_rect) const override;
-  virtual gfx::Display GetPrimaryDisplay() const override;
-  virtual void AddObserver(gfx::DisplayObserver* observer) override;
-  virtual void RemoveObserver(gfx::DisplayObserver* observer) override;
+  gfx::Point GetCursorScreenPoint() override;
+  gfx::NativeWindow GetWindowUnderCursor() override;
+  gfx::NativeWindow GetWindowAtScreenPoint(const gfx::Point& point) override;
+  int GetNumDisplays() const override;
+  std::vector<gfx::Display> GetAllDisplays() const override;
+  gfx::Display GetDisplayNearestWindow(gfx::NativeView window) const override;
+  gfx::Display GetDisplayNearestPoint(const gfx::Point& point) const override;
+  gfx::Display GetDisplayMatching(const gfx::Rect& match_rect) const override;
+  gfx::Display GetPrimaryDisplay() const override;
+  void AddObserver(gfx::DisplayObserver* observer) override;
+  void RemoveObserver(gfx::DisplayObserver* observer) override;
 
   gfx::Rect rect_;
   gfx::DisplayChangeNotifier change_notifier_;

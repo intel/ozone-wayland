@@ -9,8 +9,8 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
-#include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/shell/ivi-application-client-protocol.h"
+#include "ozone/wayland/shell/shell.h"
 #define IVI_SURFACE_ID 7000
 
 namespace ozonewayland {
@@ -39,8 +39,8 @@ void IVIShellSurface::InitializeShellSurface(WaylandWindow* window,
     ivi_surface_id_ = atoi(env);
   else
     ivi_surface_id_ = last_ivi_surface_id_ + 1;
-  ivi_surface_ = ivi_application_surface_create(shell->GetIVIShell(),
-                                                ivi_surface_id_, GetWLSurface());
+  ivi_surface_ = ivi_application_surface_create(
+                     shell->GetIVIShell(), ivi_surface_id_, GetWLSurface());
   last_ivi_surface_id_ = ivi_surface_id_;
 
   DCHECK(ivi_surface_);

@@ -18,8 +18,8 @@
 #include "ui/base/hit_test.h"
 #include "ui/base/ime/input_method.h"
 #include "ui/base/ime/input_method_auralinux.h"
-#include "ui/events/platform/platform_event_source.h"
 #include "ui/events/event_utils.h"
+#include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/insets.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/ozone/public/ozone_platform.h"
@@ -29,8 +29,8 @@
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
-#include "ui/views/views_export.h"
 #include "ui/views/views_delegate.h"
+#include "ui/views/views_export.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
@@ -774,6 +774,10 @@ void DesktopWindowTreeHostOzone::OnAcceleratedWidgetAvailable(
 
 void DesktopWindowTreeHostOzone::OnCloseRequest() {
   Close();
+}
+
+void DesktopWindowTreeHostOzone::OnClosed() {
+  CloseNow();
 }
 
 void DesktopWindowTreeHostOzone::OnWindowStateChanged(

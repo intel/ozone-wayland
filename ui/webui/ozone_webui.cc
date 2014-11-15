@@ -55,14 +55,14 @@ double OzoneWebUI::GetFontDPI() const {
 }
 
 gfx::Image OzoneWebUI::GetThemeImageNamed(int id) const {
-  return gfx::Image(); 
+  return gfx::Image();
 }
 
 bool OzoneWebUI::GetColor(int id, SkColor* color) const {
   return false;
 }
 
-bool OzoneWebUI::HasCustomImage(int id) const { 
+bool OzoneWebUI::HasCustomImage(int id) const {
   return false;
 }
 
@@ -137,7 +137,7 @@ gfx::Image OzoneWebUI::GetIconForContentType(
 
 scoped_ptr<Border> OzoneWebUI::CreateNativeBorder(
   views::LabelButton* owning_button,
-  scoped_ptr<views::LabelButtonBorder> border){
+  scoped_ptr<views::LabelButtonBorder> border) {
   return border.Pass();
 }
 
@@ -153,8 +153,9 @@ bool OzoneWebUI::UnityIsRunning() {
   return 0;
 }
 
-LinuxUI::NonClientMiddleClickAction OzoneWebUI::GetNonClientMiddleClickAction() {
-  return MIDDLE_CLICK_ACTION_NONE; 
+LinuxUI::NonClientMiddleClickAction
+OzoneWebUI::GetNonClientMiddleClickAction() {
+  return MIDDLE_CLICK_ACTION_NONE;
 }
 
 void OzoneWebUI::NotifyWindowManagerStartupComplete() {

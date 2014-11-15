@@ -25,11 +25,11 @@ class VIEWS_EXPORT DesktopFactoryWayland
   virtual ~DesktopFactoryWayland();
 
   // views::DesktopFactoryOzone
-  virtual DesktopWindowTreeHost* CreateWindowTreeHost(
+  DesktopWindowTreeHost* CreateWindowTreeHost(
       internal::NativeWidgetDelegate* native_widget_delegate,
       DesktopNativeWidgetAura* desktop_native_widget_aura) override;
 
-  virtual gfx::Screen* CreateDesktopScreen() override;
+  gfx::Screen* CreateDesktopScreen() override;
 
  private:
   DesktopScreenWayland* desktop_screen_;

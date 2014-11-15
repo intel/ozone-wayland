@@ -27,21 +27,21 @@ class OzoneWaylandWindow : public PlatformWindow {
   PlatformWindowDelegate* GetDelegate() const { return delegate_; }
 
   // PlatformWindow:
-  virtual void InitPlatformWindow(
-       PlatformWindowType type, gfx::AcceleratedWidget parent_window) override;
-  virtual gfx::Rect GetBounds() override;
-  virtual void SetBounds(const gfx::Rect& bounds) override;
-  virtual void Show() override;
-  virtual void Hide() override;
-  virtual void Close() override;
-  virtual void SetCapture() override;
-  virtual void ReleaseCapture() override;
-  virtual void ToggleFullscreen() override;
-  virtual void Maximize() override;
-  virtual void Minimize() override;
-  virtual void Restore() override;
-  virtual void SetCursor(PlatformCursor cursor) override;
-  virtual void MoveCursorTo(const gfx::Point& location) override;
+  void InitPlatformWindow(PlatformWindowType type,
+                          gfx::AcceleratedWidget parent_window) override;
+  gfx::Rect GetBounds() override;
+  void SetBounds(const gfx::Rect& bounds) override;
+  void Show() override;
+  void Hide() override;
+  void Close() override;
+  void SetCapture() override;
+  void ReleaseCapture() override;
+  void ToggleFullscreen() override;
+  void Maximize() override;
+  void Minimize() override;
+  void Restore() override;
+  void SetCursor(PlatformCursor cursor) override;
+  void MoveCursorTo(const gfx::Point& location) override;
 
  private:
   PlatformWindowDelegate* delegate_;

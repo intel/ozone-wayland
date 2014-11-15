@@ -20,17 +20,17 @@ class XDGShellSurface : public WaylandShellSurface {
   XDGShellSurface();
   virtual ~XDGShellSurface();
 
-  virtual void InitializeShellSurface(WaylandWindow* window,
-                                      WaylandWindow::ShellType type) override;
-  virtual void UpdateShellSurface(WaylandWindow::ShellType type,
-                                  WaylandShellSurface* shell_parent,
-                                  unsigned x,
-                                  unsigned y) override;
-  virtual void SetWindowTitle(const base::string16& title) override;
-  virtual void Maximize() override;
-  virtual void Minimize() override;
-  virtual void Unminimize() override;
-  virtual bool IsMinimized() const override;
+  void InitializeShellSurface(WaylandWindow* window,
+                              WaylandWindow::ShellType type) override;
+  void UpdateShellSurface(WaylandWindow::ShellType type,
+                          WaylandShellSurface* shell_parent,
+                          unsigned x,
+                          unsigned y) override;
+  void SetWindowTitle(const base::string16& title) override;
+  void Maximize() override;
+  void Minimize() override;
+  void Unminimize() override;
+  bool IsMinimized() const override;
 
   static void HandleConfigure(void* data,
                               struct xdg_surface* xdg_surface,
