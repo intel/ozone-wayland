@@ -1,6 +1,6 @@
 ========================================================================
-Milestone Autumn.
-Release Date: 5 October 2014.
+Milestone ThanksGiving.
+Release Date: 15 November 2014.
 ========================================================================
 
 Based on Chromium-
