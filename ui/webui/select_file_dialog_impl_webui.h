@@ -21,26 +21,25 @@ class SelectFileDialogImplWebUI : public SelectFileDialog {
   static ui::SelectFileDialog* Create(Listener* listener,
                                       ui::SelectFilePolicy* policy);
   // BaseShellDialog implementation.
-  virtual bool IsRunning(gfx::NativeWindow parent_window) const override;
-  virtual void ListenerDestroyed() override;
+  bool IsRunning(gfx::NativeWindow parent_window) const override;
+  void ListenerDestroyed() override;
 
  protected:
   explicit SelectFileDialogImplWebUI(Listener* listener,
-                                ui::SelectFilePolicy* policy);
+                                     ui::SelectFilePolicy* policy);
   virtual ~SelectFileDialogImplWebUI();
 
   // SelectFileDialog implementation.
   // |params| is user data we pass back via the Listener interface.
-  virtual void SelectFileImpl(
-      Type type,
-      const base::string16& title,
-      const base::FilePath& default_path,
-      const FileTypeInfo* file_types,
-      int file_type_index,
-      const base::FilePath::StringType& default_extension,
-      gfx::NativeWindow owning_window,
-      void* params) override;
-  virtual bool HasMultipleFileTypeChoicesImpl() override;
+  void SelectFileImpl(Type type,
+                      const base::string16& title,
+                      const base::FilePath& default_path,
+                      const FileTypeInfo* file_types,
+                      int file_type_index,
+                      const base::FilePath::StringType& default_extension,
+                      gfx::NativeWindow owning_window,
+                      void* params) override;
+  bool HasMultipleFileTypeChoicesImpl() override;
 
   // Wrapper for base::DirectoryExists() that allow access on the UI
   // thread. Use this only in the file dialog functions, where it's ok

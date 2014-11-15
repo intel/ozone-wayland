@@ -28,8 +28,8 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "wayland-client.h"
 
 struct wl_client;

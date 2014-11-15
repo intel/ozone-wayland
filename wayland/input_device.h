@@ -32,10 +32,10 @@ class WaylandInputDevice : public ui::IMEStateChangeHandler {
   void SetGrabWindowHandle(unsigned windowhandle, uint32_t button);
   void SetCursorType(int cursor_type);
 
-  virtual void ResetIme() override;
-  virtual void ImeCaretBoundsChanged(gfx::Rect rect) override;
-  virtual void ShowInputPanel() override;
-  virtual void HideInputPanel() override;
+  void ResetIme() override;
+  void ImeCaretBoundsChanged(gfx::Rect rect) override;
+  void ShowInputPanel() override;
+  void HideInputPanel() override;
 
  private:
   static void OnSeatCapabilities(void *data,

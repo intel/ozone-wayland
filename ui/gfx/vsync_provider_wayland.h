@@ -14,7 +14,7 @@ class WaylandSyncProvider : public gfx::VSyncProvider {
   WaylandSyncProvider();
   virtual ~WaylandSyncProvider();
 
-  virtual void GetVSyncParameters(const UpdateVSyncCallback& callback) override;
+  void GetVSyncParameters(const UpdateVSyncCallback& callback) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WaylandSyncProvider);

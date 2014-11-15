@@ -31,20 +31,20 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   void ChannelDestroyed();
 
   // WindowStateChangeHandler implementation:
-  virtual void SetWidgetState(unsigned widget,
-                              ui::WidgetState state) override;
-  virtual void SetWidgetTitle(unsigned w,
-                              const base::string16& title) override;
-  virtual void SetWidgetCursor(int cursor_type) override;
-  virtual void CreateWidget(unsigned widget,
-                            unsigned parent,
-                            unsigned x,
-                            unsigned y,
-                            ui::WidgetType type) override;
-  virtual void ResetIme() override;
-  virtual void ImeCaretBoundsChanged(gfx::Rect rect) override;
-  virtual void ShowInputPanel() override;
-  virtual void HideInputPanel() override;
+  void SetWidgetState(unsigned widget,
+                      ui::WidgetState state) override;
+  void SetWidgetTitle(unsigned w,
+                      const base::string16& title) override;
+  void SetWidgetCursor(int cursor_type) override;
+  void CreateWidget(unsigned widget,
+                    unsigned parent,
+                    unsigned x,
+                    unsigned y,
+                    ui::WidgetType type) override;
+  void ResetIme() override;
+  void ImeCaretBoundsChanged(gfx::Rect rect) override;
+  void ShowInputPanel() override;
+  void HideInputPanel() override;
 
  private:
   void Send(IPC::Message* message);

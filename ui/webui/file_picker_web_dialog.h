@@ -13,7 +13,6 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
 #include "ui/web_dialogs/web_dialog_delegate.h"
-#include "ui/shell_dialogs/select_file_dialog.h"
 
 namespace ui {
 
@@ -21,28 +20,29 @@ namespace ui {
 class FilePickerWebDialog : public ui::WebDialogDelegate {
  public:
   // Shows the dialog box.
-  static void ShowDialog(SelectFileDialog::Type type, gfx::NativeWindow owning_window,
-      content::WebContents* contents, SelectFileDialog::Listener* listener);
+  static void ShowDialog(SelectFileDialog::Type type,
+                         gfx::NativeWindow owning_window,
+                         content::WebContents* contents,
+                         SelectFileDialog::Listener* listener);
   // Closes the dialog, which will delete itself.
-  void Close(std::string& file_path) const;
+  void Close(const std::string& file_path) const;
 
  private:
   FilePickerWebDialog(SelectFileDialog::Type type, SelectFileDialog::Listener*);
 
   // Overridden from ui::WebDialogDelegate:
-  virtual ui::ModalType GetDialogModalType() const override;
-  virtual base::string16 GetDialogTitle() const override;
-  virtual GURL GetDialogContentURL() const override;
-  virtual void GetWebUIMessageHandlers(
+  ui::ModalType GetDialogModalType() const override;
+  base::string16 GetDialogTitle() const override;
+  GURL GetDialogContentURL() const override;
+  void GetWebUIMessageHandlers(
       std::vector<content::WebUIMessageHandler*>* handlers) const override;
-  virtual void GetDialogSize(gfx::Size* size) const override;
-  virtual std::string GetDialogArgs() const override;
-  virtual void OnDialogClosed(const std::string& json_retval) override;
-  virtual void OnCloseContents(
-      content::WebContents* source, bool* out_close_dialog) override;
-  virtual bool ShouldShowDialogTitle() const override;
-  virtual bool HandleContextMenu(
-      const content::ContextMenuParams& params) override;
+  void GetDialogSize(gfx::Size* size) const override;
+  std::string GetDialogArgs() const override;
+  void OnDialogClosed(const std::string& json_retval) override;
+  void OnCloseContents(content::WebContents* source,
+                       bool* out_close_dialog) override;
+  bool ShouldShowDialogTitle() const override;
+  bool HandleContextMenu(const content::ContextMenuParams& params) override;
 
   SelectFileDialog::Type type_;
   SelectFileDialog::Listener* listener_;

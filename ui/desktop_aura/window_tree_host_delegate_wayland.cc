@@ -46,9 +46,9 @@ void WindowTreeHostDelegateWayland::OnRootWindowClosed(
   new_window->GetDelegate()->OnActivationChanged(true);
 }
 
- bool WindowTreeHostDelegateWayland::HasWindowsOpen() const {
+bool WindowTreeHostDelegateWayland::HasWindowsOpen() const {
   return open_windows_ ? !open_windows_->empty() : false;
- }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, Private implementation:

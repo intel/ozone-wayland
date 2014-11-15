@@ -18,19 +18,18 @@ class VIEWS_EXPORT DesktopDragDropClientWayland
   virtual ~DesktopDragDropClientWayland();
 
   // Overridden from aura::client::DragDropClient:
-  virtual int StartDragAndDrop(
-      const ui::OSExchangeData& data,
-      aura::Window* root_window,
-      aura::Window* source_window,
-      const gfx::Point& root_location,
-      int operation,
-      ui::DragDropTypes::DragEventSource source) override;
-  virtual void DragUpdate(aura::Window* target,
-                          const ui::LocatedEvent& event) override;
-  virtual void Drop(aura::Window* target,
-                    const ui::LocatedEvent& event) override;
-  virtual void DragCancel() override;
-  virtual bool IsDragDropInProgress() override;
+  int StartDragAndDrop(const ui::OSExchangeData& data,
+                       aura::Window* root_window,
+                       aura::Window* source_window,
+                       const gfx::Point& root_location,
+                       int operation,
+                       ui::DragDropTypes::DragEventSource source) override;
+  void DragUpdate(aura::Window* target,
+                  const ui::LocatedEvent& event) override;
+  void Drop(aura::Window* target,
+            const ui::LocatedEvent& event) override;
+  void DragCancel() override;
+  bool IsDragDropInProgress() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DesktopDragDropClientWayland);

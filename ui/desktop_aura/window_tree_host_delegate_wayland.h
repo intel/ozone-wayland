@@ -40,18 +40,17 @@ class WindowTreeHostDelegateWayland
   bool HasWindowsOpen() const;
 
  private:
-
   // Window Change Observer.
-  virtual void OnWindowFocused(unsigned handle) override;
-  virtual void OnWindowEnter(unsigned handle) override;
-  virtual void OnWindowLeave(unsigned handle) override;
-  virtual void OnWindowClose(unsigned handle) override;
-  virtual void OnWindowResized(unsigned windowhandle,
-                               unsigned width,
-                               unsigned height) override;
-  virtual void OnWindowUnminimized(unsigned windowhandle) override;
-  virtual void OnWindowDeActivated(unsigned windowhandle) override;
-  virtual void OnWindowActivated(unsigned windowhandle) override;
+  void OnWindowFocused(unsigned handle) override;
+  void OnWindowEnter(unsigned handle) override;
+  void OnWindowLeave(unsigned handle) override;
+  void OnWindowClose(unsigned handle) override;
+  void OnWindowResized(unsigned windowhandle,
+                       unsigned width,
+                       unsigned height) override;
+  void OnWindowUnminimized(unsigned windowhandle) override;
+  void OnWindowDeActivated(unsigned windowhandle) override;
+  void OnWindowActivated(unsigned windowhandle) override;
 
   // Dispatches a mouse event.
   std::list<ui::OzoneWaylandWindow*>& open_windows();

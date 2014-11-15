@@ -6,11 +6,11 @@
 
 #include "base/logging.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/shell/ivi-application-client-protocol.h"
+#include "ozone/wayland/shell/ivi_shell_surface.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
 #include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/xdg_shell_surface.h"
-#include "ozone/wayland/shell/ivi-application-client-protocol.h"
-#include "ozone/wayland/shell/ivi_shell_surface.h"
 
 namespace ozonewayland {
 
@@ -29,8 +29,9 @@ WaylandShell::~WaylandShell() {
     ivi_application_destroy(ivi_application_);
 }
 
-WaylandShellSurface* WaylandShell::CreateShellSurface(WaylandWindow* window,
-                                                      WaylandWindow::ShellType type) {
+WaylandShellSurface*
+WaylandShell::CreateShellSurface(WaylandWindow* window,
+                                 WaylandWindow::ShellType type) {
   DCHECK(shell_ || xdg_shell_ || ivi_application_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
@@ -58,7 +59,8 @@ void WaylandShell::Initialize(struct wl_registry *registry,
     DCHECK(!shell_);
     shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));
-  } else if ((strcmp(interface, "xdg_shell") == 0) && getenv("OZONE_WAYLAND_USE_XDG_SHELL")) {
+  } else if ((strcmp(interface, "xdg_shell") == 0) &&
+                getenv("OZONE_WAYLAND_USE_XDG_SHELL")) {
       DCHECK(!xdg_shell_);
       xdg_shell_ = static_cast<xdg_shell*>(
           wl_registry_bind(registry, name, &xdg_shell_interface, 1));
