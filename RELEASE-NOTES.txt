@@ -4,7 +4,7 @@ Release Date: 5 October 2014.
 ========================================================================
 
 Based on Chromium-
-Version: 40.0.2214.6.
+Version: 40.0.2214.8.
 Channel: Dev.
 Branch: 2214.
 Revision: 5548873941a163dc058d9bd58fea2b90b9d162e3.
