@@ -60,6 +60,8 @@ bool OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
   IPC_MESSAGE_HANDLER(WaylandWindow_Resized, OnWindowResized)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Activated, OnWindowActivated)
+  IPC_MESSAGE_HANDLER(WaylandWindow_DeActivated, OnWindowDeActivated)
   IPC_MESSAGE_HANDLER(WaylandWindow_Unminimized, OnWindowUnminimized)
   IPC_MESSAGE_HANDLER(WaylandInput_Commit, OnCommit)
   IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, OnPreeditChanged)
@@ -149,6 +151,14 @@ void OzoneChannelHost::OnWindowResized(unsigned handle,
 
 void OzoneChannelHost::OnWindowUnminimized(unsigned handle) {
   event_converter_->WindowUnminimized(handle);
+}
+
+void OzoneChannelHost::OnWindowActivated(unsigned handle) {
+  event_converter_->WindowActivated(handle);
+}
+
+void OzoneChannelHost::OnWindowDeActivated(unsigned handle) {
+  event_converter_->WindowDeActivated(handle);
 }
 
 void OzoneChannelHost::OnCommit(unsigned handle, std::string text) {
