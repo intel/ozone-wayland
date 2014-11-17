@@ -1,7 +1,7 @@
-From 9e7d23035493ebdecb5f5fabd27ff47ab365168e Mon Sep 17 00:00:00 2001
+From 3bec1b7e3f29c23c6d8f7d67a885f5181ae798ff Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Thu, 23 Oct 2014 19:25:14 -0700
-Subject: [PATCH] Add file picker support using WebUI
+Subject: [PATCH 2/5] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
 Wayland, but Chromium Linux version still uses Gtk+2 for file-picker.
@@ -19,12 +19,12 @@ File browsing UI will be added later.
  .../ui/webui/chrome_web_ui_controller_factory.cc   |    3 +
  .../browser/ui/webui/file_picker/file_picker_ui.cc |   46 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |   24 +++
- .../ui/webui/file_picker/file_picker_web_dialog.cc |  165 ++++++++++++++++++++
+ .../ui/webui/file_picker/file_picker_web_dialog.cc |  164 ++++++++++++++++++++
  chrome/chrome_browser_ui.gypi                      |    4 +
  chrome/common/url_constants.cc                     |    3 +
  chrome/common/url_constants.h                      |    2 +
  tools/gritsettings/resource_ids                    |    2 +-
- 14 files changed, 429 insertions(+), 3 deletions(-)
+ 14 files changed, 428 insertions(+), 3 deletions(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -250,7 +250,7 @@ index b878bd1..f8c361e 100644
 @@ -19,17 +19,21 @@
  #include "ui/gfx/screen.h"
  #include "ui/views/widget/native_widget_aura.h"
-
+ 
 -#if defined(USE_X11) && !defined(OS_CHROMEOS)
 +#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
  #include "base/prefs/pref_service.h"
@@ -263,7 +263,7 @@ index b878bd1..f8c361e 100644
  #include "ui/native_theme/native_theme_aura.h"
  #include "ui/views/linux_ui/linux_ui.h"
  #endif
-
+ 
 +#if defined(USE_X11)
 +#include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
 +#endif
@@ -280,7 +280,7 @@ index b878bd1..f8c361e 100644
 +  views::LinuxUI::SetInstance(BuildWebUI());
 +#endif
  }
-
+ 
  void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 index 5121a05..1601af0 100644
@@ -387,10 +387,10 @@ index 0000000..908eb06
 +#endif  // CHROME_BROWSER_UI_WEBUI_FILE_PICKER_UI_H_
 diff --git a/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 new file mode 100644
-index 0000000..740f979
+index 0000000..f5c0fb7
 --- /dev/null
 +++ b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
-@@ -0,0 +1,165 @@
+@@ -0,0 +1,164 @@
 +// Copyright (c) 2014 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -426,8 +426,8 @@ index 0000000..740f979
 + public:
 +  FilePickerMessageHandler(
 +      const ui::FilePickerWebDialog* dialog);
-+   virtual ~FilePickerMessageHandler();
-+   void RegisterMessages() override;
++  ~FilePickerMessageHandler();
++  void RegisterMessages() override;
 +
 + private:
 +  // content::WebUIMessageHandler implementation.
@@ -535,7 +535,6 @@ index 0000000..740f979
 +}
 +
 +void FilePickerWebDialog::OnDialogClosed(const std::string& json_retval) {
-+  listener_->FileSelectionCanceled(NULL);
 +  delete this;
 +}
 +
@@ -631,7 +630,7 @@ index 4681b25..07fe1b4 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
 @@ -16,7 +16,7 @@
-
+ 
    "chrome/browser/browser_resources.grd": {
      "includes": [400],
 -    "structures": [750],
