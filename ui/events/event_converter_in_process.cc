@@ -61,22 +61,17 @@ void EventConverterInProcess::PointerLeave(unsigned handle,
 
 void EventConverterInProcess::KeyNotify(ui::EventType type,
                                         unsigned code) {
-  unsigned converted_code = backend_->ConvertKeyCodeFromEvdev(code);
-  unsigned flags = backend_->GetKeyBoardModifiers();
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyKeyEvent, this, type,
-          ui::KeyboardCodeFromNativeKeysym(converted_code),
-              ui::CharacterCodeFromNativeKeySym(converted_code, flags), flags));
+  VirtualKeyNotify(type, code, backend_->GetKeyBoardModifiers());
 }
 
 void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
                                                uint32_t key,
                                                uint32_t modifiers) {
-  unsigned code = backend_->ConvertKeyCodeFromEvdev(key);
   ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
       &EventConverterInProcess::NotifyKeyEvent, this, type,
-          ui::KeyboardCodeFromNativeKeysym(code),
-              ui::CharacterCodeFromNativeKeySym(code, modifiers), modifiers));
+          backend_->KeyboardCodeFromNativeKeysym(key),
+              backend_->CharacterCodeFromNativeKeySym(key, modifiers),
+                  modifiers));
 }
 
 void EventConverterInProcess::KeyModifiers(uint32_t mods_depressed,
