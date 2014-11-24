@@ -26,8 +26,4 @@ void CursorFactoryOzoneWayland::RefImageCursor(PlatformCursor cursor) {
 void CursorFactoryOzoneWayland::UnrefImageCursor(PlatformCursor cursor) {
 }
 
-void CursorFactoryOzoneWayland::SetCursor(gfx::AcceleratedWidget widget,
-                                   PlatformCursor cursor) {
-}
-
 }  // namespace ui

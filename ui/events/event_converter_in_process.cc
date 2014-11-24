@@ -13,7 +13,6 @@ namespace ui {
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
       observer_(NULL),
-      ime_observer_(NULL),
       output_observer_(NULL),
       backend_(NULL) {
 }

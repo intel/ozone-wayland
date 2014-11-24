@@ -19,8 +19,6 @@ class CursorFactoryOzoneWayland : public CursorFactoryOzone {
                                            const gfx::Point& hotspot) OVERRIDE;
   virtual void RefImageCursor(PlatformCursor cursor) OVERRIDE;
   virtual void UnrefImageCursor(PlatformCursor cursor) OVERRIDE;
-  virtual void SetCursor(gfx::AcceleratedWidget widget,
-                         PlatformCursor cursor) OVERRIDE;
 };
 
 }  // namespace ui

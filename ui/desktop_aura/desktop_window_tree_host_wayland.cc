@@ -669,6 +669,10 @@ bool DesktopWindowTreeHostWayland::IsTranslucentWindowOpacitySupported() const {
   return false;
 }
 
+void DesktopWindowTreeHostWayland::SizeConstraintsChanged() {
+  NOTIMPLEMENTED();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostWayland, aura::WindowTreeHost implementation:
 
