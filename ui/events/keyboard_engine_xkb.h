@@ -30,6 +30,10 @@ class KeyboardEngineXKB {
 
   uint32_t GetKeyBoardModifiers() const { return keyboard_modifiers_; }
 
+  KeyboardCode GetLastKeyboardCode() { return cached_keyboard_code_; }
+
+  uint16 GetLastCharacterCode() { return cached_character_code_; }
+
  private:
   void InitXKB();
   void FiniXKB();

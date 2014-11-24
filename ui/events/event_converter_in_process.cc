@@ -10,6 +10,9 @@
 
 namespace ui {
 
+const double KAutoRepeatInitialTimer = 1;
+const double KAutoRepeatTimer = 0.5;
+
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
       observer_(NULL),
@@ -72,6 +75,16 @@ void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
           backend_->KeyboardCodeFromNativeKeysym(key),
               backend_->CharacterCodeFromNativeKeySym(key, modifiers),
                   modifiers));
+  if (type != ui::ET_KEY_RELEASED) {
+    if (timer_.IsRunning())
+      return;
+
+    timer_.Start(
+        FROM_HERE, base::TimeDelta::FromSeconds(KAutoRepeatInitialTimer), this,
+            &EventConverterInProcess::RepeatAutoKey);
+  } else if (timer_.IsRunning()) {
+      timer_.Stop();
+  }
 }
 
 void EventConverterInProcess::KeyModifiers(uint32_t mods_depressed,
@@ -182,6 +195,22 @@ void EventConverterInProcess::SetOutputChangeObserver(
 void EventConverterInProcess::OnDispatcherListChanged() {
   if (!loop_)
     loop_ = base::MessageLoop::current();
+}
+
+void EventConverterInProcess::RepeatAutoKey() {
+  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
+      &EventConverterInProcess::NotifyKeyEvent, this, ui::ET_KEY_PRESSED,
+          backend_->GetLastKeyboardCode(),
+              backend_->GetLastCharacterCode(),
+                  backend_->GetKeyBoardModifiers()));
+  base::TimeDelta delta = base::TimeDelta::FromSeconds(KAutoRepeatTimer);
+  if (timer_.GetCurrentDelay() != delta) {
+    timer_.Stop();
+    timer_.Start(FROM_HERE,
+                 delta,
+                 this,
+                 &EventConverterInProcess::RepeatAutoKey);
+  }
 }
 
 void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,

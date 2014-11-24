@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/timer/timer.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/keyboard_engine_xkb.h"
 #include "ui/events/event.h"
@@ -72,6 +73,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
  private:
   // PlatformEventSource:
   void OnDispatcherListChanged() override;
+  void RepeatAutoKey();
   static void NotifyMotion(EventConverterInProcess* data,
                            float x,
                            float y);
@@ -133,6 +135,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   ui::IMEChangeObserver* ime_observer_;
   ui::OutputChangeObserver* output_observer_;
   ui::KeyboardEngineXKB* backend_;
+  base::RepeatingTimer<EventConverterInProcess> timer_;
   base::Callback<void(void*)> dispatch_callback_;  // NOLINT(readability/
                                                    // function)
   DISALLOW_COPY_AND_ASSIGN(EventConverterInProcess);
