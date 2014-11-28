@@ -153,6 +153,12 @@ WaylandDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
     EGL_BLUE_SIZE, 8,
     EGL_GREEN_SIZE, 8,
     EGL_RED_SIZE, 8,
+// According to egl spec depth size defaulted to zero
+// and smallest size preffered.
+// Please see EGL_DEPTH_SIZE description in:
+// https://www.khronos.org/registry/egl/sdk/docs/man/html/eglChooseConfig.xhtml
+// Force depth to 24 bits to have same depth buffer on different platforms.
+    EGL_DEPTH_SIZE, 24,
     EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
     EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
     EGL_NONE
