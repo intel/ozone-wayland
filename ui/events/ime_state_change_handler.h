@@ -15,14 +15,7 @@ namespace ui {
 // Aura to Wayland.
 class OZONE_WAYLAND_EXPORT IMEStateChangeHandler {
  public:
-  IMEStateChangeHandler();
-  virtual ~IMEStateChangeHandler();
-
-  // Returns the static instance last set using SetInstance().
-  static IMEStateChangeHandler* GetInstance();
-
-  // Sets the implementation delegate. Ownership is retained by the caller.
-  static void SetInstance(IMEStateChangeHandler* instance);
+  virtual ~IMEStateChangeHandler() { }
 
   // This is called with IMEContext needs to be reset.
   virtual void ResetIme() = 0;
@@ -33,9 +26,6 @@ class OZONE_WAYLAND_EXPORT IMEStateChangeHandler {
 
   virtual void ShowInputPanel() = 0;
   virtual void HideInputPanel() = 0;
-
- private:
-  static IMEStateChangeHandler* impl_;  // not owned
 };
 
 }  // namespace ui

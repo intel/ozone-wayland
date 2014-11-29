@@ -72,15 +72,18 @@ void OzoneChannel::OnWidgetCreate(unsigned widget,
 }
 
 void OzoneChannel::OnWidgetImeReset() {
-  ui::IMEStateChangeHandler::GetInstance()->ResetIme();
+  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
+      ResetIme();
 }
 
 void OzoneChannel::OnWidgetShowInputPanel() {
-  ui::IMEStateChangeHandler::GetInstance()->ShowInputPanel();
+  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
+      ShowInputPanel();
 }
 
 void OzoneChannel::OnWidgetHideInputPanel() {
-  ui::IMEStateChangeHandler::GetInstance()->HideInputPanel();
+  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
+      HideInputPanel();
 }
 
 }  // namespace ui

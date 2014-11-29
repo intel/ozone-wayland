@@ -14,7 +14,8 @@ RemoteStateChangeHandler::RemoteStateChangeHandler()
     : sender_(NULL) {
   EventFactoryOzoneWayland::GetInstance()->
       SetWindowStateChangeHandler(this);
-  IMEStateChangeHandler::SetInstance(this);
+  EventFactoryOzoneWayland::GetInstance()->
+      SetIMEStateChangeHandler(this);
 }
 
 RemoteStateChangeHandler::~RemoteStateChangeHandler() {

@@ -30,22 +30,25 @@ bool InputMethodContextImplWayland::DispatchKeyEvent(
 }
 
 void InputMethodContextImplWayland::Reset() {
-  IMEStateChangeHandler::GetInstance()->ResetIme();
+  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
+      ResetIme();
 }
 
 void InputMethodContextImplWayland::OnTextInputTypeChanged(
     ui::TextInputType text_input_type) {
-
+  IMEStateChangeHandler* handler =
+      EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler();
   // FIXME: We need to support more input types.
   if (text_input_type == ui::TEXT_INPUT_TYPE_NONE)
-    IMEStateChangeHandler::GetInstance()->HideInputPanel();
+    handler->HideInputPanel();
   else
-    IMEStateChangeHandler::GetInstance()->ShowInputPanel();
+    handler->ShowInputPanel();
 }
 
 void InputMethodContextImplWayland::OnCaretBoundsChanged(
     const gfx::Rect& caret_bounds) {
-  IMEStateChangeHandler::GetInstance()->ImeCaretBoundsChanged(caret_bounds);
+  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
+      ImeCaretBoundsChanged(caret_bounds);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -14,6 +14,7 @@ class IMEChangeObserver;
 class OutputChangeObserver;
 class WindowChangeObserver;
 class WindowStateChangeHandler;
+class IMEStateChangeHandler;
 
 class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
  public:
@@ -45,9 +46,14 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   EventConverterOzoneWayland* EventConverter() const;
 
   // Sets the window state change handler. Ownership is retained by the caller.
-  void SetWindowStateChangeHandler(WindowStateChangeHandler* instance);
+  void SetWindowStateChangeHandler(WindowStateChangeHandler* statehandler);
   // Registered WindowStateChangeHandler. Ownership is not passed to the caller.
   WindowStateChangeHandler* GetWindowStateChangeHandler() const;
+
+  // Sets the IME state change handler. Ownership is retained by the caller.
+  void SetIMEStateChangeHandler(IMEStateChangeHandler* handler);
+  // Registered IMEStateChangeHandler. Ownership is not passed to the caller.
+  IMEStateChangeHandler* GetImeStateChangeHandler() const;
 
  protected:
   EventConverterOzoneWayland* event_converter_;
@@ -55,6 +61,7 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   IMEChangeObserver* ime_observer_;
   OutputChangeObserver* output_observer_;
   WindowStateChangeHandler* state_change_handler_;
+  IMEStateChangeHandler* ime_state_handler_;
   static EventFactoryOzoneWayland* impl_;  // not owned
 };
 

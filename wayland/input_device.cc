@@ -6,6 +6,7 @@
 #include "ozone/wayland/input_device.h"
 
 #include "base/logging.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input/keyboard.h"
@@ -140,7 +141,7 @@ WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
       input_pointer_(NULL),
       input_touch_(NULL),
       text_input_(NULL) {
-  ui::IMEStateChangeHandler::SetInstance(this);
+  ui::EventFactoryOzoneWayland::GetInstance()->SetIMEStateChangeHandler(this);
   static const struct wl_seat_listener kInputSeatListener = {
     WaylandInputDevice::OnSeatCapabilities,
   };
