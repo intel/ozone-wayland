@@ -15,7 +15,8 @@ EventFactoryOzoneWayland::EventFactoryOzoneWayland()
     : event_converter_(NULL),
       observer_(NULL),
       ime_observer_(NULL),
-      output_observer_(NULL) {
+      output_observer_(NULL),
+      state_change_handler_(NULL) {
   EventFactoryOzoneWayland::SetInstance(this);
 }
 
@@ -70,6 +71,16 @@ void EventFactoryOzoneWayland::SetEventConverterOzoneWayland(
 EventConverterOzoneWayland* EventFactoryOzoneWayland::EventConverter() const {
   CHECK(impl_) << "EventConverterOzoneWayland is not initialized yet.";
   return event_converter_;
+}
+
+void EventFactoryOzoneWayland::SetWindowStateChangeHandler(
+    WindowStateChangeHandler* handler) {
+  state_change_handler_ = handler;
+}
+
+WindowStateChangeHandler*
+EventFactoryOzoneWayland::GetWindowStateChangeHandler() const {
+  return state_change_handler_;
 }
 
 }  // namespace ui

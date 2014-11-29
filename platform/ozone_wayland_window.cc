@@ -7,6 +7,7 @@
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h"
+#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
@@ -34,8 +35,8 @@ OzoneWaylandWindow::~OzoneWaylandWindow() {
 
 void OzoneWaylandWindow::InitPlatformWindow(
     PlatformWindowType type, gfx::AcceleratedWidget parent_window) {
-  ui::WindowStateChangeHandler* state_handler =
-      ui::WindowStateChangeHandler::GetInstance();
+  WindowStateChangeHandler* state_handler =
+      EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler();
   switch (type) {
     case PLATFORM_WINDOW_TYPE_TOOLTIP:
     case PLATFORM_WINDOW_TYPE_POPUP:
@@ -89,13 +90,13 @@ void OzoneWaylandWindow::SetBounds(const gfx::Rect& bounds) {
 }
 
 void OzoneWaylandWindow::Show() {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::SHOW);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handle_, ui::SHOW);
 }
 
 void OzoneWaylandWindow::Hide() {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::HIDE);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handle_, ui::HIDE);
 }
 
 void OzoneWaylandWindow::Close() {
@@ -119,24 +120,24 @@ void OzoneWaylandWindow::ToggleFullscreen() {
     NOTREACHED() << "Unable to retrieve valid gfx::Screen";
 
   SetBounds(screen->GetPrimaryDisplay().bounds());
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::FULLSCREEN);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handle_, ui::FULLSCREEN);
 }
 
 void OzoneWaylandWindow::Maximize() {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::MAXIMIZED);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handle_, ui::MAXIMIZED);
 }
 
 void OzoneWaylandWindow::Minimize() {
   SetBounds(gfx::Rect());
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::MINIMIZED);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handle_, ui::MINIMIZED);
 }
 
 void OzoneWaylandWindow::Restore() {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handle_,
-                                                              ui::RESTORE);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handle_, ui::RESTORE);
 }
 
 void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {

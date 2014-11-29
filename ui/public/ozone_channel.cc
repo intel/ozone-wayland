@@ -47,17 +47,19 @@ bool OzoneChannel::OnMessageReceived(const IPC::Message& message) {
 
 void OzoneChannel::OnWidgetStateChanged(unsigned handleid,
                                         ui::WidgetState state) {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetState(handleid,
-                                                              state);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetState(handleid, state);
 }
 
 void OzoneChannel::OnWidgetTitleChanged(unsigned widget,
                                         base::string16 title) {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetTitle(widget, title);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetTitle(widget, title);
 }
 
 void OzoneChannel::OnWidgetCursorChanged(int cursor_type) {
-  ui::WindowStateChangeHandler::GetInstance()->SetWidgetCursor(cursor_type);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      SetWidgetCursor(cursor_type);
 }
 
 void OzoneChannel::OnWidgetCreate(unsigned widget,
@@ -65,11 +67,8 @@ void OzoneChannel::OnWidgetCreate(unsigned widget,
                                   unsigned x,
                                   unsigned y,
                                   ui::WidgetType type) {
-  ui::WindowStateChangeHandler::GetInstance()->CreateWidget(widget,
-                                                            parent,
-                                                            x,
-                                                            y,
-                                                            type);
+  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
+      CreateWidget(widget, parent, x, y, type);
 }
 
 void OzoneChannel::OnWidgetImeReset() {

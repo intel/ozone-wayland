@@ -16,14 +16,7 @@ namespace ui {
 // Aura to Wayland.
 class OZONE_WAYLAND_EXPORT WindowStateChangeHandler {
  public:
-  WindowStateChangeHandler();
-  virtual ~WindowStateChangeHandler();
-
-  // Returns the static instance last set using SetInstance().
-  static WindowStateChangeHandler* GetInstance();
-
-  // Sets the implementation delegate. Ownership is retained by the caller.
-  static void SetInstance(WindowStateChangeHandler* instance);
+  virtual ~WindowStateChangeHandler() { }
 
   // Called when AcceleratedWidget widget state has changed.
   virtual void SetWidgetState(unsigned widget,
@@ -40,9 +33,6 @@ class OZONE_WAYLAND_EXPORT WindowStateChangeHandler {
                             unsigned x,
                             unsigned y,
                             ui::WidgetType type) = 0;
-
- private:
-  static WindowStateChangeHandler* impl_;  // not owned
 };
 
 }  // namespace ui

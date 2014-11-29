@@ -26,6 +26,5 @@
     'ime_change_observer.h',
     'window_constants.h',
     'window_state_change_handler.h',
-    'window_state_change_handler.cc',
    ],
 }
