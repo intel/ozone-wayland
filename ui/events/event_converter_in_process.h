@@ -66,10 +66,6 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   void PreeditStart() override;
   void InitializeXKB(base::SharedMemoryHandle fd, uint32_t size) override;
 
-  void SetWindowChangeObserver(ui::WindowChangeObserver* observer) override;
-  void SetIMEChangeObserver(ui::IMEChangeObserver* observer) override;
-  void SetOutputChangeObserver(ui::OutputChangeObserver* observer) override;
-
  private:
   // PlatformEventSource:
   void OnDispatcherListChanged() override;
@@ -107,33 +103,23 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                float y,
                                int32_t touch_id,
                                uint32_t time_stamp);
-  static void NotifyCloseWidget(EventConverterInProcess* data,
-                                unsigned handle);
-  static void NotifyOutputSizeChanged(EventConverterInProcess* data,
-                                      unsigned width,
+  static void NotifyCloseWidget(unsigned handle);
+  static void NotifyOutputSizeChanged(unsigned width,
                                       unsigned height);
-  static void NotifyWindowResized(EventConverterInProcess* data,
-                                  unsigned handle,
+  static void NotifyWindowResized(unsigned handle,
                                   unsigned width,
                                   unsigned height);
-  static void NotifyWindowUnminimized(EventConverterInProcess* data,
-                                      unsigned handle);
-  static void NotifyWindowDeActivated(EventConverterInProcess* data,
-                                      unsigned handle);
-  static void NotifyWindowActivated(EventConverterInProcess* data,
-                                    unsigned handle);
-  static void NotifyCommit(EventConverterInProcess* data, unsigned handle,
+  static void NotifyWindowUnminimized(unsigned handle);
+  static void NotifyWindowDeActivated(unsigned handle);
+  static void NotifyWindowActivated(unsigned handle);
+  static void NotifyCommit(unsigned handle,
                            const std::string& text);
-  static void NotifyPreeditChanged(EventConverterInProcess* data,
-                                   unsigned handle,
+  static void NotifyPreeditChanged(unsigned handle,
                                    const std::string& text,
                                    const std::string& commit);
   static void NotifyPreeditEnd(EventConverterInProcess* data);
   static void NotifyPreeditStart(EventConverterInProcess* data);
 
-  ui::WindowChangeObserver* observer_;
-  ui::IMEChangeObserver* ime_observer_;
-  ui::OutputChangeObserver* output_observer_;
   ui::KeyboardEngineXKB* backend_;
   base::RepeatingTimer<EventConverterInProcess> timer_;
   base::Callback<void(void*)> dispatch_callback_;  // NOLINT(readability/

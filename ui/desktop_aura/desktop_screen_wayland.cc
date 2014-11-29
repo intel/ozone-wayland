@@ -4,8 +4,6 @@
 
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 
-#include "ui/ozone/public/ozone_platform.h"
-#include "ui/platform_window/platform_window.h"
 #include "ozone/platform/desktop_platform_screen.h"
 #include "ozone/ui/desktop_aura/desktop_platform_screen.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"

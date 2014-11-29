@@ -6,8 +6,8 @@
 
 #include "base/at_exit.h"
 #include "base/bind.h"
-#include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #include "ozone/platform/ozone_wayland_window.h"
+#include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/ui/public/ozone_channel.h"

@@ -18,12 +18,6 @@ OzoneChannelHost::OzoneChannelHost()
       ui::EventFactoryOzoneWayland::GetInstance();
   event_factory->SetEventConverterOzoneWayland(event_converter_);
   state_handler_ = new RemoteStateChangeHandler();
-  event_converter_->SetWindowChangeObserver(
-    event_factory->GetWindowChangeObserver());
-  event_converter_->SetOutputChangeObserver(
-    event_factory->GetOutputChangeObserver());
-  event_converter_->SetIMEChangeObserver(
-    event_factory->GetIMEChangeObserver());
 }
 
 OzoneChannelHost::~OzoneChannelHost() {

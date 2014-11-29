@@ -5,9 +5,9 @@
 #ifndef OZONE_WAYLAND_OZONE_WAYLAND_SCREEN_H_
 #define OZONE_WAYLAND_OZONE_WAYLAND_SCREEN_H_
 
-#include "ozone/platform/desktop_platform_screen.h"
-
 #include <wayland-client.h>
+
+#include "ozone/platform/desktop_platform_screen.h"
 
 namespace ozonewayland {
 
@@ -35,6 +35,6 @@ class OzoneWaylandScreen : public ui::DesktopPlatformScreen {
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandScreen);
 };
 
-}  // namespace ui
+}  // namespace ozonewayland
 
 #endif  // OZONE_WAYLAND_OZONE_WAYLAND_SCREEN_H_
