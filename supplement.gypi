@@ -16,8 +16,6 @@
         'external_ozone_views_files': [
           '<(DEPTH)/ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.cc',
           '<(DEPTH)/ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h',
-          '<(DEPTH)/ozone/ui/desktop_aura/desktop_factory_wayland.cc',
-          '<(DEPTH)/ozone/ui/desktop_aura/desktop_factory_wayland.h',
           '<(DEPTH)/ozone/ui/desktop_aura/desktop_screen_wayland.cc',
           '<(DEPTH)/ozone/ui/desktop_aura/desktop_screen_wayland.h',
           '<(DEPTH)/ozone/ui/desktop_aura/desktop_window_tree_host_ozone.cc',

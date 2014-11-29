@@ -7,9 +7,6 @@
 #include "base/at_exit.h"
 #include "base/bind.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
-#if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
-#include "ozone/ui/desktop_aura/desktop_factory_wayland.h"
-#endif
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
@@ -103,9 +100,6 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
  private:
-#if defined(TOOLKIT_VIEWS) && !defined(OS_CHROMEOS)
-  views::DesktopFactoryWayland desktop_factory_ozone_;
-#endif
   scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;

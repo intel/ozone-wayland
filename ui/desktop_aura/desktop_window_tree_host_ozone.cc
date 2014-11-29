@@ -1031,4 +1031,11 @@ DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
   return ui::NativeTheme::instance();
 }
 
+DesktopWindowTreeHost* DesktopWindowTreeHost::Create(
+    internal::NativeWidgetDelegate* native_widget_delegate,
+    DesktopNativeWidgetAura* desktop_native_widget_aura) {
+  return new DesktopWindowTreeHostOzone(native_widget_delegate,
+                                        desktop_native_widget_aura);
+}
+
 }  // namespace views

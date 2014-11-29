@@ -4,6 +4,8 @@
 
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 
+#include "ui/ozone/public/ozone_platform.h"
+#include "ui/platform_window/platform_window.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
@@ -15,6 +17,7 @@ DesktopScreenWayland::DesktopScreenWayland()
       rect_(0, 0, 0, 0),
       displays_() {
   ui::EventFactoryOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
+  ui::OzonePlatform::GetInstance()->CreatePlatformWindow(NULL, gfx::Rect());
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {
@@ -147,6 +150,10 @@ void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
 void DesktopScreenWayland::OnOutputSizeChanged(unsigned width,
                                                unsigned height) {
   SetGeometry(gfx::Rect(0, 0, width, height));
+}
+
+gfx::Screen* CreateDesktopScreen() {
+  return new DesktopScreenWayland();
 }
 
 }  // namespace views
