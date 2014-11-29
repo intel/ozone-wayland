@@ -29,6 +29,7 @@
         'platform/ozone_platform_wayland.h',
         'platform/ozone_wayland_window.cc',
         'platform/ozone_wayland_window.h',
+        'platform/desktop_platform_screen.h',
       ],
     },
   ]

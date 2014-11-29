@@ -55,15 +55,8 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
       const gfx::Rect& bounds) override {
-    if (delegate) {
-      return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow(delegate,
-                                                               bounds));
-    } else {
-      // This is a hack to ensure we have the correct screen bounds at startup.
-      // DesktopFactroyWayland makes this call.
-      wayland_display_->LookAheadOutputGeometry();
-      return scoped_ptr<PlatformWindow>();
-    }
+    return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow(delegate,
+                                                             bounds));
   }
 
   scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {

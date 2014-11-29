@@ -57,6 +57,8 @@
         'display.h',
         'display_poll_thread.cc',
         'display_poll_thread.h',
+        'ozone_wayland_screen.cc',
+        'ozone_wayland_screen.h',
         'input_device.cc',
         'input_device.h',
         'screen.cc',

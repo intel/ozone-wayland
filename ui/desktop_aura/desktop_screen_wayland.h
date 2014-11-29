@@ -15,6 +15,10 @@ namespace aura {
 class Window;
 }
 
+namespace ui {
+class DesktopPlatformScreen;
+}
+
 namespace views {
 
 class DesktopScreenWayland : public gfx::Screen,
@@ -46,6 +50,7 @@ class DesktopScreenWayland : public gfx::Screen,
 
   // The display objects we present to chrome.
   std::vector<gfx::Display> displays_;
+  ui::DesktopPlatformScreen* platform_Screen_;
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
 

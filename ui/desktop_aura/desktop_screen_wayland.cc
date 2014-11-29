@@ -6,6 +6,8 @@
 
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/platform_window/platform_window.h"
+#include "ozone/platform/desktop_platform_screen.h"
+#include "ozone/ui/desktop_aura/desktop_platform_screen.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
@@ -17,10 +19,11 @@ DesktopScreenWayland::DesktopScreenWayland()
       rect_(0, 0, 0, 0),
       displays_() {
   ui::EventFactoryOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
-  ui::OzonePlatform::GetInstance()->CreatePlatformWindow(NULL, gfx::Rect());
+  platform_Screen_ = CreateDesktopPlatformScreen();
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {
+  delete platform_Screen_;
 }
 
 void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
@@ -38,17 +41,18 @@ void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
   }
 
   if (!matching) {
+    std::vector<gfx::Display> old_displays = displays_;
     displays_.push_back(gfx::Display(displays_.size(), rect_));
-    change_notifier_.NotifyDisplaysChanged(displays_, displays_);
+    change_notifier_.NotifyDisplaysChanged(old_displays, displays_);
   }
 }
 
 gfx::Point DesktopScreenWayland::GetCursorScreenPoint() {
-  return gfx::Point();
+  return platform_Screen_->GetCursorScreenPoint();
 }
 
 gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
-  return NULL;
+  return GetWindowAtScreenPoint(GetCursorScreenPoint());
 }
 
 gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(

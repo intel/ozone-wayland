@@ -101,8 +101,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
                     unsigned y,
                     ui::WidgetType type) override;
 
-  void LookAheadOutputGeometry();
-
  private:
   void InitializeDisplay();
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
@@ -130,14 +128,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
       uint32_t name,
       const char *interface,
       uint32_t version);
-  // This handler resolves only screen registration. In general you don't want
-  // to use this but the one below.
-  static void DisplayHandleOutputOnly(
-      void *data,
-      struct wl_registry *registry,
-      uint32_t name,
-      const char *interface,
-      uint32_t version);
 
   // WaylandDisplay manages the memory of all these pointers.
   wl_display* display_;
@@ -147,7 +137,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   wl_shm* shm_;
   struct wl_text_input_manager* text_input_manager_;
   WaylandScreen* primary_screen_;
-  WaylandScreen* look_ahead_screen_;
   WaylandInputDevice* primary_input_;
   WaylandDisplayPollThread* display_poll_thread_;
 
