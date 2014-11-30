@@ -30,8 +30,8 @@
         'platform/ozone_platform_wayland.h',
         'platform/ozone_wayland_window.cc',
         'platform/ozone_wayland_window.h',
-        'platform/window_tree_host_delegate_wayland.cc',
-        'platform/window_tree_host_delegate_wayland.h',
+        'platform/window_manager_wayland.cc',
+        'platform/window_manager_wayland.h',
       ],
     },
   ]

@@ -4,16 +4,15 @@
 
 #include "ozone/platform/ozone_wayland_window.h"
 
-#include "ozone/platform/window_tree_host_delegate_wayland.h"
-#include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
-#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
+#include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
+#include "ui/gfx/screen.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
 namespace ui {
 
-WindowTreeHostDelegateWayland*
+WindowManagerWayland*
     OzoneWaylandWindow::g_delegate_ozone_wayland_ = NULL;
 
 OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
@@ -25,7 +24,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
 
   if (!g_delegate_ozone_wayland_)
-    g_delegate_ozone_wayland_ = new WindowTreeHostDelegateWayland();
+    g_delegate_ozone_wayland_ = new WindowManagerWayland();
 
   g_delegate_ozone_wayland_->OnRootWindowCreated(this);
 }

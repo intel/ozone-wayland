@@ -12,7 +12,7 @@
 namespace ui {
 
 class PlatformWindowDelegate;
-class WindowTreeHostDelegateWayland;
+class WindowManagerWayland;
 
 class OzoneWaylandWindow : public PlatformWindow {
  public:
@@ -45,7 +45,7 @@ class OzoneWaylandWindow : public PlatformWindow {
   gfx::Rect bounds_;
   unsigned handle_;
 
-  static WindowTreeHostDelegateWayland* g_delegate_ozone_wayland_;
+  static WindowManagerWayland* g_delegate_ozone_wayland_;
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandWindow);
 };
 
