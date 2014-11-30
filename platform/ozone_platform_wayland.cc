@@ -74,6 +74,10 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   void InitializeUI() override {
+    // For tests.
+    if (wayland_display_.get())
+      return;
+
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
 

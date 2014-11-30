@@ -24,11 +24,14 @@
         'OZONE_WAYLAND_IMPLEMENTATION',
       ],
       'sources': [
+        'platform/desktop_platform_screen.h',
         'platform/ozone_export_wayland.h',
         'platform/ozone_platform_wayland.cc',
         'platform/ozone_platform_wayland.h',
         'platform/ozone_wayland_window.cc',
         'platform/ozone_wayland_window.h',
+        'platform/window_tree_host_delegate_wayland.cc',
+        'platform/window_tree_host_delegate_wayland.h',
       ],
     },
   ]

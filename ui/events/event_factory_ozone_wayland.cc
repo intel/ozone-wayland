@@ -16,20 +16,16 @@ EventFactoryOzoneWayland::EventFactoryOzoneWayland()
       observer_(NULL),
       ime_observer_(NULL),
       output_observer_(NULL) {
-  EventFactoryOzoneWayland::SetInstance(this);
+  impl_ = this;
 }
 
 EventFactoryOzoneWayland::~EventFactoryOzoneWayland() {
+  impl_ = NULL;
 }
 
 EventFactoryOzoneWayland* EventFactoryOzoneWayland::GetInstance() {
   CHECK(impl_) << "No EventFactoryOzoneWayland implementation set.";
   return impl_;
-}
-
-void EventFactoryOzoneWayland::SetInstance(EventFactoryOzoneWayland* impl) {
-  CHECK(!impl_) << "Replacing set EventFactoryOzoneWayland implementation.";
-  impl_ = impl;
 }
 
 void EventFactoryOzoneWayland::SetWindowChangeObserver(
