@@ -3,7 +3,9 @@
 // found in the LICENSE file.
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
+
 #include "base/bind.h"
+#include "ozone/ui/public/ozone_channel_host.h"
 
 
 namespace ui {
@@ -11,14 +13,17 @@ namespace ui {
 // static
 EventFactoryOzoneWayland* EventFactoryOzoneWayland::impl_ = NULL;
 
-EventFactoryOzoneWayland::EventFactoryOzoneWayland()
+EventFactoryOzoneWayland::EventFactoryOzoneWayland(OzoneChannelHost* host)
     : event_converter_(NULL),
       observer_(NULL),
       ime_observer_(NULL),
       output_observer_(NULL),
       state_change_handler_(NULL),
-      ime_state_handler_(NULL) {
+      ime_state_handler_(NULL),
+      host_(host) {
   EventFactoryOzoneWayland::SetInstance(this);
+  if (host_)
+    host_->Initialize();
 }
 
 EventFactoryOzoneWayland::~EventFactoryOzoneWayland() {
@@ -76,6 +81,11 @@ EventConverterOzoneWayland* EventFactoryOzoneWayland::EventConverter() const {
 
 void EventFactoryOzoneWayland::SetWindowStateChangeHandler(
     WindowStateChangeHandler* handler) {
+  if (host_ && host_->GetStateChangeHandler() &&
+      handler != host_->GetStateChangeHandler()) {
+    host_->ReleaseRemoteStateChangeHandler();
+  }
+
   state_change_handler_ = handler;
 }
 

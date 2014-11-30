@@ -14,13 +14,16 @@
 namespace ui {
 class RemoteStateChangeHandler;
 class EventConverterInProcess;
+class WindowStateChangeHandler;
 
 class OzoneChannelHost : public GpuPlatformSupportHost {
  public:
   OzoneChannelHost();
   virtual ~OzoneChannelHost();
 
-  void DeleteRemoteStateChangeHandler();
+  void Initialize();
+  void ReleaseRemoteStateChangeHandler();
+  WindowStateChangeHandler* GetStateChangeHandler() const;
 
   // GpuPlatformSupportHost:
   void OnChannelEstablished(int host_id, IPC::Sender* sender) override;

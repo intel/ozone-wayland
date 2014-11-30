@@ -13,6 +13,14 @@ namespace ui {
 
 OzoneChannelHost::OzoneChannelHost()
     : state_handler_(NULL) {
+}
+
+OzoneChannelHost::~OzoneChannelHost() {
+  delete state_handler_;
+  delete event_converter_;
+}
+
+void OzoneChannelHost::Initialize() {
   event_converter_ = new EventConverterInProcess();
   ui::EventFactoryOzoneWayland* event_factory =
       ui::EventFactoryOzoneWayland::GetInstance();
@@ -20,13 +28,13 @@ OzoneChannelHost::OzoneChannelHost()
   state_handler_ = new RemoteStateChangeHandler();
 }
 
-OzoneChannelHost::~OzoneChannelHost() {
-  delete state_handler_;
-}
-
-void OzoneChannelHost::DeleteRemoteStateChangeHandler() {
+void OzoneChannelHost::ReleaseRemoteStateChangeHandler() {
   delete state_handler_;
   state_handler_ = NULL;
+}
+
+WindowStateChangeHandler* OzoneChannelHost::GetStateChangeHandler() const {
+  return state_handler_;
 }
 
 void OzoneChannelHost::OnChannelEstablished(int host_id, IPC::Sender* sender) {

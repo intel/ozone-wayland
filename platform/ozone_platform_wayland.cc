@@ -64,10 +64,9 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   void InitializeUI() override {
-    event_factory_ozone_.reset(
-        new ui::EventFactoryOzoneWayland());
-
     gpu_platform_host_.reset(new ui::OzoneChannelHost());
+    event_factory_ozone_.reset(
+        new ui::EventFactoryOzoneWayland(gpu_platform_host_.get()));
     // Needed as Browser creates accelerated widgets through SFO.
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
     input_method_factory_.reset(
@@ -80,9 +79,6 @@ class OzonePlatformWayland : public OzonePlatform {
     if (!event_factory_ozone_) {
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
       gpu_platform_.get()->InitializeRemoteDispatcher();
-    } else {
-    // TODO(kalyan): Find a better way to handle this.
-      gpu_platform_host_.get()->DeleteRemoteStateChangeHandler();
     }
 
     if (!wayland_display_)

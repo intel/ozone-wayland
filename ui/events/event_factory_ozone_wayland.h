@@ -12,13 +12,14 @@ namespace ui {
 
 class IMEChangeObserver;
 class OutputChangeObserver;
+class OzoneChannelHost;
 class WindowChangeObserver;
 class WindowStateChangeHandler;
 class IMEStateChangeHandler;
 
 class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
  public:
-  EventFactoryOzoneWayland();
+  explicit EventFactoryOzoneWayland(OzoneChannelHost* host = NULL);
   virtual ~EventFactoryOzoneWayland();
 
   // Returns the static instance last set using SetInstance().
@@ -62,6 +63,7 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   OutputChangeObserver* output_observer_;
   WindowStateChangeHandler* state_change_handler_;
   IMEStateChangeHandler* ime_state_handler_;
+  OzoneChannelHost* host_;
   static EventFactoryOzoneWayland* impl_;  // not owned
 };
 
