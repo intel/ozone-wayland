@@ -64,6 +64,10 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   void InitializeUI() override {
+    // For tests.
+    if (wayland_display_.get())
+      return;
+
     gpu_platform_host_.reset(new ui::OzoneChannelHost());
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland(gpu_platform_host_.get()));

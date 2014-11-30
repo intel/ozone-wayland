@@ -23,8 +23,6 @@
           '<(DEPTH)/ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h',
           '<(DEPTH)/ozone/ui/desktop_aura/ozone_util.cc',
           '<(DEPTH)/ozone/ui/desktop_aura/ozone_util.h',
-          '<(DEPTH)/ozone/ui/desktop_aura/window_tree_host_delegate_wayland.cc',
-          '<(DEPTH)/ozone/ui/desktop_aura/window_tree_host_delegate_wayland.h',
         ],
         'external_ozone_platforms': [
           'wayland'

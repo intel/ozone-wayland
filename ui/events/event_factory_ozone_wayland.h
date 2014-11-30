@@ -25,9 +25,6 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   // Returns the static instance last set using SetInstance().
   static EventFactoryOzoneWayland* GetInstance();
 
-  // Sets the implementation delegate. Ownership is retained by the caller.
-  static void SetInstance(EventFactoryOzoneWayland* instance);
-
   // Sets the window change observer. Ownership is retained by the caller.
   void SetWindowChangeObserver(WindowChangeObserver* observer);
   WindowChangeObserver* GetWindowChangeObserver() const;
