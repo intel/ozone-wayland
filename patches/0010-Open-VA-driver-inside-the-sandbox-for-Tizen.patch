@@ -1,0 +1,34 @@
+From 72ce7ace345f372c2b29aa1aca9c9f9689816d2c Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Wed, 12 Nov 2014 14:00:01 -0800
+Subject: [PATCH] Open VA driver inside the sandbox for Tizen.
+
+---
+ .../common/sandbox_linux/bpf_gpu_policy_linux.cc   |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
+index 700ae52..b788395 100644
+--- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
++++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
+@@ -241,9 +241,15 @@ bool GpuProcessPolicy::PreSandboxHook() {
+       const char* I965DrvVideoPath = NULL;
+ 
+       if (IsArchitectureX86_64()) {
+-        I965DrvVideoPath = "/usr/lib64/va/drivers/i965_drv_video.so";
++        if (access("/usr/lib64/dri/i965_dri.so", F_OK) !=-1)
++          I965DrvVideoPath = "/usr/lib64/dri/i965_dri.so";
++        else
++          I965DrvVideoPath = "/usr/lib64/va/drivers/i965_drv_video.so";
+       } else if (IsArchitectureI386()) {
+-        I965DrvVideoPath = "/usr/lib/va/drivers/i965_drv_video.so";
++        if (access("/usr/lib/dri/i965_dri.so", F_OK) !=-1)
++          I965DrvVideoPath = "/usr/lib/dri/i965_dri.so";
++        else
++          I965DrvVideoPath = "/usr/lib/va/drivers/i965_drv_video.so";
+       }
+ 
+       dlopen(I965DrvVideoPath, RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
+-- 
+1.7.9.5
+
