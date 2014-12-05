@@ -60,11 +60,9 @@ WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
     : base::Thread("WaylandDisplayPollThread"),
       display_(display),
       polling_(true, false),
-      stop_polling_(true, false) {
+      stop_polling_(true, false),
+      epoll_fd_(-1) {
   DCHECK(display_);
-  epoll_fd_ = osEpollCreateCloExec();
-  if (epoll_fd_ < 0)
-    LOG(ERROR) << "Epoll creation failed.";
 }
 
 WaylandDisplayPollThread::~WaylandDisplayPollThread() {
@@ -90,8 +88,10 @@ void WaylandDisplayPollThread::StopProcessingEvents() {
 
 void WaylandDisplayPollThread::CleanUp() {
   SetThreadWasQuitProperly(true);
-  if (epoll_fd_)
+  if (epoll_fd_ >= 0) {
     close(epoll_fd_);
+    epoll_fd_ = -1;
+  }
 }
 
 void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
@@ -101,11 +101,23 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
   bool epoll_err = false;
   unsigned display_fd = wl_display_get_fd(data->display_);
   int epoll_fd = data->epoll_fd_;
+
+  // Create the polling descriptor
+  if (epoll_fd < 0) {
+    epoll_fd = osEpollCreateCloExec();
+    if (epoll_fd < 0) {
+      LOG(ERROR) << "Epoll creation failed.";
+      return;
+    }
+    data->epoll_fd_ = epoll_fd;
+  }
+
+  // Add Wayland descriptor to the poll
   ep[0].events = EPOLLIN;
   ep[0].data.ptr = 0;
   if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, display_fd, &ep[0]) < 0) {
+    data->epoll_fd_ = -1;
     close(epoll_fd);
-    data->epoll_fd_ = 0;
     LOG(ERROR) << "epoll_ctl Add failed";
     return;
   }
@@ -166,6 +178,8 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
 
   data->polling_.Reset();
   data->stop_polling_.Reset();
+  data->epoll_fd_ = -1;
+  close(epoll_fd);
 }
 
 }  // namespace ozonewayland
