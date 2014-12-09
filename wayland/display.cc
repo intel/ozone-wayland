@@ -204,8 +204,11 @@ void WaylandDisplay::SetWidgetState(unsigned w,
       NOTIMPLEMENTED() << " INACTIVE " << w;
       break;
     case ui::SHOW:
-      NOTIMPLEMENTED() << " SHOW " << w;
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Show();
       break;
+    }
     case ui::HIDE:
       NOTIMPLEMENTED() << " HIDE " << w;
       break;

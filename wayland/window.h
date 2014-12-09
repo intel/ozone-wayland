@@ -43,6 +43,7 @@ class WaylandWindow {
   void Minimize();
   void Restore();
   void SetFullscreen();
+  void Show();
 
   ShellType Type() const { return type_; }
   unsigned Handle() const { return handle_; }
