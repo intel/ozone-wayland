@@ -100,7 +100,6 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
         }
       }
     }
-
   }
 
   data->polling_.Reset();
