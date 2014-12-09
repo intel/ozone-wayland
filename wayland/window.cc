@@ -71,6 +71,11 @@ void WaylandWindow::Minimize() {
   shell_surface_->Minimize();
 }
 
+void WaylandWindow::Show() {
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  input->SetFocusWindowHandle(handle_);
+}
+
 void WaylandWindow::Restore() {
   // If window is created as fullscreen, we don't set/restore any window states
   // like Maximize etc.
