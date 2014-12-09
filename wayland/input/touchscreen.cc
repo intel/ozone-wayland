@@ -54,6 +54,18 @@ void WaylandTouchscreen::OnTouchDown(void *data,
   WaylandTouchscreen* device = static_cast<WaylandTouchscreen*>(data);
   WaylandDisplay::GetInstance()->SetSerial(serial);
   WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+
+  // Need this code when the user clicks on a text input box directly
+  if (!input->GetPointer()) {
+    if (!surface) {
+      input->SetFocusWindowHandle(0);
+      return;
+    }
+    WaylandWindow* window =
+         static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
+    input->SetFocusWindowHandle(window->Handle());
+  }
+
   if (input->GetFocusWindowHandle() && input->GetGrabButton() == 0)
     input->SetGrabWindowHandle(input->GetFocusWindowHandle(), id);
 
