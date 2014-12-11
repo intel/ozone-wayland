@@ -171,7 +171,6 @@ void WaylandInputDevice::OnSeatCapabilities(void *data,
     device->input_keyboard_ = new WaylandKeyboard();
     device->input_keyboard_->OnSeatCapabilities(seat, caps);
   } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && device->input_keyboard_) {
-    device->input_keyboard_->OnSeatCapabilities(seat, caps);
     delete device->input_keyboard_;
     device->input_keyboard_ = NULL;
   }
@@ -180,7 +179,6 @@ void WaylandInputDevice::OnSeatCapabilities(void *data,
     device->input_pointer_ = new WaylandPointer();
     device->input_pointer_->OnSeatCapabilities(seat, caps);
   } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && device->input_pointer_) {
-    device->input_pointer_->OnSeatCapabilities(seat, caps);
     delete device->input_pointer_;
     device->input_pointer_ = NULL;
   }
