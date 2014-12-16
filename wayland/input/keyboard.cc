@@ -32,9 +32,6 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
     input_keyboard_ = wl_seat_get_keyboard(seat);
     wl_keyboard_add_listener(input_keyboard_, &kInputKeyboardListener,
         this);
-  } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && input_keyboard_) {
-    wl_keyboard_destroy(input_keyboard_);
-    input_keyboard_ = NULL;
   }
 }
 
