@@ -86,4 +86,8 @@ void OzoneChannel::OnWidgetHideInputPanel() {
       HideInputPanel();
 }
 
+void OzoneChannel::RelinquishGpuResources(const base::Closure& callback) {
+  callback.Run();
+}
+
 }  // namespace ui

@@ -21,6 +21,7 @@ class OzoneChannel : public GpuPlatformSupport {
   // GpuPlatformSupport:
   void OnChannelEstablished(IPC::Sender* sender) override;
   bool OnMessageReceived(const IPC::Message& message) override;
+  void RelinquishGpuResources(const base::Closure& callback) override;
 
   void OnWidgetStateChanged(unsigned handleid,
                             ui::WidgetState state);
