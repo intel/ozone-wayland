@@ -1,6 +1,6 @@
-From 790e9652ead077947928f3d26d94d2e1694ab9d7 Mon Sep 17 00:00:00 2001
+From d4e834d1aa88fc567782616422ff7f2d1ec7f3ef Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Wed, 12 Nov 2014 18:27:10 -0800
+Date: Tue, 23 Dec 2014 05:12:29 -0800
 Subject: [PATCH] Browser: Support Desktop Aura creation on Ozone
 
 This CL creates BrowserDesktopRootWindowHostOzone and gives support
@@ -15,7 +15,7 @@ for Aura Ozone implementations.
 
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
 new file mode 100644
-index 0000000..3324d29
+index 0000000..447f578
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
 @@ -0,0 +1,129 @@
@@ -150,7 +150,7 @@ index 0000000..3324d29
 +}
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 new file mode 100644
-index 0000000..fd4b354
+index 0000000..4096680
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 @@ -0,0 +1,45 @@
@@ -200,18 +200,18 @@ index 0000000..fd4b354
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index e5b3224..affeeeb 100644
+index d357670..8fc191b 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -2293,6 +2293,8 @@
+@@ -1917,6 +1917,8 @@
        'browser/ui/views/external_protocol_dialog.h',
        'browser/ui/views/frame/desktop_browser_frame_aura.cc',
        'browser/ui/views/frame/desktop_browser_frame_aura.h',
 +      'browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc',
 +      'browser/ui/views/frame/browser_desktop_root_window_host_ozone.h',
-       'browser/ui/views/frame/opaque_browser_frame_view.cc',
-       'browser/ui/views/frame/opaque_browser_frame_view.h',
        'browser/ui/views/message_center/message_center_frame_view.cc',
+       'browser/ui/views/message_center/message_center_frame_view.h',
+       'browser/ui/views/message_center/message_center_widget_delegate.h',
 -- 
 1.9.1
 
