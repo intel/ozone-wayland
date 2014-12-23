@@ -44,6 +44,10 @@ class OzonePlatformWayland : public OzonePlatform {
     return cursor_factory_ozone_.get();
   }
 
+  InputController* GetInputController() override {
+    return NULL;
+  }
+
   GpuPlatformSupportHost* GetGpuPlatformSupportHost() override {
     return gpu_platform_host_.get();
   }
