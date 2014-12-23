@@ -15,6 +15,7 @@
 #include "ozone/wayland/display.h"
 #include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/public/ozone_platform.h"
+#include "ui/ozone/public/system_input_injector.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
 
@@ -46,6 +47,10 @@ class OzonePlatformWayland : public OzonePlatform {
 
   InputController* GetInputController() override {
     return NULL;
+  }
+
+  scoped_ptr<SystemInputInjector> CreateSystemInputInjector() override {
+    return scoped_ptr<SystemInputInjector>();
   }
 
   GpuPlatformSupportHost* GetGpuPlatformSupportHost() override {
