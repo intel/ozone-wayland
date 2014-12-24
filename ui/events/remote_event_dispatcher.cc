@@ -10,8 +10,10 @@
 namespace ui {
 
 RemoteEventDispatcher::RemoteEventDispatcher()
-    : EventConverterOzoneWayland(),
-      sender_(NULL) {
+    :EventConverterOzoneWayland(),
+     sender_(NULL),
+     loop_(NULL),
+     weak_ptr_factory_(this) {
 }
 
 RemoteEventDispatcher::~RemoteEventDispatcher() {
@@ -123,13 +125,14 @@ void RemoteEventDispatcher::InitializeXKB(base::SharedMemoryHandle fd,
 }
 
 void RemoteEventDispatcher::Dispatch(IPC::Message* message) {
-    ui::EventConverterOzoneWayland::PostTaskOnMainLoop(
-          base::Bind(&RemoteEventDispatcher::Send, this, message));
+  loop_->message_loop_proxy()->PostTask(FROM_HERE,
+      base::Bind(&RemoteEventDispatcher::Send,
+                 weak_ptr_factory_.GetWeakPtr(),
+                 message));
 }
 
-void RemoteEventDispatcher::Send(RemoteEventDispatcher* dispatcher,
-                                 IPC::Message* message) {
-  dispatcher->sender_->Send(message);
+void RemoteEventDispatcher::Send(IPC::Message* message) {
+  sender_->Send(message);
 }
 
 }  // namespace ui

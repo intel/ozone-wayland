@@ -64,10 +64,13 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
                      uint32_t size) override;
 
  private:
+  // Posts task to main loop of the thread on which Dispatcher was initialized.
   void Dispatch(IPC::Message* message);
-  static void Send(RemoteEventDispatcher* dispatcher,
-                   IPC::Message* message);
+  void Send(IPC::Message* message);
   IPC::Sender* sender_;
+  base::MessageLoop* loop_;
+  // Support weak pointers for attach & detach callbacks.
+  base::WeakPtrFactory<RemoteEventDispatcher> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);
 };
 

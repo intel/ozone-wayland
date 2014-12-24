@@ -29,8 +29,10 @@ EventConverterInProcess::~EventConverterInProcess() {
 }
 
 void EventConverterInProcess::MotionNotify(float x, float y) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyMotion, this, x, y));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyMotion,
+          weak_ptr_factory_.GetWeakPtr(), x, y));
 }
 
 void EventConverterInProcess::ButtonNotify(unsigned handle,
@@ -38,31 +40,38 @@ void EventConverterInProcess::ButtonNotify(unsigned handle,
                                            ui::EventFlags flags,
                                            float x,
                                            float y) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyButtonPress, this, handle, type,
-          flags, x, y));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyButtonPress,
+          weak_ptr_factory_.GetWeakPtr(), handle, type, flags, x, y));
 }
 
 void EventConverterInProcess::AxisNotify(float x,
                                          float y,
                                          int xoffset,
                                          int yoffset) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyAxis, this, x, y, xoffset, yoffset));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyAxis,
+          weak_ptr_factory_.GetWeakPtr(), x, y, xoffset, yoffset));
 }
 
 void EventConverterInProcess::PointerEnter(unsigned handle,
                                            float x,
                                            float y) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyPointerEnter, this, handle, x, y));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyPointerEnter,
+          weak_ptr_factory_.GetWeakPtr(), handle, x, y));
 }
 
 void EventConverterInProcess::PointerLeave(unsigned handle,
                                            float x,
                                            float y) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyPointerLeave, this, handle, x, y));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyPointerLeave,
+          weak_ptr_factory_.GetWeakPtr(), handle, x, y));
 }
 
 void EventConverterInProcess::KeyNotify(ui::EventType type,
@@ -80,66 +89,85 @@ void EventConverterInProcess::TouchNotify(ui::EventType type,
                                           float y,
                                           int32_t touch_id,
                                           uint32_t time_stamp) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyTouchEvent, this, type, x, y, touch_id,
-          time_stamp));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyTouchEvent,
+          weak_ptr_factory_.GetWeakPtr(), type, x, y, touch_id, time_stamp));
 }
 
 void EventConverterInProcess::CloseWidget(unsigned handle) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyCloseWidget, handle));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyCloseWidget,
+          weak_ptr_factory_.GetWeakPtr(), handle));
 }
 
 void EventConverterInProcess::OutputSizeChanged(unsigned width,
                                                 unsigned height) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyOutputSizeChanged, width, height));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyOutputSizeChanged,
+          weak_ptr_factory_.GetWeakPtr(), width, height));
 }
 
 void EventConverterInProcess::WindowResized(unsigned handle,
                                             unsigned width,
                                             unsigned height) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyWindowResized, handle, width,
-          height));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyWindowResized,
+          weak_ptr_factory_.GetWeakPtr(), handle, width, height));
 }
 
 void EventConverterInProcess::WindowUnminimized(unsigned handle) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyWindowUnminimized, handle));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyWindowUnminimized,
+          weak_ptr_factory_.GetWeakPtr(), handle));
 }
 
 void EventConverterInProcess::WindowDeActivated(unsigned windowhandle) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyWindowDeActivated, windowhandle));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyWindowDeActivated,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle));
 }
 
 void EventConverterInProcess::WindowActivated(unsigned windowhandle) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyWindowActivated, windowhandle));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyWindowActivated,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle));
 }
 
 void EventConverterInProcess::Commit(unsigned handle, const std::string& text) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyCommit, handle, text));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyCommit,
+          weak_ptr_factory_.GetWeakPtr(), handle, text));
 }
 
 void EventConverterInProcess::PreeditChanged(unsigned handle,
                                              const std::string& text,
                                              const std::string& commit) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyPreeditChanged, handle, text,
-      commit));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyPreeditChanged,
+          weak_ptr_factory_.GetWeakPtr(), handle, text, commit));
 }
 
 void EventConverterInProcess::PreeditEnd() {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-        &EventConverterInProcess::NotifyPreeditEnd, this));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyPreeditEnd,
+          weak_ptr_factory_.GetWeakPtr()));
 }
 
 void EventConverterInProcess::PreeditStart() {
-    ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-        &EventConverterInProcess::NotifyPreeditStart, this));
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::NotifyPreeditStart,
+          weak_ptr_factory_.GetWeakPtr()));
 }
 
 void EventConverterInProcess::InitializeXKB(base::SharedMemoryHandle fd,
@@ -173,12 +201,9 @@ void EventConverterInProcess::DispatchUiEventTask(scoped_ptr<Event> event) {
 }
 
 void EventConverterInProcess::OnDispatcherListChanged() {
-  if (!loop_)
-    loop_ = base::MessageLoop::current();
 }
 
-void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,
-                                           float x,
+void EventConverterInProcess::NotifyMotion(float x,
                                            float y) {
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSE_MOVED,
@@ -186,34 +211,32 @@ void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,
                          position,
                          0,
                          0);
-  data->DispatchEvent(&mouseev);
+  DispatchEvent(&mouseev);
 }
 
-void EventConverterInProcess::NotifyButtonPress(EventConverterInProcess* data,
-                                                unsigned handle,
+void EventConverterInProcess::NotifyButtonPress(unsigned handle,
                                                 ui::EventType type,
                                                 ui::EventFlags flags,
                                                 float x,
                                                 float y) {
-    gfx::Point position(x, y);
-    ui::MouseEvent mouseev(type,
-                           position,
-                           position,
-                           flags,
-                           flags);
-    data->DispatchEvent(&mouseev);
+  gfx::Point position(x, y);
+  ui::MouseEvent mouseev(type,
+                         position,
+                         position,
+                         flags,
+                         flags);
+  DispatchEvent(&mouseev);
 
-    if (type == ui::ET_MOUSE_RELEASED) {
-      ui::WindowChangeObserver* observer =
-          ui::EventFactoryOzoneWayland::GetInstance()->
-              GetWindowChangeObserver();
-      if (observer)
-        observer->OnWindowFocused(handle);
-    }
+  if (type == ui::ET_MOUSE_RELEASED) {
+    ui::WindowChangeObserver* observer =
+        ui::EventFactoryOzoneWayland::GetInstance()->
+            GetWindowChangeObserver();
+    if (observer)
+      observer->OnWindowFocused(handle);
+  }
 }
 
-void EventConverterInProcess::NotifyAxis(EventConverterInProcess* data,
-                                         float x,
+void EventConverterInProcess::NotifyAxis(float x,
                                          float y,
                                          int xoffset,
                                          int yoffset) {
@@ -221,11 +244,12 @@ void EventConverterInProcess::NotifyAxis(EventConverterInProcess* data,
   ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
   ui::MouseWheelEvent wheelev(mouseev, xoffset, yoffset);
 
-  data->DispatchEvent(&wheelev);
+  DispatchEvent(&wheelev);
 }
 
-void EventConverterInProcess::NotifyPointerEnter(
-    EventConverterInProcess* data, unsigned handle, float x, float y) {
+void EventConverterInProcess::NotifyPointerEnter(unsigned handle,
+                                                 float x,
+                                                 float y) {
   ui::WindowChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
   if (observer)
@@ -233,11 +257,12 @@ void EventConverterInProcess::NotifyPointerEnter(
 
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSE_ENTERED, position, position, 0, 0);
-  data->DispatchEvent(&mouseev);
+  DispatchEvent(&mouseev);
 }
 
-void EventConverterInProcess::NotifyPointerLeave(
-    EventConverterInProcess* data, unsigned handle, float x, float y) {
+void EventConverterInProcess::NotifyPointerLeave(unsigned handle,
+                                                 float x,
+                                                 float y) {
   ui::WindowChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
   if (observer)
@@ -245,11 +270,10 @@ void EventConverterInProcess::NotifyPointerLeave(
 
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSE_EXITED, position, position, 0, 0);
-  data->DispatchEvent(&mouseev);
+  DispatchEvent(&mouseev);
 }
 
-void EventConverterInProcess::NotifyTouchEvent(EventConverterInProcess* data,
-                                               ui::EventType type,
+void EventConverterInProcess::NotifyTouchEvent(ui::EventType type,
                                                float x,
                                                float y,
                                                int32_t touch_id,
@@ -257,7 +281,7 @@ void EventConverterInProcess::NotifyTouchEvent(EventConverterInProcess* data,
   gfx::Point position(x, y);
   base::TimeDelta time_delta = base::TimeDelta::FromMilliseconds(time_stamp);
   ui::TouchEvent touchev(type, position, touch_id, time_delta);
-  data->DispatchEvent(&touchev);
+  DispatchEvent(&touchev);
 }
 
 void EventConverterInProcess::NotifyCloseWidget(unsigned handle) {
@@ -267,74 +291,65 @@ void EventConverterInProcess::NotifyCloseWidget(unsigned handle) {
     observer->OnWindowClose(handle);
 }
 
-void
-EventConverterInProcess::NotifyOutputSizeChanged(unsigned width,
-                                                 unsigned height) {
+void EventConverterInProcess::NotifyOutputSizeChanged(unsigned width,
+                                                      unsigned height) {
   ui::OutputChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetOutputChangeObserver();
   if (observer)
     observer->OnOutputSizeChanged(width, height);
 }
 
-void
-EventConverterInProcess::NotifyWindowResized(unsigned handle,
-                                             unsigned width,
-                                             unsigned height) {
+void EventConverterInProcess::NotifyWindowResized(unsigned handle,
+                                                  unsigned width,
+                                                  unsigned height) {
   ui::WindowChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
   if (observer)
     observer->OnWindowResized(handle, width, height);
 }
 
-void
-EventConverterInProcess::NotifyWindowUnminimized(unsigned handle) {
+void EventConverterInProcess::NotifyWindowUnminimized(unsigned handle) {
   ui::WindowChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
   if (observer)
     observer->OnWindowUnminimized(handle);
 }
 
-void
-EventConverterInProcess::NotifyWindowDeActivated(unsigned handle) {
+void EventConverterInProcess::NotifyWindowDeActivated(unsigned handle) {
   ui::WindowChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
   if (observer)
     observer->OnWindowDeActivated(handle);
 }
 
-void
-EventConverterInProcess::NotifyWindowActivated(unsigned handle) {
+void EventConverterInProcess::NotifyWindowActivated(unsigned handle) {
   ui::WindowChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
   if (observer)
     observer->OnWindowActivated(handle);
 }
 
-void
-EventConverterInProcess::NotifyCommit(unsigned handle,
-                                      const std::string& text) {
+void EventConverterInProcess::NotifyCommit(unsigned handle,
+                                           const std::string& text) {
   ui::IMEChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetIMEChangeObserver();
   if (observer)
     observer->OnCommit(handle, text);
 }
 
-void
-EventConverterInProcess::NotifyPreeditChanged(unsigned handle,
-                                              const std::string& text,
-                                              const std::string& commit) {
+void EventConverterInProcess::NotifyPreeditChanged(unsigned handle,
+                                                   const std::string& text,
+                                                   const std::string& commit) {
   ui::IMEChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetIMEChangeObserver();
   if (observer)
     observer->OnPreeditChanged(handle, text, commit);
 }
 
-void
-EventConverterInProcess::NotifyPreeditEnd(EventConverterInProcess* data) {
+void EventConverterInProcess::NotifyPreeditEnd() {
 }
 
-void
-EventConverterInProcess::NotifyPreeditStart(EventConverterInProcess* data) {
+void EventConverterInProcess::NotifyPreeditStart() {
 }
 
 }  // namespace ui

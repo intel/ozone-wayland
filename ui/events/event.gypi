@@ -9,7 +9,6 @@
     'event_converter_in_process.h',
     'event_converter_in_process.cc',
     'event_converter_ozone_wayland.h',
-    'event_converter_ozone_wayland.cc',
     'event_factory_ozone_wayland.h',
     'event_factory_ozone_wayland.cc',
     'ime_change_observer.h',

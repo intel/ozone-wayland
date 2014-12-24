@@ -72,50 +72,44 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   // Post a task to dispatch an event.
   void PostUiEvent(scoped_ptr<Event> event);
 
-  static void NotifyMotion(EventConverterInProcess* data,
-                           float x,
-                           float y);
-  static void NotifyButtonPress(EventConverterInProcess* data,
-                                unsigned handle,
-                                ui::EventType type,
-                                ui::EventFlags flags,
-                                float x,
-                                float y);
-  static void NotifyAxis(EventConverterInProcess* data,
+  void NotifyMotion(float x,
+                    float y);
+  void NotifyButtonPress(unsigned handle,
+                         ui::EventType type,
+                         ui::EventFlags flags,
                          float x,
-                         float y,
-                         int xoffset,
-                         int yoffset);
-  static void NotifyPointerEnter(EventConverterInProcess* data,
-                                 unsigned handle,
-                                 float x,
-                                 float y);
-  static void NotifyPointerLeave(EventConverterInProcess* data,
-                                 unsigned handle,
-                                 float x,
-                                 float y);
-  static void NotifyTouchEvent(EventConverterInProcess* data,
-                               ui::EventType type,
-                               float x,
-                               float y,
-                               int32_t touch_id,
-                               uint32_t time_stamp);
-  static void NotifyCloseWidget(unsigned handle);
-  static void NotifyOutputSizeChanged(unsigned width,
-                                      unsigned height);
-  static void NotifyWindowResized(unsigned handle,
-                                  unsigned width,
-                                  unsigned height);
-  static void NotifyWindowUnminimized(unsigned handle);
-  static void NotifyWindowDeActivated(unsigned handle);
-  static void NotifyWindowActivated(unsigned handle);
-  static void NotifyCommit(unsigned handle,
-                           const std::string& text);
-  static void NotifyPreeditChanged(unsigned handle,
-                                   const std::string& text,
-                                   const std::string& commit);
-  static void NotifyPreeditEnd(EventConverterInProcess* data);
-  static void NotifyPreeditStart(EventConverterInProcess* data);
+                         float y);
+  void NotifyAxis(float x,
+                  float y,
+                  int xoffset,
+                  int yoffset);
+  void NotifyPointerEnter(unsigned handle,
+                          float x,
+                          float y);
+  void NotifyPointerLeave(unsigned handle,
+                          float x,
+                          float y);
+  void NotifyTouchEvent(ui::EventType type,
+                        float x,
+                        float y,
+                        int32_t touch_id,
+                        uint32_t time_stamp);
+  void NotifyCloseWidget(unsigned handle);
+  void NotifyOutputSizeChanged(unsigned width,
+                               unsigned height);
+  void NotifyWindowResized(unsigned handle,
+                           unsigned width,
+                           unsigned height);
+  void NotifyWindowUnminimized(unsigned handle);
+  void NotifyWindowDeActivated(unsigned handle);
+  void NotifyWindowActivated(unsigned handle);
+  void NotifyCommit(unsigned handle,
+                    const std::string& text);
+  void NotifyPreeditChanged(unsigned handle,
+                            const std::string& text,
+                            const std::string& commit);
+  void NotifyPreeditEnd();
+  void NotifyPreeditStart();
 
   // Modifier key state (shift, ctrl, etc).
   EventModifiersEvdev modifiers_;

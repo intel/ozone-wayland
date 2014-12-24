@@ -25,8 +25,8 @@ class OutputChangeObserver;
 //    WindowChangeObserver
 class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
  public:
-  EventConverterOzoneWayland();
-  virtual ~EventConverterOzoneWayland();
+  EventConverterOzoneWayland() { }
+  virtual ~EventConverterOzoneWayland() { }
 
   virtual void ChannelEstablished(IPC::Sender* sender) { }
   virtual void MotionNotify(float x, float y) = 0;
@@ -63,11 +63,6 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void PreeditStart() = 0;
   virtual void InitializeXKB(base::SharedMemoryHandle fd,
                              uint32_t size) = 0;
-
- protected:
-  // Posts task to main loop of the thread on which Dispatcher was initialized.
-  virtual void PostTaskOnMainLoop(const base::Closure& task);
-  base::MessageLoop* loop_;
 };
 
 }  // namespace ui
