@@ -4,24 +4,28 @@
 
 #include "ozone/ui/events/event_converter_in_process.h"
 
+#include <sys/mman.h>
+
 #include "base/bind.h"
+#include "base/thread_task_runner_handle.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_change_observer.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
+#include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
 
 namespace ui {
 
-const double KAutoRepeatInitialTimer = 1;
-const double KAutoRepeatTimer = 0.5;
-
 EventConverterInProcess::EventConverterInProcess()
     : EventConverterOzoneWayland(),
-      backend_(NULL) {
+      weak_ptr_factory_(this) {
+  callback_ = base::Bind(&EventConverterInProcess::PostUiEvent,
+                         weak_ptr_factory_.GetWeakPtr());
+  keyboard_.reset(new KeyboardEvdev(&modifiers_,
+      KeyboardLayoutEngineManager::GetKeyboardLayoutEngine(), callback_));
 }
 
 EventConverterInProcess::~EventConverterInProcess() {
-  delete backend_;
 }
 
 void EventConverterInProcess::MotionNotify(float x, float y) {
@@ -63,37 +67,12 @@ void EventConverterInProcess::PointerLeave(unsigned handle,
 
 void EventConverterInProcess::KeyNotify(ui::EventType type,
                                         unsigned code) {
-  VirtualKeyNotify(type, code, backend_->GetKeyBoardModifiers());
+  VirtualKeyNotify(type, code);
 }
 
 void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
-                                               uint32_t key,
-                                               uint32_t modifiers) {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyKeyEvent, this, type,
-          backend_->KeyboardCodeFromNativeKeysym(key),
-              backend_->CharacterCodeFromNativeKeySym(key, modifiers),
-                  modifiers));
-  if (type != ui::ET_KEY_RELEASED) {
-    if (timer_.IsRunning())
-      return;
-
-    timer_.Start(
-        FROM_HERE, base::TimeDelta::FromSeconds(KAutoRepeatInitialTimer), this,
-            &EventConverterInProcess::RepeatAutoKey);
-  } else if (timer_.IsRunning()) {
-      timer_.Stop();
-  }
-}
-
-void EventConverterInProcess::KeyModifiers(uint32_t mods_depressed,
-                                           uint32_t mods_latched,
-                                           uint32_t mods_locked,
-                                           uint32_t group) {
-  backend_->OnKeyModifiers(mods_depressed,
-                           mods_latched,
-                           mods_locked,
-                           group);
+                                               uint32_t key) {
+  keyboard_->OnKeyChange(key, type != ui::ET_KEY_RELEASED);
 }
 
 void EventConverterInProcess::TouchNotify(ui::EventType type,
@@ -165,35 +144,37 @@ void EventConverterInProcess::PreeditStart() {
 
 void EventConverterInProcess::InitializeXKB(base::SharedMemoryHandle fd,
                                             uint32_t size) {
-  if (backend_) {
-    delete backend_;
-    backend_ = NULL;
-  }
+  char* map_str =
+      reinterpret_cast<char*>(mmap(NULL,
+                                   size,
+                                   PROT_READ,
+                                   MAP_SHARED,
+                                   fd.fd,
+                                   0));
+  if (map_str == MAP_FAILED)
+    return;
 
-  backend_ = new ui::KeyboardEngineXKB();
-  backend_->OnKeyboardKeymap(fd.fd, size);
+  KeyboardLayoutEngineManager::GetKeyboardLayoutEngine()->
+      SetCurrentLayoutByName(map_str);
+  munmap(map_str, size);
   close(fd.fd);
+}
+
+void EventConverterInProcess::PostUiEvent(scoped_ptr<Event> event) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&EventConverterInProcess::DispatchUiEventTask,
+                 weak_ptr_factory_.GetWeakPtr(),
+                 base::Passed(&event)));
+}
+
+void EventConverterInProcess::DispatchUiEventTask(scoped_ptr<Event> event) {
+  DispatchEvent(event.get());
 }
 
 void EventConverterInProcess::OnDispatcherListChanged() {
   if (!loop_)
     loop_ = base::MessageLoop::current();
-}
-
-void EventConverterInProcess::RepeatAutoKey() {
-  ui::EventConverterOzoneWayland::PostTaskOnMainLoop(base::Bind(
-      &EventConverterInProcess::NotifyKeyEvent, this, ui::ET_KEY_PRESSED,
-          backend_->GetLastKeyboardCode(),
-              backend_->GetLastCharacterCode(),
-                  backend_->GetKeyBoardModifiers()));
-  base::TimeDelta delta = base::TimeDelta::FromSeconds(KAutoRepeatTimer);
-  if (timer_.GetCurrentDelay() != delta) {
-    timer_.Stop();
-    timer_.Start(FROM_HERE,
-                 delta,
-                 this,
-                 &EventConverterInProcess::RepeatAutoKey);
-  }
 }
 
 void EventConverterInProcess::NotifyMotion(EventConverterInProcess* data,
@@ -265,16 +246,6 @@ void EventConverterInProcess::NotifyPointerLeave(
   gfx::Point position(x, y);
   ui::MouseEvent mouseev(ui::ET_MOUSE_EXITED, position, position, 0, 0);
   data->DispatchEvent(&mouseev);
-}
-
-void EventConverterInProcess::NotifyKeyEvent(EventConverterInProcess* data,
-                                             ui::EventType type,
-                                             ui::KeyboardCode code,
-                                             uint16 CharacterCodeFromNativeKey,
-                                             unsigned modifiers) {
-  ui::KeyEvent keyev(type, code, modifiers);
-  keyev.set_character(CharacterCodeFromNativeKey);
-  data->DispatchEvent(&keyev);
 }
 
 void EventConverterInProcess::NotifyTouchEvent(EventConverterInProcess* data,

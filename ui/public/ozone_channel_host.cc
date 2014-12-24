@@ -56,7 +56,6 @@ bool OzoneChannelHost::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, OnPointerLeave)
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, OnKeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, OnVirtualKeyNotify)
-  IPC_MESSAGE_HANDLER(WaylandInput_KeyModifiers, OnKeyModifiers)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OnOutputSizeChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, OnCloseWidget)
   IPC_MESSAGE_HANDLER(WaylandWindow_Resized, OnWindowResized)
@@ -119,19 +118,8 @@ void OzoneChannelHost::OnKeyNotify(ui::EventType type,
 }
 
 void OzoneChannelHost::OnVirtualKeyNotify(ui::EventType type,
-                                          uint32_t key,
-                                          uint32_t modifiers) {
-  event_converter_->VirtualKeyNotify(type, key, modifiers);
-}
-
-void OzoneChannelHost::OnKeyModifiers(uint32_t mods_depressed,
-                                      uint32_t mods_latched,
-                                      uint32_t mods_locked,
-                                      uint32_t group) {
-  event_converter_->KeyModifiers(mods_depressed,
-                                 mods_latched,
-                                 mods_locked,
-                                 group);
+                                          uint32_t key) {
+  event_converter_->VirtualKeyNotify(type, key);
 }
 
 void OzoneChannelHost::OnOutputSizeChanged(unsigned width,

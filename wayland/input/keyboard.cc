@@ -94,11 +94,6 @@ void WaylandKeyboard::OnKeyModifiers(void *data,
                                      uint32_t mods_latched,
                                      uint32_t mods_locked,
                                      uint32_t group) {
-  WaylandKeyboard* device = static_cast<WaylandKeyboard*>(data);
-  device->dispatcher_->KeyModifiers(mods_depressed,
-                                   mods_latched,
-                                   mods_locked,
-                                   group);
 }
 
 }  // namespace ozonewayland

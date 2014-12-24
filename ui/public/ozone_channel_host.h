@@ -46,12 +46,7 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
   void OnPointerLeave(unsigned handle, float x, float y);
   void OnKeyNotify(ui::EventType type, unsigned code);
   void OnVirtualKeyNotify(ui::EventType type,
-                          uint32_t key,
-                          uint32_t modifiers);
-  void OnKeyModifiers(uint32_t mods_depressed,
-                      uint32_t mods_latched,
-                      uint32_t mods_locked,
-                      uint32_t group);
+                          uint32_t key);
   void OnOutputSizeChanged(unsigned width, unsigned height);
   void OnCloseWidget(unsigned handle);
   void OnWindowResized(unsigned handle,

@@ -41,12 +41,7 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void KeyNotify(ui::EventType type,
                          unsigned code) = 0;
   virtual void VirtualKeyNotify(ui::EventType type,
-                                uint32_t key,
-                                uint32_t modifiers) = 0;
-  virtual void KeyModifiers(uint32_t mods_depressed,
-                            uint32_t mods_latched,
-                            uint32_t mods_locked,
-                            uint32_t group) = 0;
+                                uint32_t key) = 0;
   virtual void TouchNotify(ui::EventType type,
                            float x,
                            float y,

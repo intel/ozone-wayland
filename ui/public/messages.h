@@ -38,17 +38,10 @@ IPC_MESSAGE_CONTROL2(WaylandInput_KeyNotify,  // NOLINT(readability/fn_size)
                      ui::EventType /*type*/,
                      unsigned /*code*/)
 
-IPC_MESSAGE_CONTROL3(  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL2(  // NOLINT(readability/fn_size)
     WaylandInput_VirtualKeyNotify,
     ui::EventType /*type*/,
-    uint32_t /*key*/,
-    uint32_t /*modifiers*/)
-
-IPC_MESSAGE_CONTROL4(WaylandInput_KeyModifiers,  // NOLINT(readability/fn_size)
-                     uint32_t /*mods_depressed*/,
-                     uint32_t /*mods_latched*/,
-                     uint32_t /*mods_locked*/,
-                     uint32_t /*group*/)
+    uint32_t /*key*/)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,

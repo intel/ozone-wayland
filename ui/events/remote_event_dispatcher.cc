@@ -59,19 +59,8 @@ void RemoteEventDispatcher::KeyNotify(ui::EventType type,
 }
 
 void RemoteEventDispatcher::VirtualKeyNotify(ui::EventType type,
-                                             uint32_t key,
-                                             uint32_t modifiers) {
-  Dispatch(new WaylandInput_VirtualKeyNotify(type, key, modifiers));
-}
-
-void RemoteEventDispatcher::KeyModifiers(uint32_t mods_depressed,
-                                         uint32_t mods_latched,
-                                         uint32_t mods_locked,
-                                         uint32_t group) {
-  Dispatch(new WaylandInput_KeyModifiers(mods_depressed,
-                                         mods_latched,
-                                         mods_locked,
-                                         group));
+                                             uint32_t key) {
+  Dispatch(new WaylandInput_VirtualKeyNotify(type, key));
 }
 
 void RemoteEventDispatcher::TouchNotify(ui::EventType type,

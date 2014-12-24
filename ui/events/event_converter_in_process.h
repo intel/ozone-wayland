@@ -10,12 +10,14 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/timer/timer.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
-#include "ozone/ui/events/keyboard_engine_xkb.h"
 #include "ui/events/event.h"
+#include "ui/events/ozone/evdev/event_modifiers_evdev.h"
+#include "ui/events/ozone/evdev/keyboard_evdev.h"
 #include "ui/events/platform/platform_event_source.h"
 
 namespace ui {
 
+class KeyboardEvdev;
 class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                 public ui::PlatformEventSource {
  public:
@@ -37,12 +39,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   void KeyNotify(ui::EventType type,
                  unsigned code) override;
   void VirtualKeyNotify(ui::EventType type,
-                        uint32_t key,
-                        uint32_t modifiers) override;
-  void KeyModifiers(uint32_t mods_depressed,
-                    uint32_t mods_latched,
-                    uint32_t mods_locked,
-                    uint32_t group) override;
+                        uint32_t key) override;
   void TouchNotify(ui::EventType type,
                    float x,
                    float y,
@@ -69,7 +66,12 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
  private:
   // PlatformEventSource:
   void OnDispatcherListChanged() override;
-  void RepeatAutoKey();
+
+  // Dispatch event via PlatformEventSource.
+  void DispatchUiEventTask(scoped_ptr<Event> event);
+  // Post a task to dispatch an event.
+  void PostUiEvent(scoped_ptr<Event> event);
+
   static void NotifyMotion(EventConverterInProcess* data,
                            float x,
                            float y);
@@ -92,11 +94,6 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                  unsigned handle,
                                  float x,
                                  float y);
-  static void NotifyKeyEvent(EventConverterInProcess* data,
-                             ui::EventType type,
-                             ui::KeyboardCode code,
-                             uint16 CharacterCodeFromNativeKey,
-                             unsigned modifiers);
   static void NotifyTouchEvent(EventConverterInProcess* data,
                                ui::EventType type,
                                float x,
@@ -120,10 +117,14 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   static void NotifyPreeditEnd(EventConverterInProcess* data);
   static void NotifyPreeditStart(EventConverterInProcess* data);
 
-  ui::KeyboardEngineXKB* backend_;
-  base::RepeatingTimer<EventConverterInProcess> timer_;
-  base::Callback<void(void*)> dispatch_callback_;  // NOLINT(readability/
-                                                   // function)
+  // Modifier key state (shift, ctrl, etc).
+  EventModifiersEvdev modifiers_;
+  // Keyboard state.
+  scoped_ptr<KeyboardEvdev> keyboard_;
+  // Callback for dispatching events.
+  EventDispatchCallback callback_;
+  // Support weak pointers for attach & detach callbacks.
+  base::WeakPtrFactory<EventConverterInProcess> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(EventConverterInProcess);
 };
 

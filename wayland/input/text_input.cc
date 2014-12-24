@@ -100,7 +100,7 @@ void WaylandTextInput::OnKeysym(void* data,
 
   ui::EventConverterOzoneWayland* dispatcher =
           ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
-  dispatcher->VirtualKeyNotify(type, key, modifiers);
+  dispatcher->VirtualKeyNotify(type, key);
 }
 
 void WaylandTextInput::OnEnter(void* data,

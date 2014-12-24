@@ -9,6 +9,7 @@
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/ui/events/keyboard_engine_xkb.h"
 #include "ozone/ui/ime/input_method_context_factory_wayland.h"
 #include "ozone/ui/public/ozone_channel.h"
 #include "ozone/ui/public/ozone_channel_host.h"
@@ -86,10 +87,9 @@ class OzonePlatformWayland : public OzonePlatform {
         new ui::InputMethodContextFactoryWayland());
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
     KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(make_scoped_ptr(
-        new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
+        new KeyboardEngineXKB(xkb_evdev_code_converter_)));
     event_factory_ozone_.reset(
-        new ui::EventFactoryOzoneWayland(
-            gpu_platform_host_.get()));
+        new ui::EventFactoryOzoneWayland(gpu_platform_host_.get()));
   }
 
   void InitializeGPU() override {

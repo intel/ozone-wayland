@@ -38,12 +38,7 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   void KeyNotify(ui::EventType type,
                  unsigned code) override;
   void VirtualKeyNotify(ui::EventType type,
-                        uint32_t key,
-                        uint32_t modifiers) override;
-  void KeyModifiers(uint32_t mods_depressed,
-                    uint32_t mods_latched,
-                    uint32_t mods_locked,
-                    uint32_t group) override;
+                        uint32_t key) override;
   void TouchNotify(ui::EventType type,
                    float x,
                    float y,
