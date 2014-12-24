@@ -13,11 +13,13 @@
 #include "ozone/ui/public/ozone_channel.h"
 #include "ozone/ui/public/ozone_channel_host.h"
 #include "ozone/wayland/display.h"
+#include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
+#include "ui/events/ozone/layout/xkb/xkb_evdev_codes.h"
+#include "ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h"
 #include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/system_input_injector.h"
 #include "ui/platform_window/platform_window_delegate.h"
-
 
 namespace ui {
 
@@ -78,21 +80,22 @@ class OzonePlatformWayland : public OzonePlatform {
       return;
 
     gpu_platform_host_.reset(new ui::OzoneChannelHost());
-    event_factory_ozone_.reset(
-        new ui::EventFactoryOzoneWayland(gpu_platform_host_.get()));
     // Needed as Browser creates accelerated widgets through SFO.
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
     input_method_factory_.reset(
         new ui::InputMethodContextFactoryWayland());
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
+    KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(make_scoped_ptr(
+        new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
+    event_factory_ozone_.reset(
+        new ui::EventFactoryOzoneWayland(
+            gpu_platform_host_.get()));
   }
 
   void InitializeGPU() override {
     gpu_platform_.reset(new ui::OzoneChannel());
-    if (!event_factory_ozone_) {
+    if (!event_factory_ozone_)
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
-      gpu_platform_.get()->InitializeRemoteDispatcher();
-    }
 
     if (!wayland_display_)
       wayland_display_.reset(new ozonewayland::WaylandDisplay());
@@ -108,6 +111,7 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::OzoneChannelHost> gpu_platform_host_;
   scoped_ptr<ui::OzoneChannel> gpu_platform_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
+  XkbEvdevCodes xkb_evdev_code_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
 

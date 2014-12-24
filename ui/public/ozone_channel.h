@@ -37,7 +37,6 @@ class OzoneChannel : public GpuPlatformSupport {
   void OnWidgetHideInputPanel();
 
  private:
-  RemoteEventDispatcher* event_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzoneChannel);
 };
 

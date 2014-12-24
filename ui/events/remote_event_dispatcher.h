@@ -21,7 +21,7 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   RemoteEventDispatcher();
   virtual ~RemoteEventDispatcher();
 
-  void ChannelEstablished(IPC::Sender* sender);
+  void ChannelEstablished(IPC::Sender* sender) override;
 
   void MotionNotify(float x, float y) override;
   void ButtonNotify(unsigned handle,

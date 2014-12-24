@@ -62,7 +62,7 @@ void WaylandScreen::OutputHandleMode(void* data,
     if (!WaylandDisplay::GetInstance())
       return;
 
-    ui::EventFactoryOzoneWayland::GetInstance()->EventConverter()->
+    ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter()->
         OutputSizeChanged(width, height);
   }
 }

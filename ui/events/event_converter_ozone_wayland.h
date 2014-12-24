@@ -9,6 +9,7 @@
 
 #include "base/memory/shared_memory.h"
 #include "base/message_loop/message_loop.h"
+#include "ipc/ipc_sender.h"
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ui/events/event_constants.h"
 
@@ -27,6 +28,7 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   EventConverterOzoneWayland();
   virtual ~EventConverterOzoneWayland();
 
+  virtual void ChannelEstablished(IPC::Sender* sender) { }
   virtual void MotionNotify(float x, float y) = 0;
   virtual void ButtonNotify(unsigned handle,
                             EventType type,

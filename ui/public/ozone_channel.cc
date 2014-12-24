@@ -4,29 +4,23 @@
 
 #include "ozone/ui/public/ozone_channel.h"
 
+#include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_state_change_handler.h"
-#include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/ui/public/messages.h"
 
 namespace ui {
 
-OzoneChannel::OzoneChannel() : event_converter_(NULL) {
+OzoneChannel::OzoneChannel() {
 }
 
 OzoneChannel::~OzoneChannel() {
 }
 
-void OzoneChannel::InitializeRemoteDispatcher() {
-  event_converter_ = new RemoteEventDispatcher();
-  ui::EventFactoryOzoneWayland::GetInstance()->
-      SetEventConverterOzoneWayland(event_converter_);
-}
-
 void OzoneChannel::OnChannelEstablished(IPC::Sender* sender) {
-  if (event_converter_)
-    event_converter_->ChannelEstablished(sender);
+  ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter()->
+      ChannelEstablished(sender);
 }
 
 bool OzoneChannel::OnMessageReceived(const IPC::Message& message) {

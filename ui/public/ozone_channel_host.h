@@ -13,7 +13,7 @@
 
 namespace ui {
 class RemoteStateChangeHandler;
-class EventConverterInProcess;
+class EventConverterOzoneWayland;
 class WindowStateChangeHandler;
 
 class OzoneChannelHost : public GpuPlatformSupportHost {
@@ -69,7 +69,7 @@ class OzoneChannelHost : public GpuPlatformSupportHost {
 
  private:
   RemoteStateChangeHandler* state_handler_;
-  EventConverterInProcess* event_converter_;
+  EventConverterOzoneWayland* event_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzoneChannelHost);
 };
 

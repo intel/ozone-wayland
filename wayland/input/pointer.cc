@@ -39,7 +39,8 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   if (!cursor_)
     cursor_ = new WaylandCursor(WaylandDisplay::GetInstance()->shm());
 
-  dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  dispatcher_ =
+      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !cursor_->GetInputPointer()) {
     input_pointer_ = wl_seat_get_pointer(seat);

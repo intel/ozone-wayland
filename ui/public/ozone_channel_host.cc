@@ -4,7 +4,7 @@
 
 #include "ozone/ui/public/ozone_channel_host.h"
 
-#include "ozone/ui/events/event_converter_in_process.h"
+#include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
 #include "ozone/ui/public/messages.h"
@@ -17,14 +17,12 @@ OzoneChannelHost::OzoneChannelHost()
 
 OzoneChannelHost::~OzoneChannelHost() {
   delete state_handler_;
-  delete event_converter_;
 }
 
 void OzoneChannelHost::Initialize() {
-  event_converter_ = new EventConverterInProcess();
   ui::EventFactoryOzoneWayland* event_factory =
       ui::EventFactoryOzoneWayland::GetInstance();
-  event_factory->SetEventConverterOzoneWayland(event_converter_);
+  event_converter_ = event_factory->GetEventConverter();
   state_handler_ = new RemoteStateChangeHandler();
 }
 

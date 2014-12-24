@@ -26,7 +26,8 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
     WaylandKeyboard::OnKeyModifiers,
   };
 
-  dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  dispatcher_ =
+      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
     input_keyboard_ = wl_seat_get_keyboard(seat);

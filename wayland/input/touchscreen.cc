@@ -34,7 +34,8 @@ void WaylandTouchscreen::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
     WaylandTouchscreen::OnTouchCancel,
   };
 
-  dispatcher_ = ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+  dispatcher_ =
+      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
 
   if ((caps & WL_SEAT_CAPABILITY_TOUCH)) {
     wl_touch_ = wl_seat_get_touch(seat);

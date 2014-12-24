@@ -35,7 +35,7 @@ void WaylandShellSurface::FlushDisplay() const {
 void WaylandShellSurface::PopupDone() {
   WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
   ui::EventConverterOzoneWayland* dispatcher =
-      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
 
   if (!input->GetGrabWindowHandle())
     return;
@@ -48,7 +48,7 @@ void WaylandShellSurface::WindowResized(void* data,
                                  unsigned height) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
   ui::EventConverterOzoneWayland* dispatcher =
-      ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
   dispatcher->WindowResized(window->Handle(), width, height);
 }
 
@@ -57,7 +57,7 @@ void WaylandShellSurface::WindowActivated(void *data) {
   WaylandShellSurface* shellSurface = window->ShellSurface();
 
   ui::EventConverterOzoneWayland* dispatcher =
-    ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+    ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
 
   if (shellSurface->IsMinimized()) {
     shellSurface->Unminimize();
@@ -70,7 +70,7 @@ void WaylandShellSurface::WindowActivated(void *data) {
 void WaylandShellSurface::WindowDeActivated(void *data) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
   ui::EventConverterOzoneWayland* dispatcher =
-    ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+    ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
   dispatcher->WindowDeActivated(window->Handle());
 }
 

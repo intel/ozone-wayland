@@ -38,7 +38,7 @@ void WaylandTextInput::OnCommitString(void* data,
                                       uint32_t serial,
                                       const char* text) {
   ui::EventConverterOzoneWayland* dispatcher =
-        ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+        ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
   DCHECK(static_cast<WaylandTextInput*>(data)->last_active_window_);
   dispatcher->Commit(static_cast<WaylandTextInput*>(data)->
       last_active_window_->Handle(), std::string(text));
@@ -50,7 +50,7 @@ void WaylandTextInput::OnPreeditString(void* data,
                                        const char* text,
                                        const char* commit) {
   ui::EventConverterOzoneWayland* dispatcher =
-         ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+         ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
   DCHECK(static_cast<WaylandTextInput*>(data)->last_active_window_);
   dispatcher->PreeditChanged(static_cast<WaylandTextInput*>(data)->
      last_active_window_->Handle(), std::string(text), std::string(commit));
@@ -99,7 +99,7 @@ void WaylandTextInput::OnKeysym(void* data,
     type = ui::ET_KEY_RELEASED;
 
   ui::EventConverterOzoneWayland* dispatcher =
-          ui::EventFactoryOzoneWayland::GetInstance()->EventConverter();
+          ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
   dispatcher->VirtualKeyNotify(type, key, modifiers);
 }
 
