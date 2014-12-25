@@ -8,17 +8,15 @@
 
 namespace media {
 
-TFPPicture::TFPPicture(
-    const base::Callback<bool(void)>& make_context_current, //NOLINT
-    VaapiWrapper* va_wrapper,
+VaapiPictureWayland::VaapiPictureWayland(
+    VaapiWrapper* vaapi_wrapper,
+    const base::Callback<bool(void)> make_context_current,
     int32 picture_buffer_id,
     uint32 texture_id,
-    gfx::Size size)
-    : make_context_current_(make_context_current),
-      va_wrapper_(va_wrapper),
-      picture_buffer_id_(picture_buffer_id),
-      texture_id_(texture_id),
-      size_(size),
+    const gfx::Size& size)
+    : VaapiPicture(picture_buffer_id, texture_id, size),
+      make_context_current_(make_context_current),
+      va_wrapper_(vaapi_wrapper),
       va_image_(new VAImage()),
       egl_display_(gfx::GLSurfaceEGL::GetHardwareDisplay()) {
   DCHECK(!make_context_current_.is_null());
@@ -27,32 +25,14 @@ TFPPicture::TFPPicture(
   std::string query =
       supports_valockBuffer_apis_ ? "supports" : "doesn't support";
   LOG(INFO) << "VAAPI " << query << " vaLockBuffer apis";
-  fprintf(stderr, "TFPPicture created..................... \n");
 }
 
-linked_ptr<TFPPicture>
-TFPPicture::Create(
-    const base::Callback<bool(void)>& make_context_current, //NOLINT
-    VaapiWrapper* va_wrapper,
-    int32 picture_buffer_id,
-    uint32 texture_id,
-    gfx::Size size) {
-  linked_ptr<TFPPicture> tfp_picture(
-      new TFPPicture(make_context_current, va_wrapper,
-                     picture_buffer_id, texture_id, size));
-
-  if (!tfp_picture->Initialize())
-    tfp_picture.reset();
-
-  return tfp_picture;
-}
-
-bool TFPPicture::Initialize() {
+bool VaapiPictureWayland::Initialize() {
   DCHECK(CalledOnValidThread());
   if (!make_context_current_.Run())
     return false;
 
-  if (!va_wrapper_->CreateRGBImage(size_, va_image_.get())) {
+  if (!va_wrapper_->CreateRGBImage(size(), va_image_.get())) {
     DVLOG(1) << "Failed to create VAImage";
     return false;
   }
@@ -60,7 +40,7 @@ bool TFPPicture::Initialize() {
   return true;
 }
 
-TFPPicture::~TFPPicture() {
+VaapiPictureWayland::~VaapiPictureWayland() {
   DCHECK(CalledOnValidThread());
 
   if (supports_valockBuffer_apis_ && egl_image_ != EGL_NO_IMAGE_KHR)
@@ -71,7 +51,7 @@ TFPPicture::~TFPPicture() {
   }
 }
 
-bool TFPPicture::UpdateEGLImage(
+bool VaapiPictureWayland::UpdateEGLImage(
     VASurfaceID surface) {
   DCHECK(CalledOnValidThread());
 
@@ -90,12 +70,12 @@ bool TFPPicture::UpdateEGLImage(
   return true;
 }
 
-bool TFPPicture::Upload(VASurfaceID surface) {
+bool VaapiPictureWayland::Upload(VASurfaceID surface) {
   DCHECK(CalledOnValidThread());
 
   if (!make_context_current_.Run())
     return false;
-fprintf(stderr, "using slow upload..................... \n");
+
   if (!va_wrapper_->PutSurfaceIntoImage(surface, va_image_.get())) {
     DVLOG(1) << "Failed to put va surface to image";
     return false;
@@ -107,7 +87,7 @@ fprintf(stderr, "using slow upload..................... \n");
     return false;
   }
 
-  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id_);
+  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id());
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -115,12 +95,14 @@ fprintf(stderr, "using slow upload..................... \n");
   // The following small piece of code is a workaround for the current VDA
   // texture output implementation. It can be removed when zero buffer copy
   // is implemented.
-  unsigned int al = 4 * size_.width();
+  int picture_width = size().width();
+  int picture_height = size().height();
+  unsigned int al = 4 * picture_width;
   if (al != va_image_->pitches[0]) {
     // Not aligned phenomenon occurs only in special size video in None-X11.
     // So re-check RGBA data alignment and realign filled video frame in need.
     unsigned char* bhandle = static_cast<unsigned char*>(buffer);
-    for (int i = 0; i < size_.height(); i++) {
+    for (int i = 0; i < picture_height; i++) {
       memcpy(bhandle + (i * al), bhandle + (i * (va_image_->pitches[0])), al);
     }
   }
@@ -128,8 +110,8 @@ fprintf(stderr, "using slow upload..................... \n");
   glTexImage2D(GL_TEXTURE_2D,
                0,
                GL_BGRA,
-               size_.width(),
-               size_.height(),
+               picture_width,
+               picture_height,
                0,
                GL_BGRA,
                GL_UNSIGNED_BYTE,
@@ -140,19 +122,19 @@ fprintf(stderr, "using slow upload..................... \n");
   return true;
 }
 
-bool TFPPicture::Bind() {
+bool VaapiPictureWayland::Bind() {
   DCHECK(CalledOnValidThread());
   if (!make_context_current_.Run())
     return false;
 
-  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id_);
+  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id());
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, egl_image_);
   return true;
 }
 
-EGLImageKHR TFPPicture::CreateEGLImage(
+EGLImageKHR VaapiPictureWayland::CreateEGLImage(
     EGLDisplay egl_display, VASurfaceID va_surface, VAImage* va_image) {
   DCHECK(CalledOnValidThread());
   DCHECK(va_image);
@@ -190,12 +172,12 @@ EGLImageKHR TFPPicture::CreateEGLImage(
   return egl_image;
 }
 
-bool TFPPicture::DestroyEGLImage(
+bool VaapiPictureWayland::DestroyEGLImage(
     EGLDisplay egl_display, EGLImageKHR egl_image) {
   return eglDestroyImageKHR(egl_display, egl_image);
 }
 
-bool TFPPicture::DownloadFromSurface(
+bool VaapiPictureWayland::DownloadFromSurface(
     const scoped_refptr<VASurface>& va_surface) {
   if (supports_valockBuffer_apis_) {
     if (!va_wrapper_->PutSurfaceIntoImage(va_surface->id(), va_image_.get()))

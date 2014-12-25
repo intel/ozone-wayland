@@ -9,7 +9,7 @@
 #include "base/bind_helpers.h"
 #include "base/numerics/safe_conversions.h"
 #include "base/stl_util.h"
-#include "vaapi_h264_decoder.h"
+#include "ozone/media/vaapi_h264_decoder.h"
 
 namespace media {
 
@@ -488,8 +488,8 @@ bool VaapiH264Decoder::DecodePicture() {
     return false;
   }
 
-  if (!vaapi_wrapper_->DecodeAndDestroyPendingBuffers(
-      dec_surface->va_surface()->id())) {
+  if (!vaapi_wrapper_->ExecuteAndDestroyPendingBuffers(
+          dec_surface->va_surface()->id())) {
     DVLOG(1) << "Failed decoding picture";
     return false;
   }
@@ -1675,6 +1675,16 @@ VaapiH264Decoder::DecResult VaapiH264Decoder::Decode() {
           SET_ERROR_AND_RETURN();
         break;
       }
+
+      case media::H264NALU::kAUD:
+      case media::H264NALU::kEOSeq:
+      case media::H264NALU::kEOStream:
+        if (state_ != kDecoding)
+          break;
+        if (!FinishPrevFrameIfPresent())
+          SET_ERROR_AND_RETURN();
+
+        break;
 
       default:
         DVLOG(4) << "Skipping NALU type: " << nalu.nal_unit_type;

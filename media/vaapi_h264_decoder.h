@@ -15,10 +15,10 @@
 #include "base/memory/linked_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "h264_dpb.h"
+#include "ozone/media/h264_dpb.h"
+#include "ozone/media/vaapi_wrapper.h"
 #include "media/base/limits.h"
 #include "media/filters/h264_parser.h"
-#include "vaapi_wrapper.h"
 
 namespace media {
 

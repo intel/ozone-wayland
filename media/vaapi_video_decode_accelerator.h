@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 The Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -21,19 +21,17 @@
 #include "base/message_loop/message_loop.h"
 #include "base/synchronization/condition_variable.h"
 #include "base/synchronization/lock.h"
-#include "base/threading/non_thread_safe.h"
 #include "base/threading/thread.h"
 #include "content/common/content_export.h"
+#include "ozone/media/vaapi_h264_decoder.h"
+#include "ozone/media/vaapi_wrapper.h"
 #include "media/base/bitstream_buffer.h"
 #include "media/video/picture.h"
 #include "media/video/video_decode_accelerator.h"
-#include "vaapi_h264_decoder.h"
-#include "ozone/media/vaapi_wrapper.h"
 
 namespace media {
 
-// Represents a texture bound to an X Pixmap for output purposes.
-class TFPPicture;
+class VaapiPicture;
 
 // Class to provide video decode acceleration for Intel systems with hardware
 // support for it, and on which libva is available.
@@ -47,20 +45,20 @@ class VaapiVideoDecodeAccelerator
     : public media::VideoDecodeAccelerator {
  public:
   VaapiVideoDecodeAccelerator(
-      const base::Callback<bool(void)>& make_context_current); //NOLINT
-  virtual  ~VaapiVideoDecodeAccelerator();
+      const base::Callback<bool(void)>& make_context_current);
+  virtual ~VaapiVideoDecodeAccelerator();
 
   // media::VideoDecodeAccelerator implementation.
-   bool Initialize(media::VideoCodecProfile profile,
-                          Client* client) override;
-   void Decode(const media::BitstreamBuffer& bitstream_buffer) override;
-   void AssignPictureBuffers(
+  bool Initialize(media::VideoCodecProfile profile,
+                  Client* client) override;
+  void Decode(const media::BitstreamBuffer& bitstream_buffer) override;
+  void AssignPictureBuffers(
       const std::vector<media::PictureBuffer>& buffers) override;
-   void ReusePictureBuffer(int32 picture_buffer_id) override;
-   void Flush() override;
-   void Reset() override;
-   void Destroy() override;
-   bool CanDecodeOnIOThread() override;
+  void ReusePictureBuffer(int32 picture_buffer_id) override;
+  void Flush() override;
+  void Reset() override;
+  void Destroy() override;
+  bool CanDecodeOnIOThread() override;
 
 private:
   // Notify the client that an error has occurred and decoding cannot continue.
@@ -126,12 +124,12 @@ private:
   void SurfaceReady(int32 input_id, const scoped_refptr<VASurface>& va_surface);
 
   // Callback to be executed once we have a |va_surface| to be output and
-  // an available |tfp_picture| to use for output.
-  // Puts contents of |va_surface| into given |tfp_picture|, releases the
+  // an available |picture| to use for output.
+  // Puts contents of |va_surface| into given |picture|, releases the
   // surface and passes the resulting picture to client for output.
   void OutputPicture(const scoped_refptr<VASurface>& va_surface,
                      int32 input_id,
-                     TFPPicture* tfp_picture);
+                     VaapiPicture* picture);
 
   // Try to OutputPicture() if we have both a ready surface and picture.
   void TryOutputSurface();
@@ -147,7 +145,8 @@ private:
   // Check if the surfaces have been released or post ourselves for later.
   void TryFinishSurfaceSetChange();
 
-  base::Callback<bool(void)> make_context_current_; //NOLINT
+  // Client-provided GL state.
+  base::Callback<bool(void)> make_context_current_;
 
   // VAVDA state.
   enum State {
@@ -192,13 +191,17 @@ private:
   typedef std::queue<int32> OutputBuffers;
   OutputBuffers output_buffers_;
 
-  typedef std::map<int32, linked_ptr<TFPPicture> > TFPPictures;
-  // All allocated TFPPictures, regardless of their current state. TFPPictures
-  // are allocated once and destroyed at the end of decode.
-  TFPPictures tfp_pictures_;
+  scoped_ptr<VaapiWrapper> vaapi_wrapper_;
 
-  // Return a TFPPicture associated with given client-provided id.
-  TFPPicture* TFPPictureById(int32 picture_buffer_id);
+  typedef std::map<int32, linked_ptr<VaapiPicture>> Pictures;
+  // All allocated Pictures, regardless of their current state.
+  // Pictures are allocated once and destroyed at the end of decode.
+  // Comes after vaapi_wrapper_ to ensure all pictures are destroyed
+  // before vaapi_wrapper_ is destroyed.
+  Pictures pictures_;
+
+  // Return a VaapiPicture associated with given client-provided id.
+  VaapiPicture* PictureById(int32 picture_buffer_id);
 
   // VA Surfaces no longer in use that can be passed back to the decoder for
   // reuse, once it requests them.
@@ -208,15 +211,15 @@ private:
   base::ConditionVariable surfaces_available_;
 
   // Pending output requests from the decoder. When it indicates that we should
-  // output a surface and we have an available TFPPicture (i.e. texture) ready
-  // to use, we'll execute the callback passing the TFPPicture. The callback
+  // output a surface and we have an available Picture (i.e. texture) ready
+  // to use, we'll execute the callback passing the Picture. The callback
   // will put the contents of the surface into the picture and return it to
   // the client, releasing the surface as well.
-  // If we don't have any available TFPPictures at the time when the decoder
+  // If we don't have any available Pictures at the time when the decoder
   // requests output, we'll store the request on pending_output_cbs_ queue for
   // later and run it once the client gives us more textures
   // via ReusePictureBuffer().
-  typedef base::Callback<void(TFPPicture*)> OutputCB;
+  typedef base::Callback<void(VaapiPicture*)> OutputCB;
   std::queue<OutputCB> pending_output_cbs_;
 
   // ChildThread's message loop
@@ -237,8 +240,6 @@ private:
   // NOTE: all calls to these objects *MUST* be executed on message_loop_.
   scoped_ptr<base::WeakPtrFactory<Client> > client_ptr_factory_;
   base::WeakPtr<Client> client_;
-
-  scoped_ptr<VaapiWrapper> vaapi_wrapper_;
 
   // Comes after vaapi_wrapper_ to ensure its destructor is executed before
   // vaapi_wrapper_ is destroyed.
@@ -266,9 +267,6 @@ private:
 
   // The WeakPtrFactory for |weak_this_|.
   base::WeakPtrFactory<VaapiVideoDecodeAccelerator> weak_this_factory_;
-
-  // Whether VaapiWrapper supports vaLockBuffer apis.
-  bool supports_valockBuffer_apis_;
 
   DISALLOW_COPY_AND_ASSIGN(VaapiVideoDecodeAccelerator);
 };

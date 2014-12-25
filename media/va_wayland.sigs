@@ -25,6 +25,7 @@ VAStatus vaGetImage(VADisplay dpy, VASurfaceID surface, int x, int y, unsigned i
 VAStatus vaInitialize(VADisplay dpy, int *major_version, int *minor_version);
 VAStatus vaMapBuffer(VADisplay dpy, VABufferID buf_id, void **pbuf);
 int vaMaxNumProfiles(VADisplay dpy);
+int vaMaxNumEntrypoints (VADisplay dpy);
 VAStatus vaQueryConfigProfiles(VADisplay dpy, VAProfile *profile_list, int *num_profiles);
 VAStatus vaQueryImageFormats(VADisplay dpy, VAImageFormat *format_list, int *num_formats);
 VAStatus vaRenderPicture(VADisplay dpy, VAContextID context, VABufferID *buffers, int num_buffers);
@@ -34,6 +35,7 @@ VAStatus vaTerminate(VADisplay dpy);
 VAStatus vaUnmapBuffer(VADisplay dpy, VABufferID buf_id);
 VAStatus vaLockBuffer(VADisplay dpy, VABufferID buf_id, VABufferInfo *buf_info_ptr);
 VAStatus vaUnlockBuffer(VADisplay dpy, VABufferID buf_id, VABufferInfo *buf_info_ptr);
+VAStatus vaQueryConfigEntrypoints (VADisplay dpy, VAProfile profile, VAEntrypoint *entrypoint_list, int *num_entrypoints);
 
 #------------------------------------------------
 # Functions from libva-wayland used in chromium code.

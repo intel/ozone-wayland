@@ -11,6 +11,8 @@
     'va_surface.h',
     'vaapi_h264_decoder.cc',
     'vaapi_h264_decoder.h',
+    'vaapi_picture.cc',
+    'vaapi_picture.h',
     'vaapi_tfp_picture_wayland.cc',
     'vaapi_tfp_picture_wayland.h',
     'vaapi_video_decode_accelerator.cc',
@@ -30,6 +32,7 @@
   },
   'dependencies': [
     '<(DEPTH)/ui/gl/gl.gyp:gl',
+    '<(DEPTH)/third_party/libyuv/libyuv.gyp:libyuv',
   ],
   'include_dirs': [
     '<(DEPTH)/third_party/libva',

@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 #include "base/stl_util.h"
-#include "h264_dpb.h"
+#include "ozone/media/h264_dpb.h"
 
 namespace media {
 
