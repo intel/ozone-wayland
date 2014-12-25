@@ -10,6 +10,11 @@
 #define __STDC_FORMAT_MACROS
 #endif
 
+#define wl_array_for_each_type(type, pos, array) \
+  for (type *pos = reinterpret_cast<type*>((array)->data); \
+       reinterpret_cast<const char*>(pos) < (reinterpret_cast<const char*>((array)->data) + (array)->size); \
+       pos++)
+
 #include <wayland-client.h>
 #include <list>
 #include <map>
