@@ -11,6 +11,8 @@
     'va_surface.h',
     'vaapi_h264_decoder.cc',
     'vaapi_h264_decoder.h',
+    'vaapi_tfp_picture_wayland.cc',
+    'vaapi_tfp_picture_wayland.h',
     'vaapi_video_decode_accelerator.cc',
     'vaapi_video_decode_accelerator.h',
     'vaapi_wrapper.cc',

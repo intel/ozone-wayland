@@ -22,7 +22,7 @@ using media_media::InitializeStubs;
 using media_media::StubPathMap;
 
 static const base::FilePath::CharType kVaLib[] =
-    FILE_PATH_LITERAL("libva-wayland.so.1");
+    FILE_PATH_LITERAL("/home/kalyan/install/lib/libva-wayland.so.1.3400.0");
 
 static const char kVaLockBufferSymbol[] = "vaLockBuffer";
 static const char kVaUnlockBufferSymbol[] = "vaUnlockBuffer";

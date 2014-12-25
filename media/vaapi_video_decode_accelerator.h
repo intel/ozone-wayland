@@ -28,9 +28,12 @@
 #include "media/video/picture.h"
 #include "media/video/video_decode_accelerator.h"
 #include "vaapi_h264_decoder.h"
-#include "vaapi_wrapper.h"
+#include "ozone/media/vaapi_wrapper.h"
 
 namespace media {
+
+// Represents a texture bound to an X Pixmap for output purposes.
+class TFPPicture;
 
 // Class to provide video decode acceleration for Intel systems with hardware
 // support for it, and on which libva is available.
@@ -121,9 +124,6 @@ private:
   // Callback for the decoder to execute when it wants us to output given
   // |va_surface|.
   void SurfaceReady(int32 input_id, const scoped_refptr<VASurface>& va_surface);
-
-  // Represents a texture bound to an X Pixmap for output purposes.
-  class TFPPicture;
 
   // Callback to be executed once we have a |va_surface| to be output and
   // an available |tfp_picture| to use for output.
