@@ -5,8 +5,8 @@
 // This file contains an implementation of VideoDecoderAccelerator
 // that utilizes hardware video decoder present on Intel CPUs.
 
-#ifndef OZONE_MEDIA_VAAPI_TFP_PICTURE_WAYLAND_H_
-#define OZONE_MEDIA_VAAPI_TFP_PICTURE_WAYLAND_H_
+#ifndef OZONE_MEDIA_VAAPI_PICTURE_WAYLAND_H_
+#define OZONE_MEDIA_VAAPI_PICTURE_WAYLAND_H_
 
 #include "base/memory/linked_ptr.h"
 #include "base/threading/non_thread_safe.h"

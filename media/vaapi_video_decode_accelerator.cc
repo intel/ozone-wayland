@@ -13,7 +13,6 @@
 #include "media/base/bind_to_current_loop.h"
 #include "ozone/media/vaapi_h264_decoder.h"
 #include "ozone/media/vaapi_picture.h"
-#include "ozone/media/vaapi_tfp_picture_wayland.h"
 
 static void ReportToUMA(
     media::VaapiH264Decoder::VAVDAH264DecoderFailure failure) {

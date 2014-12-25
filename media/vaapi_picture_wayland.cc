@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/media/vaapi_tfp_picture_wayland.h"
+#include "ozone/media/vaapi_picture_wayland.h"
 
 #include <string>
 

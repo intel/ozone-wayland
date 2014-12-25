@@ -4,7 +4,7 @@
 
 #include "ozone/media/vaapi_picture.h"
 
-#include "ozone/media/vaapi_tfp_picture_wayland.h"
+#include "ozone/media/vaapi_picture_wayland.h"
 #include "ozone/media/vaapi_wrapper.h"
 #include "ui/gl/gl_bindings.h"
 #include "ui/gl/gl_implementation.h"
