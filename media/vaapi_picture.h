@@ -16,7 +16,7 @@
 #include "base/threading/non_thread_safe.h"
 #include "ui/gfx/size.h"
 
-namespace media {
+namespace content {
 
 class VASurface;
 class VaapiWrapper;
@@ -68,6 +68,6 @@ class VaapiPicture : public base::NonThreadSafe {
   DISALLOW_COPY_AND_ASSIGN(VaapiPicture);
 };
 
-}  // namespace media
+}  // namespace content
 
 #endif  // OZONE_MEDIA_VAAPI_PICTURE_H_

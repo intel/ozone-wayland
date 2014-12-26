@@ -55,7 +55,7 @@ static const char kVaUnlockBufferSymbol[] = "vaUnlockBuffer";
     }                                                      \
   } while (0)
 
-namespace media {
+namespace content {
 
 // Config attributes common for both encode and decode.
 static const VAConfigAttrib kCommonVAConfigAttribs[] = {
@@ -876,4 +876,4 @@ bool VaapiWrapper::SupportsVaLockBufferApis() {
       dlsym(handle, kVaUnlockBufferSymbol);
 }
 
-}  // namespace media
+}  // namespace content

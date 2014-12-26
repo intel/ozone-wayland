@@ -15,7 +15,7 @@
 
 #include "base/memory/ref_counted.h"
 #include "base/synchronization/lock.h"
-#include "ozone/media/va_surface.h"
+#include "content/common/gpu/media/va_surface.h"
 #include "media/base/video_decoder_config.h"
 #include "media/base/video_frame.h"
 #include "third_party/libva/va/wayland/va_wayland.h"
@@ -24,7 +24,7 @@
 #include "third_party/libva/va/va_x11.h"
 #endif  // USE_X11
 
-namespace media {
+namespace content {
 
 // This class handles VA-API calls and ensures proper locking of VA-API calls
 // to libva, the userspace shim to the HW codec driver. libva is not
@@ -216,6 +216,6 @@ class VaapiWrapper {
   DISALLOW_COPY_AND_ASSIGN(VaapiWrapper);
 };
 
-}  // namespace media
+}  // namespace content
 
 #endif  // OZONE_MEDIA_VAAPI_WRAPPER_H_

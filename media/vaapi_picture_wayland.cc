@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace media {
+namespace content {
 
 VaapiPictureWayland::VaapiPictureWayland(
     VaapiWrapper* vaapi_wrapper,
@@ -196,4 +196,4 @@ bool VaapiPictureWayland::DownloadFromSurface(
   return true;
 }
 
-}  // namespace media
+}  // namespace content

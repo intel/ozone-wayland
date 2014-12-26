@@ -16,7 +16,7 @@
 #include "ui/gl/gl_surface_egl.h"
 #include "ui/gl/scoped_binders.h"
 
-namespace media {
+namespace content {
 
 class VaapiPictureWayland : public VaapiPicture {
  public:
@@ -54,6 +54,6 @@ class VaapiPictureWayland : public VaapiPicture {
   DISALLOW_COPY_AND_ASSIGN(VaapiPictureWayland);
 };
 
-}  // namespace media
+}  // namespace content
 
 #endif  // OZONE_MEDIA_VAAPI_TFP_PICTURE_WAYLAND_H_

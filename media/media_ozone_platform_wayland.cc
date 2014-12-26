@@ -4,9 +4,10 @@
 
 #include "ozone/media/media_ozone_platform_wayland.h"
 
-#include "media/video/video_decode_accelerator.h"
+#include <list>
+
+#include "content/common/gpu/media/vaapi_video_decode_accelerator.h"
 #include "media/ozone/media_ozone_platform.h"
-#include "ozone/media/vaapi_video_decode_accelerator.h"
 
 namespace media {
 
@@ -21,7 +22,7 @@ class MediaOzonePlatformWayland : public MediaOzonePlatform {
   // MediaOzonePlatform:
   media::VideoDecodeAccelerator* CreateVideoDecodeAccelerator(
       const base::Callback<bool(void)>& make_context_current) override {
-    return new VaapiVideoDecodeAccelerator(make_context_current);
+    return new content::VaapiVideoDecodeAccelerator(make_context_current);
   }
 
  private:
@@ -30,6 +31,8 @@ class MediaOzonePlatformWayland : public MediaOzonePlatform {
 
 }  // namespace
 
-MediaOzonePlatform* CreateMediaOzonePlatformWayland() { return new MediaOzonePlatformWayland; }
+MediaOzonePlatform* CreateMediaOzonePlatformWayland() {
+  return new MediaOzonePlatformWayland;
+}
 
 }  // namespace media

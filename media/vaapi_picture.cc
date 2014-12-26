@@ -9,7 +9,7 @@
 #include "ui/gl/gl_bindings.h"
 #include "ui/gl/gl_implementation.h"
 
-namespace media {
+namespace content {
 
 // static
 linked_ptr<VaapiPicture> VaapiPicture::CreatePicture(
@@ -33,4 +33,4 @@ uint32 VaapiPicture::GetGLTextureTarget() {
   return GL_TEXTURE_2D;
 }
 
-}  // namespace media
+}  // namespace content
