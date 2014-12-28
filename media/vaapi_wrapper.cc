@@ -15,7 +15,6 @@
 #include "media/media/va_stubs.h"
 #include "content/common/gpu/media/vaapi_picture.h"
 #include "third_party/libyuv/include/libyuv.h"
-#include "ui/gl/gl_bindings.h"
 #if defined(USE_X11)
 #include "ui/gfx/x/x11_types.h"
 #endif  // USE_X11

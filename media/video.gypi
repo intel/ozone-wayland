@@ -6,17 +6,6 @@
   'sources': [
     'media_ozone_platform_wayland.cc',
     'media_ozone_platform_wayland.h',
-    '<(DEPTH)/content/common/gpu/media/h264_dpb.cc',
-    '<(DEPTH)/content/common/gpu/media/h264_dpb.h',
-    '<(DEPTH)/content/common/gpu/media/va_surface.h',
-    '<(DEPTH)/content/common/gpu/media/vaapi_h264_decoder.cc',
-    '<(DEPTH)/content/common/gpu/media/vaapi_h264_decoder.h',
-    'vaapi_picture.cc',
-    'vaapi_picture.h',
-    'vaapi_picture_wayland.cc',
-    'vaapi_picture_wayland.h',
-    '<(DEPTH)/content/common/gpu/media/vaapi_video_decode_accelerator.cc',
-    '<(DEPTH)/content/common/gpu/media/vaapi_video_decode_accelerator.h',
     'vaapi_wrapper.cc',
     'vaapi_wrapper.h',
   ],
@@ -31,14 +20,11 @@
     'output_root': '<(SHARED_INTERMEDIATE_DIR)/va',
   },
   'dependencies': [
-    '<(DEPTH)/ui/gl/gl.gyp:gl',
     '<(DEPTH)/third_party/libyuv/libyuv.gyp:libyuv',
   ],
   'include_dirs': [
     '<(DEPTH)/third_party/libva',
-    '<(DEPTH)/third_party/mesa/src/include',
     '<(output_root)',
-    '<(SHARED_INTERMEDIATE_DIR)/ui/gl',
   ],
   'actions': [
     {
