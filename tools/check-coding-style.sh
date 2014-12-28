@@ -24,6 +24,8 @@ cpplint.py --filter="$FILTERS" $(find \
                                \( -name '*.h' -o -name '*.cc' \) | grep -v text-client-protocol.h \
                                                                  | grep -v xdg-shell-client-protocol.h \
                                                                  | grep -v ivi-application-client-protocol.h \
+                                                                 | grep -v wayland-drm-protocol.h \
+                                                                 | grep -v wayland-drm-protocol.cc \
                                                                  | grep -v vaapi_wrapper.cc \
                                                                  | grep -v vaapi_wrapper.h)
 

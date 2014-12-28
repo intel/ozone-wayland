@@ -19,6 +19,9 @@
 #include "ozone/wayland/input/text-client-protocol.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
 
+struct gbm_device;
+struct wl_egl_window;
+
 namespace ozonewayland {
 
 class WaylandDisplayPollThread;
@@ -26,7 +29,6 @@ class WaylandInputDevice;
 class WaylandScreen;
 class WaylandShell;
 class WaylandWindow;
-struct wl_egl_window;
 
 typedef std::map<unsigned, WaylandWindow*> WindowMap;
 
@@ -88,6 +90,10 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
       ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
       proc_address) override;
   const int32* GetEGLSurfaceProperties(const int32* desired_list) override;
+  scoped_refptr<ui::NativePixmap> CreateNativePixmap(
+      gfx::AcceleratedWidget widget, gfx::Size size, BufferFormat format,
+          BufferUsage usage) override;
+  int GetDrmFd() override;
 
   // WindowStateChangeHandler implementation:
   void SetWidgetState(unsigned widget,
@@ -100,7 +106,13 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
                     unsigned x,
                     unsigned y,
                     ui::WidgetType type) override;
-
+#if defined(ENABLE_DRM_SUPPORT)
+  // DRM related.
+  void DrmHandleDevice(const char*);
+  void SetWLDrmFormat(uint32_t);
+  void DrmAuthenticated();
+  void SetDrmCapabilities(uint32_t);
+#endif
  private:
   void InitializeDisplay();
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
@@ -139,12 +151,17 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   WaylandScreen* primary_screen_;
   WaylandInputDevice* primary_input_;
   WaylandDisplayPollThread* display_poll_thread_;
+  gbm_device* device_;
+  char* m_deviceName;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandInputDevice*> input_list_;
   WindowMap widget_map_;
   unsigned serial_;
-  bool processing_events_;
+  bool processing_events_ :1;
+  bool m_authenticated_ :1;
+  int m_fd_;
+  uint32_t m_capabilities_;
   static WaylandDisplay* instance_;
   DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };

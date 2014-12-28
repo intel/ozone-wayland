@@ -6,6 +6,13 @@
 #include "ozone/wayland/display.h"
 
 #include <EGL/egl.h>
+#include <errno.h>
+#include <fcntl.h>
+#if defined(ENABLE_DRM_SUPPORT)
+#include <gbm.h>
+#include <libdrm/drm.h>
+#include <xf86drm.h>
+#endif
 #include <string>
 
 #include "base/files/file_path.h"
@@ -15,11 +22,51 @@
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
+#if defined(ENABLE_DRM_SUPPORT)
+#include "ozone/wayland/egl/wayland_pixmap.h"
+#endif
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/protocol/wayland-drm-protocol.h"
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"
+#include "ui/ozone/public/native_pixmap.h"
+
+#if defined(ENABLE_DRM_SUPPORT)
+namespace {
+using ozonewayland::WaylandDisplay;
+// os-compatibility
+static struct wl_drm* m_drm = 0;
+
+void drm_handle_device(void* data, struct wl_drm*, const char* device) {
+  WaylandDisplay* display = static_cast<WaylandDisplay*>(data);
+  display->DrmHandleDevice(device);
+}
+
+void drm_handle_format(void* data, struct wl_drm*, uint32_t format) {
+  WaylandDisplay* d = static_cast<WaylandDisplay*>(data);
+  d->SetWLDrmFormat(format);
+}
+
+void drm_handle_authenticated(void* data, struct wl_drm*) {
+  WaylandDisplay* d = static_cast<WaylandDisplay*>(data);
+  d->DrmAuthenticated();
+}
+
+void drm_capabilities_(void* data, struct wl_drm*, uint32_t value) {
+  struct WaylandDisplay* d = static_cast<WaylandDisplay*>(data);
+  d->SetDrmCapabilities(value);
+}
+
+static const struct wl_drm_listener drm_listener = {
+    drm_handle_device,
+    drm_handle_format,
+    drm_handle_authenticated
+};
+
+}  // namespace
+#endif
 
 namespace ozonewayland {
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
@@ -33,11 +80,16 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     primary_screen_(NULL),
     primary_input_(NULL),
     display_poll_thread_(NULL),
+    device_(NULL),
+    m_deviceName(NULL),
     screen_list_(),
     input_list_(),
     widget_map_(),
     serial_(0),
-    processing_events_(false) {
+    processing_events_(false),
+    m_authenticated_(false),
+    m_fd_(-1),
+    m_capabilities_(0) {
 }
 
 WaylandDisplay::~WaylandDisplay() {
@@ -164,6 +216,29 @@ WaylandDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
   };
 
   return kConfigAttribs;
+}
+
+scoped_refptr<ui::NativePixmap> WaylandDisplay::CreateNativePixmap(
+    gfx::AcceleratedWidget widget,
+    gfx::Size size,
+    BufferFormat format,
+    BufferUsage usage) {
+#if defined(ENABLE_DRM_SUPPORT)
+  if (usage == MAP)
+    return NULL;
+
+  scoped_refptr<WaylandPixmap> pixmap(new WaylandPixmap());
+  if (!pixmap->Initialize(device_, format, size))
+    return NULL;
+
+  return pixmap;
+#else
+  return SurfaceFactoryOzone::CreateNativePixmap(widget, size, format, usage);
+#endif
+}
+
+int WaylandDisplay::GetDrmFd() {
+  return m_fd_;
 }
 
 void WaylandDisplay::SetWidgetState(unsigned w,
@@ -323,7 +398,17 @@ void WaylandDisplay::Terminate() {
   input_list_.clear();
 
   WaylandCursor::Clear();
+#if defined(ENABLE_DRM_SUPPORT)
+  if (m_deviceName)
+    delete m_deviceName;
 
+  if (m_drm) {
+    wl_drm_destroy(m_drm);
+    m_drm = NULL;
+  }
+
+  close(m_fd_);
+#endif
   if (compositor_)
     wl_compositor_destroy(compositor_);
 
@@ -349,8 +434,51 @@ WaylandWindow* WaylandDisplay::GetWidget(unsigned w) const {
   std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
   return it == widget_map_.end() ? NULL : it->second;
 }
+#if defined(ENABLE_DRM_SUPPORT)
+void WaylandDisplay::DrmHandleDevice(const char* device) {
+  drm_magic_t magic;
+  m_deviceName = strdup(device);
 
+  if (!m_deviceName)
+    return;
+  int flags = O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC;
+#ifdef O_CLOEXEC
+  m_fd_ = open(device, flags, 0644);
+  if (m_fd_ == -1 && errno == EINVAL) {
+#endif
+    m_fd_ = open(m_deviceName, flags, 0644);
+    if (m_fd_ != -1)
+      fcntl(m_fd_, F_SETFD, fcntl(m_fd_, F_GETFD) | FD_CLOEXEC);
+#ifdef O_CLOEXEC
+  }
+#endif
+  if (m_fd_ == -1) {
+    LOG(ERROR) << "WaylandDisplay: could not open" << m_deviceName
+        << strerror(errno);
+    return;
+  }
 
+  drmGetMagic(m_fd_, &magic);
+  wl_drm_authenticate(m_drm, magic);
+}
+
+void WaylandDisplay::SetWLDrmFormat(uint32_t) {
+}
+
+void WaylandDisplay::DrmAuthenticated() {
+  m_authenticated_ = true;
+  device_ = gbm_create_device(m_fd_);
+  if (!device_) {
+    LOG(ERROR) << "WaylandDisplay: Failed to create GBM Device.";
+    close(m_fd_);
+    m_fd_ = -1;
+  }
+}
+
+void WaylandDisplay::SetDrmCapabilities(uint32_t value) {
+  m_capabilities_ = value;
+}
+#endif
 // static
 void WaylandDisplay::DisplayHandleGlobal(void *data,
     struct wl_registry *registry,
@@ -363,6 +491,14 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   if (strcmp(interface, "wl_compositor") == 0) {
     disp->compositor_ = static_cast<wl_compositor*>(
         wl_registry_bind(registry, name, &wl_compositor_interface, 1));
+#if defined(ENABLE_DRM_SUPPORT)
+  } else if (!strcmp(interface, "wl_drm")) {
+    m_drm = static_cast<struct wl_drm*>(wl_registry_bind(registry,
+                                                         name,
+                                                         &wl_drm_interface,
+                                                         1));
+    wl_drm_add_listener(m_drm, &drm_listener, disp);
+#endif
   } else if (strcmp(interface, "wl_output") == 0) {
     WaylandScreen* screen = new WaylandScreen(disp->registry(), name);
     if (!disp->screen_list_.empty())
