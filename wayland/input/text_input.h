@@ -6,7 +6,8 @@
 #define OZONE_WAYLAND_TEXT_INPUT_H_
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/input/text-client-protocol.h"
+
+struct wl_text_input;
 
 namespace ozonewayland {
 

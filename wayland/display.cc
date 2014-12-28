@@ -27,7 +27,10 @@
 #endif
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/protocol/text-client-protocol.h"
+#if defined(ENABLE_DRM_SUPPORT)
 #include "ozone/wayland/protocol/wayland-drm-protocol.h"
+#endif
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"

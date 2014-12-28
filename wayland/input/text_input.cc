@@ -11,6 +11,7 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/protocol/text-client-protocol.h"
 #include "ozone/wayland/shell/shell_surface.h"
 #include "ozone/wayland/window.h"
 

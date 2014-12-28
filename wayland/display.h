@@ -16,11 +16,11 @@
 
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_state_change_handler.h"
-#include "ozone/wayland/input/text-client-protocol.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
 
 struct gbm_device;
 struct wl_egl_window;
+struct wl_text_input_manager;
 
 namespace ozonewayland {
 
