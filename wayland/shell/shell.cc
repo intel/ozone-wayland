@@ -6,10 +6,10 @@
 
 #include "base/logging.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/shell/ivi-application-client-protocol.h"
+#include "ozone/wayland/protocol/ivi-application-client-protocol.h"
+#include "ozone/wayland/protocol/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/ivi_shell_surface.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
-#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/xdg_shell_surface.h"
 
 namespace ozonewayland {

@@ -9,8 +9,8 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input_device.h"
+#include "ozone/wayland/protocol/xdg-shell-client-protocol.h"
 #include "ozone/wayland/shell/shell.h"
-#include "ozone/wayland/shell/xdg-shell-client-protocol.h"
 
 namespace ozonewayland {
 
