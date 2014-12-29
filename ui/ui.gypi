@@ -5,7 +5,6 @@
   'includes': [
     'cursor/cursor.gypi',
     'events/event.gypi',
-    'gfx/gfx.gypi',
     'ime/ime.gypi',
     'public/public.gypi',
     'webui/webui.gypi',

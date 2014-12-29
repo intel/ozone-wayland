@@ -4,9 +4,9 @@
 
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
 
-#include "ozone/ui/gfx/vsync_provider_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/window.h"
+#include "ui/gfx/vsync_provider.h"
 
 namespace ozonewayland {
 
@@ -36,7 +36,7 @@ bool SurfaceOzoneWayland::OnSwapBuffers() {
 }
 
 scoped_ptr<gfx::VSyncProvider> SurfaceOzoneWayland::CreateVSyncProvider() {
-  return scoped_ptr<gfx::VSyncProvider>(new gfx::WaylandSyncProvider());
+  return scoped_ptr<gfx::VSyncProvider>();
 }
 
 }  // namespace ozonewayland
