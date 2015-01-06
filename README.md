@@ -25,7 +25,7 @@ Firstly you'd need to set up the Wayland libraries (version >= 1.4.0), and the W
 
 http://wayland.freedesktop.org/building.html
 
-_Please note that at the moment support for Wayland's XDG Shell protocol only works with the 1.5 series._
+_Please note that at the moment support for Wayland's XDG Shell protocol only works with the 1.6 series._
 
 Make sure everything is alright now, setting up the environment variable `$XDG_RUNTIME_DIR` and playing a bit with the Wayland clients, connecting them on Weston.
 
