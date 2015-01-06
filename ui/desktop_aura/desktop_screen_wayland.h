@@ -25,7 +25,7 @@ class DesktopScreenWayland : public gfx::Screen,
                              public ui::OutputChangeObserver {
  public:
   DesktopScreenWayland();
-  virtual ~DesktopScreenWayland();
+  ~DesktopScreenWayland() override;
 
   // OutputChangeObserver overrides.
   void OnOutputSizeChanged(unsigned width, unsigned height) override;

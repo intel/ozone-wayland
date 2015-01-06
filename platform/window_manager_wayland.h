@@ -28,7 +28,7 @@ class WindowManagerWayland
     : public ui::WindowChangeObserver {
  public:
   WindowManagerWayland();
-  virtual ~WindowManagerWayland();
+  ~WindowManagerWayland() override;
 
   void OnRootWindowCreated(ui::OzoneWaylandWindow* window);
   void OnRootWindowClosed(ui::OzoneWaylandWindow* window);

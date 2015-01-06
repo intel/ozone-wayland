@@ -45,7 +45,7 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
                        public ui::SurfaceFactoryOzone {
  public:
   WaylandDisplay();
-  virtual ~WaylandDisplay();
+  ~WaylandDisplay() override;
 
   // Ownership is not passed to the caller.
   static WaylandDisplay* GetInstance() { return instance_; }

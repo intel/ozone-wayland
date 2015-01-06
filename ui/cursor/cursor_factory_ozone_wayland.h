@@ -12,7 +12,7 @@ namespace ui {
 class CursorFactoryOzoneWayland : public CursorFactoryOzone {
  public:
   CursorFactoryOzoneWayland();
-  virtual ~CursorFactoryOzoneWayland();
+  ~CursorFactoryOzoneWayland() override;
 
   PlatformCursor GetDefaultCursor(int type) override;
   PlatformCursor CreateImageCursor(const SkBitmap& bitmap,

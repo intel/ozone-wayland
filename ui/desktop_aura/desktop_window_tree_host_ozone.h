@@ -40,7 +40,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   DesktopWindowTreeHostOzone(
       internal::NativeWidgetDelegate* native_widget_delegate,
       DesktopNativeWidgetAura* desktop_native_widget_aura);
-  virtual ~DesktopWindowTreeHostOzone();
+  ~DesktopWindowTreeHostOzone() override;
 
   // Accepts a opaque handle widget and returns associated aura::Window.
   static aura::Window* GetContentWindowForAcceleratedWidget(

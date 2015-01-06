@@ -19,22 +19,11 @@ KeyboardEngineXKB::KeyboardEngineXKB(const XkbKeyCodeConverter& converter)
 }
 
 KeyboardEngineXKB::~KeyboardEngineXKB() {
-  FiniXKB();
+  //FiniXKB();
 }
 
 bool KeyboardEngineXKB::SetCurrentLayoutByName(const std::string& layout_name) {
-  FiniXKB();
-  InitXKB();
-  struct xkb_keymap *keymap = xkb_map_new_from_string(context_,
-                                                      layout_name.c_str(),
-                                                      XKB_KEYMAP_FORMAT_TEXT_V1,
-                                                      (xkb_map_compile_flags)0);
-  if (!keymap)
-    return false;
-
-  SetKeymap(keymap);
-  xkb_map_unref(keymap);
-  return true;
+  return XkbKeyboardLayoutEngine::SetCurrentLayoutByName(layout_name);
 }
 
 void KeyboardEngineXKB::InitXKB() {

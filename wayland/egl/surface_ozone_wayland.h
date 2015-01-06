@@ -16,7 +16,7 @@ namespace ozonewayland {
 class SurfaceOzoneWayland : public ui::SurfaceOzoneEGL {
  public:
   explicit SurfaceOzoneWayland(unsigned handle);
-  virtual ~SurfaceOzoneWayland();
+  ~SurfaceOzoneWayland() override;
 
   // SurfaceOzone:
   intptr_t GetNativeWindow() override;

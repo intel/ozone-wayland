@@ -27,7 +27,7 @@ class SelectFileDialogImplWebUI : public SelectFileDialog {
  protected:
   explicit SelectFileDialogImplWebUI(Listener* listener,
                                      ui::SelectFilePolicy* policy);
-  virtual ~SelectFileDialogImplWebUI();
+  ~SelectFileDialogImplWebUI() override;
 
   // SelectFileDialog implementation.
   // |params| is user data we pass back via the Listener interface.

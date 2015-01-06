@@ -44,7 +44,7 @@ class WindowButtonOrderObserver;
 class OzoneWebUI : public views::LinuxUI {
  public:
   OzoneWebUI();
-  virtual ~OzoneWebUI();
+  ~OzoneWebUI() override;
 
   // ui::LinuxInputMethodContextFactory:
   scoped_ptr<ui::LinuxInputMethodContext> CreateInputMethodContext(

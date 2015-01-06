@@ -18,7 +18,7 @@ namespace ui {
 class KeyboardEngineXKB : public XkbKeyboardLayoutEngine {
  public:
   explicit KeyboardEngineXKB(const XkbKeyCodeConverter& converter);
-  ~KeyboardEngineXKB();
+  ~KeyboardEngineXKB() override;
 
   bool SetCurrentLayoutByName(const std::string& layout_name) override;
 

@@ -17,7 +17,7 @@ class MediaOzonePlatformWayland : public MediaOzonePlatform {
  public:
   MediaOzonePlatformWayland() {}
 
-  virtual ~MediaOzonePlatformWayland() {}
+  ~MediaOzonePlatformWayland() override {}
 
   // MediaOzonePlatform:
   media::VideoDecodeAccelerator* CreateVideoDecodeAccelerator(

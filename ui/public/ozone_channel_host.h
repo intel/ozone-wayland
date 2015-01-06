@@ -19,7 +19,7 @@ class WindowStateChangeHandler;
 class OzoneChannelHost : public GpuPlatformSupportHost {
  public:
   OzoneChannelHost();
-  virtual ~OzoneChannelHost();
+  ~OzoneChannelHost() override;
 
   void Initialize();
   void ReleaseRemoteStateChangeHandler();

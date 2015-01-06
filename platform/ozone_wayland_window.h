@@ -18,7 +18,7 @@ class OzoneWaylandWindow : public PlatformWindow {
  public:
   OzoneWaylandWindow(PlatformWindowDelegate* delegate,
                      const gfx::Rect& bounds);
-  virtual ~OzoneWaylandWindow();
+  ~OzoneWaylandWindow() override;
 
   unsigned GetHandle() const { return handle_; }
   PlatformWindowDelegate* GetDelegate() const { return delegate_; }

@@ -10,7 +10,7 @@
 #include "ozone/platform/ozone_export_wayland.h"
 #include "ozone/ui/events/ime_change_observer.h"
 #include "ui/base/ime/linux/linux_input_method_context.h"
-#include "ui/gfx/rect.h"
+#include "ui/gfx/geometry/rect.h"
 
 namespace ui {
 
@@ -22,7 +22,7 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
  public:
   explicit InputMethodContextImplWayland(
       ui::LinuxInputMethodContextDelegate* delegate);
-  virtual ~InputMethodContextImplWayland();
+  ~InputMethodContextImplWayland() override;
 
   // overriden from ui::LinuxInputMethodContext
   bool DispatchKeyEvent(const ui::KeyEvent& key_event) override;

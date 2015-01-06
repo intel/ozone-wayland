@@ -19,7 +19,7 @@
 #include "media/base/video_decoder_config.h"
 #include "media/base/video_frame.h"
 #include "third_party/libva/va/wayland/va_wayland.h"
-#include "ui/gfx/size.h"
+#include "ui/gfx/geometry/size.h"
 #if defined(USE_X11)
 #include "third_party/libva/va/va_x11.h"
 #endif  // USE_X11

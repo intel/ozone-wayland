@@ -9,7 +9,7 @@
 #include <wayland-client.h>
 
 #include "base/strings/string16.h"
-#include "ui/gfx/rect.h"
+#include "ui/gfx/geometry/rect.h"
 
 namespace ozonewayland {
 

@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "ozone/platform/ozone_export_wayland.h"
-#include "ui/gfx/rect.h"
+#include "ui/gfx/geometry/rect.h"
 
 namespace ui {
 

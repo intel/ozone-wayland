@@ -25,7 +25,7 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   RemoteStateChangeHandler();
-  virtual ~RemoteStateChangeHandler();
+  ~RemoteStateChangeHandler() override;
 
   void ChannelEstablished(IPC::Sender* sender);
   void ChannelDestroyed();

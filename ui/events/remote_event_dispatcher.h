@@ -19,7 +19,7 @@ namespace ui {
 class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
  public:
   RemoteEventDispatcher();
-  virtual ~RemoteEventDispatcher();
+  ~RemoteEventDispatcher() override;
 
   void ChannelEstablished(IPC::Sender* sender) override;
 

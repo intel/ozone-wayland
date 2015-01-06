@@ -36,7 +36,7 @@ class OzonePlatformWayland : public OzonePlatform {
         base::Bind(&base::DeletePointer<OzonePlatformWayland>, this));
   }
 
-  virtual ~OzonePlatformWayland() {
+  ~OzonePlatformWayland() override {
   }
 
   // OzonePlatform:

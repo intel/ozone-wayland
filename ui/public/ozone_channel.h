@@ -15,7 +15,7 @@ class RemoteEventDispatcher;
 class OzoneChannel : public GpuPlatformSupport {
  public:
   OzoneChannel();
-  virtual ~OzoneChannel();
+  ~OzoneChannel() override;
   void InitializeRemoteDispatcher();
 
   // GpuPlatformSupport:

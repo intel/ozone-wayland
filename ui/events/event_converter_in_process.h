@@ -22,7 +22,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                 public ui::PlatformEventSource {
  public:
   EventConverterInProcess();
-  virtual ~EventConverterInProcess();
+  ~EventConverterInProcess() override;
 
   void MotionNotify(float x, float y) override;
   void ButtonNotify(unsigned handle,

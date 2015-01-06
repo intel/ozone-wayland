@@ -9,8 +9,7 @@
 #include <stdint.h>
 
 #include "base/basictypes.h"
-#include "ui/gfx/point.h"
-#include "ui/gfx/rect.h"
+#include "ui/gfx/geometry/rect.h"
 
 struct wl_output;
 struct wl_registry;

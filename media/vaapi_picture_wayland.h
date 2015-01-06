@@ -25,7 +25,7 @@ class VaapiPictureWayland : public VaapiPicture {
                       int32 picture_buffer_id,
                       uint32 texture_id,
                       const gfx::Size& size);
-  ~VaapiPictureWayland();
+  ~VaapiPictureWayland() override;
 
   bool Initialize() override;
   bool DownloadFromSurface(const scoped_refptr<VASurface>& va_surface) override;

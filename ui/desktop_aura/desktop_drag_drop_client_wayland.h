@@ -15,7 +15,7 @@ class VIEWS_EXPORT DesktopDragDropClientWayland
     : public aura::client::DragDropClient {
  public:
   explicit DesktopDragDropClientWayland(aura::Window* root_window);
-  virtual ~DesktopDragDropClientWayland();
+  ~DesktopDragDropClientWayland() override;
 
   // Overridden from aura::client::DragDropClient:
   int StartDragAndDrop(const ui::OSExchangeData& data,

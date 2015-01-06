@@ -14,7 +14,7 @@ class OZONE_WAYLAND_EXPORT InputMethodContextFactoryWayland
     : public LinuxInputMethodContextFactory  {
  public:
   InputMethodContextFactoryWayland();
-  virtual ~InputMethodContextFactoryWayland();
+  ~InputMethodContextFactoryWayland() override;
 
   scoped_ptr<LinuxInputMethodContext> CreateInputMethodContext(
       ui::LinuxInputMethodContextDelegate* delegate) const override;

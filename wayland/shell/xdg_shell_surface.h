@@ -18,7 +18,7 @@ class WaylandWindow;
 class XDGShellSurface : public WaylandShellSurface {
  public:
   XDGShellSurface();
-  virtual ~XDGShellSurface();
+  ~XDGShellSurface() override;
 
   void InitializeShellSurface(WaylandWindow* window,
                               WaylandWindow::ShellType type) override;

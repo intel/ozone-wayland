@@ -6,7 +6,7 @@
 #define OZONE_WAYLAND_INPUT_TOUCHSCREEN_H_
 
 #include "ozone/wayland/display.h"
-#include "ui/gfx/point.h"
+#include "ui/gfx/geometry/point.h"
 
 namespace ui {
 class EventConverterOzoneWayland;

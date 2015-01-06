@@ -15,7 +15,7 @@ class WaylandWindow;
 class WLShellSurface : public WaylandShellSurface {
  public:
   WLShellSurface();
-  virtual ~WLShellSurface();
+  ~WLShellSurface() override;
 
   void InitializeShellSurface(WaylandWindow* window,
                               WaylandWindow::ShellType type) override;
