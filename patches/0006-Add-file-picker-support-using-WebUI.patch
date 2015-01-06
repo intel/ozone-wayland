@@ -1,6 +1,6 @@
-From 0acda91fdec5b50b6c2fd832b254846853f11e27 Mon Sep 17 00:00:00 2001
-From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Tue, 23 Dec 2014 04:51:39 -0800
+From 73f56065b0c2a8a0e961b22aa8db36cd094a8655 Mon Sep 17 00:00:00 2001
+From: Joone Hut <joone.hur@intel.com>
+Date: Mon, 5 Jan 2015 17:59:37 -0800
 Subject: [PATCH] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
@@ -10,7 +10,7 @@ This implementation allows for oz-wl to show a web based file picker UI.
 Currently, the WebUI only supports basic functionality for opening a file.
 File browsing UI will be added later.
 ---
- chrome/app/generated_resources.grd                 |   9 +-
+ chrome/app/generated_resources.grd                 |  10 +-
  chrome/browser/browser_resources.grd               |   3 +
  .../browser/resources/file_picker/file_picker.css  |  72 +++++++++
  .../browser/resources/file_picker/file_picker.html |  37 +++++
@@ -24,7 +24,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |   3 +
  chrome/common/url_constants.h                      |   2 +
  tools/gritsettings/resource_ids                    |   2 +-
- 14 files changed, 428 insertions(+), 4 deletions(-)
+ 14 files changed, 429 insertions(+), 4 deletions(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -33,10 +33,10 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 55e4a15..dff4ea6 100644
+index d76a027..b6314ce 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -4311,7 +4311,7 @@ Even if you have downloaded files from this website before, the website might ha
+@@ -4323,7 +4323,7 @@ Even if you have downloaded files from this website before, the website might ha
        </message>
  
        <message name="IDS_EXTENSION_PERMISSION_LINE" desc="Template for item in list of privileges that an extension or app has">
@@ -45,10 +45,10 @@ index 55e4a15..dff4ea6 100644
        </message>
        <message name="IDS_EXTENSION_RATING_COUNT" desc="Number of ratings an app or extensions has (displayed after star icons)">
          (<ph name="RATING_COUNT">$1<ex>46</ex></ph>)
-@@ -15282,6 +15282,13 @@ Do you accept?
-       <message name="IDS_FLAGS_DISABLE_CAST_STREAMING_HW_ENCODING_DESCRIPTION" desc="Description of chrome:flags option to turn off Cast Streaming hardware video encoding support.">
+@@ -15314,6 +15314,14 @@ Do you accept?
          This option disables support in Cast Streaming for encoding video streams using platform hardware.
        </message>
+
 +      <!-- File-picker strings -->
 +      <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
 +        Save file as
@@ -56,14 +56,15 @@ index 55e4a15..dff4ea6 100644
 +      <message name="IDS_FILE_PICKER_FILE_NAME" desc="File Name">
 +        File name
 +      </message>
- 
++
       <!-- Hotword Audio Verification (opt-in) App strings. -->
-       <message name="IDS_HOTWORD_OPT_IN_CANCEL" desc="Text on the cancel button for the 'Ok Google' hotword opt-in dialog.">
+       <message name="IDS_HOTWORD_OPT_IN_CLOSE" desc="Label for the close button for the 'Ok Google' hotword opt-in dialog.">
+         Close
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index 5a5ac0e..4a66027 100644
+index 2b81d9a..d517546 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -447,6 +447,9 @@
+@@ -449,6 +449,9 @@
          <include name="IDR_BRAILLE_MANIFEST" file="resources\chromeos\braille_ime\manifest.json" type="BINDATA" />
        </if>
        <include name="IDR_WHISPERNET_PROXY_MANIFEST" file="resources\whispernet_proxy\manifest.json" type="BINDATA" />
@@ -564,10 +565,10 @@ index 0000000..f5c0fb7
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 8fc191b..5b68449 100644
+index c5f31c8..23c02e7 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1024,6 +1024,9 @@
+@@ -1028,6 +1028,9 @@
        'browser/ui/webui/favicon_source.h',
        'browser/ui/webui/fileicon_source.cc',
        'browser/ui/webui/fileicon_source.h',
@@ -577,7 +578,7 @@ index 8fc191b..5b68449 100644
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
        'browser/ui/webui/gcm_internals_ui.cc',
-@@ -3063,6 +3066,7 @@
+@@ -3068,6 +3071,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',

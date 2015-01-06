@@ -1,12 +1,12 @@
-From fafea139dd519d626fc2f50a4f8bb9442be21877 Mon Sep 17 00:00:00 2001
+From afcbefab4b43b090f9e9e8c5c158f7ab237e3574 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Tue, 23 Dec 2014 23:49:49 -0800
+Date: Mon, 5 Jan 2015 18:03:48 -0800
 Subject: [PATCH] Temp patch for XKB impl to work with Oz-WL.
 
 ---
  .../layout/xkb/xkb_keyboard_code_conversion.cc     | 24 +++++++++++-----------
- .../ozone/layout/xkb/xkb_keyboard_layout_engine.h  |  8 ++++----
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ .../ozone/layout/xkb/xkb_keyboard_layout_engine.h  |  6 +++---
+ 2 files changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
 index b1eb22a..9ef5d2c 100644
@@ -75,31 +75,29 @@ index b1eb22a..9ef5d2c 100644
        return 0x0785;  // combining inverted breve
      case XKB_KEY_dead_belowcomma:
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h
-index d7a9854..81cf90c 100644
+index 8281b68..05753c7 100644
 --- a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h
 +++ b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h
-@@ -45,6 +45,10 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
-   };
-   std::vector<XkbFlagMapEntry> xkb_flag_map_;
+@@ -66,6 +66,9 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
  
+   // Maps DomCode to xkb_keycode_t.
+   const XkbKeyCodeConverter& key_code_converter_;
 +  // Sets a new XKB keymap. This updates xkb_state_ (which takes ownership
 +  // of the keymap), and updates xkb_flag_map_ for the new keymap.
 +  void SetKeymap(xkb_keymap* keymap);
-+
-   // Determines the Windows-based KeyboardCode (VKEY) for a character key,
-   // accounting for non-US layouts. May return VKEY_UNKNOWN, in which case the
-   // caller should use |DomCodeToNonLocatedKeyboardCode()| as a last resort.
-@@ -60,10 +64,6 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
-   const XkbKeyCodeConverter& key_code_converter_;
  
   private:
+   struct XkbKeymapEntry {
+@@ -73,9 +76,6 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
+     xkb_keymap* keymap;
+   };
+   std::vector<XkbKeymapEntry> xkb_keymaps_;
 -  // Sets a new XKB keymap. This updates xkb_state_ (which takes ownership
 -  // of the keymap), and updates xkb_flag_map_ for the new keymap.
 -  void SetKeymap(xkb_keymap* keymap);
--
+
    // Returns the XKB modifiers flags corresponding to the given EventFlags.
    xkb_mod_mask_t EventFlagsToXkbFlags(int ui_flags) const;
- 
 -- 
 1.9.1
 
