@@ -1,12 +1,11 @@
-From afcbefab4b43b090f9e9e8c5c158f7ab237e3574 Mon Sep 17 00:00:00 2001
+From a48f5b2237900dd3fadbfe2840cc8b09dada723b Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Mon, 5 Jan 2015 18:03:48 -0800
+Date: Tue, 6 Jan 2015 14:13:14 -0800
 Subject: [PATCH] Temp patch for XKB impl to work with Oz-WL.
 
 ---
  .../layout/xkb/xkb_keyboard_code_conversion.cc     | 24 +++++++++++-----------
- .../ozone/layout/xkb/xkb_keyboard_layout_engine.h  |  6 +++---
- 2 files changed, 15 insertions(+), 15 deletions(-)
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
 index b1eb22a..9ef5d2c 100644
@@ -74,30 +73,6 @@ index b1eb22a..9ef5d2c 100644
      case XKB_KEY_dead_invertedbreve:
        return 0x0785;  // combining inverted breve
      case XKB_KEY_dead_belowcomma:
-diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h
-index 8281b68..05753c7 100644
---- a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h
-+++ b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h
-@@ -66,6 +66,9 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
- 
-   // Maps DomCode to xkb_keycode_t.
-   const XkbKeyCodeConverter& key_code_converter_;
-+  // Sets a new XKB keymap. This updates xkb_state_ (which takes ownership
-+  // of the keymap), and updates xkb_flag_map_ for the new keymap.
-+  void SetKeymap(xkb_keymap* keymap);
- 
-  private:
-   struct XkbKeymapEntry {
-@@ -73,9 +76,6 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
-     xkb_keymap* keymap;
-   };
-   std::vector<XkbKeymapEntry> xkb_keymaps_;
--  // Sets a new XKB keymap. This updates xkb_state_ (which takes ownership
--  // of the keymap), and updates xkb_flag_map_ for the new keymap.
--  void SetKeymap(xkb_keymap* keymap);
-
-   // Returns the XKB modifiers flags corresponding to the given EventFlags.
-   xkb_mod_mask_t EventFlagsToXkbFlags(int ui_flags) const;
 -- 
 1.9.1
 

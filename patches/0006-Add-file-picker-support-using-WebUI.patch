@@ -1,6 +1,6 @@
-From 73f56065b0c2a8a0e961b22aa8db36cd094a8655 Mon Sep 17 00:00:00 2001
-From: Joone Hut <joone.hur@intel.com>
-Date: Mon, 5 Jan 2015 17:59:37 -0800
+From 9bad4f85fbd2e0a4c1572aa4d915f51abf36b1ad Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 6 Jan 2015 14:10:13 -0800
 Subject: [PATCH] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
@@ -33,22 +33,22 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index d76a027..b6314ce 100644
+index 7b39e05..65bfddc 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
 @@ -4323,7 +4323,7 @@ Even if you have downloaded files from this website before, the website might ha
        </message>
  
        <message name="IDS_EXTENSION_PERMISSION_LINE" desc="Template for item in list of privileges that an extension or app has">
--          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
+-          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
 +          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
        </message>
        <message name="IDS_EXTENSION_RATING_COUNT" desc="Number of ratings an app or extensions has (displayed after star icons)">
          (<ph name="RATING_COUNT">$1<ex>46</ex></ph>)
-@@ -15314,6 +15314,14 @@ Do you accept?
+@@ -15311,6 +15311,14 @@ Do you accept?
          This option disables support in Cast Streaming for encoding video streams using platform hardware.
        </message>
-
+ 
 +      <!-- File-picker strings -->
 +      <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
 +        Save file as
@@ -366,7 +366,7 @@ index 0000000..d151be1
 +}  // namespace ui
 diff --git a/chrome/browser/ui/webui/file_picker/file_picker_ui.h b/chrome/browser/ui/webui/file_picker/file_picker_ui.h
 new file mode 100644
-index 0000000..908eb06
+index 0000000..64af4bc
 --- /dev/null
 +++ b/chrome/browser/ui/webui/file_picker/file_picker_ui.h
 @@ -0,0 +1,24 @@
@@ -396,7 +396,7 @@ index 0000000..908eb06
 +#endif  // CHROME_BROWSER_UI_WEBUI_FILE_PICKER_UI_H_
 diff --git a/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 new file mode 100644
-index 0000000..f5c0fb7
+index 0000000..87c3c9d
 --- /dev/null
 +++ b/chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 @@ -0,0 +1,164 @@
