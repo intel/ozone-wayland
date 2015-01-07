@@ -14,8 +14,6 @@
     'ime_change_observer.h',
     'ime_state_change_handler.h',
     'keyboard_codes_ozone.h',
-    'keyboard_engine_xkb.h',
-    'keyboard_engine_xkb.cc',
     'output_change_observer.h',
     'remote_event_dispatcher.h',
     'remote_event_dispatcher.cc',
