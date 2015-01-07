@@ -35,16 +35,9 @@ class XDGShellSurface : public WaylandShellSurface {
   static void HandleConfigure(void* data,
                               struct xdg_surface* xdg_surface,
                               int32_t width,
-                              int32_t height);
-  static void HandleChangeState(void* data,
-                                struct xdg_surface* xdg_surface,
-                                uint32_t state,
-                                uint32_t value,
-                                uint32_t serial);
-  static void HandleActivate(void* data,
-                             struct xdg_surface* xdg_surface);
-  static void HandleDeactivate(void* data,
-                               struct xdg_surface* xdg_surface);
+                              int32_t height,
+                              struct wl_array* states,
+                              uint32_t serial);
   static void HandleDelete(void* data,
                            struct xdg_surface* xdg_surface);
 
