@@ -1,0 +1,89 @@
+From 4d9641827e9580b0b1df3b1e41182451a7d4862a Mon Sep 17 00:00:00 2001
+From: Kalyan Kondapally <kalyan.kondapally@intel.com>
+Date: Tue, 6 Jan 2015 16:56:49 -0800
+Subject: [PATCH] patch from issue 816963005 at patchset 1
+ (http://crrev.com/816963005#ps1)
+
+---
+ .../gpu/media/vaapi_video_decode_accelerator.h     | 20 ++++++++--------
+ .../gpu/media/vaapi_video_encode_accelerator.h     | 27 +++++++++++-----------
+ 2 files changed, 23 insertions(+), 24 deletions(-)
+
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.h b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+index 206999a..9e98a6b 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.h
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+@@ -45,19 +45,19 @@ class CONTENT_EXPORT VaapiVideoDecodeAccelerator
+  public:
+   VaapiVideoDecodeAccelerator(
+       const base::Callback<bool(void)>& make_context_current);
+-  virtual ~VaapiVideoDecodeAccelerator();
++  ~VaapiVideoDecodeAccelerator() override;
+ 
+   // media::VideoDecodeAccelerator implementation.
+-  virtual bool Initialize(media::VideoCodecProfile profile,
+-                          Client* client) override;
+-  virtual void Decode(const media::BitstreamBuffer& bitstream_buffer) override;
+-  virtual void AssignPictureBuffers(
++  bool Initialize(media::VideoCodecProfile profile,
++                  Client* client) override;
++  void Decode(const media::BitstreamBuffer& bitstream_buffer) override;
++  void AssignPictureBuffers(
+       const std::vector<media::PictureBuffer>& buffers) override;
+-  virtual void ReusePictureBuffer(int32 picture_buffer_id) override;
+-  virtual void Flush() override;
+-  virtual void Reset() override;
+-  virtual void Destroy() override;
+-  virtual bool CanDecodeOnIOThread() override;
++  void ReusePictureBuffer(int32 picture_buffer_id) override;
++  void Flush() override;
++  void Reset() override;
++  void Destroy() override;
++  bool CanDecodeOnIOThread() override;
+ 
+ private:
+   // Notify the client that an error has occurred and decoding cannot continue.
+diff --git a/content/common/gpu/media/vaapi_video_encode_accelerator.h b/content/common/gpu/media/vaapi_video_encode_accelerator.h
+index 0b4fe71..6a893fe 100644
+--- a/content/common/gpu/media/vaapi_video_encode_accelerator.h
++++ b/content/common/gpu/media/vaapi_video_encode_accelerator.h
+@@ -26,23 +26,22 @@ class CONTENT_EXPORT VaapiVideoEncodeAccelerator
+     : public media::VideoEncodeAccelerator {
+  public:
+   VaapiVideoEncodeAccelerator();
+-  virtual ~VaapiVideoEncodeAccelerator();
++  ~VaapiVideoEncodeAccelerator() override;
+ 
+   // media::VideoEncodeAccelerator implementation.
+-  virtual std::vector<media::VideoEncodeAccelerator::SupportedProfile>
++  std::vector<media::VideoEncodeAccelerator::SupportedProfile>
+       GetSupportedProfiles() override;
+-  virtual bool Initialize(media::VideoFrame::Format format,
+-                          const gfx::Size& input_visible_size,
+-                          media::VideoCodecProfile output_profile,
+-                          uint32 initial_bitrate,
+-                          Client* client) override;
+-  virtual void Encode(const scoped_refptr<media::VideoFrame>& frame,
+-                      bool force_keyframe) override;
+-  virtual void UseOutputBitstreamBuffer(
+-      const media::BitstreamBuffer& buffer) override;
+-  virtual void RequestEncodingParametersChange(uint32 bitrate,
+-                                               uint32 framerate) override;
+-  virtual void Destroy() override;
++  bool Initialize(media::VideoFrame::Format format,
++                  const gfx::Size& input_visible_size,
++                  media::VideoCodecProfile output_profile,
++                  uint32 initial_bitrate,
++                  Client* client) override;
++  void Encode(const scoped_refptr<media::VideoFrame>& frame,
++              bool force_keyframe) override;
++  void UseOutputBitstreamBuffer(const media::BitstreamBuffer& buffer) override;
++  void RequestEncodingParametersChange(uint32 bitrate,
++                                       uint32 framerate) override;
++  void Destroy() override;
+ 
+  private:
+   // Reference picture list.
+-- 
+1.9.1
+
