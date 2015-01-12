@@ -184,15 +184,14 @@ void DesktopWindowTreeHostOzone::OnNativeWidgetCreated(
 
 scoped_ptr<corewm::Tooltip>
 DesktopWindowTreeHostOzone::CreateTooltip() {
-  return scoped_ptr<corewm::Tooltip>(
-             new corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
+  return make_scoped_ptr(new corewm::TooltipAura(gfx::SCREEN_TYPE_NATIVE));
 }
 
 scoped_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostOzone::CreateDragDropClient(
     DesktopNativeCursorManager* cursor_manager) {
   drag_drop_client_ = new DesktopDragDropClientWayland(window());
-  return scoped_ptr<aura::client::DragDropClient>(drag_drop_client_).Pass();
+  return make_scoped_ptr(drag_drop_client_);
 }
 
 void DesktopWindowTreeHostOzone::Close() {
