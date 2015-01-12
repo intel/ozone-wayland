@@ -84,4 +84,9 @@ void OzoneChannel::RelinquishGpuResources(const base::Closure& callback) {
   callback.Run();
 }
 
+IPC::MessageFilter* OzoneChannel::GetMessageFilter() {
+  return NULL;
+}
+
+
 }  // namespace ui
