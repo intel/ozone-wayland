@@ -40,6 +40,7 @@
 #include "ui/wm/core/window_util.h"
 #include "ui/wm/public/window_move_client.h"
 
+DECLARE_WINDOW_PROPERTY_TYPE(views::DesktopWindowTreeHostOzone*);
 
 namespace views {
 
