@@ -7,32 +7,39 @@
 #include "ipc/ipc_sender.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/public/messages.h"
+#include "ui/ozone/platform/dri/dri_gpu_platform_support_host.h"
+#include "ui/ozone/public/ozone_platform.h"
 
 namespace ui {
 
-RemoteStateChangeHandler::RemoteStateChangeHandler()
-    : sender_(NULL) {
+RemoteStateChangeHandler::RemoteStateChangeHandler(
+    DriGpuPlatformSupportHost* proxy)
+    : proxy_(proxy),
+      isConnected_(false) {
   EventFactoryOzoneWayland::GetInstance()->
       SetWindowStateChangeHandler(this);
   EventFactoryOzoneWayland::GetInstance()->
       SetIMEStateChangeHandler(this);
+  proxy_->AddChannelObserver(this);
 }
 
 RemoteStateChangeHandler::~RemoteStateChangeHandler() {
   while (!deferred_messages_.empty())
     deferred_messages_.pop();
+
+  proxy_->RemoveChannelObserver(this);
 }
 
-void RemoteStateChangeHandler::ChannelEstablished(IPC::Sender* sender) {
-  sender_ = sender;
+void RemoteStateChangeHandler::OnChannelEstablished() {
+  isConnected_ = true;
   while (!deferred_messages_.empty()) {
-    sender_->Send(deferred_messages_.front());
+    proxy_->Send(deferred_messages_.front());
     deferred_messages_.pop();
   }
 }
 
-void RemoteStateChangeHandler::ChannelDestroyed() {
-  sender_ = NULL;
+void RemoteStateChangeHandler::OnChannelDestroyed() {
+  isConnected_ = false;
 }
 
 void RemoteStateChangeHandler::SetWidgetState(unsigned w,
@@ -82,10 +89,10 @@ void RemoteStateChangeHandler::Send(IPC::Message* message) {
   // This ensures the message is treated as a synchronous one and helps preserve
   // order. Check set_unblock in ipc_messages.h for explanation.
   message->set_unblock(true);
-  if (!sender_)
-    deferred_messages_.push(message);
+  if (isConnected_)
+    proxy_->Send(message);
   else
-    sender_->Send(message);
+    deferred_messages_.push(message);
 }
 
 }  // namespace ui

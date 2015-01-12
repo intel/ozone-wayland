@@ -12,13 +12,18 @@
 #include "ozone/ui/events/ime_change_observer.h"
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
+#include "ozone/ui/public/messages.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
+#include "ui/ozone/platform/dri/dri_gpu_platform_support_host.h"
 
 namespace ui {
 
-EventConverterInProcess::EventConverterInProcess()
+EventConverterInProcess::EventConverterInProcess(
+    DriGpuPlatformSupportHost* proxy)
     : EventConverterOzoneWayland(),
+      proxy_(proxy),
       weak_ptr_factory_(this) {
+  proxy_->RegisterHandler(this);
   callback_ = base::Bind(&EventConverterInProcess::PostUiEvent,
                          weak_ptr_factory_.GetWeakPtr());
   keyboard_.reset(new KeyboardEvdev(&modifiers_,
@@ -26,6 +31,42 @@ EventConverterInProcess::EventConverterInProcess()
 }
 
 EventConverterInProcess::~EventConverterInProcess() {
+}
+
+void EventConverterInProcess::OnChannelEstablished(
+  int host_id, scoped_refptr<base::SingleThreadTaskRunner> send_runner,
+      const base::Callback<void(IPC::Message*)>& send_callback) {
+}
+
+void EventConverterInProcess::OnChannelDestroyed(int host_id) {
+}
+
+bool EventConverterInProcess::OnMessageReceived(const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(EventConverterInProcess, message)
+  IPC_MESSAGE_HANDLER(WaylandInput_MotionNotify, MotionNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_ButtonNotify, ButtonNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_TouchNotify, TouchNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_AxisNotify, AxisNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_PointerEnter, PointerEnter)
+  IPC_MESSAGE_HANDLER(WaylandInput_PointerLeave, PointerLeave)
+  IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, KeyNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, VirtualKeyNotify)
+  IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OutputSizeChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, CloseWidget)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Resized, WindowResized)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Activated, WindowActivated)
+  IPC_MESSAGE_HANDLER(WaylandWindow_DeActivated, WindowDeActivated)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Unminimized, WindowUnminimized)
+  IPC_MESSAGE_HANDLER(WaylandInput_Commit, Commit)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, PreeditChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditEnd, PreeditEnd)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditStart, PreeditStart)
+  IPC_MESSAGE_HANDLER(WaylandInput_InitializeXKB, InitializeXKB)
+  IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  return handled;
 }
 
 void EventConverterInProcess::MotionNotify(float x, float y) {

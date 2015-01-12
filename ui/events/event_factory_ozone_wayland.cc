@@ -4,30 +4,18 @@
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 
-#include "base/bind.h"
-#include "ozone/ui/events/event_converter_in_process.h"
-#include "ozone/ui/events/remote_event_dispatcher.h"
-#include "ozone/ui/public/ozone_channel_host.h"
-
 namespace ui {
 
 // static
 EventFactoryOzoneWayland* EventFactoryOzoneWayland::impl_ = NULL;
 
-EventFactoryOzoneWayland::EventFactoryOzoneWayland(OzoneChannelHost* host)
+EventFactoryOzoneWayland::EventFactoryOzoneWayland()
     : observer_(NULL),
       ime_observer_(NULL),
       output_observer_(NULL),
       state_change_handler_(NULL),
-      ime_state_handler_(NULL),
-      host_(host) {
+      ime_state_handler_(NULL) {
   impl_ = this;
-  if (host_) {
-    event_converter_.reset(new EventConverterInProcess());
-    host_->Initialize();
-  } else {
-    event_converter_.reset(new RemoteEventDispatcher());
-  }
 }
 
 EventFactoryOzoneWayland::~EventFactoryOzoneWayland() {
@@ -69,18 +57,18 @@ EventFactoryOzoneWayland::GetOutputChangeObserver() const {
   return output_observer_;
 }
 
+void EventFactoryOzoneWayland::SetEventConverter(
+    EventConverterOzoneWayland* event_converter) {
+  event_converter_ = event_converter;
+}
+
 EventConverterOzoneWayland*
 EventFactoryOzoneWayland::GetEventConverter() const {
-  return event_converter_.get();
+  return event_converter_;
 }
 
 void EventFactoryOzoneWayland::SetWindowStateChangeHandler(
     WindowStateChangeHandler* handler) {
-  if (host_ && host_->GetStateChangeHandler() &&
-      handler != host_->GetStateChangeHandler()) {
-    host_->ReleaseRemoteStateChangeHandler();
-  }
-
   state_change_handler_ = handler;
 }
 

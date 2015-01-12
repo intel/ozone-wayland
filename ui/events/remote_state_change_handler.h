@@ -9,6 +9,7 @@
 
 #include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
+#include "ui/ozone/platform/dri/channel_observer.h"
 
 namespace IPC {
 class Message;
@@ -16,19 +17,22 @@ class Sender;
 }
 
 namespace ui {
+class DriGpuPlatformSupportHost;
 // RemoteStateChangeHandler implements WindowStateChangeHandler and
 // IMEStateChangeHandler. It is responsible for sending any Ime/Window state
 // change events from Browser to GPU process (i.e IPC).
 
 class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
-                                 public ui::IMEStateChangeHandler {
+                                 public ui::IMEStateChangeHandler,
+                                 public ui::ChannelObserver {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
-  RemoteStateChangeHandler();
+  explicit RemoteStateChangeHandler(DriGpuPlatformSupportHost* proxy);
   ~RemoteStateChangeHandler() override;
 
-  void ChannelEstablished(IPC::Sender* sender);
-  void ChannelDestroyed();
+  // ChannelObserver implementation:
+  void OnChannelEstablished() override;
+  void OnChannelDestroyed() override;
 
   // WindowStateChangeHandler implementation:
   void SetWidgetState(unsigned widget,
@@ -50,6 +54,8 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   void Send(IPC::Message* message);
 
   IPC::Sender* sender_;
+  DriGpuPlatformSupportHost* proxy_;
+  bool isConnected_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.
   DeferredMessages deferred_messages_;

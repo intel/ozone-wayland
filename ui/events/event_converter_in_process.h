@@ -14,16 +14,27 @@
 #include "ui/events/ozone/evdev/event_modifiers_evdev.h"
 #include "ui/events/ozone/evdev/keyboard_evdev.h"
 #include "ui/events/platform/platform_event_source.h"
+#include "ui/ozone/public/gpu_platform_support_host.h"
 
 namespace ui {
 
+class DriGpuPlatformSupportHost;
 class KeyboardEvdev;
 class EventConverterInProcess : public ui::EventConverterOzoneWayland,
-                                public ui::PlatformEventSource {
+                                public ui::PlatformEventSource,
+                                public GpuPlatformSupportHost {
  public:
-  EventConverterInProcess();
+  explicit EventConverterInProcess(DriGpuPlatformSupportHost* proxy);
   ~EventConverterInProcess() override;
+  // GpuPlatformSupportHost
+  void OnChannelEstablished(
+      int host_id,
+      scoped_refptr<base::SingleThreadTaskRunner> send_runner,
+      const base::Callback<void(IPC::Message*)>& send_callback) override;
+  void OnChannelDestroyed(int host_id) override;
+  bool OnMessageReceived(const IPC::Message&) override;
 
+  // EventConverterOzoneWayland
   void MotionNotify(float x, float y) override;
   void ButtonNotify(unsigned handle,
                     ui::EventType type,
@@ -115,6 +126,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   EventModifiersEvdev modifiers_;
   // Keyboard state.
   scoped_ptr<KeyboardEvdev> keyboard_;
+  DriGpuPlatformSupportHost* proxy_;
   // Callback for dispatching events.
   EventDispatchCallback callback_;
   // Support weak pointers for attach & detach callbacks.

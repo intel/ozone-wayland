@@ -8,7 +8,5 @@
     'message_generator.cc',
     'ozone_channel.h',
     'ozone_channel.cc',
-    'ozone_channel_host.h',
-    'ozone_channel_host.cc',
    ],
 }
