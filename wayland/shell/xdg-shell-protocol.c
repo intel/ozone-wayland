@@ -96,6 +96,9 @@ static const struct wl_message xdg_surface_requests[] = {
 	{ "set_fullscreen", "?o", types + 24 },
 	{ "unset_fullscreen", "", types + 0 },
 	{ "set_minimized", "", types + 0 },
+#if defined(OS_TIZEN)
+	{ "needs_attention", "", types + 0 },
+#endif
 };
 
 static const struct wl_message xdg_surface_events[] = {
@@ -105,7 +108,11 @@ static const struct wl_message xdg_surface_events[] = {
 
 WL_EXPORT const struct wl_interface xdg_surface_interface = {
 	"xdg_surface", 1,
+#if defined(OS_TIZEN)
+	15, xdg_surface_requests,
+#else
 	14, xdg_surface_requests,
+#endif
 	2, xdg_surface_events,
 };
 
