@@ -138,6 +138,10 @@ void XDGShellSurface::HandleConfigure(void* data,
       WaylandShellSurface::WindowActivated(data);
   }
 
+  // When a window is deactivated, states->size is 0
+  if (!states->size)
+    WaylandShellSurface::WindowDeActivated(data);
+
   if ((width > 0) && (height > 0))
     WaylandShellSurface::WindowResized(data, width, height);
 
