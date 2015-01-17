@@ -155,7 +155,7 @@ void WaylandTextInput::ResetIme() {
 }
 
 void WaylandTextInput::ShowInputPanel(wl_seat* input_seat) {
-  if (text_input_ && active_window_) {
+  if (text_input_ && active_window_ && active_window_->ShellSurface()) {
     wl_text_input_show_input_panel(text_input_);
     wl_text_input_activate(text_input_,
                            input_seat,
