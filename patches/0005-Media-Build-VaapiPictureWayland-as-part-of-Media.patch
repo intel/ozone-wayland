@@ -1,6 +1,6 @@
-From d27b469ee5e12940e20adf986d2b8c19181f2f4a Mon Sep 17 00:00:00 2001
+From d018bb55c4f8ffb4858c3f1f6c6ade771172b901 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Sun, 11 Jan 2015 18:46:04 -0800
+Date: Fri, 16 Jan 2015 19:19:37 -0800
 Subject: [PATCH] Media: Build VaapiPictureWayland as part of Media.
 
 This is temporary, so we can avoid gl circular dependency. Eventually,
@@ -12,22 +12,22 @@ custom va_stubs if possible?).
  1 file changed, 5 insertions(+), 7 deletions(-)
 
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 408bcf0..9e5af4a 100644
+index 42a2e65..3f03882 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -838,7 +838,7 @@
+@@ -854,7 +854,7 @@
          }],
        ],
      }],
 -    ['target_arch != "arm" and chromeos == 1', {
-+    ['target_arch != "arm"', {
++    ['target_arch != "arm", {
        'dependencies': [
          '../media/media.gyp:media',
          '../third_party/libyuv/libyuv.gyp:libyuv',
-@@ -849,14 +849,12 @@
-         'common/gpu/media/va_surface.h',
-         'common/gpu/media/vaapi_h264_decoder.cc',
+@@ -865,14 +865,12 @@
          'common/gpu/media/vaapi_h264_decoder.h',
+         'common/gpu/media/vaapi_h264_dpb.cc',
+         'common/gpu/media/vaapi_h264_dpb.h',
 -        'common/gpu/media/vaapi_picture.cc',
 -        'common/gpu/media/vaapi_picture.h',
          'common/gpu/media/vaapi_video_decode_accelerator.cc',

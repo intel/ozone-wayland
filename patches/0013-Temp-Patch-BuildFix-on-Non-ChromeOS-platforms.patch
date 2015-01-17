@@ -1,14 +1,14 @@
-From 136e92509a0be1d94ed42199fe22c2522943fcba Mon Sep 17 00:00:00 2001
+From 1c2f4a27df2ad70b8bd643174db58126b5c87266 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Mon, 12 Jan 2015 01:45:26 -0800
+Date: Fri, 16 Jan 2015 19:23:04 -0800
 Subject: [PATCH] Temp Patch: BuildFix on Non-ChromeOS platforms.
 
 ---
- ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
-index 49f29a1..3f4b6ad 100644
+index ffbfb3e..b2902a8 100644
 --- a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
 +++ b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
 @@ -625,6 +625,7 @@ const PrintableSimpleEntry kSimpleMap[] = {
@@ -17,46 +17,16 @@ index 49f29a1..3f4b6ad 100644
  
 +#if defined(OS_CHROMEOS)
  void LoadKeymap(const std::string& layout_name,
-                 scoped_ptr<xkb_rule_names> names,
                  scoped_refptr<base::SingleThreadTaskRunner> reply_runner,
-@@ -640,6 +641,7 @@ void LoadKeymap(const std::string& layout_name,
-   reply_runner->PostTask(FROM_HERE, base::Bind(reply_callback, layout_name,
-                                                base::Owned(keymap_str)));
+                 const LoadKeymapCallback& reply_callback) {
+@@ -652,6 +653,7 @@ void LoadKeymap(const std::string& layout_name,
+     LOG(ERROR) << "Keymap file failed to load: " << layout_name;
+   }
  }
 +#endif
  
  }  // anonymous namespace
  
-@@ -676,7 +678,6 @@ bool XkbKeyboardLayoutEngine::CanSetCurrentLayout() const {
- 
- bool XkbKeyboardLayoutEngine::SetCurrentLayoutByName(
-     const std::string& layout_name) {
--#if defined(OS_CHROMEOS)
-   current_layout_name_ = layout_name;
-   for (const auto& entry : xkb_keymaps_) {
-     if (entry.layout_name == layout_name) {
-@@ -684,6 +685,7 @@ bool XkbKeyboardLayoutEngine::SetCurrentLayoutByName(
-       return true;
-     }
-   }
-+#if defined(OS_CHROMEOS)
-   LoadKeymapCallback reply_callback = base::Bind(
-       &XkbKeyboardLayoutEngine::OnKeymapLoaded, weak_ptr_factory_.GetWeakPtr());
-   scoped_ptr<xkb_rule_names> names = GetXkbRuleNames(layout_name);
-@@ -693,12 +695,7 @@ bool XkbKeyboardLayoutEngine::SetCurrentLayoutByName(
-                  base::ThreadTaskRunnerHandle::Get(), reply_callback),
-       true);
- #else
--  xkb_keymap* keymap = xkb_map_new_from_string(
--      xkb_context_.get(), layout_name.c_str(), XKB_KEYMAP_FORMAT_TEXT_V1,
--      XKB_KEYMAP_COMPILE_NO_FLAGS);
--  if (!keymap)
--    return false;
--  SetKeymap(keymap);
-+  OnKeymapLoaded(layout_name, layout_name.c_str());
- #endif  // defined(OS_CHROMEOS)
-   return true;
- }
 -- 
 1.9.1
 
