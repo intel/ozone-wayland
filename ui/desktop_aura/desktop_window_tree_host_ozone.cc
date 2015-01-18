@@ -74,13 +74,13 @@ DesktopWindowTreeHostOzone::DesktopWindowTreeHostOzone(
       previous_maximize_bounds_(0, 0, 0, 0),
       window_(0),
       title_(base::string16()),
-      close_widget_factory_(this),
       drag_drop_client_(NULL),
       native_widget_delegate_(native_widget_delegate),
       content_window_(NULL),
       desktop_native_widget_aura_(desktop_native_widget_aura),
       window_parent_(NULL),
-      window_children_() {
+      window_children_(),
+      close_widget_factory_(this) {
 }
 
 DesktopWindowTreeHostOzone::~DesktopWindowTreeHostOzone() {

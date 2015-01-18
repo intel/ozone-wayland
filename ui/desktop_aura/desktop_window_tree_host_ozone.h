@@ -187,8 +187,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   gfx::AcceleratedWidget window_;
   base::string16 title_;
 
-  base::WeakPtrFactory<DesktopWindowTreeHostOzone> close_widget_factory_;
-
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;
   views::internal::NativeWidgetDelegate* native_widget_delegate_;
@@ -202,6 +200,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
 
   // Platform-specific part of this DesktopWindowTreeHost.
   scoped_ptr<ui::PlatformWindow> platform_window_;
+  base::WeakPtrFactory<DesktopWindowTreeHostOzone> close_widget_factory_;
 
   // A list of all (top-level) windows that have been created but not yet
   // destroyed.

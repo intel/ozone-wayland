@@ -1,6 +1,6 @@
-From d018bb55c4f8ffb4858c3f1f6c6ade771172b901 Mon Sep 17 00:00:00 2001
+From 31109db890d5f5a9eea352f1a2a397cca8f74a9e Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Fri, 16 Jan 2015 19:19:37 -0800
+Date: Sat, 17 Jan 2015 16:02:34 -0800
 Subject: [PATCH] Media: Build VaapiPictureWayland as part of Media.
 
 This is temporary, so we can avoid gl circular dependency. Eventually,
@@ -12,7 +12,7 @@ custom va_stubs if possible?).
  1 file changed, 5 insertions(+), 7 deletions(-)
 
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 42a2e65..3f03882 100644
+index 42a2e65..0d92204 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
 @@ -854,7 +854,7 @@
@@ -20,7 +20,7 @@ index 42a2e65..3f03882 100644
        ],
      }],
 -    ['target_arch != "arm" and chromeos == 1', {
-+    ['target_arch != "arm", {
++    ['target_arch != "arm"', {
        'dependencies': [
          '../media/media.gyp:media',
          '../third_party/libyuv/libyuv.gyp:libyuv',
