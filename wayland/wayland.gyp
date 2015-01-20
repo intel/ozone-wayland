@@ -33,6 +33,9 @@
           'xkbcommon',
         ],
       },
+      'defines': [
+        'OZONE_WAYLAND_IMPLEMENTATION',
+      ],
       'cflags': [
         '<!@(<(pkg-config) --cflags <(wayland_packages))',
       ],
