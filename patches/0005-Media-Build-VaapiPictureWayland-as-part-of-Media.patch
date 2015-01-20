@@ -20,7 +20,7 @@ index 408bcf0..9e5af4a 100644
        ],
      }],
 -    ['target_arch != "arm" and chromeos == 1', {
-+    ['target_arch != "arm"', {
++    ['target_arch != "arm" and use_ozone == 1', {
        'dependencies': [
          '../media/media.gyp:media',
          '../third_party/libyuv/libyuv.gyp:libyuv',
