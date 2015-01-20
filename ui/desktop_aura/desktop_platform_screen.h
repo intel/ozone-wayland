@@ -5,8 +5,6 @@
 #ifndef OZONE_IMPL_DESKTOP_AURA_DESKTOP_PLATFORM_SCREEN_H__
 #define OZONE_IMPL_DESKTOP_AURA_DESKTOP_PLATFORM_SCREEN_H__
 
-#include "ui/views/views_export.h"
-
 namespace ui {
 class DesktopPlatformScreen;
 }
@@ -15,7 +13,7 @@ namespace views {
 
 // Creates a Native Screen. Caller owns the result. It's just here to avoid
 // custom changes in OzonePlatform.
-VIEWS_EXPORT ui::DesktopPlatformScreen* CreateDesktopPlatformScreen();
+ui::DesktopPlatformScreen* CreateDesktopPlatformScreen();
 
 }  // namespace views
 

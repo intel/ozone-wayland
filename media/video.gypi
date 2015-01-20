@@ -9,6 +9,9 @@
     'vaapi_wrapper.cc',
     'vaapi_wrapper.h',
   ],
+  'defines': [
+    'CONTENT_IMPLEMENTATION',
+  ],
   'variables': {
     'extra_header': 'media/va_wayland_stub_header.fragment',
     'sig_files': ['va_wayland.sigs'],

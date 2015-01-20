@@ -13,6 +13,7 @@
 #include "base/sys_info.h"
 // Auto-generated for dlopen libva libraries
 #include "media/media/va_stubs.h"
+#include "content/common/content_export.h"
 #include "content/common/gpu/media/vaapi_picture.h"
 #include "third_party/libyuv/include/libyuv.h"
 #if defined(USE_X11)
@@ -138,14 +139,14 @@ static VAProfile ProfileToVAProfile(
   return va_profile;
 }
 
-VASurface::VASurface(VASurfaceID va_surface_id,
+CONTENT_EXPORT VASurface::VASurface(VASurfaceID va_surface_id,
                      const gfx::Size& size,
                      const ReleaseCB& release_cb)
     : va_surface_id_(va_surface_id), size_(size), release_cb_(release_cb) {
   DCHECK(!release_cb_.is_null());
 }
 
-VASurface::~VASurface() {
+CONTENT_EXPORT VASurface::~VASurface() {
   release_cb_.Run(va_surface_id_);
 }
 
