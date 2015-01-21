@@ -70,7 +70,7 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {
-    return scoped_ptr<NativeDisplayDelegate>(new NativeDisplayDelegateOzone());
+    return nullptr;
   }
 
   void InitializeUI() override {
