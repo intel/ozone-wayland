@@ -34,7 +34,6 @@
 #include "ozone/wayland/screen.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"
-#include "ui/ozone/common/egl_util.h"
 #include "ui/ozone/public/native_pixmap.h"
 
 #if defined(ENABLE_DRM_SUPPORT)
@@ -164,7 +163,40 @@ bool WaylandDisplay::LoadEGLGLES2Bindings(
   // ensure here that wayland is set as the native platform. However, we don't
   // override the EGL_PLATFORM value in case it has already been set.
   setenv("EGL_PLATFORM", "wayland", 0);
-  return ui::LoadDefaultEGLGLES2Bindings(add_gl_library, setprocaddress);
+  base::NativeLibraryLoadError error;
+  base::NativeLibrary gles_library = base::LoadNativeLibrary(
+    base::FilePath("libGLESv2.so.2"), &error);
+
+  if (!gles_library) {
+    LOG(WARNING) << "Failed to load GLES library: " << error.ToString();
+    return false;
+  }
+
+  base::NativeLibrary egl_library = base::LoadNativeLibrary(
+    base::FilePath("libEGL.so.1"), &error);
+
+  if (!egl_library) {
+    LOG(WARNING) << "Failed to load EGL library: " << error.ToString();
+    base::UnloadNativeLibrary(gles_library);
+    return false;
+  }
+
+  GLGetProcAddressProc get_proc_address =
+      reinterpret_cast<GLGetProcAddressProc>(
+          base::GetFunctionPointerFromNativeLibrary(
+              egl_library, "eglGetProcAddress"));
+
+  if (!get_proc_address) {
+    LOG(ERROR) << "eglGetProcAddress not found.";
+    base::UnloadNativeLibrary(egl_library);
+    base::UnloadNativeLibrary(gles_library);
+    return false;
+  }
+
+  setprocaddress.Run(get_proc_address);
+  add_gl_library.Run(egl_library);
+  add_gl_library.Run(gles_library);
+  return true;
 }
 
 const int32*
@@ -178,6 +210,7 @@ WaylandDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
   // According to egl spec depth size defaulted to zero and smallest size
   // preffered. Force depth to 24 bits to have same depth buffer on different
   // platforms.
+
     EGL_DEPTH_SIZE, 24,
     EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
     EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
@@ -493,3 +526,4 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
 }
 
 }  // namespace ozonewayland
+
