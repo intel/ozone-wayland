@@ -43,6 +43,53 @@ index 42a2e65..0d92204 100644
        ],
        'conditions': [
          ['use_x11 == 1', {
+@@ -899,47 +897,10 @@
+           ],
+         }],
+       ],
+-      'variables': {
+-        'generate_stubs_script': '../tools/generate_stubs/generate_stubs.py',
+-        'extra_header': 'common/gpu/media/va_stub_header.fragment',
+-        'outfile_type': 'posix_stubs',
+-        'stubs_filename_root': 'va_stubs',
+-        'project_path': 'content/common/gpu/media',
+-        'intermediate_dir': '<(INTERMEDIATE_DIR)',
+-        'output_root': '<(SHARED_INTERMEDIATE_DIR)/va',
+-      },
+       'include_dirs': [
+         '<(DEPTH)/third_party/libva',
+         '<(DEPTH)/third_party/libyuv',
+-        '<(output_root)',
+       ],
+-      'actions': [
+-        {
+-          'action_name': 'generate_stubs',
+-          'inputs': [
+-            '<(generate_stubs_script)',
+-            '<(extra_header)',
+-            '<@(sig_files)',
+-          ],
+-          'outputs': [
+-            '<(intermediate_dir)/<(stubs_filename_root).cc',
+-            '<(output_root)/<(project_path)/<(stubs_filename_root).h',
+-          ],
+-          'action': ['python',
+-                     '<(generate_stubs_script)',
+-                     '-i', '<(intermediate_dir)',
+-                     '-o', '<(output_root)/<(project_path)',
+-                     '-t', '<(outfile_type)',
+-                     '-e', '<(extra_header)',
+-                     '-s', '<(stubs_filename_root)',
+-                     '-p', '<(project_path)',
+-                     '<@(_inputs)',
+-          ],
+-          'process_outputs_as_sources': 1,
+-          'message': 'Generating libva stubs for dynamic loading',
+-        },
+-     ]
+     }],
+     ['OS=="win"', {
+       'dependencies': [
 -- 
 1.9.1
 
