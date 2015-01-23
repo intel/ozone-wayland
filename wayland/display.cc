@@ -80,6 +80,7 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     compositor_(NULL),
     shell_(NULL),
     shm_(NULL),
+    text_input_manager_(NULL),
     primary_screen_(NULL),
     primary_input_(NULL),
     display_poll_thread_(NULL),
@@ -398,6 +399,9 @@ void WaylandDisplay::Terminate() {
 
   screen_list_.clear();
   input_list_.clear();
+
+  if (text_input_manager_)
+    wl_text_input_manager_destroy(text_input_manager_);
 
   WaylandCursor::Clear();
 #if defined(ENABLE_DRM_SUPPORT)
