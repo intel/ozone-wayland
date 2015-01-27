@@ -1,17 +1,23 @@
-From 1c2f4a27df2ad70b8bd643174db58126b5c87266 Mon Sep 17 00:00:00 2001
-From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Fri, 16 Jan 2015 19:23:04 -0800
-Subject: [PATCH] Temp Patch: BuildFix on Non-ChromeOS platforms.
+From 0515336a0095fb9a1046eeffd94d0220669d779e Mon Sep 17 00:00:00 2001
+From: "kalyan.kondapally" <kalyan.kondapally@intel.com>
+Date: Mon, 19 Jan 2015 07:50:47 -0800
+Subject: [PATCH] Ozone: Build fix on Linux.
 
+Clang complains about un-used funtions on Linux builds. This CL fixes
+it.
+
+Review URL: https://codereview.chromium.org/841113004
+
+Cr-Commit-Position: refs/heads/master@{#312121}
 ---
  ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
-index ffbfb3e..b2902a8 100644
+index ba4acf0..bf7d158 100644
 --- a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
 +++ b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
-@@ -625,6 +625,7 @@ const PrintableSimpleEntry kSimpleMap[] = {
+@@ -626,6 +626,7 @@ const PrintableSimpleEntry kSimpleMap[] = {
      {0x0259, VKEY_OEM_3},      // schwa
  };
  
@@ -19,7 +25,7 @@ index ffbfb3e..b2902a8 100644
  void LoadKeymap(const std::string& layout_name,
                  scoped_refptr<base::SingleThreadTaskRunner> reply_runner,
                  const LoadKeymapCallback& reply_callback) {
-@@ -652,6 +653,7 @@ void LoadKeymap(const std::string& layout_name,
+@@ -653,6 +654,7 @@ void LoadKeymap(const std::string& layout_name,
      LOG(ERROR) << "Keymap file failed to load: " << layout_name;
    }
  }
@@ -28,5 +34,5 @@ index ffbfb3e..b2902a8 100644
  }  // anonymous namespace
  
 -- 
-1.9.1
+2.1.4
 
