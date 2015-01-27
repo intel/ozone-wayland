@@ -1,0 +1,31 @@
+From f51c0e9efe38e89b0172be3472bbf0517010642b Mon Sep 17 00:00:00 2001
+From: "kalyan.kondapally" <kalyan.kondapally@intel.com>
+Date: Wed, 21 Jan 2015 20:49:07 -0800
+Subject: [PATCH] Use X11 headers only when using X11.
+
+This was causing problems when building chromium on Linux platforms with no x11 and Ozone enabled. https://codereview.chromium.org/817023005/diff/40001/content/common/BUILD.gn
+made changes so that we run the version in content_common with a va_stub_header.fragment always.
+
+Review URL: https://codereview.chromium.org/860163003
+
+Cr-Commit-Position: refs/heads/master@{#312563}
+---
+ content/common/gpu/media/va_stub_header.fragment | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/content/common/gpu/media/va_stub_header.fragment b/content/common/gpu/media/va_stub_header.fragment
+index fdcf35f..91ba892 100644
+--- a/content/common/gpu/media/va_stub_header.fragment
++++ b/content/common/gpu/media/va_stub_header.fragment
+@@ -5,6 +5,8 @@ extern "C" {
+ 
+ #include "third_party/libva/va/drm/va_drm.h"
+ #include "third_party/libva/va/va.h"
++#if defined(USE_X11)
+ #include "third_party/libva/va/va_x11.h"
++#endif
+ 
+ }
+-- 
+2.1.4
+
