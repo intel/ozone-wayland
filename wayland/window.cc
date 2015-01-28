@@ -77,6 +77,12 @@ void WaylandWindow::Show() {
 }
 
 void WaylandWindow::Restore() {
+#if defined(OS_TIZEN)
+  if (shell_surface_->IsMinimized()) {
+    shell_surface_->Unminimize();
+    return;
+  }
+#endif
   // If window is created as fullscreen, we don't set/restore any window states
   // like Maximize etc.
   if (type_ != FULLSCREEN)

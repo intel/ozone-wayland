@@ -308,6 +308,9 @@ xdg_surface_add_listener(struct xdg_surface *xdg_surface,
 #define XDG_SURFACE_SET_FULLSCREEN	11
 #define XDG_SURFACE_UNSET_FULLSCREEN	12
 #define XDG_SURFACE_SET_MINIMIZED	13
+#if defined(OS_TIZEN)
+#define XDG_SURFACE_NEEDS_ATTENTION	14
+#endif
 
 static inline void
 xdg_surface_set_user_data(struct xdg_surface *xdg_surface, void *user_data)
@@ -420,6 +423,15 @@ xdg_surface_set_minimized(struct xdg_surface *xdg_surface)
 	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
 			 XDG_SURFACE_SET_MINIMIZED);
 }
+
+#if defined(OS_TIZEN)
+static inline void
+xdg_surface_needs_attention(struct xdg_surface *xdg_surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
+			 XDG_SURFACE_NEEDS_ATTENTION);
+}
+#endif
 
 /**
  * xdg_popup - desktop-style metadata interface

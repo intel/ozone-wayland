@@ -121,6 +121,9 @@ void XDGShellSurface::Minimize() {
 
 void XDGShellSurface::Unminimize() {
   minimized_ = false;
+#if defined(OS_TIZEN)
+  xdg_surface_needs_attention(xdg_surface_);
+#endif
 }
 
 bool XDGShellSurface::IsMinimized() const {
