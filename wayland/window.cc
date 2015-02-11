@@ -22,6 +22,15 @@ WaylandWindow::WaylandWindow(unsigned handle) : shell_surface_(NULL),
 }
 
 WaylandWindow::~WaylandWindow() {
+  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  if (input) {
+    if (input->GetFocusWindowHandle() == handle_)
+      input->SetFocusWindowHandle(0);
+
+    if (input->GetGrabWindowHandle() == handle_)
+      input->SetGrabWindowHandle(0, 0);
+  }
+
   delete window_;
   delete shell_surface_;
 }
