@@ -208,7 +208,9 @@ export GYP_GENERATORS=ninja
 -Dclang=0 \
 -Dlinux_use_bundled_binutils=0 \
 -Dlinux_use_bundled_gold=0 \
--Duse_xkbcommon=1
+-Duse_xkbcommon=1 \
+-Dproprietary_codecs=1 \
+-Dffmpeg_branding=Chrome
 
 ninja %{?_smp_mflags} -C out/Release chrome
 
