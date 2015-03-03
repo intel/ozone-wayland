@@ -17,9 +17,4 @@ fi
 git checkout -b $HACKING_BRANCH master
 git am $PATCH_DIR/00*
 
-# jump now to WebRTC dir and apply the needed patches there
-cd third_party/webrtc/
-git reset --hard origin/master
-git am $PATCH_DIR/100*
-
 
