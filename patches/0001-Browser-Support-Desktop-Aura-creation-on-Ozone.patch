@@ -1,10 +1,10 @@
-From d4e834d1aa88fc567782616422ff7f2d1ec7f3ef Mon Sep 17 00:00:00 2001
+From 3f2c2d2c2d7e06c5da37a7d47d92f97ce54a700b Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Tue, 23 Dec 2014 05:12:29 -0800
-Subject: [PATCH] Browser: Support Desktop Aura creation on Ozone
+Date: Tue, 3 Mar 2015 14:29:53 -0800
+Subject: [PATCH 01/10] Browser: Support Desktop Aura creation on Ozone
 
 This CL creates BrowserDesktopRootWindowHostOzone and gives support
-for Aura Ozone implementations.
+for Aura Ozone implementations
 ---
  .../browser_desktop_root_window_host_ozone.cc      | 129 +++++++++++++++++++++
  .../frame/browser_desktop_root_window_host_ozone.h |  45 +++++++
@@ -200,18 +200,18 @@ index 0000000..4096680
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index d357670..8fc191b 100644
+index 5bb7f3a..6053824 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1917,6 +1917,8 @@
-       'browser/ui/views/external_protocol_dialog.h',
-       'browser/ui/views/frame/desktop_browser_frame_aura.cc',
-       'browser/ui/views/frame/desktop_browser_frame_aura.h',
+@@ -1323,6 +1323,8 @@
+       'browser/ui/views/frame/browser_desktop_window_tree_host_x11.h',
+       'browser/ui/views/frame/desktop_browser_frame_auralinux.cc',
+       'browser/ui/views/frame/desktop_browser_frame_auralinux.h',
 +      'browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc',
 +      'browser/ui/views/frame/browser_desktop_root_window_host_ozone.h',
-       'browser/ui/views/message_center/message_center_frame_view.cc',
-       'browser/ui/views/message_center/message_center_frame_view.h',
-       'browser/ui/views/message_center/message_center_widget_delegate.h',
+       'browser/ui/views/frame/global_menu_bar_registrar_x11.cc',
+       'browser/ui/views/frame/global_menu_bar_registrar_x11.h',
+       'browser/ui/views/frame/global_menu_bar_x11.cc',
 -- 
 1.9.1
 

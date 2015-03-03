@@ -1,6 +1,6 @@
 vars = {
   'chromium_url': 'https://chromium.googlesource.com/chromium/src.git',
-  'chromium_rev': '07e0fd329293cca145875e156b87afdf383dcdc0',
+  'chromium_rev': 'd2e455390173cf46497d048f796a7d907e445c47',
 }
 
 deps = {
