@@ -16,6 +16,7 @@
 #include "content/common/content_export.h"
 #include "content/common/gpu/media/vaapi_picture.h"
 #include "third_party/libyuv/include/libyuv.h"
+#include "ui/gl/gl_bindings.h"
 #if defined(USE_X11)
 #include "ui/gfx/x/x11_types.h"
 #elif defined(USE_OZONE)
@@ -37,7 +38,8 @@ static const base::FilePath::CharType kVaLib[] =
 
 static const char kVaLockBufferSymbol[] = "vaLockBuffer";
 static const char kVaUnlockBufferSymbol[] = "vaUnlockBuffer";
-#endif  // USE_X11
+#endif  // USE_OZONE
+
 
 #define LOG_VA_ERROR_AND_REPORT(va_error, err_msg)         \
   do {                                                     \
@@ -140,8 +142,8 @@ static VAProfile ProfileToVAProfile(
 }
 
 CONTENT_EXPORT VASurface::VASurface(VASurfaceID va_surface_id,
-                     const gfx::Size& size,
-                     const ReleaseCB& release_cb)
+                                     const gfx::Size& size,
+                                     const ReleaseCB& release_cb)
     : va_surface_id_(va_surface_id), size_(size), release_cb_(release_cb) {
   DCHECK(!release_cb_.is_null());
 }
@@ -151,7 +153,7 @@ CONTENT_EXPORT VASurface::~VASurface() {
 }
 
 VaapiWrapper::VaapiWrapper()
-    : va_display_(NULL),
+   : va_display_(NULL),
       va_config_id_(VA_INVALID_ID),
       va_context_id_(VA_INVALID_ID),
       va_initialized_(false),
@@ -170,12 +172,34 @@ VaapiWrapper::~VaapiWrapper() {
 
 scoped_ptr<VaapiWrapper> VaapiWrapper::Create(
     CodecMode mode,
+    VAProfile va_profile,
+    const base::Closure& report_error_to_uma_cb) {
+  scoped_ptr<VaapiWrapper> vaapi_wrapper(new VaapiWrapper());
+
+  if (!vaapi_wrapper->VaInitialize(report_error_to_uma_cb))
+    return nullptr;
+  if (!vaapi_wrapper->Initialize(mode, va_profile))
+    return nullptr;
+
+  return vaapi_wrapper.Pass();
+}
+
+scoped_ptr<VaapiWrapper> VaapiWrapper::CreateForVideoCodec(
+    CodecMode mode,
     media::VideoCodecProfile profile,
     const base::Closure& report_error_to_uma_cb) {
   scoped_ptr<VaapiWrapper> vaapi_wrapper(new VaapiWrapper());
 
-  if (!vaapi_wrapper->Initialize(mode, profile, report_error_to_uma_cb))
-    vaapi_wrapper.reset();
+  if (!vaapi_wrapper->VaInitialize(report_error_to_uma_cb))
+    return nullptr;
+
+  std::vector<VAProfile> supported_va_profiles;
+  if (!vaapi_wrapper->GetSupportedVaProfiles(&supported_va_profiles))
+    return nullptr;
+
+  VAProfile va_profile = ProfileToVAProfile(profile, supported_va_profiles);
+  if (!vaapi_wrapper->Initialize(mode, va_profile))
+    return nullptr;
 
   return vaapi_wrapper.Pass();
 }
@@ -345,15 +369,7 @@ bool VaapiWrapper::AreAttribsSupported(
   return true;
 }
 
-bool VaapiWrapper::Initialize(CodecMode mode,
-                              media::VideoCodecProfile profile,
-                              const base::Closure& report_error_to_uma_cb) {
-  if (!VaInitialize(report_error_to_uma_cb))
-    return false;
-  std::vector<VAProfile> supported_va_profiles;
-  if (!GetSupportedVaProfiles(&supported_va_profiles))
-    return false;
-  VAProfile va_profile = ProfileToVAProfile(profile, supported_va_profiles);
+bool VaapiWrapper::Initialize(CodecMode mode, VAProfile va_profile) {
   if (va_profile == VAProfileNone) {
     DVLOG(1) << "Unsupported profile";
     return false;
@@ -672,9 +688,9 @@ bool VaapiWrapper::PutSurfaceIntoPixmap(VASurfaceID va_surface_id,
 }
 #endif  // USE_X11
 
-bool VaapiWrapper::GetVaImageForTesting(VASurfaceID va_surface_id,
-                                        VAImage* image,
-                                        void** mem) {
+bool VaapiWrapper::GetDerivedVaImage(VASurfaceID va_surface_id,
+                                     VAImage* image,
+                                     void** mem) {
   base::AutoLock auto_lock(va_lock_);
 
   VAStatus va_res = vaSyncSurface(va_display_, va_surface_id);
@@ -698,7 +714,40 @@ bool VaapiWrapper::GetVaImageForTesting(VASurfaceID va_surface_id,
   return false;
 }
 
-void VaapiWrapper::ReturnVaImageForTesting(VAImage* image) {
+bool VaapiWrapper::GetVaImage(VASurfaceID va_surface_id,
+                              VAImageFormat* format,
+                              const gfx::Size& size,
+                              VAImage* image,
+                              void** mem) {
+  base::AutoLock auto_lock(va_lock_);
+
+  VAStatus va_res = vaSyncSurface(va_display_, va_surface_id);
+  VA_SUCCESS_OR_RETURN(va_res, "Failed syncing surface", false);
+
+  va_res =
+      vaCreateImage(va_display_, format, size.width(), size.height(), image);
+  VA_SUCCESS_OR_RETURN(va_res, "vaCreateImage failed", false);
+
+  va_res = vaGetImage(va_display_, va_surface_id, 0, 0, size.width(),
+                      size.height(), image->image_id);
+  VA_LOG_ON_ERROR(va_res, "vaGetImage failed");
+
+  if (va_res == VA_STATUS_SUCCESS) {
+    // Map the VAImage into memory
+    va_res = vaMapBuffer(va_display_, image->buf, mem);
+    VA_LOG_ON_ERROR(va_res, "vaMapBuffer failed");
+  }
+
+  if (va_res != VA_STATUS_SUCCESS) {
+    va_res = vaDestroyImage(va_display_, image->image_id);
+    VA_LOG_ON_ERROR(va_res, "vaDestroyImage failed");
+    return false;
+  }
+
+  return true;
+}
+
+void VaapiWrapper::ReturnVaImage(VAImage* image) {
   base::AutoLock auto_lock(va_lock_);
 
   VAStatus va_res = vaUnmapBuffer(va_display_, image->buf);
