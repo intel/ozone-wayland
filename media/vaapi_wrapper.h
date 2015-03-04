@@ -188,14 +188,11 @@ class CONTENT_EXPORT VaapiWrapper {
   void UnmapImage(VAImage* image);
   // Put data from |va_surface_id| into |va_image|, converting/scaling it.
   bool PutSurfaceIntoImage(VASurfaceID va_surface_id, VAImage* va_image);
-  bool LockBuffer(VASurfaceID va_surface_id,
-                  VABufferID buf_id,
-                  VABufferInfo* buf_info);
-  bool UnlockBuffer(VASurfaceID va_surface_id,
-                    VABufferID buf_id,
-                    VABufferInfo* buf_info);
-  // Return true if libva supports vaLockBuffer & vaUnlockBuffer apis.
-  bool SupportsVaLockBufferApis();
+  bool AcquireBufferHandle(VABufferID buf_id, VABufferInfo* buf_info);
+  bool ReleaseBufferHandle(VABufferID buf_id);
+  // Return true if libva supports vaAcquireBufferHandle
+  // & vaReleaseBufferHandle apis.
+  bool SupportsVaAcquireBufferHandleApis();
 
  private:
   VaapiWrapper();
