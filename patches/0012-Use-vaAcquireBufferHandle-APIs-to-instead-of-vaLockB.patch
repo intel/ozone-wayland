@@ -1,6 +1,6 @@
-From 8e2686c292afd905405fc0ecc7e5d9be542c6e81 Mon Sep 17 00:00:00 2001
-From: jiajia qin <jiajia.qin@intel.com>
-Date: Wed, 4 Mar 2015 03:43:19 -0800
+From 6e9cd7a1530922f5155b24760218eaf65fbaa0eb Mon Sep 17 00:00:00 2001
+From: Qin Jiajia <jiajia.qin@intel.com>
+Date: Wed, 4 Mar 2015 03:50:49 -0800
 Subject: [PATCH] Use vaAcquireBufferHandle APIs to instead of vaLockBuffer
  APIs
 
@@ -9,38 +9,47 @@ to instead of vaLockBuffer APIs.
 
 VA-API version: >= 0.36 (libva 1.4.0)
 ---
- third_party/libva/va/va.h         | 102 ++++++++++++++++++++++++++++++++++++++
+ third_party/libva/va/va.h         | 101 ++++++++++++++++++++++++++++++++++----
  third_party/libva/va/va_backend.h |  13 +++++
- 2 files changed, 115 insertions(+)
+ 2 files changed, 105 insertions(+), 9 deletions(-)
 
 diff --git a/third_party/libva/va/va.h b/third_party/libva/va/va.h
-index 9455023..a839dc2 100644
+index 9455023..532e27a 100644
 --- a/third_party/libva/va/va.h
 +++ b/third_party/libva/va/va.h
-@@ -1852,6 +1852,108 @@ VAStatus vaDestroyBuffer (
+@@ -1852,26 +1852,109 @@ VAStatus vaDestroyBuffer (
      VABufferID buffer_id
  );
  
+-/** VA buffer information */
 +/** \brief VA buffer information */
-+typedef struct {
+ typedef struct {
+-    /** Buffer handle */
 +    /** \brief Buffer handle */
-+    uintptr_t           handle;
+     uintptr_t           handle;
+-    /** Buffer type (See VABufferType). */
 +    /** \brief Buffer type (See \ref VABufferType). */
-+    uint32_t            type;
-+    /**
+     uint32_t            type;
+     /**
+-     * Buffer memory type (See VASurfaceAttribMemoryType).
 +     * \brief Buffer memory type (See \ref VASurfaceAttribMemoryType).
-+     *
+      *
+-     * On input to vaLockBuffer(), this field can serve as a hint to
+-     * specify the set of memory types the caller is interested in. On
+-     * successful return from vaLockBuffer(), the field is updated
+-     * with the best matching memory type.
 +     * On input to vaAcquireBufferHandle(), this field can serve as a hint
 +     * to specify the set of memory types the caller is interested in.
 +     * On successful return from vaAcquireBufferHandle(), the field is
 +     * updated with the best matching memory type.
-+     */
-+    uint32_t            mem_type;
+      */
+     uint32_t            mem_type;
+-    /** Size of the underlying buffer. */
 +    /** \brief Size of the underlying buffer. */
-+    size_t              mem_size;
-+} VABufferInfo;
-+
-+/**
+     size_t              mem_size;
+ } VABufferInfo;
+ 
+ /**
 + * \brief Acquires buffer handle for external API usage
 + *
 + * Locks the VA buffer object \ref buf_id for external API usage like
@@ -123,9 +132,10 @@ index 9455023..a839dc2 100644
 +VAStatus
 +vaReleaseBufferHandle(VADisplay dpy, VABufferID buf_id);
 +
- /** VA buffer information */
- typedef struct {
-     /** Buffer handle */
++/**
+  * Locks buffer for external API usage.
+  *
+  * Locks the VA buffer object buf_id for external API usage like
 diff --git a/third_party/libva/va/va_backend.h b/third_party/libva/va/va_backend.h
 index 150f8ef..844774f 100644
 --- a/third_party/libva/va/va_backend.h
