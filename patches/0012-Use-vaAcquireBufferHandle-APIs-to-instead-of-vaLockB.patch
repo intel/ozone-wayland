@@ -1,6 +1,6 @@
-From 28cb4c9afff2f53633e9261381626a1fd4c91c5f Mon Sep 17 00:00:00 2001
+From 8e2686c292afd905405fc0ecc7e5d9be542c6e81 Mon Sep 17 00:00:00 2001
 From: jiajia qin <jiajia.qin@intel.com>
-Date: Mon, 15 Sep 2014 17:20:36 +0800
+Date: Wed, 4 Mar 2015 03:43:19 -0800
 Subject: [PATCH] Use vaAcquireBufferHandle APIs to instead of vaLockBuffer
  APIs
 
@@ -9,26 +9,18 @@ to instead of vaLockBuffer APIs.
 
 VA-API version: >= 0.36 (libva 1.4.0)
 ---
- third_party/libva/va/va.h         | 103 ++++++++++++++++++++++++++++++++++++++
+ third_party/libva/va/va.h         | 102 ++++++++++++++++++++++++++++++++++++++
  third_party/libva/va/va_backend.h |  13 +++++
- 2 files changed, 116 insertions(+)
+ 2 files changed, 115 insertions(+)
 
 diff --git a/third_party/libva/va/va.h b/third_party/libva/va/va.h
-index 845760c..a88ea32 100644
+index 9455023..a839dc2 100644
 --- a/third_party/libva/va/va.h
 +++ b/third_party/libva/va/va.h
-@@ -78,6 +78,7 @@
- #ifndef _VA_H_
- #define _VA_H_
-
-+#include <stddef.h>
- #include <stdint.h>
- #include <va/va_version.h>
-
-@@ -1851,6 +1852,108 @@ VAStatus vaDestroyBuffer (
+@@ -1852,6 +1852,108 @@ VAStatus vaDestroyBuffer (
      VABufferID buffer_id
  );
-
+ 
 +/** \brief VA buffer information */
 +typedef struct {
 +    /** \brief Buffer handle */
@@ -131,18 +123,17 @@ index 845760c..a88ea32 100644
 +VAStatus
 +vaReleaseBufferHandle(VADisplay dpy, VABufferID buf_id);
 +
- /*
- Render (Decode) Pictures
-
+ /** VA buffer information */
+ typedef struct {
+     /** Buffer handle */
 diff --git a/third_party/libva/va/va_backend.h b/third_party/libva/va/va_backend.h
-index bd82849..5e8dc42 100644
+index 150f8ef..844774f 100644
 --- a/third_party/libva/va/va_backend.h
 +++ b/third_party/libva/va/va_backend.h
-@@ -420,6 +420,19 @@ struct VADriverVTable
-             VASurfaceAttrib    *attrib_list,
-             unsigned int       *num_attribs
+@@ -392,6 +392,19 @@ struct VADriverVTable
+                 VASurfaceID surface
          );
-+
+ 
 +        VAStatus
 +        (*vaAcquireBufferHandle)(
 +            VADriverContextP    ctx,
@@ -155,8 +146,10 @@ index bd82849..5e8dc42 100644
 +            VADriverContextP    ctx,
 +            VABufferID          buf_id          /* in */
 +        );
- };
-
- struct VADriverContext
---
++
+         /* DEPRECATED */
+         VAStatus
+         (*vaGetSurfaceAttributes)(
+-- 
 1.9.1
+
