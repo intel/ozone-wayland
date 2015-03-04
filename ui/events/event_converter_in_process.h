@@ -81,7 +81,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   // Dispatch event via PlatformEventSource.
   void DispatchUiEventTask(scoped_ptr<Event> event);
   // Post a task to dispatch an event.
-  void PostUiEvent(scoped_ptr<Event> event);
+  void PostUiEvent(Event* event);
 
   void NotifyMotion(float x,
                     float y);
@@ -125,7 +125,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   // Modifier key state (shift, ctrl, etc).
   EventModifiersEvdev modifiers_;
   // Keyboard state.
-  scoped_ptr<KeyboardEvdev> keyboard_;
+  KeyboardEvdev keyboard_;
   DriGpuPlatformSupportHost* proxy_;
   // Callback for dispatching events.
   EventDispatchCallback callback_;

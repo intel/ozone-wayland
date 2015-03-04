@@ -4,8 +4,6 @@
 
 {
   'sources': [
-    'media_ozone_platform_wayland.cc',
-    'media_ozone_platform_wayland.h',
     'vaapi_wrapper.cc',
     'vaapi_wrapper.h',
   ],

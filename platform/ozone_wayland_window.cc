@@ -145,4 +145,7 @@ void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
 void OzoneWaylandWindow::MoveCursorTo(const gfx::Point& location) {
 }
 
+void OzoneWaylandWindow::ConfineCursorToBounds(const gfx::Rect& bounds) {
+}
+
 }  // namespace ui

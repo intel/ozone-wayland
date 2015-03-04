@@ -43,15 +43,12 @@ gfx::FontRenderParams OzoneWebUI::GetDefaultFontRenderParams() const {
   return params_;
 }
 
-scoped_ptr<gfx::ScopedPangoFontDescription>
-  OzoneWebUI::GetDefaultPangoFontDescription() const {
+void OzoneWebUI::GetDefaultFontDescription(
+    std::string* family_out,
+    int* size_pixels_out,
+    int* style_out,
+    gfx::FontRenderParams* params_out) const {
   NOTIMPLEMENTED();
-  return scoped_ptr<gfx::ScopedPangoFontDescription>();
-}
-
-double OzoneWebUI::GetFontDPI() const {
-  NOTIMPLEMENTED();
-  return 96.0;
 }
 
 gfx::Image OzoneWebUI::GetThemeImageNamed(int id) const {

@@ -13,6 +13,7 @@
 #include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/events/window_change_observer.h"
 #include "ozone/ui/public/messages.h"
+#include "ui/events/event_utils.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
 #include "ui/ozone/platform/dri/dri_gpu_platform_support_host.h"
 
@@ -22,12 +23,12 @@ EventConverterInProcess::EventConverterInProcess(
     DriGpuPlatformSupportHost* proxy)
     : EventConverterOzoneWayland(),
       proxy_(proxy),
+      keyboard_(&modifiers_,
+                KeyboardLayoutEngineManager::GetKeyboardLayoutEngine(),
+                base::Bind(&EventConverterInProcess::PostUiEvent,
+                           base::Unretained(this))),
       weak_ptr_factory_(this) {
   proxy_->RegisterHandler(this);
-  callback_ = base::Bind(&EventConverterInProcess::PostUiEvent,
-                         weak_ptr_factory_.GetWeakPtr());
-  keyboard_.reset(new KeyboardEvdev(&modifiers_,
-      KeyboardLayoutEngineManager::GetKeyboardLayoutEngine(), callback_));
 }
 
 EventConverterInProcess::~EventConverterInProcess() {
@@ -122,7 +123,9 @@ void EventConverterInProcess::KeyNotify(ui::EventType type,
 
 void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
                                                uint32_t key) {
-  keyboard_->OnKeyChange(key, type != ui::ET_KEY_RELEASED);
+  keyboard_.OnKeyChange(key,
+                         type != ui::ET_KEY_RELEASED,
+                         ui::EventTimeForNow());
 }
 
 void EventConverterInProcess::TouchNotify(ui::EventType type,
@@ -229,12 +232,8 @@ void EventConverterInProcess::InitializeXKB(base::SharedMemoryHandle fd,
   close(fd.fd);
 }
 
-void EventConverterInProcess::PostUiEvent(scoped_ptr<Event> event) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&EventConverterInProcess::DispatchUiEventTask,
-                 weak_ptr_factory_.GetWeakPtr(),
-                 base::Passed(&event)));
+void EventConverterInProcess::PostUiEvent(Event* event) {
+  DispatchEvent(event);
 }
 
 void EventConverterInProcess::DispatchUiEventTask(scoped_ptr<Event> event) {
@@ -250,6 +249,7 @@ void EventConverterInProcess::NotifyMotion(float x,
   ui::MouseEvent mouseev(ui::ET_MOUSE_MOVED,
                          position,
                          position,
+                         ui::EventTimeForNow(),
                          0,
                          0);
   DispatchEvent(&mouseev);
@@ -264,8 +264,10 @@ void EventConverterInProcess::NotifyButtonPress(unsigned handle,
   ui::MouseEvent mouseev(type,
                          position,
                          position,
+                         ui::EventTimeForNow(),
                          flags,
                          flags);
+
   DispatchEvent(&mouseev);
 
   if (type == ui::ET_MOUSE_RELEASED) {
@@ -282,7 +284,13 @@ void EventConverterInProcess::NotifyAxis(float x,
                                          int xoffset,
                                          int yoffset) {
   gfx::Point position(x, y);
-  ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL, position, position, 0, 0);
+  ui::MouseEvent mouseev(ui::ET_MOUSEWHEEL,
+                         position,
+                         position,
+                         ui::EventTimeForNow(),
+                         0,
+                         0);
+
   ui::MouseWheelEvent wheelev(mouseev, xoffset, yoffset);
 
   DispatchEvent(&wheelev);
@@ -297,7 +305,13 @@ void EventConverterInProcess::NotifyPointerEnter(unsigned handle,
     observer->OnWindowEnter(handle);
 
   gfx::Point position(x, y);
-  ui::MouseEvent mouseev(ui::ET_MOUSE_ENTERED, position, position, 0, 0);
+  ui::MouseEvent mouseev(ui::ET_MOUSE_ENTERED,
+                         position,
+                         position,
+                         ui::EventTimeForNow(),
+                         0,
+                         0);
+
   DispatchEvent(&mouseev);
 }
 
@@ -310,7 +324,13 @@ void EventConverterInProcess::NotifyPointerLeave(unsigned handle,
     observer->OnWindowLeave(handle);
 
   gfx::Point position(x, y);
-  ui::MouseEvent mouseev(ui::ET_MOUSE_EXITED, position, position, 0, 0);
+  ui::MouseEvent mouseev(ui::ET_MOUSE_EXITED,
+                         position,
+                         position,
+                         ui::EventTimeForNow(),
+                         0,
+                         0);
+
   DispatchEvent(&mouseev);
 }
 

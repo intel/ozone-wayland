@@ -18,7 +18,6 @@
 #include "ui/gfx/font_render_params.h"
 #include "ui/gfx/geometry/insets.h"
 #include "ui/gfx/image/image.h"
-#include "ui/gfx/pango_util.h"
 #include "ui/views/border.h"
 #include "ui/views/controls/button/label_button.h"
 #include "ui/views/controls/button/label_button_border.h"
@@ -52,14 +51,17 @@ class OzoneWebUI : public views::LinuxUI {
 
   // gfx::LinuxFontDelegate:
   gfx::FontRenderParams GetDefaultFontRenderParams() const override;
-  scoped_ptr<gfx::ScopedPangoFontDescription>
-      GetDefaultPangoFontDescription() const override;
-  double GetFontDPI() const override;
 
   // ui::LinuxShellDialog:
   ui::SelectFileDialog* CreateSelectFileDialog(
       ui::SelectFileDialog::Listener* listener,
       ui::SelectFilePolicy* policy) const override;
+
+  void GetDefaultFontDescription(
+      std::string* family_out,
+      int* size_pixels_out,
+      int* style_out,
+      gfx::FontRenderParams* params_out) const override;
 
   // ui::LinuxUI:
   void Initialize() override;
