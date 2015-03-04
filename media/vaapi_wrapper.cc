@@ -35,8 +35,8 @@ using media_media::StubPathMap;
 static const base::FilePath::CharType kVaLib[] =
     FILE_PATH_LITERAL("libva-wayland.so.1");
 
-static const char kVaLockBufferSymbol[] = "vaLockBuffer";
-static const char kVaUnlockBufferSymbol[] = "vaUnlockBuffer";
+static const char kVaAcquireBufferHandleSymbol[] = "vaAcquireBufferHandle";
+static const char kVaReleaseBufferHandleSymbol[] = "vaReleaseBufferHandle";
 #endif  // USE_X11
 
 #define LOG_VA_ERROR_AND_REPORT(va_error, err_msg)         \
@@ -957,26 +957,22 @@ bool VaapiWrapper::PutSurfaceIntoImage(VASurfaceID va_surface_id,
 }
 
 
-bool VaapiWrapper::LockBuffer(VASurfaceID va_surface_id,
-                              VABufferID buf_id,
-                              VABufferInfo* buf_info) {
+bool VaapiWrapper::AcquireBufferHandle(VABufferID buf_id,
+                                       VABufferInfo* buf_info) {
   DCHECK(buf_info);
   base::AutoLock auto_lock(va_lock_);
 
   buf_info->mem_type = VA_SURFACE_ATTRIB_MEM_TYPE_KERNEL_DRM;
-  VAStatus va_res = vaLockBuffer(va_display_, buf_id, buf_info);
-  VA_SUCCESS_OR_RETURN(va_res, "Failed to lock vabuffer", false);
+  VAStatus va_res = vaAcquireBufferHandle(va_display_, buf_id, buf_info);
+  VA_SUCCESS_OR_RETURN(va_res, "Failed to acquire buffer handle", false);
 
   return true;
 }
 
-bool VaapiWrapper::UnlockBuffer(VASurfaceID va_surface_id,
-                                VABufferID buf_id,
-                                VABufferInfo* buf_info) {
-  DCHECK(buf_info);
+bool VaapiWrapper::ReleaseBufferHandle(VABufferID buf_id) {
   base::AutoLock auto_lock(va_lock_);
-  VAStatus va_res = vaUnlockBuffer(va_display_, buf_id, buf_info);
-  VA_SUCCESS_OR_RETURN(va_res, "Failed to unlock vabuffer", false);
+  VAStatus va_res = vaReleaseBufferHandle(va_display_, buf_id);
+  VA_SUCCESS_OR_RETURN(va_res, "Failed to release buffer handle", false);
 
   return true;
 }
@@ -997,15 +993,15 @@ bool VaapiWrapper::PostSandboxInitialization() {
   return ret;
 }
 
-bool VaapiWrapper::SupportsVaLockBufferApis() {
+bool VaapiWrapper::SupportsVaAcquireBufferHandleApis() {
   void* handle = dlopen(kVaLib, RTLD_LAZY);
   if (!handle) {
     LOG(ERROR) << "Could not open " << kVaLib;
     return false;
   }
 
-  return dlsym(handle, kVaLockBufferSymbol) &&
-      dlsym(handle, kVaUnlockBufferSymbol);
+  return dlsym(handle, kVaAcquireBufferHandleSymbol) &&
+      dlsym(handle, kVaReleaseBufferHandleSymbol);
 }
 
 }  // namespace content

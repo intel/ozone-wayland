@@ -49,7 +49,7 @@ class VaapiPictureWayland : public VaapiPicture {
   scoped_ptr<VAImage> va_image_;
   EGLImageKHR egl_image_;
   EGLDisplay egl_display_;
-  bool supports_valockBuffer_apis_;
+  bool supports_vaAcquireBufferHandle_apis_;
 
   DISALLOW_COPY_AND_ASSIGN(VaapiPictureWayland);
 };

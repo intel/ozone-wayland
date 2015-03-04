@@ -18,13 +18,15 @@ VaapiPictureWayland::VaapiPictureWayland(
       make_context_current_(make_context_current),
       va_wrapper_(vaapi_wrapper),
       va_image_(new VAImage()),
+      egl_image_(EGL_NO_IMAGE_KHR),
       egl_display_(gfx::GLSurfaceEGL::GetHardwareDisplay()) {
   DCHECK(!make_context_current_.is_null());
   DCHECK(va_image_);
-  supports_valockBuffer_apis_ = va_wrapper_->SupportsVaLockBufferApis();
+  supports_vaAcquireBufferHandle_apis_ =
+      va_wrapper_->SupportsVaAcquireBufferHandleApis();
   std::string query =
-      supports_valockBuffer_apis_ ? "supports" : "doesn't support";
-  LOG(INFO) << "VAAPI " << query << " vaLockBuffer apis";
+      supports_vaAcquireBufferHandle_apis_ ? "supports" : "doesn't support";
+  LOG(INFO) << "VAAPI " << query << " vaAcquireBufferHandle apis";
 }
 
 bool VaapiPictureWayland::Initialize() {
@@ -43,7 +45,7 @@ bool VaapiPictureWayland::Initialize() {
 VaapiPictureWayland::~VaapiPictureWayland() {
   DCHECK(CalledOnValidThread());
 
-  if (supports_valockBuffer_apis_ && egl_image_ != EGL_NO_IMAGE_KHR)
+  if (supports_vaAcquireBufferHandle_apis_ && egl_image_ != EGL_NO_IMAGE_KHR)
     DestroyEGLImage(egl_display_, egl_image_);
 
   if (va_wrapper_) {
@@ -140,8 +142,8 @@ EGLImageKHR VaapiPictureWayland::CreateEGLImage(
   DCHECK(va_image);
 
   VABufferInfo buffer_info;
-  if (!va_wrapper_->LockBuffer(va_surface, va_image->buf, &buffer_info)) {
-    DVLOG(1) << "Failed to lock Buffer";
+  if (!va_wrapper_->AcquireBufferHandle(va_image->buf, &buffer_info)) {
+    DVLOG(1) << "Failed to acquire buffer handle";
     return EGL_NO_IMAGE_KHR;
   }
 
@@ -166,7 +168,7 @@ EGLImageKHR VaapiPictureWayland::CreateEGLImage(
        attribs);
 
   if (va_wrapper_) {
-    va_wrapper_->UnlockBuffer(va_surface, va_image->buf, &buffer_info);
+    va_wrapper_->ReleaseBufferHandle(va_image->buf);
   }
 
   return egl_image;
@@ -179,7 +181,7 @@ bool VaapiPictureWayland::DestroyEGLImage(
 
 bool VaapiPictureWayland::DownloadFromSurface(
     const scoped_refptr<VASurface>& va_surface) {
-  if (supports_valockBuffer_apis_) {
+  if (supports_vaAcquireBufferHandle_apis_) {
     if (!va_wrapper_->PutSurfaceIntoImage(va_surface->id(), va_image_.get()))
       return false;
 
