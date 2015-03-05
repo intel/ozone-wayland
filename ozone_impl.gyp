@@ -12,6 +12,7 @@
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '<(DEPTH)/ui/ozone/ozone.gyp:ozone_platform_dri',
+        '<(DEPTH)/ui/gfx/ipc/gfx_ipc.gyp:gfx_ipc',
         'wayland/wayland.gyp:wayland_toolkit'
       ],
       'include_dirs': [

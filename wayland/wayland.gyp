@@ -57,6 +57,7 @@
       },
       'dependencies': [
         '../../base/base.gyp:base',
+        '../../ui/ozone/ozone.gyp:ozone_base',
       ],
       'include_dirs': [
         '../..',
