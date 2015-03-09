@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 {
   'dependencies': [
+    '<(DEPTH)/ipc/ipc.gyp:ipc',
     '<(DEPTH)/ui/events/events.gyp:events',
   ],
   'sources': [
