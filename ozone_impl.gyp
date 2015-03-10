@@ -26,6 +26,8 @@
         'OZONE_WAYLAND_IMPLEMENTATION',
       ],
       'sources': [
+        'media/media_ozone_platform_wayland.cc',
+        'media/media_ozone_platform_wayland.h',
         'platform/desktop_platform_screen.h',
         'platform/ozone_export_wayland.h',
         'platform/ozone_platform_wayland.cc',
