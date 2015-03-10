@@ -6,8 +6,6 @@
 
 #include "base/at_exit.h"
 #include "base/bind.h"
-#include "base/command_line.h"
-#include "content/public/common/content_switches.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #include "ozone/ui/events/event_converter_in_process.h"
@@ -101,11 +99,8 @@ class OzonePlatformWayland : public OzonePlatform {
     event_converter_.reset(
         new EventConverterInProcess(gpu_platform_host_.get()));
     event_factory_ozone_->SetEventConverter(event_converter_.get());
-    base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
-    if (!cmd_line->HasSwitch(switches::kSingleProcess)) {
-      state_change_handler_.reset(
-          new ui::RemoteStateChangeHandler(gpu_platform_host_.get()));
-    }
+    state_change_handler_.reset(
+        new ui::RemoteStateChangeHandler(gpu_platform_host_.get()));
   }
 
   void InitializeGPU() override {
