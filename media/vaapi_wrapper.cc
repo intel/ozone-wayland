@@ -12,7 +12,7 @@
 #include "base/numerics/safe_conversions.h"
 #include "base/sys_info.h"
 // Auto-generated for dlopen libva libraries
-#include "media/media/va_stubs.h"
+#include "content/common/gpu/media/va_stubs.h"
 #include "content/common/content_export.h"
 #include "content/common/gpu/media/vaapi_picture.h"
 #include "third_party/libyuv/include/libyuv.h"
@@ -30,9 +30,9 @@
 #if defined(USE_X11)
 using content_common_gpu_media::kModuleVa_x11;
 #elif defined(USE_OZONE)
-using media_media::kModuleVa_wayland;
-using media_media::InitializeStubs;
-using media_media::StubPathMap;
+using content_common_gpu_media::kModuleVa_wayland;
+using content_common_gpu_media::InitializeStubs;
+using content_common_gpu_media::StubPathMap;
 static const base::FilePath::CharType kVaLib[] =
     FILE_PATH_LITERAL("libva-wayland.so.1");
 
