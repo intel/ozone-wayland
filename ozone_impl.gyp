@@ -7,7 +7,7 @@
   'targets': [
     {
       'target_name': 'wayland',
-      'type': '<(component)',
+      'type': 'static_library',
       'dependencies': [
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
