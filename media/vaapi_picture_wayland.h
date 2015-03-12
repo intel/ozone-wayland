@@ -14,6 +14,7 @@
 #include "ozone/media/vaapi_wrapper.h"
 #include "ui/gl/gl_bindings.h"
 #include "ui/gl/gl_surface_egl.h"
+#include "ui/gl/gl_image_egl.h"
 #include "ui/gl/scoped_binders.h"
 
 namespace content {
@@ -29,26 +30,21 @@ class VaapiPictureWayland : public VaapiPicture {
 
   bool Initialize() override;
   bool DownloadFromSurface(const scoped_refptr<VASurface>& va_surface) override;
+  scoped_refptr<gfx::GLImage> GetImageToBind() override;
 
  private:
   // Upload vaimage data to texture. Needs to be called every frame.
   bool Upload(VASurfaceID id);
 
-  // Bind EGL image to texture. Needs to be called every frame.
-  bool Bind();
-  bool UpdateEGLImage(VASurfaceID id);
-
-  EGLImageKHR CreateEGLImage(
-      EGLDisplay egl_display, VASurfaceID surface, VAImage* va_image);
-  bool DestroyEGLImage(EGLDisplay egl_display, EGLImageKHR egl_image);
+  bool CreateEGLImage(VAImage* va_image);
 
   base::Callback<bool(void)> make_context_current_; //NOLINT
 
   VaapiWrapper* va_wrapper_;
 
   scoped_ptr<VAImage> va_image_;
-  EGLImageKHR egl_image_;
-  EGLDisplay egl_display_;
+  // EGLImage bound to the GL textures used by the VDA client.
+  scoped_refptr<gfx::GLImageEGL> gl_image_;
   bool supports_vaAcquireBufferHandle_apis_;
 
   DISALLOW_COPY_AND_ASSIGN(VaapiPictureWayland);

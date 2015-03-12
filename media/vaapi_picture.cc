@@ -28,6 +28,10 @@ linked_ptr<VaapiPicture> VaapiPicture::CreatePicture(
   return picture;
 }
 
+bool VaapiPicture::AllowOverlay() const {
+   return false;
+}
+
 // static
 uint32 VaapiPicture::GetGLTextureTarget() {
   return GL_TEXTURE_2D;

@@ -17,9 +17,7 @@ VaapiPictureWayland::VaapiPictureWayland(
     : VaapiPicture(picture_buffer_id, texture_id, size),
       make_context_current_(make_context_current),
       va_wrapper_(vaapi_wrapper),
-      va_image_(new VAImage()),
-      egl_image_(EGL_NO_IMAGE_KHR),
-      egl_display_(gfx::GLSurfaceEGL::GetHardwareDisplay()) {
+      va_image_(new VAImage()) {
   DCHECK(!make_context_current_.is_null());
   DCHECK(va_image_);
   supports_vaAcquireBufferHandle_apis_ =
@@ -45,31 +43,12 @@ bool VaapiPictureWayland::Initialize() {
 VaapiPictureWayland::~VaapiPictureWayland() {
   DCHECK(CalledOnValidThread());
 
-  if (supports_vaAcquireBufferHandle_apis_ && egl_image_ != EGL_NO_IMAGE_KHR)
-    DestroyEGLImage(egl_display_, egl_image_);
+  if (supports_vaAcquireBufferHandle_apis_ && gl_image_)
+    gl_image_->Destroy(true);
 
   if (va_wrapper_) {
     va_wrapper_->DestroyImage(va_image_.get());
   }
-}
-
-bool VaapiPictureWayland::UpdateEGLImage(
-    VASurfaceID surface) {
-  DCHECK(CalledOnValidThread());
-
-  if (!make_context_current_.Run())
-    return false;
-
-  if (egl_image_ != EGL_NO_IMAGE_KHR)
-    DestroyEGLImage(egl_display_, egl_image_);
-
-  egl_image_ = CreateEGLImage(egl_display_, surface, va_image_.get());
-  if (egl_image_ == EGL_NO_IMAGE_KHR) {
-    DVLOG(1) << "Failed to create EGL image";
-    return false;
-  }
-
-  return true;
 }
 
 bool VaapiPictureWayland::Upload(VASurfaceID surface) {
@@ -124,27 +103,13 @@ bool VaapiPictureWayland::Upload(VASurfaceID surface) {
   return true;
 }
 
-bool VaapiPictureWayland::Bind() {
-  DCHECK(CalledOnValidThread());
-  if (!make_context_current_.Run())
-    return false;
-
-  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id());
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, egl_image_);
-  return true;
-}
-
-EGLImageKHR VaapiPictureWayland::CreateEGLImage(
-    EGLDisplay egl_display, VASurfaceID va_surface, VAImage* va_image) {
-  DCHECK(CalledOnValidThread());
+bool VaapiPictureWayland::CreateEGLImage(VAImage* va_image) {
   DCHECK(va_image);
 
   VABufferInfo buffer_info;
   if (!va_wrapper_->AcquireBufferHandle(va_image->buf, &buffer_info)) {
     DVLOG(1) << "Failed to acquire buffer handle";
-    return EGL_NO_IMAGE_KHR;
+    return false;
   }
 
   EGLint attribs[] = {
@@ -160,23 +125,20 @@ EGLImageKHR VaapiPictureWayland::CreateEGLImage(
   attribs[3] = va_image->height;
   attribs[5] = va_image->pitches[0] / 4;
 
-  EGLImageKHR egl_image =  eglCreateImageKHR(
-       egl_display,
-       EGL_NO_CONTEXT,
-       EGL_DRM_BUFFER_MESA,
-       (EGLClientBuffer) buffer_info.handle,
-       attribs);
+  // Create an EGLImage out of the same buffer.
+  gl_image_ = new gfx::GLImageEGL(size());
+  if (!gl_image_->Initialize(EGL_DRM_BUFFER_MESA,
+                             (EGLClientBuffer) buffer_info.handle,
+                             attribs)) {
+    LOG(ERROR) << "Failed to create a GLImageEGL for a Va Pixmap.";
+    return false;
+  }
 
   if (va_wrapper_) {
     va_wrapper_->ReleaseBufferHandle(va_image->buf);
   }
 
-  return egl_image;
-}
-
-bool VaapiPictureWayland::DestroyEGLImage(
-    EGLDisplay egl_display, EGLImageKHR egl_image) {
-  return eglDestroyImageKHR(egl_display, egl_image);
+  return true;
 }
 
 bool VaapiPictureWayland::DownloadFromSurface(
@@ -185,17 +147,32 @@ bool VaapiPictureWayland::DownloadFromSurface(
     if (!va_wrapper_->PutSurfaceIntoImage(va_surface->id(), va_image_.get()))
       return false;
 
-    if (!UpdateEGLImage(va_surface->id()))
+    DCHECK(CalledOnValidThread());
+
+    if (!make_context_current_.Run())
       return false;
 
-    if (!Bind())
+    if (gl_image_)
+      gl_image_->Destroy(true);
+
+    if (!CreateEGLImage(va_image_.get()))
+       return false;
+
+    gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id());
+    if (!gl_image_->BindTexImage(GL_TEXTURE_2D)) {
+      LOG(ERROR) << "Failed to bind texture to GLImage";
       return false;
+    }
   } else {
     if (!Upload(va_surface->id()))
       return false;
   }
 
   return true;
+}
+
+scoped_refptr<gfx::GLImage> VaapiPictureWayland::GetImageToBind() {
+  return gl_image_;
 }
 
 }  // namespace content
