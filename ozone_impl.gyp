@@ -7,7 +7,7 @@
   'targets': [
     {
       'target_name': 'wayland',
-      'type': '<(component)',
+      'type': 'static_library',
       'dependencies': [
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
@@ -20,12 +20,13 @@
       ],
       'includes': [
         'ui/ui.gypi',
-        'media/video.gypi',
       ],
       'defines': [
         'OZONE_WAYLAND_IMPLEMENTATION',
       ],
       'sources': [
+        'media/media_ozone_platform_wayland.cc',
+        'media/media_ozone_platform_wayland.h',
         'platform/desktop_platform_screen.h',
         'platform/ozone_export_wayland.h',
         'platform/ozone_platform_wayland.cc',

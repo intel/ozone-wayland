@@ -3,13 +3,17 @@
 # found in the LICENSE file.
 
 {
-  'dependencies': [
-    '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
-  ],
-  'sources': [
-    'input_method_context_factory_wayland.h',
-    'input_method_context_factory_wayland.cc',
-    'input_method_context_impl_wayland.h',
-    'input_method_context_impl_wayland.cc',
+  'conditions': [
+    ['component!="shared_library"', {
+      'dependencies': [
+        '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
+      ],
+      'sources': [
+        'input_method_context_factory_wayland.h',
+        'input_method_context_factory_wayland.cc',
+        'input_method_context_impl_wayland.h',
+        'input_method_context_impl_wayland.cc',
+      ],
+    }],
   ],
 }
