@@ -37,18 +37,33 @@ bool VaapiPictureWayland::Initialize() {
     return false;
   }
 
+  if (!supports_vaAcquireBufferHandle_apis_)
+    return true;
+
+  if (!CreateEGLImage(va_image_.get()))
+     return false;
+
+  gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id());
+  if (!gl_image_->BindTexImage(GL_TEXTURE_2D)) {
+    LOG(ERROR) << "Failed to bind texture to GLImage";
+    return false;
+  }
+
   return true;
 }
 
 VaapiPictureWayland::~VaapiPictureWayland() {
   DCHECK(CalledOnValidThread());
 
-  if (supports_vaAcquireBufferHandle_apis_ && gl_image_)
+  if (gl_image_ && make_context_current_.Run()) {
+    gl_image_->ReleaseTexImage(GL_TEXTURE_2D);
     gl_image_->Destroy(true);
 
-  if (va_wrapper_) {
-    va_wrapper_->DestroyImage(va_image_.get());
+    DCHECK_EQ(glGetError(), static_cast<GLenum>(GL_NO_ERROR));
   }
+
+  if (va_wrapper_)
+    va_wrapper_->DestroyImage(va_image_.get());
 }
 
 bool VaapiPictureWayland::Upload(VASurfaceID surface) {
@@ -144,25 +159,10 @@ bool VaapiPictureWayland::CreateEGLImage(VAImage* va_image) {
 bool VaapiPictureWayland::DownloadFromSurface(
     const scoped_refptr<VASurface>& va_surface) {
   if (supports_vaAcquireBufferHandle_apis_) {
+    DCHECK(CalledOnValidThread());
     if (!va_wrapper_->PutSurfaceIntoImage(va_surface->id(), va_image_.get()))
       return false;
 
-    DCHECK(CalledOnValidThread());
-
-    if (!make_context_current_.Run())
-      return false;
-
-    if (gl_image_)
-      gl_image_->Destroy(true);
-
-    if (!CreateEGLImage(va_image_.get()))
-       return false;
-
-    gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id());
-    if (!gl_image_->BindTexImage(GL_TEXTURE_2D)) {
-      LOG(ERROR) << "Failed to bind texture to GLImage";
-      return false;
-    }
   } else {
     if (!Upload(va_surface->id()))
       return false;

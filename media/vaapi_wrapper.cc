@@ -1027,8 +1027,8 @@ bool VaapiWrapper::ReleaseBufferHandle(VABufferID buf_id) {
 }
 
 void VaapiWrapper::DestroyImage(VAImage* image) {
-base::AutoLock auto_lock(va_lock_);
-vaDestroyImage(va_display_, image->image_id);
+  base::AutoLock auto_lock(va_lock_);
+  vaDestroyImage(va_display_, image->image_id);
 }
 
 // static
