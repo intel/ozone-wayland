@@ -35,9 +35,6 @@ using content_common_gpu_media::InitializeStubs;
 using content_common_gpu_media::StubPathMap;
 static const base::FilePath::CharType kVaLib[] =
     FILE_PATH_LITERAL("libva-wayland.so.1");
-
-static const char kVaAcquireBufferHandleSymbol[] = "vaAcquireBufferHandle";
-static const char kVaReleaseBufferHandleSymbol[] = "vaReleaseBufferHandle";
 #endif  // USE_OZONE
 
 
@@ -975,19 +972,6 @@ bool VaapiWrapper::CreateRGBImage(gfx::Size size, VAImage* image) {
   return true;
 }
 
-bool VaapiWrapper::MapImage(VAImage* image, void** buffer) {
-  base::AutoLock auto_lock(va_lock_);
-
-  VAStatus va_res = vaMapBuffer(va_display_, image->buf, buffer);
-  VA_SUCCESS_OR_RETURN(va_res, "Failed to map image", false);
-  return true;
-}
-
-void VaapiWrapper::UnmapImage(VAImage* image) {
-  base::AutoLock auto_lock(va_lock_);
-  vaUnmapBuffer(va_display_, image->buf);
-}
-
 bool VaapiWrapper::PutSurfaceIntoImage(VASurfaceID va_surface_id,
                                        VAImage* image) {
   base::AutoLock auto_lock(va_lock_);
@@ -1040,17 +1024,6 @@ bool VaapiWrapper::PostSandboxInitialization() {
   if (ret == false)
     LOG(WARNING) << "Could not open " << kVaLib;
   return ret;
-}
-
-bool VaapiWrapper::SupportsVaAcquireBufferHandleApis() {
-  void* handle = dlopen(kVaLib, RTLD_LAZY);
-  if (!handle) {
-    LOG(ERROR) << "Could not open " << kVaLib;
-    return false;
-  }
-
-  return dlsym(handle, kVaAcquireBufferHandleSymbol) &&
-      dlsym(handle, kVaReleaseBufferHandleSymbol);
 }
 
 }  // namespace content

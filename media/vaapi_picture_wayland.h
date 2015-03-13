@@ -33,9 +33,6 @@ class VaapiPictureWayland : public VaapiPicture {
   scoped_refptr<gfx::GLImage> GetImageToBind() override;
 
  private:
-  // Upload vaimage data to texture. Needs to be called every frame.
-  bool Upload(VASurfaceID id);
-
   bool CreateEGLImage(VAImage* va_image);
 
   base::Callback<bool(void)> make_context_current_; //NOLINT
@@ -45,7 +42,6 @@ class VaapiPictureWayland : public VaapiPicture {
   scoped_ptr<VAImage> va_image_;
   // EGLImage bound to the GL textures used by the VDA client.
   scoped_refptr<gfx::GLImageEGL> gl_image_;
-  bool supports_vaAcquireBufferHandle_apis_;
 
   DISALLOW_COPY_AND_ASSIGN(VaapiPictureWayland);
 };
