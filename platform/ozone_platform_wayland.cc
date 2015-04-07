@@ -21,7 +21,9 @@
 #include "ui/events/ozone/layout/xkb/xkb_evdev_codes.h"
 #include "ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h"
 #include "ui/ozone/common/native_display_delegate_ozone.h"
+#include "ui/ozone/platform/dri/dri_cursor.h"
 #include "ui/ozone/platform/dri/dri_gpu_platform_support_host.h"
+#include "ui/ozone/platform/dri/dri_window_manager.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/system_input_injector.h"
 #include "ui/platform_window/platform_window_delegate.h"
@@ -84,7 +86,9 @@ class OzonePlatformWayland : public OzonePlatform {
     if (wayland_display_.get())
       return;
 
-    gpu_platform_host_.reset(new ui::DriGpuPlatformSupportHost());
+    window_manager_.reset(new ui::DriWindowManager());
+    cursor_.reset(new ui::DriCursor(window_manager_.get()));
+    gpu_platform_host_.reset(new ui::DriGpuPlatformSupportHost(cursor_.get()));
     // Needed as Browser creates accelerated widgets through SFO.
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
 #if !defined(COMPONENT_BUILD)
@@ -121,6 +125,11 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
  private:
+  // The following two members are used only to initialize
+  // DriGpuPlatformSupportHost.
+  scoped_ptr<ui::DriCursor> cursor_;
+  scoped_ptr<ui::DriWindowManager> window_manager_;
+
 #if !defined(COMPONENT_BUILD)
   scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
 #endif
