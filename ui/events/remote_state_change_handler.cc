@@ -7,13 +7,13 @@
 #include "ipc/ipc_sender.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/public/messages.h"
-#include "ui/ozone/platform/dri/dri_gpu_platform_support_host.h"
+#include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
 #include "ui/ozone/public/ozone_platform.h"
 
 namespace ui {
 
 RemoteStateChangeHandler::RemoteStateChangeHandler(
-    DriGpuPlatformSupportHost* proxy)
+    DrmGpuPlatformSupportHost* proxy)
     : proxy_(proxy),
       isConnected_(false) {
   EventFactoryOzoneWayland::GetInstance()->

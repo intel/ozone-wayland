@@ -18,13 +18,13 @@
 
 namespace ui {
 
-class DriGpuPlatformSupportHost;
+class DrmGpuPlatformSupportHost;
 class KeyboardEvdev;
 class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                                 public ui::PlatformEventSource,
                                 public GpuPlatformSupportHost {
  public:
-  explicit EventConverterInProcess(DriGpuPlatformSupportHost* proxy);
+  explicit EventConverterInProcess(DrmGpuPlatformSupportHost* proxy);
   ~EventConverterInProcess() override;
   // GpuPlatformSupportHost
   void OnChannelEstablished(
@@ -126,7 +126,7 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
   EventModifiersEvdev modifiers_;
   // Keyboard state.
   KeyboardEvdev keyboard_;
-  DriGpuPlatformSupportHost* proxy_;
+  DrmGpuPlatformSupportHost* proxy_;
   // Callback for dispatching events.
   EventDispatchCallback callback_;
   // Support weak pointers for attach & detach callbacks.

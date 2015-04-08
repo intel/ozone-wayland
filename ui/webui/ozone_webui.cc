@@ -27,6 +27,9 @@ OzoneWebUI::~OzoneWebUI() {
 void OzoneWebUI::Initialize() {
 }
 
+void OzoneWebUI::UpdateDeviceScaleFactor(float device_scale_factor) {
+}
+
 ui::SelectFileDialog* OzoneWebUI::CreateSelectFileDialog(
     ui::SelectFileDialog::Listener* listener,
     ui::SelectFilePolicy* policy) const {
