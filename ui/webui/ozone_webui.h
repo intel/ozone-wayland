@@ -65,6 +65,7 @@ class OzoneWebUI : public views::LinuxUI {
 
   // ui::LinuxUI:
   void Initialize() override;
+  void UpdateDeviceScaleFactor(float device_scale_factor) override;
 
   // These methods are not needed
   gfx::Image GetThemeImageNamed(int id) const override;
