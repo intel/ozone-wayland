@@ -1,7 +1,7 @@
-From c2dedcc846ca474df2f74946fdf0b22b07d565bd Mon Sep 17 00:00:00 2001
+From 1f403ba30c46184a278b293a40b563e45aac6e35 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Tue, 17 Jun 2014 20:24:19 +0300
-Subject: [PATCH 4/5] Add support for checking DesktopWindow with Ozone and
+Subject: [PATCH 04/14] Add support for checking DesktopWindow with Ozone and
  Ash.
 
 Only windows hosted by a DesktopWindowTreeHost implementation can be mapped
@@ -10,11 +10,11 @@ for an Ash display. This check is done in ActiveDesktopMonitor. This patch
 adds the needed support for Ozone and should be upstreamed after
 https://codereview.chromium.org/36953002/ lands.
 ---
- chrome/browser/ui/aura/active_desktop_monitor.cc |    6 ++++++
+ chrome/browser/ui/aura/active_desktop_monitor.cc | 6 ++++++
  1 file changed, 6 insertions(+)
 
 diff --git a/chrome/browser/ui/aura/active_desktop_monitor.cc b/chrome/browser/ui/aura/active_desktop_monitor.cc
-index f6c5a7b..626576ba 100644
+index f6c5a7b..800a4e2 100644
 --- a/chrome/browser/ui/aura/active_desktop_monitor.cc
 +++ b/chrome/browser/ui/aura/active_desktop_monitor.cc
 @@ -11,6 +11,8 @@
@@ -38,5 +38,5 @@ index f6c5a7b..626576ba 100644
    NOTREACHED();
    return true;
 -- 
-1.7.9.5
+1.9.1
 

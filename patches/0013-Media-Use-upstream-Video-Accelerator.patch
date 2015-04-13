@@ -1,7 +1,7 @@
-From 88791cb4638d79307f32fe1dc6c0f2f6ed665658 Mon Sep 17 00:00:00 2001
+From 3c2e648b0d83daebda42155ce2daf3cbfeceb476 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Wed, 4 Mar 2015 03:30:30 -0800
-Subject: [PATCH] Media: Use upstream Video Accelerator.
+Subject: [PATCH 13/14] Media: Use upstream Video Accelerator.
 
 ---
  chrome/browser/password_manager/password_store_factory.cc |  2 +-
@@ -10,10 +10,10 @@ Subject: [PATCH] Media: Use upstream Video Accelerator.
  3 files changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/chrome/browser/password_manager/password_store_factory.cc b/chrome/browser/password_manager/password_store_factory.cc
-index 29b6b87..cdcaf30 100644
+index fba3d00..c29b135 100644
 --- a/chrome/browser/password_manager/password_store_factory.cc
 +++ b/chrome/browser/password_manager/password_store_factory.cc
-@@ -56,7 +56,7 @@ const LocalProfileId kInvalidLocalProfileId =
+@@ -59,7 +59,7 @@ const LocalProfileId kInvalidLocalProfileId =
      static_cast<LocalProfileId>(0);
  #endif
  
@@ -23,10 +23,10 @@ index 29b6b87..cdcaf30 100644
  const char kLibsecretFieldTrialDisabledGroupName[] = "Disabled";
  #endif
 diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.cc b/content/common/gpu/media/gpu_video_decode_accelerator.cc
-index fde81ac..ec90171 100644
+index 0e8af7f..7e3bb60 100644
 --- a/content/common/gpu/media/gpu_video_decode_accelerator.cc
 +++ b/content/common/gpu/media/gpu_video_decode_accelerator.cc
-@@ -41,7 +41,8 @@
+@@ -42,7 +42,8 @@
  #include "ui/gl/gl_implementation.h"
  #endif
  #elif defined(USE_OZONE)
@@ -36,7 +36,7 @@ index fde81ac..ec90171 100644
  #elif defined(OS_ANDROID)
  #include "content/common/gpu/media/android_video_decode_accelerator.h"
  #endif
-@@ -348,7 +349,7 @@ void GpuVideoDecodeAccelerator::BindImage(uint32 client_texture_id,
+@@ -344,7 +345,7 @@ void GpuVideoDecodeAccelerator::BindImage(uint32 client_texture_id,
  scoped_ptr<media::VideoDecodeAccelerator>
  GpuVideoDecodeAccelerator::CreateVaapiVDA() {
    scoped_ptr<media::VideoDecodeAccelerator> decoder;
@@ -45,7 +45,7 @@ index fde81ac..ec90171 100644
    decoder.reset(new VaapiVideoDecodeAccelerator(
        make_context_current_, base::Bind(&GpuVideoDecodeAccelerator::BindImage,
                                          base::Unretained(this))));
-@@ -370,11 +371,6 @@ GpuVideoDecodeAccelerator::CreateVTVDA() {
+@@ -366,11 +367,6 @@ GpuVideoDecodeAccelerator::CreateVTVDA() {
  scoped_ptr<media::VideoDecodeAccelerator>
  GpuVideoDecodeAccelerator::CreateOzoneVDA() {
    scoped_ptr<media::VideoDecodeAccelerator> decoder;
@@ -58,7 +58,7 @@ index fde81ac..ec90171 100644
  }
  
 diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-index b4b2846..2305780 100644
+index 1c65940..fd4cf34 100644
 --- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 +++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 @@ -312,7 +312,7 @@ bool GpuProcessPolicy::PreSandboxHook() {

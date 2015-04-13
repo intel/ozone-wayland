@@ -1,17 +1,17 @@
-From 72ce7ace345f372c2b29aa1aca9c9f9689816d2c Mon Sep 17 00:00:00 2001
+From 067fcc948e61770ad2898d39fa3a580b28ac12cb Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Wed, 12 Nov 2014 14:00:01 -0800
-Subject: [PATCH] Open VA driver inside the sandbox for Tizen.
+Subject: [PATCH 09/14] Open VA driver inside the sandbox for Tizen.
 
 ---
- .../common/sandbox_linux/bpf_gpu_policy_linux.cc   |   10 ++++++++--
+ content/common/sandbox_linux/bpf_gpu_policy_linux.cc | 10 ++++++++--
  1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-index 700ae52..b788395 100644
+index fe9a834..1c65940 100644
 --- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 +++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-@@ -241,9 +241,15 @@ bool GpuProcessPolicy::PreSandboxHook() {
+@@ -298,9 +298,15 @@ bool GpuProcessPolicy::PreSandboxHook() {
        const char* I965DrvVideoPath = NULL;
  
        if (IsArchitectureX86_64()) {
@@ -30,5 +30,5 @@ index 700ae52..b788395 100644
  
        dlopen(I965DrvVideoPath, RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
 -- 
-1.7.9.5
+1.9.1
 

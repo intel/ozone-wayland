@@ -1,17 +1,17 @@
-From a48f5b2237900dd3fadbfe2840cc8b09dada723b Mon Sep 17 00:00:00 2001
+From 7bc7330c61e45302e050c5eea281c56a0bfa230a Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 6 Jan 2015 14:13:14 -0800
-Subject: [PATCH] Temp patch for XKB impl to work with Oz-WL.
+Subject: [PATCH 10/14] Temp patch for XKB impl to work with Oz-WL.
 
 ---
  .../layout/xkb/xkb_keyboard_code_conversion.cc     | 24 +++++++++++-----------
  1 file changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
-index b1eb22a..9ef5d2c 100644
+index 84ab9ba..4d3c6b3 100644
 --- a/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
 +++ b/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
-@@ -380,13 +380,13 @@ DomKey NonPrintableXkbKeySymToDomKey(xkb_keysym_t keysym) {
+@@ -386,13 +386,13 @@ DomKey NonPrintableXkbKeySymToDomKey(xkb_keysym_t keysym) {
  base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
    switch (keysym) {
      case XKB_KEY_dead_grave:
@@ -29,7 +29,7 @@ index b1eb22a..9ef5d2c 100644
      case XKB_KEY_dead_macron:
        return 0x0772;  // combining macron
      case XKB_KEY_dead_breve:
-@@ -394,27 +394,27 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
+@@ -400,27 +400,27 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
      case XKB_KEY_dead_abovedot:
        return 0x0775;  // combining dot above
      case XKB_KEY_dead_diaeresis:
@@ -64,7 +64,7 @@ index b1eb22a..9ef5d2c 100644
      case XKB_KEY_dead_abovecomma:
        return 0x0787;  // combining comma above
      case XKB_KEY_dead_abovereversedcomma:
-@@ -432,7 +432,7 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
+@@ -438,7 +438,7 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
      case XKB_KEY_dead_belowbreve:
        return 0x0814;  // combining breve below
      case XKB_KEY_dead_belowdiaeresis:

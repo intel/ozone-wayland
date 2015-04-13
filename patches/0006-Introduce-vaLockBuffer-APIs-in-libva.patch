@@ -1,7 +1,7 @@
-From e06df3445ac9a82446ddba30e2978cc693d39574 Mon Sep 17 00:00:00 2001
+From f3baf47740a94f9fe0fb753bdc6fae73db89f565 Mon Sep 17 00:00:00 2001
 From: Shao Changbin <changbin.shao@intel.com>
 Date: Thu, 4 Sep 2014 12:44:01 +0800
-Subject: [PATCH] Introduce vaLockBuffer APIs in libva.
+Subject: [PATCH 06/14] Introduce vaLockBuffer APIs in libva.
 
 ---
  third_party/libva/va/va.h         | 111 ++++++++++++++++++++++++++++++++++++++
@@ -15,15 +15,15 @@ index 845760c..9455023 100644
 @@ -78,6 +78,7 @@
  #ifndef _VA_H_
  #define _VA_H_
-
+ 
 +#include <stddef.h>
  #include <stdint.h>
  #include <va/va_version.h>
-
+ 
 @@ -1851,6 +1852,116 @@ VAStatus vaDestroyBuffer (
      VABufferID buffer_id
  );
-
+ 
 +/** VA buffer information */
 +typedef struct {
 +    /** Buffer handle */
@@ -136,7 +136,7 @@ index 845760c..9455023 100644
 +
  /*
  Render (Decode) Pictures
-
+ 
 diff --git a/third_party/libva/va/va_backend.h b/third_party/libva/va/va_backend.h
 index bd82849..150f8ef 100644
 --- a/third_party/libva/va/va_backend.h
@@ -160,8 +160,8 @@ index bd82849..150f8ef 100644
 +            VABufferInfo *      buf_info_ptr
 +        );
  };
-
+ 
  struct VADriverContext
---
+-- 
 1.9.1
 

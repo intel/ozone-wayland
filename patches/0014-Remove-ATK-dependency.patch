@@ -1,0 +1,53 @@
+From 6cd009ac0a73c2e286537d4c70f1bd0bb3a3004b Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Fri, 1 May 2015 14:34:01 -0700
+Subject: [PATCH 14/14] Remove ATK dependency
+
+---
+ ui/views/accessibility/native_view_accessibility.cc | 2 ++
+ ui/views/view.cc                                    | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/ui/views/accessibility/native_view_accessibility.cc b/ui/views/accessibility/native_view_accessibility.cc
+index a11f773..f88a7e2 100644
+--- a/ui/views/accessibility/native_view_accessibility.cc
++++ b/ui/views/accessibility/native_view_accessibility.cc
+@@ -24,7 +24,9 @@ NativeViewAccessibility::NativeViewAccessibility(View* view)
+     : view_(view),
+       parent_widget_(nullptr),
+       ax_node_(nullptr) {
++#if !defined(USE_OZONE)
+   ax_node_ = ui::AXPlatformNode::Create(this);
++#endif
+ }
+ 
+ NativeViewAccessibility::~NativeViewAccessibility() {
+diff --git a/ui/views/view.cc b/ui/views/view.cc
+index 78659ca..ca751a2 100644
+--- a/ui/views/view.cc
++++ b/ui/views/view.cc
+@@ -1264,8 +1264,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
+ // Accessibility----------------------------------------------------------------
+ 
+ gfx::NativeViewAccessible View::GetNativeViewAccessible() {
++#if !defined(OS_WIN) && !(defined(OS_LINUX) && !defined(OS_CHROMEOS))
+   if (!native_view_accessibility_)
+     native_view_accessibility_ = NativeViewAccessibility::Create(this);
++#endif
+   if (native_view_accessibility_)
+     return native_view_accessibility_->GetNativeObject();
+   return NULL;
+@@ -1278,8 +1280,10 @@ void View::NotifyAccessibilityEvent(
+     ViewsDelegate::views_delegate->NotifyAccessibilityEvent(this, event_type);
+ 
+   if (send_native_event && GetWidget()) {
++#if !defined(OS_WIN) && !(defined(OS_LINUX) && !defined(OS_CHROMEOS))
+     if (!native_view_accessibility_)
+       native_view_accessibility_ = NativeViewAccessibility::Create(this);
++#endif
+     if (native_view_accessibility_)
+       native_view_accessibility_->NotifyAccessibilityEvent(event_type);
+   }
+-- 
+1.9.1
+
