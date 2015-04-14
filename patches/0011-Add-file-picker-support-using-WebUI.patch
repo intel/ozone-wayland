@@ -1,6 +1,6 @@
-From 2d74f12f3d96b0cf2544ccda039cc313255500d4 Mon Sep 17 00:00:00 2001
-From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Tue, 3 Mar 2015 14:54:26 -0800
+From 2085e9280093f7fd27ff03b53eefccf9217c3d6a Mon Sep 17 00:00:00 2001
+From: Joone Hur <Joone.Hur@intel.com>
+Date: Tue, 14 Apr 2015 12:42:28 -0700
 Subject: [PATCH] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
@@ -33,10 +33,10 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 1ade4ba..b57fc5b 100644
+index 7c7f619..9fadfa8 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -4418,7 +4418,7 @@ Even if you have downloaded files from this website before, the website might ha
+@@ -4387,7 +4387,7 @@ Even if you have downloaded files from this website before, the website might ha
        </message>
  
        <message name="IDS_EXTENSION_PERMISSION_LINE" desc="Template for item in list of privileges that an extension or app has">
@@ -45,7 +45,7 @@ index 1ade4ba..b57fc5b 100644
        </message>
        <message name="IDS_EXTENSION_RATING_COUNT" desc="Number of ratings an app or extensions has (displayed after star icons)">
          (<ph name="RATING_COUNT">$1<ex>46</ex></ph>)
-@@ -15488,6 +15488,14 @@ Do you accept?
+@@ -15464,6 +15464,14 @@ Do you accept?
          This option disables support in Cast Streaming for encoding video streams using platform hardware.
        </message>
  
@@ -61,10 +61,10 @@ index 1ade4ba..b57fc5b 100644
        <message name="IDS_HOTWORD_OPT_IN_CLOSE" desc="Label for the close button for the 'Ok Google' hotword opt-in dialog.">
          Close
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index b0ce0fd..334ca61 100644
+index c17a533..49985f6 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -438,6 +438,9 @@
+@@ -437,6 +437,9 @@
          <include name="IDR_BRAILLE_MANIFEST" file="resources\chromeos\braille_ime\manifest.json" type="BINDATA" />
        </if>
        <include name="IDR_WHISPERNET_PROXY_MANIFEST" file="resources\whispernet_proxy\manifest.json" type="BINDATA" />
@@ -72,8 +72,8 @@ index b0ce0fd..334ca61 100644
 +      <include name="IDR_FILE_PICKER_JS" file="resources\file_picker\file_picker.js" type="BINDATA" />
 +      <include name="IDR_FILE_PICKER_CSS" file="resources\file_picker\file_picker.css" type="BINDATA" />
        <include name="IDR_MD_SETTINGS_UI_HTML" file="resources\md_settings\md_settings.html" type="BINDATA" />
-       <include name="IDR_MD_SETTINGS_UI_CSS" file="resources\md_settings\md_settings.css" type="BINDATA" />
      </includes>
+   </release>
 diff --git a/chrome/browser/resources/file_picker/file_picker.css b/chrome/browser/resources/file_picker/file_picker.css
 new file mode 100644
 index 0000000..a675d89
@@ -565,7 +565,7 @@ index 0000000..87c3c9d
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 6053824..d600123 100644
+index edcaf33..2b02e5f 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
 @@ -1038,6 +1038,9 @@
@@ -578,7 +578,7 @@ index 6053824..d600123 100644
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
        'browser/ui/webui/gcm_internals_ui.cc',
-@@ -3060,6 +3063,7 @@
+@@ -3042,6 +3045,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',
@@ -615,7 +615,7 @@ index fa1e0a6..9551f63 100644
    kChromeUIHistoryHost,
    kChromeUIInvalidationsHost,
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index 7bcf524..dcaf1eb 100644
+index 759ebb6..f5f0705 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
 @@ -42,6 +42,7 @@ extern const char kChromeUIExtensionsFrameURL[];
