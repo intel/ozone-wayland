@@ -1,0 +1,41 @@
+========================================================================
+Milestone-Mazama.
+Release Date: 14th April 2015.
+========================================================================
+
+Chromium Release Information
+Version: 42.0.2311.82.
+Channel: Linux Beta
+Branch: 2311.
+Revision: 5a287b2ab96eb2c4bd089ec2a5e47662b5616fc9.
+
+---------------------------------------------------------------------
+
+Known Issues:
+* Drag & Drop is not supported.
+
+---------------------------------------------------------------------
+
+The release has been tested on Ubuntu 12.04, x86-64 against the following
+dependencies:
+
+1) Wayland and Weston.
+   Version: 1.5.90
+   Wayland Revision:b24fa4c8216e3f0f7b644c7b8c6949925f19ada9
+   Weston Revision:850a514137c13771cb26841d596a2b282898dcf1
+2) Mesa.
+   Version: 10.3.0-devel
+   Revision:a1853eaea7fa5caf59b52567cc49f964ce5293ec
+3) DRM.
+   Revision:d9ce09de12131fa8c5ff2d7c2dbd6b61d8a5fd14
+4) GLProto.
+   Revision:8e3db42d67a0035bb16d16da28bd5eea7a269178
+5) libunwind.
+   Revision:4791a76d26ffb65d56aa16f6b760aa1ee7abdc14
+6) libxkbcommon.
+   Revision:76016d5121daff3391c76313a8c609a985c1eb03
+7) Cairo.
+   Revision:932548ef25864958ef966ffe83e7c945c3ff3cd4
+8) Pixman.
+   Revision:6d2cf40166d81bfc63108504c8022dc4fec37ff5
+
