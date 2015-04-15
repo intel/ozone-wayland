@@ -1,6 +1,6 @@
-From b52d52ec0e4753c0878c25b19358a4e97b5799af Mon Sep 17 00:00:00 2001
+From acaf9f309eba3870b8e0e2ecd954fcb07ccf1955 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Mon, 13 Apr 2015 14:44:35 -0700
+Date: Wed, 15 Apr 2015 00:27:57 -0700
 Subject: [PATCH] Media: Build VaapiPictureWayland as part of Media.
 
 This is temporary, so we can avoid gl circular dependency. Eventually,
@@ -8,14 +8,14 @@ we want to be as aligned as possible with upstream Media solution and need
 to figure out how we could use upstream VaapiWrapper (while able to generate
 custom va_stubs if possible?).
 ---
- content/content_common.gypi | 49 ++++++++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 18 deletions(-)
+ content/content_common.gypi | 48 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 30 insertions(+), 18 deletions(-)
 
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 70153aa..aa590f6 100644
+index c1ae9cf..afc53d6 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -869,7 +869,7 @@
+@@ -863,7 +863,7 @@
          'common/gpu/media/tegra_v4l2_device.h',
        ],
      }],
@@ -24,8 +24,8 @@ index 70153aa..aa590f6 100644
        'dependencies': [
          '../media/media.gyp:media',
          '../third_party/libyuv/libyuv.gyp:libyuv',
-@@ -878,18 +878,20 @@
-         'common/gpu/media/va_surface.h',
+@@ -876,18 +876,19 @@
+         'common/gpu/media/vaapi_h264_dpb.h',
          'common/gpu/media/vaapi_jpeg_decoder.cc',
          'common/gpu/media/vaapi_jpeg_decoder.h',
 -        'common/gpu/media/vaapi_picture.cc',
@@ -42,7 +42,6 @@ index 70153aa..aa590f6 100644
 +        '<(DEPTH)/ozone/media/vaapi_picture_wayland.h',
 +        '<(DEPTH)/ozone/media/vaapi_wrapper.cc',
 +        '<(DEPTH)/ozone/media/vaapi_wrapper.h',
-+
        ],
        'conditions': [
          ['use_x11 == 1', {
@@ -51,7 +50,7 @@ index 70153aa..aa590f6 100644
              'sig_files': [
                'common/gpu/media/va.sigs',
                'common/gpu/media/va_x11.sigs',
-@@ -900,21 +902,32 @@
+@@ -898,21 +899,32 @@
              'common/gpu/media/vaapi_tfp_picture.h',
            ],
          }, {
