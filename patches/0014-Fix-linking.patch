@@ -1,0 +1,27 @@
+From 142430ea13f0eefb2f430b5fcc83df7a6bcf1d06 Mon Sep 17 00:00:00 2001
+From: Kalyan Kondapally <kalyan.kondapally@intel.com>
+Date: Wed, 15 Apr 2015 03:04:52 -0700
+Subject: [PATCH] Fix linking
+
+Disable usage of NativeViewAccessibility, till we figure out what we
+need to do.
+---
+ ui/views/accessibility/native_view_accessibility.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/ui/views/accessibility/native_view_accessibility.cc b/ui/views/accessibility/native_view_accessibility.cc
+index a11f773..f88a7e2 100644
+--- a/ui/views/accessibility/native_view_accessibility.cc
++++ b/ui/views/accessibility/native_view_accessibility.cc
+@@ -24,7 +24,9 @@ NativeViewAccessibility::NativeViewAccessibility(View* view)
+     : view_(view),
+       parent_widget_(nullptr),
+       ax_node_(nullptr) {
++#if !defined(USE_OZONE)
+   ax_node_ = ui::AXPlatformNode::Create(this);
++#endif
+ }
+
+ NativeViewAccessibility::~NativeViewAccessibility() {
+--
+1.9.1
