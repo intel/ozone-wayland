@@ -117,15 +117,18 @@ void EventConverterInProcess::PointerLeave(unsigned handle,
 }
 
 void EventConverterInProcess::KeyNotify(ui::EventType type,
-                                        unsigned code) {
-  VirtualKeyNotify(type, code);
+                                        unsigned code,
+                                        int device_id) {
+  VirtualKeyNotify(type, code, device_id);
 }
 
 void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
-                                               uint32_t key) {
+                                               uint32_t key,
+                                               int device_id) {
   keyboard_.OnKeyChange(key,
-                         type != ui::ET_KEY_RELEASED,
-                         ui::EventTimeForNow(), 0);
+                        type != ui::ET_KEY_RELEASED,
+                        ui::EventTimeForNow(),
+                        device_id);
 }
 
 void EventConverterInProcess::TouchNotify(ui::EventType type,

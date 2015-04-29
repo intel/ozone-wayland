@@ -34,14 +34,16 @@ IPC_MESSAGE_CONTROL2(WaylandInput_InitializeXKB,  // NOLINT(readability/fn_size)
                      base::SharedMemoryHandle /*fd*/,
                      uint32_t /*size*/)
 
-IPC_MESSAGE_CONTROL2(WaylandInput_KeyNotify,  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL3(WaylandInput_KeyNotify,  // NOLINT(readability/fn_size)
                      ui::EventType /*type*/,
-                     unsigned /*code*/)
+                     unsigned /*code*/,
+                     int /*device_id*/)
 
-IPC_MESSAGE_CONTROL2(  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL3(  // NOLINT(readability/fn_size)
     WaylandInput_VirtualKeyNotify,
     ui::EventType /*type*/,
-    uint32_t /*key*/)
+    uint32_t /*key*/,
+    int /*device_id*/)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_MotionNotify,  // NOLINT(readability/fn_size)
                      float /*x*/,
