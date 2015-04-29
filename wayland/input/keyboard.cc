@@ -47,8 +47,9 @@ void WaylandKeyboard::OnKeyNotify(void* data,
   WaylandDisplay::GetInstance()->SetSerial(serial);
   if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     type = ui::ET_KEY_RELEASED;
-
-  device->dispatcher_->KeyNotify(type, key);
+  const uint32_t device_id = wl_proxy_get_id(
+      reinterpret_cast<wl_proxy*>(input_keyboard));
+  device->dispatcher_->KeyNotify(type, key, device_id);
 }
 
 void WaylandKeyboard::OnKeyboardKeymap(void *data,

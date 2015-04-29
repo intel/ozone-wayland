@@ -47,10 +47,10 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                   int yoffset) override;
   void PointerEnter(unsigned handle, float x, float y) override;
   void PointerLeave(unsigned handle, float x, float y) override;
-  void KeyNotify(ui::EventType type,
-                 unsigned code) override;
+  void KeyNotify(ui::EventType type, unsigned code, int device_id) override;
   void VirtualKeyNotify(ui::EventType type,
-                        uint32_t key) override;
+                        uint32_t key,
+                        int device_id) override;
   void TouchNotify(ui::EventType type,
                    float x,
                    float y,

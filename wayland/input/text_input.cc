@@ -93,15 +93,16 @@ void WaylandTextInput::OnKeysym(void* data,
                                 uint32_t key,
                                 uint32_t state,
                                 uint32_t modifiers) {
-  // Copid from WaylandKeyboard::OnKeyNotify()
+  // Copied from WaylandKeyboard::OnKeyNotify().
   ui::EventType type = ui::ET_KEY_PRESSED;
   WaylandDisplay::GetInstance()->SetSerial(serial);
   if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     type = ui::ET_KEY_RELEASED;
-
   ui::EventConverterOzoneWayland* dispatcher =
           ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
-  dispatcher->VirtualKeyNotify(type, key);
+  const uint32_t device_id = wl_proxy_get_id(
+      reinterpret_cast<wl_proxy*>(text_input));
+  dispatcher->VirtualKeyNotify(type, key, device_id);
 }
 
 void WaylandTextInput::OnEnter(void* data,
