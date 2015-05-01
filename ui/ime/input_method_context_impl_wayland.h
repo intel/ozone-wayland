@@ -27,8 +27,10 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
   // overriden from ui::LinuxInputMethodContext
   bool DispatchKeyEvent(const ui::KeyEvent& key_event) override;
   void Reset() override;
-  void OnTextInputTypeChanged(ui::TextInputType text_input_type) override;
-  void OnCaretBoundsChanged(const gfx::Rect& caret_bounds) override;
+  void Focus() override;
+  void Blur() override;
+  void SetCursorLocation(const gfx::Rect&) override;
+
 
   // overriden from ui::IMEChangeObserver
   void OnPreeditChanged(unsigned handle,

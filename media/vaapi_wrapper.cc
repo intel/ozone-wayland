@@ -228,6 +228,13 @@ std::vector<media::VideoCodecProfile> VaapiWrapper::GetSupportedEncodeProfiles(
   return supported_profiles;
 }
 
+// FIXME: This method was just added to fix build break so it should be fully
+// implemtned.
+std::vector<media::VideoCodecProfile>VaapiWrapper::GetSupportedDecodeProfiles() {
+std::vector<media::VideoCodecProfile> profiles;
+  return profiles;
+}
+
 void VaapiWrapper::TryToSetVADisplayAttributeToLocalGPU() {
   base::AutoLock auto_lock(va_lock_);
   VADisplayAttribute item = {VADisplayAttribRenderMode,

@@ -34,7 +34,7 @@ ui::SelectFileDialog* OzoneWebUI::CreateSelectFileDialog(
 }
 
 scoped_ptr<ui::LinuxInputMethodContext> OzoneWebUI::CreateInputMethodContext(
-      ui::LinuxInputMethodContextDelegate* delegate) const {
+      ui::LinuxInputMethodContextDelegate* delegate, bool is_simple) const {
   return scoped_ptr<ui::LinuxInputMethodContext>();
 }
 
@@ -161,6 +161,13 @@ void OzoneWebUI::NotifyWindowManagerStartupComplete() {
 bool OzoneWebUI::MatchEvent(const ui::Event& event,
   std::vector<TextEditCommandAuraLinux>* commands) {
   return false;
+}
+
+void OzoneWebUI::UpdateDeviceScaleFactor(float) {
+}
+
+float OzoneWebUI::GetDeviceScaleFactor() const {
+  return 0.0;
 }
 
 }  // namespace views

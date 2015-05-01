@@ -99,7 +99,6 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   scoped_refptr<ui::NativePixmap> CreateNativePixmap(
       gfx::AcceleratedWidget widget, gfx::Size size, BufferFormat format,
           BufferUsage usage) override;
-  int GetDrmFd() override;
 
   // WindowStateChangeHandler implementation:
   void SetWidgetState(unsigned widget,

@@ -47,7 +47,8 @@ class OzoneWebUI : public views::LinuxUI {
 
   // ui::LinuxInputMethodContextFactory:
   scoped_ptr<ui::LinuxInputMethodContext> CreateInputMethodContext(
-      ui::LinuxInputMethodContextDelegate* delegate) const override;
+      ui::LinuxInputMethodContextDelegate* delegate, bool is_simple)
+      const override;
 
   // gfx::LinuxFontDelegate:
   gfx::FontRenderParams GetDefaultFontRenderParams() const override;
@@ -103,6 +104,9 @@ class OzoneWebUI : public views::LinuxUI {
 
   bool MatchEvent(const ui::Event& event,
                   std::vector<TextEditCommandAuraLinux>* commands) override;
+
+  void UpdateDeviceScaleFactor(float) override;
+  float GetDeviceScaleFactor() const override;
 
  private:
   gfx::FontRenderParams params_;

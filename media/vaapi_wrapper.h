@@ -66,6 +66,9 @@ class CONTENT_EXPORT VaapiWrapper {
   static std::vector<media::VideoCodecProfile> GetSupportedEncodeProfiles(
       const base::Closure& report_error_to_uma_cb);
 
+// Return the supported decode profiles.
+  static std::vector<media::VideoCodecProfile> GetSupportedDecodeProfiles();
+
   ~VaapiWrapper();
 
   // Create |num_surfaces| backing surfaces in driver for VASurfaces, each

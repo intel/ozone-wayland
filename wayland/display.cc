@@ -240,10 +240,6 @@ scoped_refptr<ui::NativePixmap> WaylandDisplay::CreateNativePixmap(
 #endif
 }
 
-int WaylandDisplay::GetDrmFd() {
-  return m_fd_;
-}
-
 void WaylandDisplay::SetWidgetState(unsigned w,
                                     ui::WidgetState state) {
   switch (state) {

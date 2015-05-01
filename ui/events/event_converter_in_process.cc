@@ -15,12 +15,12 @@
 #include "ozone/ui/public/messages.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
-#include "ui/ozone/platform/dri/dri_gpu_platform_support_host.h"
+#include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
 
 namespace ui {
 
 EventConverterInProcess::EventConverterInProcess(
-    DriGpuPlatformSupportHost* proxy)
+    DrmGpuPlatformSupportHost* proxy)
     : EventConverterOzoneWayland(),
       proxy_(proxy),
       keyboard_(&modifiers_,
@@ -125,7 +125,7 @@ void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
                                                uint32_t key) {
   keyboard_.OnKeyChange(key,
                          type != ui::ET_KEY_RELEASED,
-                         ui::EventTimeForNow());
+                         ui::EventTimeForNow(), 0);
 }
 
 void EventConverterInProcess::TouchNotify(ui::EventType type,

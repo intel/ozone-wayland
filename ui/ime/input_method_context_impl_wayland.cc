@@ -34,21 +34,13 @@ void InputMethodContextImplWayland::Reset() {
       ResetIme();
 }
 
-void InputMethodContextImplWayland::OnTextInputTypeChanged(
-    ui::TextInputType text_input_type) {
-  IMEStateChangeHandler* handler =
-      EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler();
-  // FIXME: We need to support more input types.
-  if (text_input_type == ui::TEXT_INPUT_TYPE_NONE)
-    handler->HideInputPanel();
-  else
-    handler->ShowInputPanel();
+void InputMethodContextImplWayland::Focus() {
 }
 
-void InputMethodContextImplWayland::OnCaretBoundsChanged(
-    const gfx::Rect& caret_bounds) {
-  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
-      ImeCaretBoundsChanged(caret_bounds);
+void InputMethodContextImplWayland::Blur() {
+}
+
+void InputMethodContextImplWayland::SetCursorLocation(const gfx::Rect&) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
