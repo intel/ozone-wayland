@@ -56,13 +56,15 @@ void RemoteEventDispatcher::PointerLeave(unsigned handle,
 }
 
 void RemoteEventDispatcher::KeyNotify(ui::EventType type,
-                                      unsigned code) {
-  Dispatch(new WaylandInput_KeyNotify(type, code));
+                                      unsigned code,
+                                      int device_id) {
+  Dispatch(new WaylandInput_KeyNotify(type, code, device_id));
 }
 
 void RemoteEventDispatcher::VirtualKeyNotify(ui::EventType type,
-                                             uint32_t key) {
-  Dispatch(new WaylandInput_VirtualKeyNotify(type, key));
+                                             uint32_t key,
+                                             int device_id) {
+  Dispatch(new WaylandInput_VirtualKeyNotify(type, key, device_id));
 }
 
 void RemoteEventDispatcher::TouchNotify(ui::EventType type,

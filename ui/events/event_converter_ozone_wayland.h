@@ -39,9 +39,11 @@ class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
   virtual void PointerEnter(unsigned handle, float x, float y) = 0;
   virtual void PointerLeave(unsigned handle, float x, float y) = 0;
   virtual void KeyNotify(ui::EventType type,
-                         unsigned code) = 0;
+                         unsigned code,
+                         int device_id) = 0;
   virtual void VirtualKeyNotify(ui::EventType type,
-                                uint32_t key) = 0;
+                                uint32_t key,
+                                int device_id) = 0;
   virtual void TouchNotify(ui::EventType type,
                            float x,
                            float y,
