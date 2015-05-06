@@ -140,3 +140,33 @@ Instructions can be found here: https://github.com/otcshare/ozone-wayland/wiki
 ## License
 
 Ozone-Wayland's code uses the BSD license (check the LICENSE file in the project).
+
+# Tips
+## Build Wayland & Weston
+If you want to build and run ozone-wayland, you should install wayland and weston first.
+Here is the instruction using jhbuild.
+
+#### Install jhbuild
+Please refer to this instruction: https://developer.gnome.org/jhbuild/stable/getting-started.html.en
+
+#### Install dependent packages using apt-get
+```
+$ cd ~/chromium/src
+$ ozone/tools/jhbuild/install-dependencies
+```
+#### Build and install Wayland & Weston
+```
+$ cd ozone/tools/jhbuild
+$ jhbuild -f wayland.jhbuildrc
+```
+#### Run Weston
+```
+$ jhbuild -f wayland.jhbuildrc shell
+$ cd ~/chromium/src
+$ out/wayland/root/bin/weston --fullscreen
+```
+#### Run ozone-wayland in Weston
+Open a weston terminal
+```
+$ out/Release/chrome --no-sandbox
+```
