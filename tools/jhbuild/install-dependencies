@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# This script was originally implemented for the WebKitGtk+ project, but
+# it was updated for building Wayland & Weston and only tested on Ubuntu 14.04
+
+# This script needs to be run with root rights.
+if [ $UID -ne 0 ]; then
+    sudo $0
+    exit 0
+fi
+
+function printNotSupportedMessageAndExit() {
+    echo
+    echo "Currently this script only works for distributions supporting apt-get."
+    echo "Please add support for your distribution."
+    echo
+    exit 1
+}
+
+function checkInstaller {
+    # apt-get - Debian based distributions
+    apt-get --version &> /dev/null
+    if [ $? -eq 0 ]; then
+        installDependenciesWithApt
+        exit 0
+    fi
+
+    printNotSupportedMessageAndExit
+}
+
+function installDependenciesWithApt {
+    # These are dependencies necessary for building Wayland and Weston.
+    apt-get install \
+        libffi-dev \
+        doxygen \
+        xmlto \
+        libpciaccess-dev \
+        python-mako \
+        x11proto-dri3-dev \
+        x11proto-present-dev \
+        llvm libxcb-xkb-dev \
+        graphviz \
+        libxcb-composite0-dev \
+        libmtdev-dev \
+        libevdev-dev || true
+}
+
+checkInstaller
+

@@ -1,0 +1,12 @@
+# -*- mode: python -*-
+
+import os
+
+use_local_modulesets = True
+moduleset = 'wayland.modules'
+modules = ['weston']
+checkoutroot = os.getcwd() + '/../../../out/wayland/source'
+prefix = os.getcwd() +'/../../../out/wayland/root'
+autogenargs=''
+
+os.environ['EGL_PLATFORM'] = 'wayland'
