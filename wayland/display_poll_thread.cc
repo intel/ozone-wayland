@@ -51,12 +51,12 @@ void WaylandDisplayPollThread::CleanUp() {
 }
 
 void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
-  struct pollfd ep;
+  struct pollfd pollfd;
   int i, ret, count = 0;
   uint32_t event = 0;
   unsigned display_fd = wl_display_get_fd(data->display_);
-  ep.fd = display_fd;
-  ep.events = POLLIN | POLLERR | POLLHUP;
+  pollfd.fd = display_fd;
+  pollfd.events = POLLIN | POLLERR | POLLHUP;
 
   // Set the signal state. This is used to query from other threads (i.e.
   // StopProcessingEvents on Main thread), if this thread is still polling.
@@ -75,16 +75,14 @@ void  WaylandDisplayPollThread::DisplayRun(WaylandDisplayPollThread* data) {
     if (data->stop_polling_.IsSignaled())
       break;
 
-    count = poll(&ep, 1, -1);
-    // Break if epoll wait returned value less than 0 and we aren't interrupted
-    // by a signal.
+    count = poll(&pollfd, 1, -1);
     if (count < 0 && errno != EINTR) {
       LOG(ERROR) << "poll returned an error." << errno;
       break;
     }
 
     if (count == 1) {
-      event = ep.revents;
+      event = pollfd.revents;
       // We can have cases where POLLIN and POLLHUP are both set for
       // example. Don't break if both flags are set.
       if ((event & POLLERR || event & POLLHUP) &&
