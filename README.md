@@ -77,7 +77,7 @@ One needs to set the installation prefix $WLD(Below)  to be same as the one used
 now we can clone Ozone-Wayland and fetch all the dependencies of it, including Chromium itself:
 
   ```
-  $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --deps-file ".DEPS.git"
+  $ gclient config ssh://git@github.com/01org/ozone-wayland.git@Video --name=src/ozone --deps-file ".DEPS.git"
   $ export GYP_DEFINES='use_ash=1 use_aura=1 chromeos=0 use_ozone=1 use_xkbcommon=1' 
   ```
   If you want to enable HWA Video Decoding, you need to have the following GYP_DEFINES:
