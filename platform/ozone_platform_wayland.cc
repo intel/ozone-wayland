@@ -23,6 +23,7 @@
 #include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/platform/drm/host/drm_cursor.h"
 #include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
+#include "ui/ozone/platform/drm/host/drm_overlay_manager.h"
 #include "ui/ozone/platform/drm/host/drm_window_host_manager.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/system_input_injector.h"
@@ -53,6 +54,10 @@ class OzonePlatformWayland : public OzonePlatform {
   CursorFactoryOzone* GetCursorFactoryOzone() override {
     return cursor_factory_ozone_.get();
   }
+
+  ui::OverlayManagerOzone* GetOverlayManager() override {
+    return overlay_manager_.get();
+  } 
 
   InputController* GetInputController() override {
     return NULL;
@@ -96,6 +101,7 @@ class OzonePlatformWayland : public OzonePlatform {
         new ui::InputMethodContextFactoryWayland());
 #endif
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
+    overlay_manager_.reset(new DrmOverlayManager(false));
     KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(make_scoped_ptr(
         new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
     event_factory_ozone_.reset(
@@ -140,6 +146,7 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::OzoneChannel> gpu_platform_;
   scoped_ptr<ui::RemoteStateChangeHandler> state_change_handler_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
+  scoped_ptr<DrmOverlayManager> overlay_manager_;
   XkbEvdevCodes xkb_evdev_code_converter_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
