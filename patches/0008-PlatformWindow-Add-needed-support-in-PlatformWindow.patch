@@ -1,4 +1,4 @@
-From e9ad4762ea02196a8480ac13577ca9c7608d0388 Mon Sep 17 00:00:00 2001
+From 529de4c4128480cf62a4ce242089ad8e40a4b647 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Sun, 19 Oct 2014 19:55:16 -0700
 Subject: [PATCH 08/14] PlatformWindow: Add needed support in PlatformWindow.

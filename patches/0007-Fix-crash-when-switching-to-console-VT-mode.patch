@@ -1,4 +1,4 @@
-From dddc8150df2302f569dd73043d9c37197a7aff0f Mon Sep 17 00:00:00 2001
+From 43c6e9491786fcaccc6343657deece6d00984223 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Mon, 27 Oct 2014 15:22:48 -0700
 Subject: [PATCH 07/14] Fix crash when switching to console(VT) mode

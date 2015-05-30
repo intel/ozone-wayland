@@ -1,4 +1,4 @@
-From f42b3520f18a1846bb08c613b829cee6c9f2d6ec Mon Sep 17 00:00:00 2001
+From d8a3b256da66e2e625691c39e67e6fa039fdf0d7 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Mon, 13 Apr 2015 14:44:35 -0700
 Subject: [PATCH 05/14] Media: Build VaapiPictureWayland as part of Media.
@@ -12,10 +12,10 @@ custom va_stubs if possible?).
  1 file changed, 32 insertions(+), 19 deletions(-)
 
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 70153aa..ad62294 100644
+index 5593097..31eeb74 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -820,7 +820,7 @@
+@@ -826,7 +826,7 @@
          },
        ],
      }],
@@ -24,7 +24,7 @@ index 70153aa..ad62294 100644
        'sources': [
          'common/gpu/media/accelerated_video_decoder.h',
          'common/gpu/media/h264_decoder.cc',
-@@ -869,7 +869,7 @@
+@@ -875,7 +875,7 @@
          'common/gpu/media/tegra_v4l2_device.h',
        ],
      }],
@@ -33,7 +33,7 @@ index 70153aa..ad62294 100644
        'dependencies': [
          '../media/media.gyp:media',
          '../third_party/libyuv/libyuv.gyp:libyuv',
-@@ -878,18 +878,20 @@
+@@ -884,18 +884,20 @@
          'common/gpu/media/va_surface.h',
          'common/gpu/media/vaapi_jpeg_decoder.cc',
          'common/gpu/media/vaapi_jpeg_decoder.h',
@@ -60,7 +60,7 @@ index 70153aa..ad62294 100644
              'sig_files': [
                'common/gpu/media/va.sigs',
                'common/gpu/media/va_x11.sigs',
-@@ -900,21 +902,32 @@
+@@ -906,21 +908,32 @@
              'common/gpu/media/vaapi_tfp_picture.h',
            ],
          }, {
