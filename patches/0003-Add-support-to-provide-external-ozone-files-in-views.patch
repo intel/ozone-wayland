@@ -1,4 +1,4 @@
-From 40a6c122c5211a591f65a87ae8e998808fa2e8a4 Mon Sep 17 00:00:00 2001
+From 36fa182238b8a292e7456489ccf6fe642aa5402d Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 19 Aug 2014 21:08:47 -0700
 Subject: [PATCH 03/14] Add support to provide external ozone files in views.
@@ -10,7 +10,7 @@ to include desktop_aura/ as part of view target.
  1 file changed, 2 insertions(+)
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 7046a47..df51b5d 100644
+index 2ba2a8d..97c4452 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
 @@ -4,6 +4,7 @@
@@ -21,7 +21,7 @@ index 7046a47..df51b5d 100644
      # Sources lists shared with GN build.
      'views_sources': [
        'accessibility/native_view_accessibility.cc',
-@@ -689,6 +690,7 @@
+@@ -697,6 +698,7 @@
          }],
          ['use_aura==1', {
            'sources': [

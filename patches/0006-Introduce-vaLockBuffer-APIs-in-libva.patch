@@ -1,4 +1,4 @@
-From f3baf47740a94f9fe0fb753bdc6fae73db89f565 Mon Sep 17 00:00:00 2001
+From a89d4da59369b15e12fac5ea2a73daf36f16ec8e Mon Sep 17 00:00:00 2001
 From: Shao Changbin <changbin.shao@intel.com>
 Date: Thu, 4 Sep 2014 12:44:01 +0800
 Subject: [PATCH 06/14] Introduce vaLockBuffer APIs in libva.

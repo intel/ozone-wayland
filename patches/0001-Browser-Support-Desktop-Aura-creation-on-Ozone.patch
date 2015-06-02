@@ -1,4 +1,4 @@
-From fe3834eee21d9eda1cd4e12d8c90bf560ca38dda Mon Sep 17 00:00:00 2001
+From 531eddd32f830ef43217abf903abcbb5fb7a6900 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 3 Mar 2015 14:29:53 -0800
 Subject: [PATCH 01/14] Browser: Support Desktop Aura creation on Ozone
@@ -200,10 +200,10 @@ index 0000000..4096680
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 5e6f594..4a506a7 100644
+index f2508a4..534719b 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1330,6 +1330,8 @@
+@@ -1342,6 +1342,8 @@
        'browser/ui/views/frame/browser_desktop_window_tree_host_x11.h',
        'browser/ui/views/frame/desktop_browser_frame_auralinux.cc',
        'browser/ui/views/frame/desktop_browser_frame_auralinux.h',
