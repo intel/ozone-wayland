@@ -1,78 +1,63 @@
-From 09bd23397624828972bafaa7d70fa1ff5ad3ed64 Mon Sep 17 00:00:00 2001
+From 533a4410ef61971983b592eec46a2cbb78bcfc0d Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Tue, 6 Jan 2015 14:13:14 -0800
-Subject: [PATCH 10/14] Temp patch for XKB impl to work with Oz-WL.
+Date: Wed, 8 Jul 2015 16:42:41 -0700
+Subject: [PATCH] Temp patch for XKB impl to work with Oz-WL.
 
 ---
- .../layout/xkb/xkb_keyboard_code_conversion.cc     | 24 +++++++++++-----------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ .../ozone/layout/xkb/xkb_keyboard_code_conversion.cc   | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
-index 4373328..36f6cad 100644
+index 69571c3..bb0f43f 100644
 --- a/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
 +++ b/ui/events/ozone/layout/xkb/xkb_keyboard_code_conversion.cc
 @@ -11,13 +11,13 @@ namespace ui {
  base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
    switch (keysym) {
      case XKB_KEY_dead_grave:
--      return 0x0768;  // combining grave accent
+-      return 0x0300;  // combining grave accent
 +      return 0x0060;  // combining grave accent
      case XKB_KEY_dead_acute:
--      return 0x0769;  // combining acute accent
+-      return 0x0301;  // combining acute accent
 +      return 0x00B4;  // combining acute accent
      case XKB_KEY_dead_circumflex:
--      return 0x0770;  // combining circumflex accent
+-      return 0x0302;  // combining circumflex accent
 +      return 0x005E;  // combining circumflex accent
      case XKB_KEY_dead_tilde:
--      return 0x0771;  // combining tilde
+-      return 0x0303;  // combining tilde
 +      return 0x007E;  // combining tilde
      case XKB_KEY_dead_macron:
-       return 0x0772;  // combining macron
+       return 0x0304;  // combining macron
      case XKB_KEY_dead_breve:
-@@ -25,27 +25,27 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
+@@ -25,15 +25,15 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
      case XKB_KEY_dead_abovedot:
-       return 0x0775;  // combining dot above
+       return 0x0307;  // combining dot above
      case XKB_KEY_dead_diaeresis:
--      return 0x0776;  // combining diaeresis
+-      return 0x0308;  // combining diaeresis
 +      return 0x00A8;  // combining diaeresis
      case XKB_KEY_dead_abovering:
-       return 0x0778;  // combining ring above
+       return 0x030A;  // combining ring above
      case XKB_KEY_dead_doubleacute:
--      return 0x0779;  // combining double acute accent
+-      return 0x030B;  // combining double acute accent
 +      return 0x02DD;  // combining double acute accent
      case XKB_KEY_dead_caron:
--      return 0x0780;  // combining caron
+-      return 0x030C;  // combining caron
 +      return 0x02C7;  // combining caron
      case XKB_KEY_dead_cedilla:
--      return 0x0807;  // combining cedilla
+-      return 0x0327;  // combining cedilla
 +      return 0x00B8;  // combining cedilla
      case XKB_KEY_dead_ogonek:
-       return 0x0808;  // combining ogonek
+       return 0x0328;  // combining ogonek
      case XKB_KEY_dead_iota:
-       return 0x0837;  // combining greek ypogegrammeni
-     case XKB_KEY_dead_belowdot:
--      return 0x0803;  // combining dot below
-+      return 0x0323;  // combining dot below
-     case XKB_KEY_dead_hook:
-       return 0x0777;  // combining hook above
+@@ -49,7 +49,7 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
      case XKB_KEY_dead_horn:
--      return 0x0795;  // combining horn
-+      return 0x031B;  // combining horn
+       return 0x031B;  // combining horn
      case XKB_KEY_dead_stroke:
--      return 0x0824;  // combining long solidus overlay
+-      return 0x0338;  // combining long solidus overlay
 +      return 0x002D;  // combining long solidus overlay
      case XKB_KEY_dead_abovecomma:
-       return 0x0787;  // combining comma above
+       return 0x0313;  // combining comma above
      case XKB_KEY_dead_abovereversedcomma:
-@@ -63,7 +63,7 @@ base::char16 DeadXkbKeySymToCombiningCharacter(xkb_keysym_t keysym) {
-     case XKB_KEY_dead_belowbreve:
-       return 0x0814;  // combining breve below
-     case XKB_KEY_dead_belowdiaeresis:
--      return 0x0804;  // combining diaeresis below
-+      return 0x0324;  // combining diaeresis below
-     case XKB_KEY_dead_invertedbreve:
-       return 0x0785;  // combining inverted breve
-     case XKB_KEY_dead_belowcomma:
 -- 
 1.9.1
 

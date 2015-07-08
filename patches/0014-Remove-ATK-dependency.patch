@@ -1,7 +1,7 @@
-From 70fb5f1c06ea699407de7405e596952bca568538 Mon Sep 17 00:00:00 2001
+From d8c95a54762436b9b0a4be6ba4b515f20908377e Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
-Date: Fri, 1 May 2015 14:34:01 -0700
-Subject: [PATCH 14/14] Remove ATK dependency
+Date: Wed, 8 Jul 2015 16:56:56 -0700
+Subject: [PATCH] Remove ATK dependency
 
 ---
  ui/views/accessibility/native_view_accessibility.cc | 2 ++
@@ -23,10 +23,10 @@ index a11f773..f88a7e2 100644
  
  NativeViewAccessibility::~NativeViewAccessibility() {
 diff --git a/ui/views/view.cc b/ui/views/view.cc
-index 0b6efdf..2061be9 100644
+index 07b8201..76e3f55 100644
 --- a/ui/views/view.cc
 +++ b/ui/views/view.cc
-@@ -1273,8 +1273,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
+@@ -1260,8 +1260,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
  // Accessibility----------------------------------------------------------------
  
  gfx::NativeViewAccessible View::GetNativeViewAccessible() {
@@ -37,8 +37,8 @@ index 0b6efdf..2061be9 100644
    if (native_view_accessibility_)
      return native_view_accessibility_->GetNativeObject();
    return NULL;
-@@ -1287,8 +1289,10 @@ void View::NotifyAccessibilityEvent(
-     ViewsDelegate::views_delegate->NotifyAccessibilityEvent(this, event_type);
+@@ -1274,8 +1276,10 @@ void View::NotifyAccessibilityEvent(
+     ViewsDelegate::GetInstance()->NotifyAccessibilityEvent(this, event_type);
  
    if (send_native_event && GetWidget()) {
 +#if !defined(OS_WIN) && !(defined(OS_LINUX) && !defined(OS_CHROMEOS))
