@@ -6,6 +6,7 @@
 #define OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
 
 #include <string>
+#include <queue>
 
 #include "ipc/ipc_sender.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
@@ -18,6 +19,7 @@ namespace ui {
 // process and hence the events are sent to it over IPC.
 class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
  public:
+  typedef std::queue<IPC::Message*> DeferredMessages;
   RemoteEventDispatcher();
   ~RemoteEventDispatcher() override;
 
@@ -69,6 +71,7 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   void Send(IPC::Message* message);
   IPC::Sender* sender_;
   base::MessageLoop* loop_;
+  DeferredMessages deferred_messages_;
   // Support weak pointers for attach & detach callbacks.
   base::WeakPtrFactory<RemoteEventDispatcher> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);

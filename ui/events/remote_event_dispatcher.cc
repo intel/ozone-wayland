@@ -17,11 +17,17 @@ RemoteEventDispatcher::RemoteEventDispatcher()
 }
 
 RemoteEventDispatcher::~RemoteEventDispatcher() {
+  while (!deferred_messages_.empty())
+    deferred_messages_.pop();
 }
 
 void RemoteEventDispatcher::ChannelEstablished(IPC::Sender* sender) {
   loop_ = base::MessageLoop::current();
   sender_ = sender;
+  while (!deferred_messages_.empty()) {
+    Dispatch(deferred_messages_.front());
+    deferred_messages_.pop();
+  }
 }
 
 void RemoteEventDispatcher::MotionNotify(float x, float y) {
@@ -127,6 +133,11 @@ void RemoteEventDispatcher::InitializeXKB(base::SharedMemoryHandle fd,
 }
 
 void RemoteEventDispatcher::Dispatch(IPC::Message* message) {
+  if (!loop_) {
+    deferred_messages_.push(message);
+    return;
+  }
+
   loop_->task_runner()->PostTask(FROM_HERE,
       base::Bind(&RemoteEventDispatcher::Send,
                  weak_ptr_factory_.GetWeakPtr(),

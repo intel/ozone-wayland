@@ -35,6 +35,7 @@ VAStatus vaTerminate(VADisplay dpy);
 VAStatus vaUnmapBuffer(VADisplay dpy, VABufferID buf_id);
 VAStatus vaAcquireBufferHandle(VADisplay dpy, VABufferID buf_id, VABufferInfo *buf_info);
 VAStatus vaReleaseBufferHandle(VADisplay dpy, VABufferID buf_id);
+VAStatus vaQuerySurfaceAttributes(VADisplay dpy, VAConfigID config, VASurfaceAttrib *attrib_list, unsigned int *num_attribs);
 VAStatus vaQueryConfigEntrypoints (VADisplay dpy, VAProfile profile, VAEntrypoint *entrypoint_list, int *num_entrypoints);
 
 #------------------------------------------------
