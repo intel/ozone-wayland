@@ -1,18 +1,17 @@
-From 639802e43891307c51f74e1fe9b81caf2e9c40e1 Mon Sep 17 00:00:00 2001
+From e629149be3b09cdb166094ed142b229f32f06f90 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Wed, 8 Jul 2015 16:39:45 -0700
+Date: Thu, 9 Jul 2015 00:53:02 -0700
 Subject: [PATCH] Media: Build VaapiPictureWayland as part of Media.
 
 This is temporary, so we can avoid gl circular dependency. Eventually,
 we want to be as aligned as possible with upstream Media solution and need
-to figure out how we could use upstream VaapiWrapper (while able to generate
-custom va_stubs if possible?).
+to figure out how we could use upstream VaapiWrapper.
 ---
- content/content_common.gypi | 50 ++++++++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 19 deletions(-)
+ content/content_common.gypi | 51 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 19 deletions(-)
 
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 31072e5..b866b89 100644
+index 31072e5..f25411c 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
 @@ -840,7 +840,7 @@
@@ -59,7 +58,7 @@ index 31072e5..b866b89 100644
              'sig_files': [
                'common/gpu/media/va.sigs',
                'common/gpu/media/va_x11.sigs',
-@@ -922,21 +923,32 @@
+@@ -922,21 +923,33 @@
              'common/gpu/media/vaapi_tfp_picture.h',
            ],
          }, {
@@ -78,6 +77,7 @@ index 31072e5..b866b89 100644
 +              'variables': {
 +                'extra_header': '../ozone/media/va_wayland_stub_header.fragment',
 +                'sig_files': [
++		 'common/gpu/media/va.sigs',
 +                  '../ozone/media/va_wayland.sigs',
 +                ],
 +              },

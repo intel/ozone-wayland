@@ -28,8 +28,8 @@
 #include "ui/ozone/public/surface_factory_ozone.h"
 #endif  // USE_X11
 
-#if defined(USE_X11)
 using content_common_gpu_media::kModuleVa;
+#if defined(USE_X11)
 using content_common_gpu_media::kModuleVa_x11;
 #elif defined(USE_OZONE)
 using content_common_gpu_media::kModuleVa_wayland;
