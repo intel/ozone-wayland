@@ -60,6 +60,7 @@ VaapiPictureWayland::~VaapiPictureWayland() {
 
 bool VaapiPictureWayland::CreateEGLImage(VAImage* va_image) {
   DCHECK(va_image);
+  DCHECK(va_wrapper_);
 
   VABufferInfo buffer_info;
   if (!va_wrapper_->AcquireBufferHandle(va_image->buf, &buffer_info)) {
@@ -89,9 +90,7 @@ bool VaapiPictureWayland::CreateEGLImage(VAImage* va_image) {
     return false;
   }
 
-  if (va_wrapper_) {
-    va_wrapper_->ReleaseBufferHandle(va_image->buf);
-  }
+  va_wrapper_->ReleaseBufferHandle(va_image->buf);
 
   return true;
 }
