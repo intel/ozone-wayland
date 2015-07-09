@@ -127,7 +127,7 @@ void RemoteEventDispatcher::InitializeXKB(base::SharedMemoryHandle fd,
 }
 
 void RemoteEventDispatcher::Dispatch(IPC::Message* message) {
-  loop_->message_loop_proxy()->PostTask(FROM_HERE,
+  loop_->task_runner()->PostTask(FROM_HERE,
       base::Bind(&RemoteEventDispatcher::Send,
                  weak_ptr_factory_.GetWeakPtr(),
                  message));
