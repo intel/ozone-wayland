@@ -633,7 +633,7 @@ gfx::AcceleratedWidget DesktopWindowTreeHostOzone::GetAcceleratedWidget() {
   return window_;
 }
 
-void DesktopWindowTreeHostOzone::Show() {
+void DesktopWindowTreeHostOzone::ShowImpl() {
   if (state_ & Visible)
     return;
 
@@ -642,7 +642,7 @@ void DesktopWindowTreeHostOzone::Show() {
   native_widget_delegate_->OnNativeWidgetVisibilityChanged(true);
 }
 
-void DesktopWindowTreeHostOzone::Hide() {
+void DesktopWindowTreeHostOzone::HideImpl() {
   if (!(state_ & Visible))
     return;
 
