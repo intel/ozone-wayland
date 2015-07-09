@@ -28,7 +28,6 @@
 #include "ui/platform_window/platform_window.h"
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/corewm/tooltip_aura.h"
-#include "ui/views/ime/input_method.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/views_delegate.h"
 #include "ui/views/views_export.h"
@@ -602,12 +601,9 @@ void DesktopWindowTreeHostOzone::OnRootViewLayout() {
 }
 
 void DesktopWindowTreeHostOzone::OnNativeWidgetFocus() {
-  native_widget_delegate_->AsWidget()->GetInputMethod()->OnFocus();
 }
 
 void DesktopWindowTreeHostOzone::OnNativeWidgetBlur() {
-  if (window_)
-    native_widget_delegate_->AsWidget()->GetInputMethod()->OnBlur();
 }
 
 bool DesktopWindowTreeHostOzone::IsAnimatingClosed() const {
