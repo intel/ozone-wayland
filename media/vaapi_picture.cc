@@ -29,7 +29,7 @@ linked_ptr<VaapiPicture> VaapiPicture::CreatePicture(
 }
 
 bool VaapiPicture::AllowOverlay() const {
-   return false;
+  return false;
 }
 
 // static

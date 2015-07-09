@@ -57,7 +57,7 @@ class OzonePlatformWayland : public OzonePlatform {
 
   ui::OverlayManagerOzone* GetOverlayManager() override {
     return overlay_manager_.get();
-  } 
+  }
 
   InputController* GetInputController() override {
     return NULL;

@@ -183,7 +183,7 @@ void DesktopWindowTreeHostOzone::OnNativeWidgetCreated(
 
 scoped_ptr<corewm::Tooltip>
 DesktopWindowTreeHostOzone::CreateTooltip() {
-   return scoped_ptr<views::corewm::Tooltip>(new views::corewm::TooltipAura);
+  return scoped_ptr<views::corewm::Tooltip>(new views::corewm::TooltipAura);
 }
 
 scoped_ptr<aura::client::DragDropClient>

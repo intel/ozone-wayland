@@ -163,7 +163,7 @@ bool OzoneWebUI::MatchEvent(const ui::Event& event,
   return false;
 }
 
-void OzoneWebUI::UpdateDeviceScaleFactor(float) {
+void OzoneWebUI::UpdateDeviceScaleFactor(float scalefactor) {
 }
 
 float OzoneWebUI::GetDeviceScaleFactor() const {

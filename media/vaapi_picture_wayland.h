@@ -13,8 +13,8 @@
 #include "ozone/media/vaapi_picture.h"
 #include "ozone/media/vaapi_wrapper.h"
 #include "ui/gl/gl_bindings.h"
-#include "ui/gl/gl_surface_egl.h"
 #include "ui/gl/gl_image_egl.h"
+#include "ui/gl/gl_surface_egl.h"
 #include "ui/gl/scoped_binders.h"
 
 namespace content {

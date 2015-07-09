@@ -105,7 +105,7 @@ class OzoneWebUI : public views::LinuxUI {
   bool MatchEvent(const ui::Event& event,
                   std::vector<TextEditCommandAuraLinux>* commands) override;
 
-  void UpdateDeviceScaleFactor(float) override;
+  void UpdateDeviceScaleFactor(float scalefactor) override;
   float GetDeviceScaleFactor() const override;
 
  private:
