@@ -807,12 +807,6 @@ void DesktopWindowTreeHostOzone::DispatchEvent(ui::Event* event) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopWindowTreeHostX11, ui::EventSource implementation:
-ui::EventProcessor* DesktopWindowTreeHostOzone::GetEventProcessor() {
-  return dispatcher();
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // WindowTreeHostDelegateWayland, ui::PlatformEventDispatcher implementation:
 bool DesktopWindowTreeHostOzone::CanDispatchEvent(
     const ui::PlatformEvent& ne) {

@@ -13,7 +13,6 @@
 
 #include "base/basictypes.h"
 #include "ui/aura/window_tree_host.h"
-#include "ui/events/event_source.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
@@ -34,8 +33,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
     : public DesktopWindowTreeHost,
       public aura::WindowTreeHost,
       public ui::PlatformWindowDelegate,
-      public ui::PlatformEventDispatcher,
-      public ui::EventSource {
+      public ui::PlatformEventDispatcher {
  public:
   DesktopWindowTreeHostOzone(
       internal::NativeWidgetDelegate* native_widget_delegate,
@@ -150,8 +148,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
                                      float device_pixel_ratio) override;
   void OnActivationChanged(bool active) override;
 
-  // Overridden frm ui::EventSource
-  ui::EventProcessor* GetEventProcessor() override;
   // ui::PlatformEventDispatcher:
   bool CanDispatchEvent(const ui::PlatformEvent& event) override;
   uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
