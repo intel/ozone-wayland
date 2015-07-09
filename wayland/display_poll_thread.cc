@@ -33,9 +33,9 @@ void WaylandDisplayPollThread::StartProcessingEvents() {
   DCHECK(!polling_.IsSignaled());
   base::Thread::Options options;
   options.message_loop_type = base::MessageLoop::TYPE_IO;
+  options.priority = base::ThreadPriority::BACKGROUND;
   StartWithOptions(options);
-  SetPriority(base::ThreadPriority::BACKGROUND);
-  message_loop_proxy()->PostTask(FROM_HERE, base::Bind(
+  task_runner()->PostTask(FROM_HERE, base::Bind(
       &WaylandDisplayPollThread::DisplayRun, this));
 }
 
