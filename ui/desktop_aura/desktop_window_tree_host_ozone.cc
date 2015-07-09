@@ -35,7 +35,6 @@
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
-#include "ui/wm/core/input_method_event_filter.h"
 #include "ui/wm/core/window_util.h"
 #include "ui/wm/public/window_move_client.h"
 
@@ -296,6 +295,9 @@ void DesktopWindowTreeHostOzone::SetSize(const gfx::Size& requested_size) {
   gfx::Rect new_bounds = platform_window_->GetBounds();
   new_bounds.set_size(size);
   platform_window_->SetBounds(new_bounds);
+}
+
+void DesktopWindowTreeHostOzone::StackAbove(aura::Window* window) {
 }
 
 void DesktopWindowTreeHostOzone::StackAtTop() {
@@ -932,8 +934,10 @@ void DesktopWindowTreeHostOzone::InitOzoneWindow(
   platform_window_->InitPlatformWindow(type, parent_window);
   // If we have a delegate which is providing a default window icon, use that
   // icon.
-  gfx::ImageSkia* window_icon = ViewsDelegate::views_delegate ?
-      ViewsDelegate::views_delegate->GetDefaultWindowIcon() : NULL;
+  gfx::ImageSkia* window_icon =
+      ViewsDelegate::GetInstance()
+          ? ViewsDelegate::GetInstance()->GetDefaultWindowIcon()
+          : NULL;
   if (window_icon) {
     SetWindowIcons(gfx::ImageSkia(), *window_icon);
   }
