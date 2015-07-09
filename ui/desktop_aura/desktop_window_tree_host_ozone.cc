@@ -770,7 +770,8 @@ void DesktopWindowTreeHostOzone::OnLostCapture() {
 }
 
 void DesktopWindowTreeHostOzone::OnAcceleratedWidgetAvailable(
-      gfx::AcceleratedWidget widget) {
+      gfx::AcceleratedWidget widget,
+       float device_pixel_ratio) {
   window_ = widget;
 }
 

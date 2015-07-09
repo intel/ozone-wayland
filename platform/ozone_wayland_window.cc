@@ -21,7 +21,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   static int opaque_handle = 0;
   opaque_handle++;
   handle_ = opaque_handle;
-  delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
+  delegate_->OnAcceleratedWidgetAvailable(opaque_handle, 1.0);
 
   if (!g_delegate_ozone_wayland_)
     g_delegate_ozone_wayland_ = new WindowManagerWayland();
