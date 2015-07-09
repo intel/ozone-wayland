@@ -378,7 +378,7 @@ gfx::Rect DesktopWindowTreeHostOzone::GetWorkAreaBoundsInScreen() const {
   return display.bounds();
 }
 
-void DesktopWindowTreeHostOzone::SetShape(gfx::NativeRegion native_region) {
+void DesktopWindowTreeHostOzone::SetShape(SkRegion* native_region) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
