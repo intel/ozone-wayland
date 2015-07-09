@@ -127,6 +127,7 @@ void EventConverterInProcess::VirtualKeyNotify(ui::EventType type,
                                                int device_id) {
   keyboard_.OnKeyChange(key,
                         type != ui::ET_KEY_RELEASED,
+                        false,
                         ui::EventTimeForNow(),
                         device_id);
 }
