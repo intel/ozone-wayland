@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/seat.h"
 
 #include "base/logging.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
@@ -131,43 +131,41 @@ WaylandCursor::CursorType CursorShapeFromNative(unsigned cursor_type) {
   return WaylandCursor::CURSOR_LEFT_PTR;
 }
 
-WaylandInputDevice::WaylandInputDevice(WaylandDisplay* display,
-                                       uint32_t id)
+WaylandSeat::WaylandSeat(WaylandDisplay* display,
+                         uint32_t id)
     : focused_window_handle_(0),
       grab_window_handle_(0),
       grab_button_(0),
-      input_seat_(NULL),
+      seat_(NULL),
       input_keyboard_(NULL),
       input_pointer_(NULL),
       input_touch_(NULL),
       text_input_(NULL) {
   ui::EventFactoryOzoneWayland::GetInstance()->SetIMEStateChangeHandler(this);
   static const struct wl_seat_listener kInputSeatListener = {
-    WaylandInputDevice::OnSeatCapabilities,
+    WaylandSeat::OnSeatCapabilities,
   };
 
-  input_seat_ = static_cast<wl_seat*>(
+  seat_ = static_cast<wl_seat*>(
       wl_registry_bind(display->registry(), id, &wl_seat_interface, 1));
-  DCHECK(input_seat_);
-  wl_seat_add_listener(input_seat_, &kInputSeatListener, this);
-  wl_seat_set_user_data(input_seat_, this);
+  DCHECK(seat_);
+  wl_seat_add_listener(seat_, &kInputSeatListener, this);
+  wl_seat_set_user_data(seat_, this);
   text_input_ = new WaylandTextInput(this);
 }
 
-WaylandInputDevice::~WaylandInputDevice() {
+WaylandSeat::~WaylandSeat() {
   delete input_keyboard_;
   delete input_pointer_;
   delete text_input_;
   if (input_touch_ != NULL) {
     delete input_touch_;
   }
-  wl_seat_destroy(input_seat_);
+  wl_seat_destroy(seat_);
 }
 
-void WaylandInputDevice::OnSeatCapabilities(void *data,
-                                            wl_seat *seat,
-                                            uint32_t caps) {
-  WaylandInputDevice* device = static_cast<WaylandInputDevice*>(data);
+void WaylandSeat::OnSeatCapabilities(void *data, wl_seat *seat, uint32_t caps) {
+  WaylandSeat* device = static_cast<WaylandSeat*>(data);
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !device->input_keyboard_) {
     device->input_keyboard_ = new WaylandKeyboard();
     device->input_keyboard_->OnSeatCapabilities(seat, caps);
@@ -193,7 +191,7 @@ void WaylandInputDevice::OnSeatCapabilities(void *data,
   }
 }
 
-void WaylandInputDevice::SetFocusWindowHandle(unsigned windowhandle) {
+void WaylandSeat::SetFocusWindowHandle(unsigned windowhandle) {
   focused_window_handle_ = windowhandle;
   WaylandWindow* window = NULL;
   if (windowhandle)
@@ -201,13 +199,12 @@ void WaylandInputDevice::SetFocusWindowHandle(unsigned windowhandle) {
   text_input_->SetActiveWindow(window);
 }
 
-void WaylandInputDevice::SetGrabWindowHandle(unsigned windowhandle,
-                                             uint32_t button) {
+void WaylandSeat::SetGrabWindowHandle(unsigned windowhandle, uint32_t button) {
   grab_window_handle_ = windowhandle;
   grab_button_ = button;
 }
 
-void WaylandInputDevice::SetCursorType(int cursor_type) {
+void WaylandSeat::SetCursorType(int cursor_type) {
   if (!input_pointer_) {
     LOG(WARNING) << "Tried to change cursor without input configured";
     return;
@@ -216,20 +213,20 @@ void WaylandInputDevice::SetCursorType(int cursor_type) {
                                    WaylandDisplay::GetInstance()->GetSerial());
 }
 
-void WaylandInputDevice::ResetIme() {
+void WaylandSeat::ResetIme() {
   text_input_->ResetIme();
 }
 
-void WaylandInputDevice::ImeCaretBoundsChanged(gfx::Rect rect) {
+void WaylandSeat::ImeCaretBoundsChanged(gfx::Rect rect) {
   NOTIMPLEMENTED();
 }
 
-void WaylandInputDevice::ShowInputPanel() {
-  text_input_->ShowInputPanel(input_seat_);
+void WaylandSeat::ShowInputPanel() {
+  text_input_->ShowInputPanel(seat_);
 }
 
-void WaylandInputDevice::HideInputPanel() {
-  text_input_->HideInputPanel(input_seat_);
+void WaylandSeat::HideInputPanel() {
+  text_input_->HideInputPanel(seat_);
 }
 
 }  // namespace ozonewayland

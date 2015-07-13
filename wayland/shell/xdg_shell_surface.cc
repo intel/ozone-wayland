@@ -8,8 +8,8 @@
 #include "base/strings/utf_string_conversions.h"
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/protocol/xdg-shell-client-protocol.h"
+#include "ozone/wayland/seat.h"
 #include "ozone/wayland/shell/shell.h"
 
 namespace ozonewayland {
@@ -69,13 +69,13 @@ void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
   }
   case WaylandWindow::POPUP: {
     WaylandDisplay* display = WaylandDisplay::GetInstance();
-    WaylandInputDevice* input_device = display->PrimaryInput();
+    WaylandSeat* seat = display->PrimarySeat();
     wl_surface* surface = GetWLSurface();
     wl_surface* parent_surface = shell_parent->GetWLSurface();
     xdg_popup_ = xdg_shell_get_xdg_popup(display->GetShell()->GetXDGShell(),
                                          surface,
                                          parent_surface,
-                                         input_device->GetInputSeat(),
+                                         seat->GetWLSeat(),
                                          display->GetSerial(),
                                          x,
                                          y,

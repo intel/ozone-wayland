@@ -6,7 +6,7 @@
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/seat.h"
 
 namespace ozonewayland {
 
@@ -33,14 +33,14 @@ void WaylandShellSurface::FlushDisplay() const {
 }
 
 void WaylandShellSurface::PopupDone() {
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
   ui::EventConverterOzoneWayland* dispatcher =
       ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
 
-  if (!input->GetGrabWindowHandle())
+  if (!seat->GetGrabWindowHandle())
     return;
-  dispatcher->CloseWidget(input->GetGrabWindowHandle());
-  input->SetGrabWindowHandle(0, 0);
+  dispatcher->CloseWidget(seat->GetGrabWindowHandle());
+  seat->SetGrabWindowHandle(0, 0);
 }
 
 void WaylandShellSurface::WindowResized(void* data,

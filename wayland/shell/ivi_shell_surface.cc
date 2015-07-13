@@ -8,7 +8,6 @@
 #include "base/strings/utf_string_conversions.h"
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/protocol/ivi-application-client-protocol.h"
 #include "ozone/wayland/shell/shell.h"
 #define IVI_SURFACE_ID 7000

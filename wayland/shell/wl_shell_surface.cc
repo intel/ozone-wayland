@@ -8,7 +8,7 @@
 #include "base/strings/utf_string_conversions.h"
 
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/seat.h"
 #include "ozone/wayland/shell/shell.h"
 
 namespace ozonewayland {
@@ -55,10 +55,10 @@ void WLShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
     break;
   case WaylandWindow::POPUP: {
     WaylandDisplay* display = WaylandDisplay::GetInstance();
-    WaylandInputDevice* input_device = display->PrimaryInput();
+    WaylandSeat* seat = display->PrimarySeat();
     wl_surface* parent_surface = shell_parent->GetWLSurface();
     wl_shell_surface_set_popup(shell_surface_,
-                               input_device->GetInputSeat(),
+                               seat->GetWLSeat(),
                                display->GetSerial(),
                                parent_surface,
                                x,

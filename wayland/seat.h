@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_WAYLAND_INPUT_DEVICE_H_
-#define OZONE_WAYLAND_INPUT_DEVICE_H_
+#ifndef OZONE_WAYLAND_SEAT_H_
+#define OZONE_WAYLAND_SEAT_H_
 
 #include <wayland-client.h>
 #include "base/basictypes.h"
@@ -17,12 +17,12 @@ class WaylandDisplay;
 class WaylandTouchscreen;
 class WaylandTextInput;
 
-class WaylandInputDevice : public ui::IMEStateChangeHandler {
+class WaylandSeat : public ui::IMEStateChangeHandler {
  public:
-  WaylandInputDevice(WaylandDisplay* display, uint32_t id);
-  ~WaylandInputDevice() override;
+  WaylandSeat(WaylandDisplay* display, uint32_t id);
+  ~WaylandSeat() override;
 
-  wl_seat* GetInputSeat() const { return input_seat_; }
+  wl_seat* GetWLSeat() const { return seat_; }
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
   WaylandPointer* GetPointer() const { return input_pointer_; }
   unsigned GetFocusWindowHandle() const { return focused_window_handle_; }
@@ -46,15 +46,15 @@ class WaylandInputDevice : public ui::IMEStateChangeHandler {
   unsigned focused_window_handle_;
   unsigned grab_window_handle_;
   uint32_t grab_button_;
-  wl_seat* input_seat_;
+  wl_seat* seat_;
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
   WaylandTouchscreen* input_touch_;
   WaylandTextInput* text_input_;
 
-  DISALLOW_COPY_AND_ASSIGN(WaylandInputDevice);
+  DISALLOW_COPY_AND_ASSIGN(WaylandSeat);
 };
 
 }  // namespace ozonewayland
 
-#endif  // OZONE_WAYLAND_INPUT_DEVICE_H_
+#endif  // OZONE_WAYLAND_SEAT_H_

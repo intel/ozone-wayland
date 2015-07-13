@@ -31,8 +31,8 @@ struct wl_text_input_manager;
 namespace ozonewayland {
 
 class WaylandDisplayPollThread;
-class WaylandInputDevice;
 class WaylandScreen;
+class WaylandSeat;
 class WaylandShell;
 class WaylandWindow;
 
@@ -55,7 +55,9 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
 
   wl_registry* registry() const { return registry_; }
 
-  WaylandInputDevice* PrimaryInput() const { return primary_input_; }
+  // Warning: Most uses of this function need to be removed in order to fix
+  // multiseat. See: https://github.com/01org/ozone-wayland/issues/386
+  WaylandSeat* PrimarySeat() const { return primary_seat_; }
 
   // Returns a list of the registered screens.
   const std::list<WaylandScreen*>& GetScreenList() const;
@@ -154,13 +156,13 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   wl_shm* shm_;
   struct wl_text_input_manager* text_input_manager_;
   WaylandScreen* primary_screen_;
-  WaylandInputDevice* primary_input_;
+  WaylandSeat* primary_seat_;
   WaylandDisplayPollThread* display_poll_thread_;
   gbm_device* device_;
   char* m_deviceName;
 
   std::list<WaylandScreen*> screen_list_;
-  std::list<WaylandInputDevice*> input_list_;
+  std::list<WaylandSeat*> seat_list_;
   WindowMap widget_map_;
   unsigned serial_;
   bool processing_events_ :1;

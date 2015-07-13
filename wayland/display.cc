@@ -26,12 +26,12 @@
 #include "ozone/wayland/egl/wayland_pixmap.h"
 #endif
 #include "ozone/wayland/input/cursor.h"
-#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/protocol/text-client-protocol.h"
 #if defined(ENABLE_DRM_SUPPORT)
 #include "ozone/wayland/protocol/wayland-drm-protocol.h"
 #endif
 #include "ozone/wayland/screen.h"
+#include "ozone/wayland/seat.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/window.h"
 #include "ui/ozone/public/native_pixmap.h"
@@ -82,12 +82,12 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     shm_(NULL),
     text_input_manager_(NULL),
     primary_screen_(NULL),
-    primary_input_(NULL),
+    primary_seat_(NULL),
     display_poll_thread_(NULL),
     device_(NULL),
     m_deviceName(NULL),
     screen_list_(),
-    input_list_(),
+    seat_list_(),
     widget_map_(),
     serial_(0),
     processing_events_(false),
@@ -295,7 +295,7 @@ void WaylandDisplay::SetWidgetTitle(unsigned w,
 }
 
 void WaylandDisplay::SetWidgetCursor(int cursor_type) {
-  primary_input_->SetCursorType(cursor_type);
+  primary_seat_->SetCursorType(cursor_type);
 }
 
 void WaylandDisplay::CreateWidget(unsigned widget,
@@ -383,18 +383,14 @@ void WaylandDisplay::Terminate() {
     widget_map_.clear();
   }
 
-  for (std::list<WaylandInputDevice*>::iterator i = input_list_.begin();
-      i != input_list_.end(); ++i) {
-      delete *i;
-  }
+  for (WaylandSeat* seat : seat_list_)
+    delete seat;
 
-  for (std::list<WaylandScreen*>::iterator i = screen_list_.begin();
-      i != screen_list_.end(); ++i) {
-      delete *i;
-  }
+  for (WaylandScreen* screen : screen_list_)
+    delete screen;
 
   screen_list_.clear();
-  input_list_.clear();
+  seat_list_.clear();
 
   if (text_input_manager_)
     wl_text_input_manager_destroy(text_input_manager_);
@@ -510,9 +506,9 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     // (kalyan) Support extended output.
     disp->primary_screen_ = disp->screen_list_.front();
   } else if (strcmp(interface, "wl_seat") == 0) {
-    WaylandInputDevice *input_device = new WaylandInputDevice(disp, name);
-    disp->input_list_.push_back(input_device);
-    disp->primary_input_ = disp->input_list_.front();
+    WaylandSeat* seat = new WaylandSeat(disp, name);
+    disp->seat_list_.push_back(seat);
+    disp->primary_seat_ = disp->seat_list_.front();
   } else if (strcmp(interface, "wl_shm") == 0) {
     disp->shm_ = static_cast<wl_shm*>(
         wl_registry_bind(registry, name, &wl_shm_interface, 1));
