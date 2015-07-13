@@ -8,7 +8,7 @@
 #include "base/logging.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/egl/egl_window.h"
-#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/seat.h"
 #include "ozone/wayland/shell/shell.h"
 #include "ozone/wayland/shell/shell_surface.h"
 
@@ -22,13 +22,13 @@ WaylandWindow::WaylandWindow(unsigned handle) : shell_surface_(NULL),
 }
 
 WaylandWindow::~WaylandWindow() {
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
-  if (input) {
-    if (input->GetFocusWindowHandle() == handle_)
-      input->SetFocusWindowHandle(0);
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
+  if (seat) {
+    if (seat->GetFocusWindowHandle() == handle_)
+      seat->SetFocusWindowHandle(0);
 
-    if (input->GetGrabWindowHandle() == handle_)
-      input->SetGrabWindowHandle(0, 0);
+    if (seat->GetGrabWindowHandle() == handle_)
+      seat->SetGrabWindowHandle(0, 0);
   }
 
   delete window_;
@@ -59,8 +59,8 @@ void WaylandWindow::SetShellAttributes(ShellType type,
     shell_surface_ =
         WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(this,
                                                                       type);
-    WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
-    input->SetGrabWindowHandle(handle_, 0);
+    WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
+    seat->SetGrabWindowHandle(handle_, 0);
   }
 
   type_ = type;
@@ -81,8 +81,8 @@ void WaylandWindow::Minimize() {
 }
 
 void WaylandWindow::Show() {
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
-  input->SetFocusWindowHandle(handle_);
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
+  seat->SetFocusWindowHandle(handle_);
 }
 
 void WaylandWindow::Restore() {

@@ -11,18 +11,18 @@ struct wl_text_input;
 
 namespace ozonewayland {
 
+class WaylandSeat;
 class WaylandWindow;
-class WaylandInputDevice;
 
 class WaylandTextInput {
  public:
-  explicit WaylandTextInput(WaylandInputDevice* inputDevice);
+  explicit WaylandTextInput(WaylandSeat* inputDevice);
   ~WaylandTextInput();
   void ResetIme();
   void ShowInputPanel(wl_seat* input_seat);
   void HideInputPanel(wl_seat* input_seat);
   void SetActiveWindow(WaylandWindow* window);
-  WaylandInputDevice* getInputDevice() { return input_device_; }
+  WaylandSeat* getSeat() { return seat_; }
 
  private:
   static void OnCommitString(void* data,
@@ -92,7 +92,7 @@ class WaylandTextInput {
   struct wl_text_input* text_input_;
   WaylandWindow* active_window_;
   WaylandWindow* last_active_window_;
-  WaylandInputDevice* input_device_;
+  WaylandSeat* seat_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandTextInput);
 };

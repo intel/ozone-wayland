@@ -12,7 +12,6 @@
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
 #include "ozone/wayland/input/cursor.h"
-#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/screen.h"
 
 namespace ozonewayland {

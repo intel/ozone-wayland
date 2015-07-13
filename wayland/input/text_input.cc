@@ -10,16 +10,16 @@
 #include "ozone/ui/events/keyboard_codes_ozone.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
-#include "ozone/wayland/input_device.h"
 #include "ozone/wayland/protocol/text-client-protocol.h"
+#include "ozone/wayland/seat.h"
 #include "ozone/wayland/shell/shell_surface.h"
 #include "ozone/wayland/window.h"
 
 namespace ozonewayland {
 
-WaylandTextInput::WaylandTextInput(WaylandInputDevice* inputDevice):
+WaylandTextInput::WaylandTextInput(WaylandSeat* seat):
   text_input_(NULL), active_window_(NULL), last_active_window_(NULL),
-  input_device_(inputDevice) {
+  seat_(seat) {
   enable_vkb_support_ = getenv("USE_OZONE_WAYLAND_VKB");
 }
 

@@ -8,7 +8,7 @@
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/input/cursor.h"
-#include "ozone/wayland/input_device.h"
+#include "ozone/wayland/seat.h"
 #include "ozone/wayland/window.h"
 #include "ui/events/event.h"
 
@@ -54,21 +54,21 @@ void WaylandTouchscreen::OnTouchDown(void *data,
                                      wl_fixed_t y) {
   WaylandTouchscreen* device = static_cast<WaylandTouchscreen*>(data);
   WaylandDisplay::GetInstance()->SetSerial(serial);
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
 
   // Need this code when the user clicks on a text input box directly
-  if (!input->GetPointer()) {
+  if (!seat->GetPointer()) {
     if (!surface) {
-      input->SetFocusWindowHandle(0);
+      seat->SetFocusWindowHandle(0);
       return;
     }
     WaylandWindow* window =
          static_cast<WaylandWindow*>(wl_surface_get_user_data(surface));
-    input->SetFocusWindowHandle(window->Handle());
+    seat->SetFocusWindowHandle(window->Handle());
   }
 
-  if (input->GetFocusWindowHandle() && input->GetGrabButton() == 0)
-    input->SetGrabWindowHandle(input->GetFocusWindowHandle(), id);
+  if (seat->GetFocusWindowHandle() && seat->GetGrabButton() == 0)
+    seat->SetGrabWindowHandle(seat->GetFocusWindowHandle(), id);
 
   float sx = wl_fixed_to_double(x);
   float sy = wl_fixed_to_double(y);
@@ -85,14 +85,14 @@ void WaylandTouchscreen::OnTouchUp(void *data,
                                    int32_t id) {
   WaylandTouchscreen* device = static_cast<WaylandTouchscreen*>(data);
   WaylandDisplay::GetInstance()->SetSerial(serial);
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
 
   device->dispatcher_->TouchNotify(ui::ET_TOUCH_RELEASED,
                                    device->pointer_position_.x(),
                                    device->pointer_position_.y(), id, time);
 
-  if (input->GetGrabWindowHandle() && input->GetGrabButton() == id)
-    input->SetGrabWindowHandle(0, 0);
+  if (seat->GetGrabWindowHandle() && seat->GetGrabButton() == id)
+    seat->SetGrabWindowHandle(0, 0);
 }
 
 void WaylandTouchscreen::OnTouchMotion(void *data,
@@ -102,14 +102,14 @@ void WaylandTouchscreen::OnTouchMotion(void *data,
                                       wl_fixed_t x,
                                       wl_fixed_t y) {
   WaylandTouchscreen* device = static_cast<WaylandTouchscreen*>(data);
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
   float sx = wl_fixed_to_double(x);
   float sy = wl_fixed_to_double(y);
 
   device->pointer_position_.SetPoint(sx, sy);
 
-  if (input->GetGrabWindowHandle() &&
-    input->GetGrabWindowHandle() != input->GetFocusWindowHandle()) {
+  if (seat->GetGrabWindowHandle() &&
+    seat->GetGrabWindowHandle() != seat->GetFocusWindowHandle()) {
     return;
   }
 
@@ -124,16 +124,16 @@ void WaylandTouchscreen::OnTouchFrame(void *data,
 void WaylandTouchscreen::OnTouchCancel(void *data,
                                        struct wl_touch *wl_touch) {
   WaylandTouchscreen* device = static_cast<WaylandTouchscreen*>(data);
-  WaylandInputDevice* input = WaylandDisplay::GetInstance()->PrimaryInput();
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
 
   device->dispatcher_->TouchNotify(ui::ET_TOUCH_CANCELLED,
                                    device->pointer_position_.x(),
                                    device->pointer_position_.y(),
-                                   input->GetGrabButton(),
+                                   seat->GetGrabButton(),
                                    0);
 
-  if (input->GetGrabWindowHandle() && input->GetGrabButton() != 0)
-    input->SetGrabWindowHandle(0, 0);
+  if (seat->GetGrabWindowHandle() && seat->GetGrabButton() != 0)
+    seat->SetGrabWindowHandle(0, 0);
 }
 
 }  // namespace ozonewayland
