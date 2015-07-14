@@ -69,10 +69,12 @@ WindowManagerWayland::GetWindow(unsigned handle) {
 ////////////////////////////////////////////////////////////////////////////////
 // WindowManagerWayland, WindowChangeObserver implementation:
 void WindowManagerWayland::OnWindowFocused(unsigned handle) {
-  DCHECK(handle);
   ui::OzoneWaylandWindow* window = GetWindow(handle);
-  if (!window)
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << handle
+               << " from GPU process";
     return;
+  }
 
   window->GetDelegate()->OnActivationChanged(true);
 }
@@ -85,9 +87,13 @@ void WindowManagerWayland::OnWindowLeave(unsigned handle) {
 }
 
 void WindowManagerWayland::OnWindowClose(unsigned handle) {
-  DCHECK(handle);
   ui::OzoneWaylandWindow* window = GetWindow(handle);
-  DCHECK(window);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << handle
+               << " from GPU process";
+    return;
+  }
+
   window->GetDelegate()->OnCloseRequest();
 }
 
@@ -95,7 +101,12 @@ void WindowManagerWayland::OnWindowResized(unsigned handle,
                                                     unsigned width,
                                                     unsigned height) {
   ui::OzoneWaylandWindow* window = GetWindow(handle);
-  DCHECK(window);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << handle
+               << " from GPU process";
+    return;
+  }
+
   const gfx::Rect& current_bounds = window->GetBounds();
   window->SetBounds(gfx::Rect(current_bounds.x(),
                               current_bounds.y(),
@@ -105,20 +116,28 @@ void WindowManagerWayland::OnWindowResized(unsigned handle,
 
 void WindowManagerWayland::OnWindowUnminimized(unsigned handle) {
   ui::OzoneWaylandWindow* window = GetWindow(handle);
-  DCHECK(window);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << handle
+               << " from GPU process";
+    return;
+  }
+
   window->GetDelegate()->OnWindowStateChanged(
       ui::PLATFORM_WINDOW_STATE_MAXIMIZED);
 }
 
 void WindowManagerWayland::OnWindowDeActivated(unsigned windowhandle) {
-  DCHECK(windowhandle);
   ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
-  DCHECK(window);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << windowhandle
+               << " from GPU process";
+    return;
+  }
+
   window->GetDelegate()->OnActivationChanged(false);
 }
 
 void WindowManagerWayland::OnWindowActivated(unsigned windowhandle) {
-  DCHECK(windowhandle);
   OnWindowFocused(windowhandle);
 }
 
