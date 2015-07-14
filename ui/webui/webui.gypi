@@ -16,7 +16,9 @@
         'select_file_dialog_impl_webui.h',
         'select_file_dialog_impl_webui.cc',
         'ozone_webui.h',
-        'ozone_webui.cc'
+	'ozone_webui.cc',
+	'input_method_context_impl_wayland.h',
+	'input_method_context_impl_wayland.cc',
       ],
     }
   ]

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/ime/input_method_context_impl_wayland.h"
+#include "ozone/ui/webui/input_method_context_impl_wayland.h"
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"

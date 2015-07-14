@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_IME_INPUT_METHOD_CONTEXT_IMPL_WAYLAND_H_
-#define OZONE_UI_IME_INPUT_METHOD_CONTEXT_IMPL_WAYLAND_H_
+#ifndef OZONE_UI_WEBUI_INPUT_METHOD_CONTEXT_IMPL_WAYLAND_H_
+#define OZONE_UI_WEBUI_INPUT_METHOD_CONTEXT_IMPL_WAYLAND_H_
 
 #include <string>
 
@@ -46,4 +46,4 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
 
 }  // namespace ui
 
-#endif  // OZONE_UI_IME_INPUT_METHOD_CONTEXT_IMPL_WAYLAND_H_
+#endif  //  OZONE_UI_WEBUI_INPUT_METHOD_CONTEXT_IMPL_WAYLAND_H_

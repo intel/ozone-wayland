@@ -14,6 +14,7 @@
 #include "base/nix/mime_util_xdg.h"
 #include "base/stl_util.h"
 #include "base/strings/stringprintf.h"
+#include "ozone/ui/webui/input_method_context_impl_wayland.h"
 #include "ozone/ui/webui/select_file_dialog_impl_webui.h"
 
 namespace views {
@@ -35,7 +36,8 @@ ui::SelectFileDialog* OzoneWebUI::CreateSelectFileDialog(
 
 scoped_ptr<ui::LinuxInputMethodContext> OzoneWebUI::CreateInputMethodContext(
       ui::LinuxInputMethodContextDelegate* delegate, bool is_simple) const {
-  return scoped_ptr<ui::LinuxInputMethodContext>();
+  return scoped_ptr<ui::LinuxInputMethodContext>(
+           new ui::InputMethodContextImplWayland(delegate));
 }
 
 gfx::FontRenderParams OzoneWebUI::GetDefaultFontRenderParams() const {

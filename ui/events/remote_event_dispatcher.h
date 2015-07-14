@@ -5,8 +5,8 @@
 #ifndef OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
 #define OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
 
-#include <string>
 #include <queue>
+#include <string>
 
 #include "ipc/ipc_sender.h"
 #include "ozone/ui/events/event_converter_ozone_wayland.h"

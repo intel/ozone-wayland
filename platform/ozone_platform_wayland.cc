@@ -12,9 +12,6 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
-#if !defined(COMPONENT_BUILD)
-#include "ozone/ui/ime/input_method_context_factory_wayland.h"
-#endif
 #include "ozone/ui/public/ozone_channel.h"
 #include "ozone/wayland/display.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
@@ -96,10 +93,6 @@ class OzonePlatformWayland : public OzonePlatform {
     gpu_platform_host_.reset(new ui::DrmGpuPlatformSupportHost(cursor_.get()));
     // Needed as Browser creates accelerated widgets through SFO.
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
-#if !defined(COMPONENT_BUILD)
-    input_method_factory_.reset(
-        new ui::InputMethodContextFactoryWayland());
-#endif
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
     overlay_manager_.reset(new StubOverlayManager());
     KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(make_scoped_ptr(
@@ -136,9 +129,6 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::DrmCursor> cursor_;
   scoped_ptr<ui::DrmWindowHostManager> window_manager_;
 
-#if !defined(COMPONENT_BUILD)
-  scoped_ptr<ui::InputMethodContextFactoryWayland> input_method_factory_;
-#endif
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::EventConverterOzoneWayland> event_converter_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
