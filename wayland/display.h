@@ -102,6 +102,9 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
       gfx::AcceleratedWidget widget, gfx::Size size, BufferFormat format,
           BufferUsage usage) override;
 
+  scoped_ptr<ui::SurfaceOzoneCanvas> CreateCanvasForWidget(
+      gfx::AcceleratedWidget widget) override;
+
   // WindowStateChangeHandler implementation:
   void SetWidgetState(unsigned widget,
                       ui::WidgetState state) override;
