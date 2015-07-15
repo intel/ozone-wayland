@@ -123,12 +123,10 @@ WaylandCursor::CursorType CursorShapeFromNative(unsigned cursor_type) {
     case kCursorEastWestResize:
     case kCursorColumnResize:
       return WaylandCursor::CURSOR_H_DOUBLE_ARROW;
-    case kCursorCustom:
-      NOTREACHED();
-      return WaylandCursor::CURSOR_DEFAULT;
   }
-  NOTREACHED() << "Case not handled for " << cursor_type;
-  return WaylandCursor::CURSOR_LEFT_PTR;
+  LOG(ERROR) << "Unknown Cursor type " << cursor_type
+             << " using default cursor.";
+  return WaylandCursor::CURSOR_DEFAULT;
 }
 
 WaylandSeat::WaylandSeat(WaylandDisplay* display,
