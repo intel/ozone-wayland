@@ -1,7 +1,7 @@
-From 7b38e45e17950872e707cb180816ac7488075a14 Mon Sep 17 00:00:00 2001
+From b75e69af8e07989f50bc04bb67bb694cdb806d43 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Wed, 8 Jul 2015 16:55:11 -0700
-Subject: [PATCH] Add file picker support using WebUI
+Subject: [PATCH 11/15] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
 Wayland, but Chromium Linux version still uses Gtk+2 for file-picker.
@@ -10,7 +10,7 @@ This implementation allows oz-wl to show a web based file picker UI.
 Currently, the WebUI only supports basic functionality for opening a file.
 File browsing UI will be added later.
 ---
- chrome/app/generated_resources.grd                 |  10 +-
+ chrome/app/generated_resources.grd                 |   8 +
  chrome/browser/browser_resources.grd               |   3 +
  .../browser/resources/file_picker/file_picker.css  |  72 +++++++++
  .../browser/resources/file_picker/file_picker.html |  37 +++++
@@ -24,7 +24,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |   3 +
  chrome/common/url_constants.h                      |   2 +
  tools/gritsettings/resource_ids                    |   2 +-
- 14 files changed, 428 insertions(+), 2 deletions(-)
+ 14 files changed, 427 insertions(+), 1 deletion(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -33,20 +33,11 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 9403a0e..55aab3d 100644
+index b380a0b..c4b1d2d 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -4397,7 +4397,7 @@ Even if you have downloaded files from this website before, the website might ha
-       </message>
- 
-       <message name="IDS_EXTENSION_PERMISSION_LINE" desc="Template for item in list of privileges that an extension or app has">
--          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
-+          • <ph name="PERMISSION">$1<ex>Read and change all your data on the websites you visit</ex></ph>
-       </message>
-       <message name="IDS_EXTENSION_RATING_COUNT" desc="Number of ratings an app or extensions has (displayed after star icons)">
-         (<ph name="RATING_COUNT">$1<ex>46</ex></ph>)
-@@ -15539,6 +15539,14 @@ After you create a new supervised user, you can manage their settings at any tim
-         This option disables support in Cast Streaming for encoding video streams using platform hardware.
+@@ -15760,6 +15760,14 @@ After you create a new supervised user, you can manage their settings at any tim
+         Allows users to opt in to the collection of invalid TLS/SSL certificate chains.
        </message>
  
 +      <!-- File-picker strings -->
@@ -57,14 +48,14 @@ index 9403a0e..55aab3d 100644
 +        File name
 +      </message>
 +
-      <!-- Hotword Audio Verification (opt-in) App strings. -->
-       <message name="IDS_HOTWORD_OPT_IN_CLOSE" desc="Label for the close button for the 'Ok Google' hotword opt-in dialog.">
-         Close
+       <!-- Printer detected notification -->
+       <if expr="chromeos">
+         <message name="IDS_PRINTER_DETECTED_NOTIFICATION_TITLE" desc="Title for notification shown to the user when a printer gets plugged in to a Chrome OS device.">
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index 4c256a8..b940586 100644
+index 61c2270..bdadcf5 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -430,6 +430,9 @@
+@@ -433,6 +433,9 @@
        <if expr="enable_media_router">
          <part file="media_router_resources.grdp" />
        </if>
@@ -279,7 +270,7 @@ index 9e9476b..dccb14b 100644
  
  void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-index 343ec7e..ca7b2d6 100644
+index 0993d68..90f0844 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 @@ -71,6 +71,7 @@
@@ -290,7 +281,7 @@ index 343ec7e..ca7b2d6 100644
  
  #if !defined(DISABLE_NACL)
  #include "chrome/browser/ui/webui/nacl_ui.h"
-@@ -321,6 +322,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+@@ -323,6 +324,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
      return &NewWebUI<DomainReliabilityInternalsUI>;
    if (url.host() == chrome::kChromeUIFlagsHost)
      return &NewWebUI<FlagsUI>;
@@ -552,10 +543,10 @@ index 0000000..3f10e85
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 96b5547..c9a69de 100644
+index 9a482ed..fa7064f3 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -440,6 +440,9 @@
+@@ -443,6 +443,9 @@
        'browser/ui/webui/favicon_source.h',
        'browser/ui/webui/fileicon_source.cc',
        'browser/ui/webui/fileicon_source.h',
@@ -565,7 +556,7 @@ index 96b5547..c9a69de 100644
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
        'browser/ui/webui/foreign_session_handler.cc',
-@@ -2760,6 +2763,7 @@
+@@ -2763,6 +2766,7 @@
          '../content/content.gyp:content_browser',
          '../content/content.gyp:content_common',
          '../crypto/crypto.gyp:crypto',
@@ -573,7 +564,7 @@ index 96b5547..c9a69de 100644
          '../skia/skia.gyp:skia',
          '../sync/sync.gyp:sync',
          '../third_party/cacheinvalidation/cacheinvalidation.gyp:cacheinvalidation',
-@@ -3113,6 +3117,7 @@
+@@ -3118,6 +3122,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',
@@ -582,7 +573,7 @@ index 96b5547..c9a69de 100644
                ],
              }],
 diff --git a/chrome/common/url_constants.cc b/chrome/common/url_constants.cc
-index 22fa70f..a6d884b 100644
+index 8b69ac6..0c39c78 100644
 --- a/chrome/common/url_constants.cc
 +++ b/chrome/common/url_constants.cc
 @@ -43,6 +43,7 @@ const char kChromeUIExtensionsFrameURL[] = "chrome://extensions-frame/";
@@ -593,7 +584,7 @@ index 22fa70f..a6d884b 100644
  const char kChromeUIFlagsURL[] = "chrome://flags/";
  const char kChromeUIFlashURL[] = "chrome://flash/";
  const char kChromeUIGCMInternalsURL[] = "chrome://gcm-internals/";
-@@ -182,6 +183,7 @@ const char kChromeUIExtensionsFrameHost[] = "extensions-frame";
+@@ -186,6 +187,7 @@ const char kChromeUIExtensionsFrameHost[] = "extensions-frame";
  const char kChromeUIExtensionsHost[] = "extensions";
  const char kChromeUIFallbackIconHost[] = "fallback-icon";
  const char kChromeUIFaviconHost[] = "favicon";
@@ -601,7 +592,7 @@ index 22fa70f..a6d884b 100644
  const char kChromeUIFlagsHost[] = "flags";
  const char kChromeUIFlashHost[] = "flash";
  const char kChromeUIGCMInternalsHost[] = "gcm-internals";
-@@ -583,6 +585,7 @@ const char* const kChromeHostURLs[] = {
+@@ -587,6 +589,7 @@ const char* const kChromeHostURLs[] = {
    kChromeUICreditsHost,
    kChromeUIDeviceLogHost,
    kChromeUIDNSHost,
@@ -610,7 +601,7 @@ index 22fa70f..a6d884b 100644
    kChromeUIHistoryHost,
    kChromeUIInvalidationsHost,
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index 196cabd..557ffa5 100644
+index c8912e5..b448cf2 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
 @@ -39,6 +39,7 @@ extern const char kChromeUIExtensionsFrameURL[];
@@ -621,7 +612,7 @@ index 196cabd..557ffa5 100644
  extern const char kChromeUIFlagsURL[];
  extern const char kChromeUIFlashURL[];
  extern const char kChromeUIGCMInternalsURL[];
-@@ -172,6 +173,7 @@ extern const char kChromeUIExtensionsFrameHost[];
+@@ -176,6 +177,7 @@ extern const char kChromeUIExtensionsFrameHost[];
  extern const char kChromeUIExtensionsHost[];
  extern const char kChromeUIFallbackIconHost[];
  extern const char kChromeUIFaviconHost[];

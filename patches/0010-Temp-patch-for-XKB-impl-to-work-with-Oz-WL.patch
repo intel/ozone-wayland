@@ -1,7 +1,7 @@
-From 533a4410ef61971983b592eec46a2cbb78bcfc0d Mon Sep 17 00:00:00 2001
+From b6cb852686637f54d7ab5c7daea42eb54819bf74 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Wed, 8 Jul 2015 16:42:41 -0700
-Subject: [PATCH] Temp patch for XKB impl to work with Oz-WL.
+Subject: [PATCH 10/15] Temp patch for XKB impl to work with Oz-WL.
 
 ---
  .../ozone/layout/xkb/xkb_keyboard_code_conversion.cc   | 18 +++++++++---------
