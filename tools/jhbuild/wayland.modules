@@ -75,7 +75,7 @@
     </dependencies>
   </autotools>
 
-  <autotools id="weston" autogenargs="--disable-setuid-install">
+  <autotools id="weston" autogenargs="--disable-setuid-install --enable-demo-client-install">
     <branch repo="wayland" tag="0c944b07c451212bd287e79985a99333b8d4c368"/>
     <dependencies>
       <dep package="cairo"/>
