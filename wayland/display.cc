@@ -246,14 +246,14 @@ scoped_ptr<ui::SurfaceOzoneCanvas> WaylandDisplay::CreateCanvasForWidget(
   LOG(FATAL) << "The browser process has attempted to start the GPU process in "
              << "software rendering mode. Software rendering is not supported "
              << "in Ozone-Wayland, so this is fatal. Usually this error occurs "
-             << "because the GPU process crashed too many times in hardware "
-             << "rendering mode. To debug the GPU process, start Chrome with "
-             << "--gpu-startup-dialog so that the GPU process pauses on "
-             << "startup, then attach to it with 'gdb -p' and run the command "
-             << "'signal SIGUSR1' in order to unpause it. If you have xterm "
-             << "then you can also run 'chrome --no-sandbox "
-             << "--gpu-launcher='xterm -title renderer -e gdb "
-             << "--eval-command=run --args''";
+             << "because the GPU process crashed in hardware rendering mode, "
+             << "often due to failure to initialize EGL. To debug the GPU "
+             << "process, start Chrome with --gpu-startup-dialog so that the "
+             << "GPU process pauses on startup, then attach to it with "
+             << "'gdb -p' and run the command 'signal SIGUSR1' in order to "
+             << "unpause it. If you have xterm then it is easier to run "
+             << "'chrome --no-sandbox --gpu-launcher='xterm -title renderer "
+             << "-e gdb --eval-command=run --args''";
 
   // This code will obviously never be reached, but it placates -Wreturn-type.
   return scoped_ptr<ui::SurfaceOzoneCanvas>();
