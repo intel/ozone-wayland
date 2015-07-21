@@ -496,7 +496,8 @@ void VaapiWrapper::Deinitialize() {
   va_display_ = NULL;
 }
 
-bool VaapiWrapper::CreateSurfaces(const gfx::Size& size,
+bool VaapiWrapper::CreateSurfaces(unsigned int va_format,
+                                  const gfx::Size& size,
                                   size_t num_surfaces,
                                   std::vector<VASurfaceID>* va_surfaces) {
   base::AutoLock auto_lock(*va_lock_);
@@ -508,7 +509,7 @@ bool VaapiWrapper::CreateSurfaces(const gfx::Size& size,
 
   // Allocate surfaces in driver.
   VAStatus va_res = vaCreateSurfaces(va_display_,
-                                     VA_RT_FORMAT_YUV420,
+                                     va_format,
                                      size.width(), size.height(),
                                      &va_surface_ids_[0],
                                      va_surface_ids_.size(),
