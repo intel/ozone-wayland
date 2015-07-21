@@ -1,0 +1,40 @@
+From 04e16caf773e8b92ce942abe5d31421d3a78030d Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 21 Jul 2015 10:19:11 -0700
+Subject: [PATCH 15/15] Do not include remoting/remoting.gyp:remoting_perftest
+
+Running GYP failed due to remoting.gyp:remoting_perftest for ozone.
+
+https://codereview.chromium.org/1228283004
+---
+ remoting/remoting_all.gyp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/remoting/remoting_all.gyp b/remoting/remoting_all.gyp
+index a0e4826..b1c8166 100644
+--- a/remoting/remoting_all.gyp
++++ b/remoting/remoting_all.gyp
+@@ -21,7 +21,6 @@
+         '../remoting/remoting.gyp:remoting_browser_test_resources',
+         '../remoting/remoting.gyp:remoting_client',
+         '../remoting/remoting.gyp:remoting_client_plugin',
+-        '../remoting/remoting.gyp:remoting_perftests',
+         '../remoting/remoting.gyp:remoting_protocol',
+         '../remoting/remoting.gyp:remoting_resources',
+         '../remoting/remoting.gyp:remoting_test_support',
+@@ -54,6 +53,12 @@
+             '../remoting/remoting.gyp:remoting_unittests_apk',
+           ],
+         }],
++        ['use_ozone==0', {
++          'dependencies': [
++            '../remoting/remoting.gyp:remoting_perftests',
++          ],
++        }],
++
+         ['enable_remoting_host==1', {
+           'dependencies': [
+             '../remoting/remoting.gyp:remoting_infoplist_strings',
+-- 
+1.9.1
+
