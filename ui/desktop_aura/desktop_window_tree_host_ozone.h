@@ -177,6 +177,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   static std::list<gfx::AcceleratedWidget>& open_windows();
 
   RootWindowState state_;
+  bool has_capture_;
 
   // Original bounds of DRWH.
   gfx::Rect previous_bounds_;
@@ -204,7 +205,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   static std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
-  static DesktopWindowTreeHostOzone* g_current_capture;
   static DesktopWindowTreeHostOzone* g_active_window;
   static DesktopWindowTreeHostOzone* g_current_dispatcher;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostOzone);

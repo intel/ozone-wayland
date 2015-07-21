@@ -44,9 +44,6 @@ DECLARE_WINDOW_PROPERTY_TYPE(views::DesktopWindowTreeHostOzone*);
 namespace views {
 
 DesktopWindowTreeHostOzone*
-    DesktopWindowTreeHostOzone::g_current_capture = NULL;
-
-DesktopWindowTreeHostOzone*
     DesktopWindowTreeHostOzone::g_current_dispatcher = NULL;
 
 DesktopWindowTreeHostOzone*
@@ -69,6 +66,7 @@ DesktopWindowTreeHostOzone::DesktopWindowTreeHostOzone(
     DesktopNativeWidgetAura* desktop_native_widget_aura)
     : aura::WindowTreeHost(),
       state_(Uninitialized),
+      has_capture_(false),
       previous_bounds_(0, 0, 0, 0),
       previous_maximize_bounds_(0, 0, 0, 0),
       window_(0),
@@ -386,19 +384,12 @@ void DesktopWindowTreeHostOzone::SetShape(SkRegion* native_region) {
 }
 
 void DesktopWindowTreeHostOzone::Activate() {
-  if (state_ & Active)
-    return;
-
   if (state_ & Visible) {
     OnActivationChanged(true);
   }
 }
 
 void DesktopWindowTreeHostOzone::Deactivate() {
-  if (!(state_ & Active))
-    return;
-
-  ReleaseCapture();
   OnActivationChanged(false);
 }
 
@@ -460,7 +451,7 @@ bool DesktopWindowTreeHostOzone::IsMinimized() const {
 }
 
 bool DesktopWindowTreeHostOzone::HasCapture() const {
-  return g_current_capture == this;
+  return has_capture_;
 }
 
 void DesktopWindowTreeHostOzone::SetAlwaysOnTop(bool always_on_top) {
@@ -666,10 +657,10 @@ gfx::Point DesktopWindowTreeHostOzone::GetLocationOnNativeScreen() const {
 }
 
 void DesktopWindowTreeHostOzone::SetCapture() {
-  if (HasCapture())
+  if (has_capture_)
     return;
 
-  g_current_capture = this;
+  has_capture_ = true;
   g_current_dispatcher = this;
   platform_window_->SetCapture();
 }
@@ -743,8 +734,9 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
     OnHostActivated();
   } else {
     state_ &= ~Active;
-    g_active_window->Deactivate();
-    g_active_window = NULL;
+    if (g_active_window == this)
+      g_active_window = NULL;
+    ReleaseCapture();
   }
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
@@ -753,7 +745,7 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
 
 void DesktopWindowTreeHostOzone::OnLostCapture() {
   OnHostLostWindowCapture();
-  g_current_capture = NULL;
+  has_capture_ = false;
   g_current_dispatcher = g_active_window;
 }
 

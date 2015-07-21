@@ -177,15 +177,20 @@ void WindowManagerWayland::OnActivationChanged(unsigned windowhandle,
   }
 
   if (active) {
-    if (active_window_ && !current_capture_) {
-      active_window_->GetDelegate()->OnActivationChanged(false);
-      event_grabber_ = windowhandle;
-    }
+    if (active_window_ && current_capture_)
+      return;
 
+    if (active_window_)
+      active_window_->GetDelegate()->OnActivationChanged(false);
+
+    event_grabber_ = windowhandle;
     active_window_ = window;
     active_window_->GetDelegate()->OnActivationChanged(active);
   } else if (active_window_ == window) {
       active_window_->GetDelegate()->OnActivationChanged(active);
+      if (event_grabber_ == active_window_->GetHandle())
+         event_grabber_ = gfx::kNullAcceleratedWidget;
+
       active_window_ = NULL;
   }
 }
