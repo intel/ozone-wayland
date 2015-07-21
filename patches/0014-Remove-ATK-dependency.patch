@@ -1,7 +1,7 @@
-From d8c95a54762436b9b0a4be6ba4b515f20908377e Mon Sep 17 00:00:00 2001
+From 7e8c022c7ffcf2b2f08f7e3be810a77e488247a5 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Wed, 8 Jul 2015 16:56:56 -0700
-Subject: [PATCH] Remove ATK dependency
+Subject: [PATCH 14/15] Remove ATK dependency
 
 ---
  ui/views/accessibility/native_view_accessibility.cc | 2 ++
@@ -23,7 +23,7 @@ index a11f773..f88a7e2 100644
  
  NativeViewAccessibility::~NativeViewAccessibility() {
 diff --git a/ui/views/view.cc b/ui/views/view.cc
-index 07b8201..76e3f55 100644
+index 3c2aed7..24dc267 100644
 --- a/ui/views/view.cc
 +++ b/ui/views/view.cc
 @@ -1260,8 +1260,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {

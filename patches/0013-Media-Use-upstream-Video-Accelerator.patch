@@ -1,7 +1,7 @@
-From bc5ee65f4114b2727e2c36193ce4049c5f8aab2e Mon Sep 17 00:00:00 2001
+From 1a79ac825a3aeda3cd7287f92b7bae1486be86fd Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Wed, 4 Mar 2015 03:30:30 -0800
-Subject: [PATCH 13/14] Media: Use upstream Video Accelerator.
+Subject: [PATCH 13/15] Media: Use upstream Video Accelerator.
 
 ---
  chrome/browser/password_manager/password_store_factory.cc |  2 +-
@@ -10,7 +10,7 @@ Subject: [PATCH 13/14] Media: Use upstream Video Accelerator.
  3 files changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/chrome/browser/password_manager/password_store_factory.cc b/chrome/browser/password_manager/password_store_factory.cc
-index eb6a22c..c087a01 100644
+index 0adf18d..35c49ed 100644
 --- a/chrome/browser/password_manager/password_store_factory.cc
 +++ b/chrome/browser/password_manager/password_store_factory.cc
 @@ -62,7 +62,7 @@ const LocalProfileId kInvalidLocalProfileId =
@@ -23,7 +23,7 @@ index eb6a22c..c087a01 100644
  const char kLibsecretFieldTrialDisabledGroupName[] = "Disabled";
  #endif
 diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.cc b/content/common/gpu/media/gpu_video_decode_accelerator.cc
-index c4d7eb9..2ea86cc5 100644
+index 9f78d23..356297f 100644
 --- a/content/common/gpu/media/gpu_video_decode_accelerator.cc
 +++ b/content/common/gpu/media/gpu_video_decode_accelerator.cc
 @@ -44,7 +44,8 @@
@@ -45,7 +45,7 @@ index c4d7eb9..2ea86cc5 100644
    decoder.reset(new VaapiVideoDecodeAccelerator(
        make_context_current_, base::Bind(&GpuVideoDecodeAccelerator::BindImage,
                                          base::Unretained(this))));
-@@ -368,11 +369,6 @@ GpuVideoDecodeAccelerator::CreateVTVDA() {
+@@ -366,11 +367,6 @@ GpuVideoDecodeAccelerator::CreateVTVDA() {
  scoped_ptr<media::VideoDecodeAccelerator>
  GpuVideoDecodeAccelerator::CreateOzoneVDA() {
    scoped_ptr<media::VideoDecodeAccelerator> decoder;
@@ -58,10 +58,10 @@ index c4d7eb9..2ea86cc5 100644
  }
  
 diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-index b4b2846..2305780 100644
+index c244d6c..2a29d6c 100644
 --- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 +++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-@@ -312,7 +312,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
+@@ -316,7 +316,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
        dlopen(I965DrvVideoPath, RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
        dlopen("libva.so.1", RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
  #if defined(USE_OZONE)

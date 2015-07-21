@@ -1,7 +1,7 @@
-From 1d86a3f2b660c986c66124532e97778e9f6e2818 Mon Sep 17 00:00:00 2001
+From 7676c2bb88d3412bec2fe7fc8b5aa0a89b874869 Mon Sep 17 00:00:00 2001
 From: Qin Jiajia <jiajia.qin@intel.com>
 Date: Wed, 4 Mar 2015 03:50:49 -0800
-Subject: [PATCH 12/14] Use vaAcquireBufferHandle APIs to instead of
+Subject: [PATCH 12/15] Use vaAcquireBufferHandle APIs to instead of
  vaLockBuffer APIs
 
 vaLockBuffer APIs are obsolete. This change will use vaAcquireBufferHandle APIs
