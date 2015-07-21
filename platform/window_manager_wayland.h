@@ -36,6 +36,16 @@ class WindowManagerWayland
   ui::OzoneWaylandWindow* GetWindow(unsigned handle);
   bool HasWindowsOpen() const;
 
+  // Tries to set a given widget as the recipient for events. It will
+  // fail if there is already another widget as recipient.
+  void GrabEvents(gfx::AcceleratedWidget widget);
+
+  // Unsets a given widget as the recipient for events.
+  void UngrabEvents(gfx::AcceleratedWidget widget);
+
+  // Gets the current widget recipient of mouse events.
+  gfx::AcceleratedWidget event_grabber() const { return event_grabber_; }
+
  private:
   // Window Change Observer.
   void OnWindowFocused(unsigned handle) override;
@@ -49,11 +59,16 @@ class WindowManagerWayland
   void OnWindowDeActivated(unsigned windowhandle) override;
   void OnWindowActivated(unsigned windowhandle) override;
 
+  void OnActivationChanged(unsigned windowhandle, bool active);
+
   // Dispatches a mouse event.
   std::list<ui::OzoneWaylandWindow*>& open_windows();
 
   // List of all open aura::Window.
   std::list<ui::OzoneWaylandWindow*>* open_windows_;
+  gfx::AcceleratedWidget event_grabber_ = gfx::kNullAcceleratedWidget;
+  ui::OzoneWaylandWindow* active_window_;
+  gfx::AcceleratedWidget current_capture_ = gfx::kNullAcceleratedWidget;
   DISALLOW_COPY_AND_ASSIGN(WindowManagerWayland);
 };
 

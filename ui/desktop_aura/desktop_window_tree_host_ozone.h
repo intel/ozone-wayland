@@ -172,7 +172,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void Relayout();
   gfx::Size AdjustSize(const gfx::Size& requested_size);
   void DispatchMouseEvent(ui::MouseEvent* event);
-  void ReleaseCaptureIfNeeded() const;
   void ShowWindow();
 
   static std::list<gfx::AcceleratedWidget>& open_windows();

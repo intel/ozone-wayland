@@ -108,9 +108,11 @@ void OzoneWaylandWindow::Close() {
 }
 
 void OzoneWaylandWindow::SetCapture() {
+  g_delegate_ozone_wayland_->GrabEvents(handle_);
 }
 
 void OzoneWaylandWindow::ReleaseCapture() {
+  g_delegate_ozone_wayland_->UngrabEvents(handle_);
 }
 
 void OzoneWaylandWindow::ToggleFullscreen() {

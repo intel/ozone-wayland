@@ -20,6 +20,7 @@
 #include "ui/base/ime/input_method.h"
 #include "ui/base/ime/input_method_auralinux.h"
 #include "ui/events/event_utils.h"
+#include "ui/events/ozone/events_ozone.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/geometry/insets.h"
 #include "ui/native_theme/native_theme.h"
@@ -668,24 +669,14 @@ void DesktopWindowTreeHostOzone::SetCapture() {
   if (HasCapture())
     return;
 
-  DesktopWindowTreeHostOzone* old_capturer = g_current_capture;
   g_current_capture = this;
-  if (old_capturer) {
-    old_capturer->OnHostLostWindowCapture();
-  }
-
   g_current_dispatcher = this;
   platform_window_->SetCapture();
 }
 
 void DesktopWindowTreeHostOzone::ReleaseCapture() {
-  if (g_current_capture != this)
-    return;
-
   platform_window_->ReleaseCapture();
-  OnHostLostWindowCapture();
-  g_current_capture = NULL;
-  g_current_dispatcher = g_active_window;
+  OnLostCapture();
 }
 
 void DesktopWindowTreeHostOzone::ShowWindow() {
@@ -746,17 +737,14 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
       windows.insert(windows.begin(), window_);
     }
 
-    if (g_active_window && !g_current_capture)
-      g_active_window->Deactivate();
-
     g_active_window = this;
     state_ |= Active;
     g_current_dispatcher = this;
     OnHostActivated();
   } else {
     state_ &= ~Active;
-    if (g_active_window == this)
-      g_active_window = NULL;
+    g_active_window->Deactivate();
+    g_active_window = NULL;
   }
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
@@ -764,7 +752,9 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
 }
 
 void DesktopWindowTreeHostOzone::OnLostCapture() {
-  ReleaseCapture();
+  OnHostLostWindowCapture();
+  g_current_capture = NULL;
+  g_current_dispatcher = g_active_window;
 }
 
 void DesktopWindowTreeHostOzone::OnAcceleratedWidgetAvailable(
@@ -818,60 +808,9 @@ bool DesktopWindowTreeHostOzone::CanDispatchEvent(
 
 uint32_t DesktopWindowTreeHostOzone::DispatchEvent(
     const ui::PlatformEvent& ne) {
-  ui::EventType type = ui::EventTypeFromNative(ne);
-
-  switch (type) {
-    case ui::ET_TOUCH_RELEASED: {
-      ReleaseCaptureIfNeeded();
-      ui::TouchEvent* touchev = static_cast<ui::TouchEvent*>(ne);
-      SendEventToProcessor(touchev);
-      break;
-    }
-    case ui::ET_TOUCH_MOVED:
-    case ui::ET_TOUCH_PRESSED:
-    case ui::ET_TOUCH_CANCELLED: {
-      ui::TouchEvent* touchev = static_cast<ui::TouchEvent*>(ne);
-      SendEventToProcessor(touchev);
-      break;
-    }
-    case ui::ET_KEY_PRESSED:
-    case ui::ET_KEY_RELEASED: {
-      SendEventToProcessor(static_cast<ui::KeyEvent*>(ne));
-      break;
-    }
-    case ui::ET_MOUSEWHEEL: {
-      ui::MouseWheelEvent* wheelev = static_cast<ui::MouseWheelEvent*>(ne);
-      DispatchMouseEvent(wheelev);
-      break;
-    }
-    case ui::ET_MOUSE_RELEASED: {
-      ReleaseCaptureIfNeeded();
-      ui::MouseEvent* mouseev = static_cast<ui::MouseEvent*>(ne);
-      DispatchMouseEvent(mouseev);
-      break;
-    }
-    case ui::ET_MOUSE_MOVED:
-    case ui::ET_MOUSE_DRAGGED:
-    case ui::ET_MOUSE_PRESSED:
-    case ui::ET_MOUSE_ENTERED:
-    case ui::ET_MOUSE_EXITED: {
-      ui::MouseEvent* mouseev = static_cast<ui::MouseEvent*>(ne);
-      DispatchMouseEvent(mouseev);
-      break;
-    }
-    case ui::ET_SCROLL_FLING_START:
-    case ui::ET_SCROLL_FLING_CANCEL:
-    case ui::ET_SCROLL: {
-      SendEventToProcessor(static_cast<ui::ScrollEvent*>(ne));
-      break;
-    }
-    case ui::ET_UMA_DATA:
-      break;
-    case ui::ET_UNKNOWN:
-      break;
-    default:
-      NOTIMPLEMENTED() << "WindowTreeHostDelegateWayland: unknown event type.";
-  }
+  DispatchEventFromNativeUiEvent(
+      ne, base::Bind(&PlatformWindowDelegate::DispatchEvent,
+                     base::Unretained(this)));
   return ui::POST_DISPATCH_STOP_PROPAGATION;
 }
 
@@ -1008,11 +947,6 @@ void DesktopWindowTreeHostOzone::DispatchMouseEvent(ui::MouseEvent* event) {
   }
 
   SendEventToProcessor(event);
-}
-
-void DesktopWindowTreeHostOzone::ReleaseCaptureIfNeeded() const {
-  if (g_current_capture && g_current_dispatcher != g_current_capture)
-    g_current_capture->ReleaseCapture();
 }
 
 // static

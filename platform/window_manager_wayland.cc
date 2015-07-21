@@ -16,7 +16,8 @@
 namespace ui {
 
 WindowManagerWayland::WindowManagerWayland()
-    : open_windows_(NULL) {
+    : open_windows_(NULL),
+      active_window_(NULL) {
   ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
 }
 
@@ -38,11 +39,22 @@ void WindowManagerWayland::OnRootWindowClosed(
     return;
   }
 
+  if (active_window_ == window)
+     active_window_ = NULL;
+
+  if (event_grabber_ == window->GetHandle())
+    event_grabber_ = gfx::kNullAcceleratedWidget;
+
+  if (current_capture_ == window->GetHandle()) {
+     ui::OzoneWaylandWindow* window = GetWindow(current_capture_);
+     window->GetDelegate()->OnLostCapture();
+    current_capture_ = gfx::kNullAcceleratedWidget;
+  }
+
   // Set first top level window in the list of open windows as dispatcher.
   // This is just a guess of the window which would eventually be focussed.
   // We should set the correct root window as dispatcher in OnWindowFocused.
-  ui::OzoneWaylandWindow* new_window = open_windows().front();
-  new_window->GetDelegate()->OnActivationChanged(true);
+  OnActivationChanged(open_windows().front()->GetHandle(), true);
 }
 
 bool WindowManagerWayland::HasWindowsOpen() const {
@@ -69,14 +81,7 @@ WindowManagerWayland::GetWindow(unsigned handle) {
 ////////////////////////////////////////////////////////////////////////////////
 // WindowManagerWayland, WindowChangeObserver implementation:
 void WindowManagerWayland::OnWindowFocused(unsigned handle) {
-  ui::OzoneWaylandWindow* window = GetWindow(handle);
-  if (!window) {
-    LOG(ERROR) << "Received invalid window handle " << handle
-               << " from GPU process";
-    return;
-  }
-
-  window->GetDelegate()->OnActivationChanged(true);
+  OnActivationChanged(handle, true);
 }
 
 void WindowManagerWayland::OnWindowEnter(unsigned handle) {
@@ -127,14 +132,7 @@ void WindowManagerWayland::OnWindowUnminimized(unsigned handle) {
 }
 
 void WindowManagerWayland::OnWindowDeActivated(unsigned windowhandle) {
-  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
-  if (!window) {
-    LOG(ERROR) << "Received invalid window handle " << windowhandle
-               << " from GPU process";
-    return;
-  }
-
-  window->GetDelegate()->OnActivationChanged(false);
+  OnActivationChanged(windowhandle, false);
 }
 
 void WindowManagerWayland::OnWindowActivated(unsigned windowhandle) {
@@ -147,6 +145,49 @@ WindowManagerWayland::open_windows() {
     open_windows_ = new std::list<ui::OzoneWaylandWindow*>();
 
   return *open_windows_;
+}
+
+void WindowManagerWayland::GrabEvents(gfx::AcceleratedWidget widget) {
+  if (current_capture_ == widget)
+    return;
+
+  if (current_capture_) {
+    ui::OzoneWaylandWindow* window = GetWindow(current_capture_);
+    window->GetDelegate()->OnLostCapture();
+  }
+
+  current_capture_ = widget;
+  event_grabber_ = widget;
+}
+
+void WindowManagerWayland::UngrabEvents(gfx::AcceleratedWidget widget) {
+  if (current_capture_ != widget)
+    return;
+
+  current_capture_ = gfx::kNullAcceleratedWidget;
+  event_grabber_ = active_window_ ? active_window_->GetHandle() : 0;
+}
+
+void WindowManagerWayland::OnActivationChanged(unsigned windowhandle,
+                                               bool active) {
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  if (!window) {
+    LOG(ERROR) << "Invalid window handle " << windowhandle;
+    return;
+  }
+
+  if (active) {
+    if (active_window_ && !current_capture_) {
+      active_window_->GetDelegate()->OnActivationChanged(false);
+      event_grabber_ = windowhandle;
+    }
+
+    active_window_ = window;
+    active_window_->GetDelegate()->OnActivationChanged(active);
+  } else if (active_window_ == window) {
+      active_window_->GetDelegate()->OnActivationChanged(active);
+      active_window_ = NULL;
+  }
 }
 
 }  // namespace ui
