@@ -7,6 +7,7 @@
 
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/native_widget_types.h"
+#include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/platform_window/platform_window.h"
 
 namespace ui {
@@ -14,7 +15,8 @@ namespace ui {
 class PlatformWindowDelegate;
 class WindowManagerWayland;
 
-class OzoneWaylandWindow : public PlatformWindow {
+class OzoneWaylandWindow : public PlatformWindow,
+                           public PlatformEventDispatcher {
  public:
   OzoneWaylandWindow(PlatformWindowDelegate* delegate,
                      const gfx::Rect& bounds);
@@ -40,6 +42,10 @@ class OzoneWaylandWindow : public PlatformWindow {
   void SetCursor(PlatformCursor cursor) override;
   void MoveCursorTo(const gfx::Point& location) override;
   void ConfineCursorToBounds(const gfx::Rect& bounds) override;
+
+  // PlatformEventDispatcher:
+  bool CanDispatchEvent(const PlatformEvent& event) override;
+  uint32_t DispatchEvent(const PlatformEvent& event) override;
 
  private:
   PlatformWindowDelegate* delegate_;

@@ -182,8 +182,10 @@ void WindowManagerWayland::OnActivationChanged(unsigned windowhandle,
   }
 
   if (active) {
-    if (active_window_ && current_capture_)
+    if (current_capture_) {
+      event_grabber_ = windowhandle;
       return;
+    }
 
     if (active_window_)
       active_window_->GetDelegate()->OnActivationChanged(false);

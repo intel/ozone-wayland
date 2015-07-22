@@ -13,7 +13,6 @@
 
 #include "base/basictypes.h"
 #include "ui/aura/window_tree_host.h"
-#include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 
@@ -32,8 +31,7 @@ class DesktopDragDropClientWayland;
 class VIEWS_EXPORT DesktopWindowTreeHostOzone
     : public DesktopWindowTreeHost,
       public aura::WindowTreeHost,
-      public ui::PlatformWindowDelegate,
-      public ui::PlatformEventDispatcher {
+      public ui::PlatformWindowDelegate {
  public:
   DesktopWindowTreeHostOzone(
       internal::NativeWidgetDelegate* native_widget_delegate,
@@ -149,10 +147,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
                                      float device_pixel_ratio) override;
   void OnActivationChanged(bool active) override;
 
-  // ui::PlatformEventDispatcher:
-  bool CanDispatchEvent(const ui::PlatformEvent& event) override;
-  uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
-
  private:
   enum {
     Uninitialized = 0x00,
@@ -205,7 +199,6 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   static std::list<gfx::AcceleratedWidget>* open_windows_;
   // List of all open aura::Window.
   static std::vector<aura::Window*>* aura_windows_;
-  static DesktopWindowTreeHostOzone* g_current_dispatcher;
   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostOzone);
 };
 

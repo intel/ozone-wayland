@@ -4,9 +4,12 @@
 
 #include "ozone/platform/ozone_wayland_window.h"
 
+#include "base/bind.h"
 #include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
+#include "ui/events/ozone/events_ozone.h"
+#include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/screen.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
@@ -30,10 +33,12 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
+  PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
 }
 
 void OzoneWaylandWindow::InitPlatformWindow(
     PlatformWindowType type, gfx::AcceleratedWidget parent_window) {
+  PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
   WindowStateChangeHandler* state_handler =
       EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler();
   switch (type) {
@@ -149,6 +154,21 @@ void OzoneWaylandWindow::MoveCursorTo(const gfx::Point& location) {
 }
 
 void OzoneWaylandWindow::ConfineCursorToBounds(const gfx::Rect& bounds) {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// WindowTreeHostDelegateWayland, ui::PlatformEventDispatcher implementation:
+bool OzoneWaylandWindow::CanDispatchEvent(
+    const ui::PlatformEvent& ne) {
+  return g_delegate_ozone_wayland_->event_grabber() == handle_;
+}
+
+uint32_t OzoneWaylandWindow::DispatchEvent(
+    const ui::PlatformEvent& ne) {
+  DispatchEventFromNativeUiEvent(
+      ne, base::Bind(&PlatformWindowDelegate::DispatchEvent,
+                     base::Unretained(delegate_)));
+  return POST_DISPATCH_STOP_PROPAGATION;
 }
 
 }  // namespace ui
