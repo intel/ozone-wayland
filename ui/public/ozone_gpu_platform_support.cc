@@ -9,10 +9,11 @@
 #include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/ui/public/messages.h"
+#include "ui/ozone/platform/drm/host/channel_observer.h"
 
 namespace ui {
 
-OzoneGpuPlatformSupport::OzoneGpuPlatformSupport() {
+OzoneGpuPlatformSupport::OzoneGpuPlatformSupport() :sender_(NULL) {
 }
 
 OzoneGpuPlatformSupport::~OzoneGpuPlatformSupport() {
@@ -21,6 +22,27 @@ OzoneGpuPlatformSupport::~OzoneGpuPlatformSupport() {
 void OzoneGpuPlatformSupport::OnChannelEstablished(IPC::Sender* sender) {
   ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter()->
       ChannelEstablished(sender);
+
+  sender_ =  sender;
+  for (size_t i = 0; i < handlers_.size(); ++i)
+    handlers_[i]->OnChannelEstablished(sender_);
+}
+
+void OzoneGpuPlatformSupport::RegisterHandler(GpuPlatformSupport* handler) {
+  handlers_.push_back(handler);
+
+  if (IsConnected()) {
+    handler->OnChannelEstablished(sender_);
+    FOR_EACH_OBSERVER(ChannelObserver, channel_observers_,
+                      OnChannelEstablished());
+  }
+}
+
+void OzoneGpuPlatformSupport::UnregisterHandler(GpuPlatformSupport* handler) {
+  std::vector<GpuPlatformSupport*>::iterator it =
+      std::find(handlers_.begin(), handlers_.end(), handler);
+  if (it != handlers_.end())
+    handlers_.erase(it);
 }
 
 bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
@@ -35,6 +57,14 @@ bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandWindow_HideInputPanel, OnWidgetHideInputPanel)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
+
+  if (!handled) {
+    for (size_t i = 0; i < handlers_.size(); ++i) {
+      if (handlers_[i]->OnMessageReceived(message)) {
+        return true;
+      }
+    }
+  }
 
   return handled;
 }
@@ -80,7 +110,8 @@ void OzoneGpuPlatformSupport::OnWidgetHideInputPanel() {
       HideInputPanel();
 }
 
-void OzoneGpuPlatformSupport::RelinquishGpuResources(const base::Closure& callback) {
+void OzoneGpuPlatformSupport::RelinquishGpuResources(
+    const base::Closure& callback) {
   callback.Run();
 }
 

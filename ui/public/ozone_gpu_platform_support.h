@@ -5,9 +5,16 @@
 #ifndef OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
 #define OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
 
+#include <vector>
+
+#include "base/observer_list.h"
 #include "base/strings/string16.h"
 #include "ozone/ui/events/window_constants.h"
 #include "ui/ozone/public/gpu_platform_support.h"
+
+namespace IPC {
+class Sender;
+}
 
 namespace ui {
 class RemoteEventDispatcher;
@@ -16,7 +23,9 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
  public:
   OzoneGpuPlatformSupport();
   ~OzoneGpuPlatformSupport() override;
-  void InitializeRemoteDispatcher();
+
+  void RegisterHandler(GpuPlatformSupport* handler);
+  void UnregisterHandler(GpuPlatformSupport* handler);
 
   // GpuPlatformSupport:
   void OnChannelEstablished(IPC::Sender* sender) override;
@@ -38,6 +47,8 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
   void OnWidgetHideInputPanel();
 
  private:
+  IPC::Sender* sender_;
+  std::vector<GpuPlatformSupport*> handlers_;  // Not owned.
   DISALLOW_COPY_AND_ASSIGN(OzoneGpuPlatformSupport);
 };
 

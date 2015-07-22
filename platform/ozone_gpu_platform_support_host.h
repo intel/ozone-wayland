@@ -7,7 +7,10 @@
 
 #include <vector>
 
-#include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
+#include "base/callback.h"
+#include "base/observer_list.h"
+#include "ui/gfx/native_widget_types.h"
+#include "ui/ozone/public/gpu_platform_support_host.h"
 
 namespace ui {
 
