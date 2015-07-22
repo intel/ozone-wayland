@@ -32,7 +32,7 @@ void OzoneGpuPlatformSupport::OnChannelEstablished(IPC::Sender* sender) {
 void OzoneGpuPlatformSupport::RegisterHandler(GpuPlatformSupport* handler) {
   handlers_.push_back(handler);
 
-  if (IsConnected())
+  if (sender_)
     handler->OnChannelEstablished(sender_);
 }
 
