@@ -66,23 +66,23 @@ bool OzoneWebUI::HasCustomImage(int id) const {
 }
 
 SkColor OzoneWebUI::GetFocusRingColor() const {
-  return SK_ColorBLACK;
+  return SkColorSetRGB(0x4D, 0x90, 0xFE);
 }
 
 SkColor OzoneWebUI::GetThumbActiveColor() const {
-  return SK_ColorBLACK;
+  return SkColorSetRGB(244, 244, 244);
 }
 
 SkColor OzoneWebUI::GetThumbInactiveColor() const {
-  return SK_ColorBLACK;
+  return SkColorSetRGB(234, 234, 234);
 }
 
 SkColor OzoneWebUI::GetTrackColor() const {
-  return SK_ColorBLACK;
+  return SkColorSetRGB(211, 211, 211);
 }
 
 SkColor OzoneWebUI::GetActiveSelectionBgColor() const {
-  return SK_ColorBLACK;
+  return SkColorSetRGB(0xCB, 0xE4, 0xFA);
 }
 
 SkColor OzoneWebUI::GetActiveSelectionFgColor() const {
@@ -90,7 +90,7 @@ SkColor OzoneWebUI::GetActiveSelectionFgColor() const {
 }
 
 SkColor OzoneWebUI::GetInactiveSelectionBgColor() const {
-  return SK_ColorBLACK;
+  return SkColorSetRGB(0xEA, 0xEA, 0xEA);
 }
 
 SkColor OzoneWebUI::GetInactiveSelectionFgColor() const {
