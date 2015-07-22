@@ -5,6 +5,8 @@
 #ifndef OZONE_PLATFORM_GPU_PLATFORM_SUPPORT_HOST_H_
 #define OZONE_PLATFORM_GPU_PLATFORM_SUPPORT_HOST_H_
 
+#include <vector>
+
 #include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
 
 namespace ui {

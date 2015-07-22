@@ -8,6 +8,7 @@
 namespace ui {
 
   enum WidgetState {
+    UNINITIALIZED = 0,
     SHOW = 1,  // Widget is visible.
     HIDE = 2,  // Widget is hidden.
     FULLSCREEN = 3,  // Widget is in fullscreen mode.

@@ -5,9 +5,11 @@
 #include "ozone/platform/ozone_wayland_window.h"
 
 #include "base/bind.h"
+#include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
+#include "ozone/ui/public/messages.h"
 #include "ui/events/ozone/events_ozone.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/screen.h"
@@ -19,8 +21,14 @@ WindowManagerWayland*
     OzoneWaylandWindow::g_delegate_ozone_wayland_ = NULL;
 
 OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
+                                       OzoneGpuPlatformSupportHost* sender,
                                        const gfx::Rect& bounds)
-    : delegate_(delegate), bounds_(bounds) {
+    : delegate_(delegate),
+      sender_(sender),
+      bounds_(bounds),
+      parent_(0),
+      state_(UNINITIALIZED),
+      cursor_type_(-1) {
   static int opaque_handle = 0;
   opaque_handle++;
   handle_ = opaque_handle;
@@ -33,14 +41,13 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
+  sender_->RemoveChannelObserver(this);
   PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
 }
 
 void OzoneWaylandWindow::InitPlatformWindow(
     PlatformWindowType type, gfx::AcceleratedWidget parent_window) {
   PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
-  WindowStateChangeHandler* state_handler =
-      EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler();
   switch (type) {
     case PLATFORM_WINDOW_TYPE_TOOLTIP:
     case PLATFORM_WINDOW_TYPE_POPUP:
@@ -55,26 +62,20 @@ void OzoneWaylandWindow::InitPlatformWindow(
 
       DCHECK(active_window);
       gfx::Rect parent_bounds = active_window->GetBounds();
+      parent_ = active_window->GetHandle();
+      type_ = ui::POPUP;
       // Don't size the window bigger than the parent, otherwise the user may
       // not be able to close or move it.
       // Transient type expects a position relative to the parent
-      gfx::Point transientPos(bounds_.x() - parent_bounds.x(),
-                              bounds_.y() - parent_bounds.y());
-
-      state_handler->CreateWidget(handle_,
-                                  active_window->GetHandle(),
-                                  transientPos.x(),
-                                  transientPos.y(),
-                                  ui::POPUP);
+      pos_ = gfx::Point(bounds_.x() - parent_bounds.x(),
+                        bounds_.y() - parent_bounds.y());
       break;
     }
     case PLATFORM_WINDOW_TYPE_BUBBLE:
     case PLATFORM_WINDOW_TYPE_WINDOW:
-      state_handler->CreateWidget(handle_,
-                                  0,
-                                  0,
-                                  0,
-                                  ui::WINDOW);
+      parent_ = 0;
+      pos_ = gfx::Point(0, 0);
+      type_ = ui::WINDOW;
       break;
     case PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS:
       NOTIMPLEMENTED();
@@ -82,6 +83,24 @@ void OzoneWaylandWindow::InitPlatformWindow(
     default:
       break;
   }
+
+  sender_->AddChannelObserver(this);
+}
+
+void OzoneWaylandWindow::SetWidgetCursor(int cursor_type) {
+  cursor_type_ = cursor_type;
+  if (!sender_->IsConnected())
+    return;
+
+  sender_->Send(new WaylandWindow_Cursor(cursor_type_));
+}
+
+void OzoneWaylandWindow::SetWidgetTitle(const base::string16& title) {
+  title_ = title;
+  if (!sender_->IsConnected())
+    return;
+
+  sender_->Send(new WaylandWindow_Title(handle_, title_));
 }
 
 gfx::Rect OzoneWaylandWindow::GetBounds() {
@@ -94,13 +113,13 @@ void OzoneWaylandWindow::SetBounds(const gfx::Rect& bounds) {
 }
 
 void OzoneWaylandWindow::Show() {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handle_, ui::SHOW);
+  state_ = ui::SHOW;
+  SendWidgetState();
 }
 
 void OzoneWaylandWindow::Hide() {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handle_, ui::HIDE);
+  state_ = ui::HIDE;
+  SendWidgetState();
 }
 
 void OzoneWaylandWindow::Close() {
@@ -126,25 +145,25 @@ void OzoneWaylandWindow::ToggleFullscreen() {
     NOTREACHED() << "Unable to retrieve valid gfx::Screen";
 
   SetBounds(screen->GetPrimaryDisplay().bounds());
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handle_, ui::FULLSCREEN);
+  state_ = ui::FULLSCREEN;
+  SendWidgetState();
 }
 
 void OzoneWaylandWindow::Maximize() {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handle_, ui::MAXIMIZED);
+  state_ = ui::MAXIMIZED;
+  SendWidgetState();
 }
 
 void OzoneWaylandWindow::Minimize() {
   SetBounds(gfx::Rect());
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handle_, ui::MINIMIZED);
+  state_ = ui::MINIMIZED;
+  SendWidgetState();
 }
 
 void OzoneWaylandWindow::Restore() {
   g_delegate_ozone_wayland_->Restore(this);
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handle_, ui::RESTORE);
+  state_ = ui::RESTORE;
+  SendWidgetState();
 }
 
 void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
@@ -169,6 +188,32 @@ uint32_t OzoneWaylandWindow::DispatchEvent(
       ne, base::Bind(&PlatformWindowDelegate::DispatchEvent,
                      base::Unretained(delegate_)));
   return POST_DISPATCH_STOP_PROPAGATION;
+}
+
+void OzoneWaylandWindow::OnChannelEstablished() {
+  sender_->Send(new WaylandWindow_Create(handle_,
+                                         parent_,
+                                         pos_.x(),
+                                         pos_.y(),
+                                         type_));
+  if (state_)
+    sender_->Send(new WaylandWindow_State(handle_, state_));
+
+  if (title_.length())
+    sender_->Send(new WaylandWindow_Title(handle_, title_));
+
+  if (cursor_type_ >= 0)
+    sender_->Send(new WaylandWindow_Cursor(cursor_type_));
+}
+
+void OzoneWaylandWindow::OnChannelDestroyed() {
+}
+
+void OzoneWaylandWindow::SendWidgetState() {
+  if (!sender_->IsConnected())
+    return;
+
+  sender_->Send(new WaylandWindow_State(handle_, state_));
 }
 
 }  // namespace ui

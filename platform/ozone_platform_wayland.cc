@@ -73,8 +73,8 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
       const gfx::Rect& bounds) override {
-    return scoped_ptr<PlatformWindow>(new OzoneWaylandWindow(delegate,
-                                                             bounds));
+    return scoped_ptr<PlatformWindow>(
+        new OzoneWaylandWindow(delegate, gpu_platform_host_.get(), bounds));
   }
 
   scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {

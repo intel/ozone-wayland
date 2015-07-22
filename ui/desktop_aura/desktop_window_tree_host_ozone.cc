@@ -10,8 +10,6 @@
 #include "base/bind.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/aura/client/focus_client.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/hit_test.h"
@@ -440,8 +438,7 @@ void DesktopWindowTreeHostOzone::SetVisibleOnAllWorkspaces(
 
 bool DesktopWindowTreeHostOzone::SetWindowTitle(const base::string16& title) {
   if (title.compare(title_)) {
-    ui::EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-        SetWidgetTitle(window_, title);
+    platform_window_->SetWidgetTitle(title);
     title_ = title;
     return true;
   }
@@ -655,9 +652,10 @@ void DesktopWindowTreeHostOzone::ShowWindow() {
 }
 
 void DesktopWindowTreeHostOzone::SetCursorNative(gfx::NativeCursor cursor) {
-  // TODO(kalyan): Add support for custom cursor.
-  ui::EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetCursor(cursor.native_type());
+  // TODO(kalyan): Remove this.
+  platform_window_->SetWidgetCursor(cursor.native_type());
+
+  platform_window_->SetCursor(cursor.platform());
 }
 
 void DesktopWindowTreeHostOzone::MoveCursorToNative(

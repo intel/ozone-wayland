@@ -33,7 +33,8 @@ void OzoneGpuPlatformSupportHost::UnregisterHandler(
     handlers_.erase(it);
 }
 
-void OzoneGpuPlatformSupportHost::AddChannelObserver(ChannelObserver* observer) {
+void OzoneGpuPlatformSupportHost::AddChannelObserver(
+    ChannelObserver* observer) {
   channel_observers_.AddObserver(observer);
 
   if (IsConnected())
@@ -81,7 +82,8 @@ void OzoneGpuPlatformSupportHost::OnChannelDestroyed(int host_id) {
     handlers_[i]->OnChannelDestroyed(host_id);
 }
 
-bool OzoneGpuPlatformSupportHost::OnMessageReceived(const IPC::Message& message) {
+bool OzoneGpuPlatformSupportHost::OnMessageReceived(
+    const IPC::Message& message) {
   for (size_t i = 0; i < handlers_.size(); ++i)
     if (handlers_[i]->OnMessageReceived(message))
       return true;
