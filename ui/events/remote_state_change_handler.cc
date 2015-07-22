@@ -17,8 +17,6 @@ RemoteStateChangeHandler::RemoteStateChangeHandler(
     : proxy_(proxy),
       isConnected_(false) {
   EventFactoryOzoneWayland::GetInstance()->
-      SetWindowStateChangeHandler(this);
-  EventFactoryOzoneWayland::GetInstance()->
       SetIMEStateChangeHandler(this);
   proxy_->AddChannelObserver(this);
 }
@@ -40,32 +38,6 @@ void RemoteStateChangeHandler::OnChannelEstablished() {
 
 void RemoteStateChangeHandler::OnChannelDestroyed() {
   isConnected_ = false;
-}
-
-void RemoteStateChangeHandler::SetWidgetState(unsigned w,
-                                              ui::WidgetState state) {
-  Send(new WaylandWindow_State(w, state));
-}
-
-void RemoteStateChangeHandler::SetWidgetTitle(unsigned w,
-                                              const base::string16& title) {
-  Send(new WaylandWindow_Title(w, title));
-}
-
-void RemoteStateChangeHandler::SetWidgetCursor(int cursor_type) {
-  Send(new WaylandWindow_Cursor(cursor_type));
-}
-
-void RemoteStateChangeHandler::CreateWidget(unsigned widget,
-                                            unsigned parent,
-                                            unsigned x,
-                                            unsigned y,
-                                            ui::WidgetType type) {
-  Send(new WaylandWindow_Create(widget,
-                                    parent,
-                                    x,
-                                    y,
-                                    type));
 }
 
 void RemoteStateChangeHandler::ResetIme() {

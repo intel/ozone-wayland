@@ -1,19 +1,27 @@
-From c760ee19f70c36bcc4f20ecb4890dd046e2cb7ce Mon Sep 17 00:00:00 2001
+From 427cd045a5054dc1443d01b4766811ad257c6502 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Sun, 19 Oct 2014 19:55:16 -0700
-Subject: [PATCH 08/15] PlatformWindow: Add needed support in PlatformWindow.
+Date: Wed, 22 Jul 2015 01:36:44 -0700
+Subject: [PATCH] PlatformWindow: Add needed support in PlatformWindow.
 
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.
 ---
- ui/platform_window/platform_window.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ ui/platform_window/platform_window.h | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/ui/platform_window/platform_window.h b/ui/platform_window/platform_window.h
-index 6e6ace1..5ab8169 100644
+index 6e6ace1..d235cce 100644
 --- a/ui/platform_window/platform_window.h
 +++ b/ui/platform_window/platform_window.h
-@@ -22,8 +22,21 @@ class PlatformWindowDelegate;
+@@ -6,6 +6,7 @@
+ #define UI_PLATFORM_WINDOW_PLATFORM_WINDOW_H_
+
+ #include "base/memory/scoped_ptr.h"
++#include "base/strings/string16.h"
+ #include "ui/base/cursor/cursor.h"
+
+ namespace gfx {
+@@ -22,8 +23,23 @@ class PlatformWindowDelegate;
  // underlying platform windowing system (i.e. X11/Win/OSX).
  class PlatformWindow {
   public:
@@ -31,6 +39,8 @@ index 6e6ace1..5ab8169 100644
  
 +  virtual void InitPlatformWindow(PlatformWindowType type,
 +                                  gfx::AcceleratedWidget parent_window) { }
++  virtual void SetWidgetCursor(int cursor_type) { }
++  virtual void SetWidgetTitle(const base::string16& title) { }
 +
    virtual void Show() = 0;
    virtual void Hide() = 0;

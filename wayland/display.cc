@@ -366,8 +366,6 @@ void WaylandDisplay::InitializeDisplay() {
     return;
   }
 
-  ui::EventFactoryOzoneWayland::GetInstance()->
-      SetWindowStateChangeHandler(this);
   display_poll_thread_ = new WaylandDisplayPollThread(display_);
 }
 

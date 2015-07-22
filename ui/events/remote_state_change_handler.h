@@ -8,7 +8,6 @@
 #include <queue>
 
 #include "ozone/ui/events/ime_state_change_handler.h"
-#include "ozone/ui/events/window_state_change_handler.h"
 #include "ui/ozone/platform/drm/host/channel_observer.h"
 
 namespace IPC {
@@ -18,12 +17,11 @@ class Sender;
 
 namespace ui {
 class OzoneGpuPlatformSupportHost;
-// RemoteStateChangeHandler implements WindowStateChangeHandler and
-// IMEStateChangeHandler. It is responsible for sending any Ime/Window state
-// change events from Browser to GPU process (i.e IPC).
+// RemoteStateChangeHandler implements IMEStateChangeHandler.
+// It is responsible for sending any Ime/Window state change events from Browser
+// to GPU process (i.e IPC).
 
-class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
-                                 public ui::IMEStateChangeHandler,
+class RemoteStateChangeHandler : public ui::IMEStateChangeHandler,
                                  public ui::ChannelObserver {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
@@ -34,17 +32,7 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   void OnChannelEstablished() override;
   void OnChannelDestroyed() override;
 
-  // WindowStateChangeHandler implementation:
-  void SetWidgetState(unsigned widget,
-                      ui::WidgetState state) override;
-  void SetWidgetTitle(unsigned w,
-                      const base::string16& title) override;
-  void SetWidgetCursor(int cursor_type) override;
-  void CreateWidget(unsigned widget,
-                    unsigned parent,
-                    unsigned x,
-                    unsigned y,
-                    ui::WidgetType type) override;
+  // IMEStateChangeHandler implementation:
   void ResetIme() override;
   void ImeCaretBoundsChanged(gfx::Rect rect) override;
   void ShowInputPanel() override;

@@ -21,7 +21,7 @@
 #include <map>
 
 #include "base/basictypes.h"
-#include "ozone/ui/events/window_state_change_handler.h"
+#include "ozone/ui/events/window_constants.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
 
 struct gbm_device;
@@ -41,8 +41,7 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
-class WaylandDisplay : public ui::WindowStateChangeHandler,
-                       public ui::SurfaceFactoryOzone {
+class WaylandDisplay : public ui::SurfaceFactoryOzone {
  public:
   WaylandDisplay();
   ~WaylandDisplay() override;
@@ -105,17 +104,16 @@ class WaylandDisplay : public ui::WindowStateChangeHandler,
   scoped_ptr<ui::SurfaceOzoneCanvas> CreateCanvasForWidget(
       gfx::AcceleratedWidget widget) override;
 
-  // WindowStateChangeHandler implementation:
   void SetWidgetState(unsigned widget,
-                      ui::WidgetState state) override;
+                      ui::WidgetState state);
   void SetWidgetTitle(unsigned w,
-                      const base::string16& title) override;
-  void SetWidgetCursor(int cursor_type) override;
+                      const base::string16& title);
+  void SetWidgetCursor(int cursor_type);
   void CreateWidget(unsigned widget,
                     unsigned parent,
                     unsigned x,
                     unsigned y,
-                    ui::WidgetType type) override;
+                    ui::WidgetType type);
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);

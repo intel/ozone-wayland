@@ -13,7 +13,6 @@ EventFactoryOzoneWayland::EventFactoryOzoneWayland()
     : observer_(NULL),
       ime_observer_(NULL),
       output_observer_(NULL),
-      state_change_handler_(NULL),
       ime_state_handler_(NULL) {
   impl_ = this;
 }
@@ -65,16 +64,6 @@ void EventFactoryOzoneWayland::SetEventConverter(
 EventConverterOzoneWayland*
 EventFactoryOzoneWayland::GetEventConverter() const {
   return event_converter_;
-}
-
-void EventFactoryOzoneWayland::SetWindowStateChangeHandler(
-    WindowStateChangeHandler* handler) {
-  state_change_handler_ = handler;
-}
-
-WindowStateChangeHandler*
-EventFactoryOzoneWayland::GetWindowStateChangeHandler() const {
-  return state_change_handler_;
 }
 
 void EventFactoryOzoneWayland::SetIMEStateChangeHandler(
