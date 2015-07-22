@@ -17,7 +17,7 @@ class Sender;
 }
 
 namespace ui {
-class DrmGpuPlatformSupportHost;
+class OzoneGpuPlatformSupportHost;
 // RemoteStateChangeHandler implements WindowStateChangeHandler and
 // IMEStateChangeHandler. It is responsible for sending any Ime/Window state
 // change events from Browser to GPU process (i.e IPC).
@@ -27,7 +27,7 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
                                  public ui::ChannelObserver {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
-  explicit RemoteStateChangeHandler(DrmGpuPlatformSupportHost* proxy);
+  explicit RemoteStateChangeHandler(OzoneGpuPlatformSupportHost* proxy);
   ~RemoteStateChangeHandler() override;
 
   // ChannelObserver implementation:
@@ -54,7 +54,7 @@ class RemoteStateChangeHandler : public ui::WindowStateChangeHandler,
   void Send(IPC::Message* message);
 
   IPC::Sender* sender_;
-  DrmGpuPlatformSupportHost* proxy_;
+  OzoneGpuPlatformSupportHost* proxy_;
   bool isConnected_;
   // Messages are not sent by host until connection is established. Host queues
   // all these messages to send after connection is established.

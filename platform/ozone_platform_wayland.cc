@@ -6,6 +6,7 @@
 
 #include "base/at_exit.h"
 #include "base/bind.h"
+#include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #include "ozone/ui/events/event_converter_in_process.h"
@@ -19,9 +20,6 @@
 #include "ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h"
 #include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/common/stub_overlay_manager.h"
-#include "ui/ozone/platform/drm/host/drm_cursor.h"
-#include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
-#include "ui/ozone/platform/drm/host/drm_window_host_manager.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/system_input_injector.h"
 #include "ui/platform_window/platform_window_delegate.h"
@@ -88,9 +86,7 @@ class OzonePlatformWayland : public OzonePlatform {
     if (wayland_display_.get())
       return;
 
-    window_manager_.reset(new ui::DrmWindowHostManager());
-    cursor_.reset(new ui::DrmCursor(window_manager_.get()));
-    gpu_platform_host_.reset(new ui::DrmGpuPlatformSupportHost(cursor_.get()));
+    gpu_platform_host_.reset(new ui::OzoneGpuPlatformSupportHost());
     // Needed as Browser creates accelerated widgets through SFO.
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
     cursor_factory_ozone_.reset(new ui::CursorFactoryOzoneWayland());
@@ -124,15 +120,10 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
  private:
-  // The following two members are used only to initialize
-  // DrmGpuPlatformSupportHost.
-  scoped_ptr<ui::DrmCursor> cursor_;
-  scoped_ptr<ui::DrmWindowHostManager> window_manager_;
-
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::EventConverterOzoneWayland> event_converter_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
-  scoped_ptr<ui::DrmGpuPlatformSupportHost> gpu_platform_host_;
+  scoped_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
   scoped_ptr<ui::OzoneChannel> gpu_platform_;
   scoped_ptr<ui::RemoteStateChangeHandler> state_change_handler_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;

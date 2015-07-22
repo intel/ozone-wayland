@@ -28,6 +28,8 @@
         'media/media_ozone_platform_wayland.h',
         'platform/desktop_platform_screen.h',
         'platform/ozone_export_wayland.h',
+	'platform/ozone_gpu_platform_support_host.h',
+	'platform/ozone_gpu_platform_support_host.cc',
         'platform/ozone_platform_wayland.cc',
         'platform/ozone_platform_wayland.h',
         'platform/ozone_wayland_window.cc',

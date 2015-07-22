@@ -64,7 +64,6 @@ class WindowManagerWayland
 
   void OnActivationChanged(unsigned windowhandle, bool active);
 
-  // Dispatches a mouse event.
   std::list<ui::OzoneWaylandWindow*>& open_windows();
 
   // List of all open aura::Window.

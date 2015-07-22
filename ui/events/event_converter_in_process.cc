@@ -8,6 +8,7 @@
 
 #include "base/bind.h"
 #include "base/thread_task_runner_handle.h"
+#include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_change_observer.h"
 #include "ozone/ui/events/output_change_observer.h"
@@ -15,12 +16,11 @@
 #include "ozone/ui/public/messages.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
-#include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
 
 namespace ui {
 
 EventConverterInProcess::EventConverterInProcess(
-    DrmGpuPlatformSupportHost* proxy)
+    OzoneGpuPlatformSupportHost* proxy)
     : EventConverterOzoneWayland(),
       proxy_(proxy),
       keyboard_(&modifiers_,
