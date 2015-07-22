@@ -59,8 +59,6 @@ void WaylandWindow::SetShellAttributes(ShellType type,
     shell_surface_ =
         WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(this,
                                                                       type);
-    WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
-    seat->SetGrabWindowHandle(handle_, 0);
   }
 
   type_ = type;
