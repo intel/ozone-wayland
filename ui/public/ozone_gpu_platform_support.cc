@@ -7,13 +7,14 @@
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_state_change_handler.h"
-#include "ozone/ui/events/window_state_change_handler.h"
 #include "ozone/ui/public/messages.h"
-#include "ui/ozone/platform/drm/host/channel_observer.h"
+#include "ozone/wayland/display.h"
 
 namespace ui {
 
-OzoneGpuPlatformSupport::OzoneGpuPlatformSupport() :sender_(NULL) {
+OzoneGpuPlatformSupport::OzoneGpuPlatformSupport(
+    ozonewayland::WaylandDisplay* display) :sender_(NULL),
+                                            display_(display) {
 }
 
 OzoneGpuPlatformSupport::~OzoneGpuPlatformSupport() {
@@ -31,11 +32,8 @@ void OzoneGpuPlatformSupport::OnChannelEstablished(IPC::Sender* sender) {
 void OzoneGpuPlatformSupport::RegisterHandler(GpuPlatformSupport* handler) {
   handlers_.push_back(handler);
 
-  if (IsConnected()) {
+  if (IsConnected())
     handler->OnChannelEstablished(sender_);
-    FOR_EACH_OBSERVER(ChannelObserver, channel_observers_,
-                      OnChannelEstablished());
-  }
 }
 
 void OzoneGpuPlatformSupport::UnregisterHandler(GpuPlatformSupport* handler) {
@@ -70,29 +68,25 @@ bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
 }
 
 void OzoneGpuPlatformSupport::OnWidgetStateChanged(unsigned handleid,
-                                        ui::WidgetState state) {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetState(handleid, state);
+                                                   ui::WidgetState state) {
+  display_->SetWidgetState(handleid, state);
 }
 
 void OzoneGpuPlatformSupport::OnWidgetTitleChanged(unsigned widget,
-                                        base::string16 title) {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetTitle(widget, title);
+                                                   base::string16 title) {
+  display_->SetWidgetTitle(widget, title);
 }
 
 void OzoneGpuPlatformSupport::OnWidgetCursorChanged(int cursor_type) {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      SetWidgetCursor(cursor_type);
+  display_->SetWidgetCursor(cursor_type);
 }
 
 void OzoneGpuPlatformSupport::OnWidgetCreate(unsigned widget,
-                                  unsigned parent,
-                                  unsigned x,
-                                  unsigned y,
-                                  ui::WidgetType type) {
-  EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
-      CreateWidget(widget, parent, x, y, type);
+                                             unsigned parent,
+                                             unsigned x,
+                                             unsigned y,
+                                             ui::WidgetType type) {
+  display_->CreateWidget(widget, parent, x, y, type);
 }
 
 void OzoneGpuPlatformSupport::OnWidgetImeReset() {

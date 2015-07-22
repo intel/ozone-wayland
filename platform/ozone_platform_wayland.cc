@@ -103,7 +103,6 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   void InitializeGPU() override {
-    gpu_platform_.reset(new ui::OzoneGpuPlatformSupport());
     if (!event_factory_ozone_)
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
 
@@ -117,6 +116,9 @@ class OzonePlatformWayland : public OzonePlatform {
 
     if (!wayland_display_->InitializeHardware())
       LOG(FATAL) << "failed to initialize display hardware";
+
+    gpu_platform_.reset(
+        new ui::OzoneGpuPlatformSupport(wayland_display_.get()));
   }
 
  private:

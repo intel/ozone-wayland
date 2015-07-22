@@ -16,12 +16,16 @@ namespace IPC {
 class Sender;
 }
 
+namespace ozonewayland  {
+class WaylandDisplay;
+}
+
 namespace ui {
 class RemoteEventDispatcher;
 
 class OzoneGpuPlatformSupport : public GpuPlatformSupport {
  public:
-  OzoneGpuPlatformSupport();
+  OzoneGpuPlatformSupport(ozonewayland::WaylandDisplay* display);
   ~OzoneGpuPlatformSupport() override;
 
   void RegisterHandler(GpuPlatformSupport* handler);
@@ -48,6 +52,7 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
 
  private:
   IPC::Sender* sender_;
+  ozonewayland::WaylandDisplay* display_;
   std::vector<GpuPlatformSupport*> handlers_;  // Not owned.
   DISALLOW_COPY_AND_ASSIGN(OzoneGpuPlatformSupport);
 };
