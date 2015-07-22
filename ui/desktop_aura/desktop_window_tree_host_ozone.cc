@@ -46,9 +46,6 @@ namespace views {
 DesktopWindowTreeHostOzone*
     DesktopWindowTreeHostOzone::g_current_dispatcher = NULL;
 
-DesktopWindowTreeHostOzone*
-    DesktopWindowTreeHostOzone::g_active_window = NULL;
-
 std::list<gfx::AcceleratedWidget>*
 DesktopWindowTreeHostOzone::open_windows_ = NULL;
 
@@ -174,8 +171,7 @@ void DesktopWindowTreeHostOzone::OnNativeWidgetCreated(
   }
 
   if (!params.parent) {
-    g_active_window = this;
-    g_current_dispatcher = g_active_window;
+    g_current_dispatcher = this;
     state_ |= Active;
   }
 }
@@ -241,9 +237,6 @@ void DesktopWindowTreeHostOzone::CloseNow() {
     delete aura_windows_;
     aura_windows_ = NULL;
   }
-
-  if (g_active_window == this)
-    g_active_window = NULL;
 
   if (g_current_dispatcher == this)
     g_current_dispatcher = NULL;
@@ -424,8 +417,6 @@ void DesktopWindowTreeHostOzone::Minimize() {
 }
 
 void DesktopWindowTreeHostOzone::Restore() {
-  g_active_window = this;
-
   state_ &= ~Maximized;
   if (state_ & Minimized) {
     content_window_->Show();
@@ -728,14 +719,11 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
       windows.insert(windows.begin(), window_);
     }
 
-    g_active_window = this;
     state_ |= Active;
     g_current_dispatcher = this;
     OnHostActivated();
   } else {
     state_ &= ~Active;
-    if (g_active_window == this)
-      g_active_window = NULL;
     ReleaseCapture();
   }
 
@@ -746,7 +734,6 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
 void DesktopWindowTreeHostOzone::OnLostCapture() {
   OnHostLostWindowCapture();
   has_capture_ = false;
-  g_current_dispatcher = g_active_window;
 }
 
 void DesktopWindowTreeHostOzone::OnAcceleratedWidgetAvailable(
@@ -858,9 +845,6 @@ void DesktopWindowTreeHostOzone::InitOzoneWindow(
     default:
       break;
   }
-
-  if (!parent_window && g_active_window)
-    parent_window = g_active_window->window_;
 
   platform_window_->InitPlatformWindow(type, parent_window);
   // If we have a delegate which is providing a default window icon, use that

@@ -57,6 +57,11 @@ void WindowManagerWayland::OnRootWindowClosed(
   OnActivationChanged(open_windows().front()->GetHandle(), true);
 }
 
+void WindowManagerWayland::Restore(ui::OzoneWaylandWindow* window) {
+  active_window_ = window;
+  event_grabber_  = window->GetHandle();
+}
+
 bool WindowManagerWayland::HasWindowsOpen() const {
   return open_windows_ ? !open_windows_->empty() : false;
 }

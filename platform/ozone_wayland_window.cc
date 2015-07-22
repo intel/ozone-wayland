@@ -44,9 +44,9 @@ void OzoneWaylandWindow::InitPlatformWindow(
       // surfaces always require a parent surface for relative placement. Here
       // there's a catch because content_shell menus don't have parent and
       // therefore we use root window to calculate their position.
-      DCHECK(parent_window);
       OzoneWaylandWindow* active_window =
-          g_delegate_ozone_wayland_->GetWindow(parent_window);
+          parent_window ? g_delegate_ozone_wayland_->GetWindow(parent_window)
+                        : g_delegate_ozone_wayland_->GetActiveWindow();
 
       DCHECK(active_window);
       gfx::Rect parent_bounds = active_window->GetBounds();
@@ -137,6 +137,7 @@ void OzoneWaylandWindow::Minimize() {
 }
 
 void OzoneWaylandWindow::Restore() {
+  g_delegate_ozone_wayland_->Restore(this);
   EventFactoryOzoneWayland::GetInstance()->GetWindowStateChangeHandler()->
       SetWidgetState(handle_, ui::RESTORE);
 }

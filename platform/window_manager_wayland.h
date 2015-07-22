@@ -32,9 +32,12 @@ class WindowManagerWayland
 
   void OnRootWindowCreated(ui::OzoneWaylandWindow* window);
   void OnRootWindowClosed(ui::OzoneWaylandWindow* window);
+  void Restore(ui::OzoneWaylandWindow* window);
 
   ui::OzoneWaylandWindow* GetWindow(unsigned handle);
   bool HasWindowsOpen() const;
+
+  ui::OzoneWaylandWindow* GetActiveWindow() const { return active_window_; }
 
   // Tries to set a given widget as the recipient for events. It will
   // fail if there is already another widget as recipient.
