@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
-#define OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
+#ifndef OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
+#define OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
 
 #include "base/strings/string16.h"
 #include "ozone/ui/events/window_constants.h"
@@ -12,10 +12,10 @@
 namespace ui {
 class RemoteEventDispatcher;
 
-class OzoneChannel : public GpuPlatformSupport {
+class OzoneGpuPlatformSupport : public GpuPlatformSupport {
  public:
-  OzoneChannel();
-  ~OzoneChannel() override;
+  OzoneGpuPlatformSupport();
+  ~OzoneGpuPlatformSupport() override;
   void InitializeRemoteDispatcher();
 
   // GpuPlatformSupport:
@@ -38,9 +38,9 @@ class OzoneChannel : public GpuPlatformSupport {
   void OnWidgetHideInputPanel();
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(OzoneChannel);
+  DISALLOW_COPY_AND_ASSIGN(OzoneGpuPlatformSupport);
 };
 
 }  // namespace ui
 
-#endif  // OZONE_UI_PUBLIC_OZONE_CHANNEL_H_
+#endif  // OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_

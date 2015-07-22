@@ -13,7 +13,7 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
-#include "ozone/ui/public/ozone_channel.h"
+#include "ozone/ui/public/ozone_gpu_platform_support.h"
 #include "ozone/wayland/display.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
 #include "ui/events/ozone/layout/xkb/xkb_evdev_codes.h"
@@ -103,7 +103,7 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   void InitializeGPU() override {
-    gpu_platform_.reset(new ui::OzoneChannel());
+    gpu_platform_.reset(new ui::OzoneGpuPlatformSupport());
     if (!event_factory_ozone_)
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
 
@@ -124,7 +124,7 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::EventConverterOzoneWayland> event_converter_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
   scoped_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
-  scoped_ptr<ui::OzoneChannel> gpu_platform_;
+  scoped_ptr<ui::OzoneGpuPlatformSupport> gpu_platform_;
   scoped_ptr<ui::RemoteStateChangeHandler> state_change_handler_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   scoped_ptr<StubOverlayManager> overlay_manager_;
