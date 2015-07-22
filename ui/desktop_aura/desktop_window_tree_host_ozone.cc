@@ -12,22 +12,14 @@
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/window_state_change_handler.h"
-#include "ui/aura/client/cursor_client.h"
 #include "ui/aura/client/focus_client.h"
 #include "ui/aura/window_property.h"
-#include "ui/base/dragdrop/os_exchange_data_provider_aura.h"
 #include "ui/base/hit_test.h"
-#include "ui/base/ime/input_method.h"
-#include "ui/base/ime/input_method_auralinux.h"
-#include "ui/events/event_utils.h"
-#include "ui/events/ozone/events_ozone.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/geometry/insets.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/ozone/public/ozone_platform.h"
-#include "ui/ozone/public/surface_factory_ozone.h"
 #include "ui/platform_window/platform_window.h"
-#include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/views_delegate.h"
@@ -896,33 +888,6 @@ gfx::Size DesktopWindowTreeHostOzone::AdjustSize(
     }
   }
   return requested_size;
-}
-
-void DesktopWindowTreeHostOzone::DispatchMouseEvent(ui::MouseEvent* event) {
-  // In Windows, the native events sent to chrome are separated into client
-  // and non-client versions of events, which we record on our LocatedEvent
-  // structures. On Desktop Ozone, we emulate the concept of non-client. Before
-  // we pass this event to the cross platform event handling framework, we need
-  // to make sure it is appropriately marked as non-client if it's in the non
-  // client area, or otherwise, we can get into a state where the a window is
-  // set as the |mouse_pressed_handler_| in window_event_dispatcher.cc
-  // despite the mouse button being released.
-  //
-  // We can't do this later in the dispatch process because we share that
-  // with ash, and ash gets confused about event IS_NON_CLIENT-ness on
-  // events, since ash doesn't expect this bit to be set, because it's never
-  // been set before. (This works on ash on Windows because none of the mouse
-  // events on the ash desktop are clicking in what Windows considers to be a
-  // non client area.) Likewise, we won't want to do the following in any
-  // WindowTreeHost that hosts ash.
-  if (content_window_ && content_window_->delegate()) {
-    int flags = event->flags();
-    int hit_test_code =
-        content_window_->delegate()->GetNonClientComponent(event->location());
-    if (hit_test_code != HTCLIENT && hit_test_code != HTNOWHERE)
-      flags |= ui::EF_IS_NON_CLIENT;
-    event->set_flags(flags);
-  }
 }
 
 // static
