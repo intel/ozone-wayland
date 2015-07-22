@@ -6,6 +6,7 @@
 
 #include "base/at_exit.h"
 #include "base/bind.h"
+#include "ozone/platform/ozone_gpu_platform_support.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"
@@ -14,7 +15,6 @@
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
-#include "ozone/ui/public/ozone_gpu_platform_support.h"
 #include "ozone/wayland/display.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
 #include "ui/events/ozone/layout/xkb/xkb_evdev_codes.h"

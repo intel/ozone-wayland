@@ -1,4 +1,5 @@
 // Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright 2015 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,7 +9,6 @@
 #include "ui/ozone/common/gpu/ozone_gpu_message_params.h"
 #include "ui/ozone/common/gpu/ozone_gpu_messages.h"
 #include "ui/ozone/platform/drm/host/channel_observer.h"
-#include "ui/ozone/platform/drm/host/drm_cursor.h"
 
 namespace ui {
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
-#define OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
+#ifndef OZONE_PLATFORM_GPU_PLATFORM_SUPPORT_H_
+#define OZONE_PLATFORM_GPU_PLATFORM_SUPPORT_H_
 
 #include <vector>
 
@@ -59,4 +59,4 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
 
 }  // namespace ui
 
-#endif  // OZONE_UI_PUBLIC_OZONE_GPU_PLATFORM_SUPPORT_H_
+#endif  // OZONE_PLATFORM_GPU_PLATFORM_SUPPORT_H_

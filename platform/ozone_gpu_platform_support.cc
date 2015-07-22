@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/public/ozone_gpu_platform_support.h"
+#include "ozone/platform/ozone_gpu_platform_support.h"
 
 #include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/public/messages.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/seat.h"
 
 namespace ui {
 
@@ -112,6 +113,5 @@ void OzoneGpuPlatformSupport::RelinquishGpuResources(
 IPC::MessageFilter* OzoneGpuPlatformSupport::GetMessageFilter() {
   return NULL;
 }
-
 
 }  // namespace ui

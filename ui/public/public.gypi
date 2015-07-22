@@ -6,7 +6,5 @@
     'messages.h',
     'message_generator.h',
     'message_generator.cc',
-    'ozone_gpu_platform_support.h',
-    'ozone_gpu_platform_support.cc',
    ],
 }
