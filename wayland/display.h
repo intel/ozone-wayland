@@ -121,6 +121,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
   void DrmAuthenticated();
   void SetDrmCapabilities(uint32_t);
 #endif
+
  private:
   void InitializeDisplay();
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be

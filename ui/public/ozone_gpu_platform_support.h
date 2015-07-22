@@ -25,7 +25,7 @@ class RemoteEventDispatcher;
 
 class OzoneGpuPlatformSupport : public GpuPlatformSupport {
  public:
-  OzoneGpuPlatformSupport(ozonewayland::WaylandDisplay* display);
+  explicit OzoneGpuPlatformSupport(ozonewayland::WaylandDisplay* display);
   ~OzoneGpuPlatformSupport() override;
 
   void RegisterHandler(GpuPlatformSupport* handler);

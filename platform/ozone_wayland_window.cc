@@ -16,14 +16,13 @@
 
 namespace ui {
 
-WindowManagerWayland*
-    OzoneWaylandWindow::g_delegate_ozone_wayland_ = NULL;
-
 OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
                                        OzoneGpuPlatformSupportHost* sender,
+                                       WindowManagerWayland* window_manager,
                                        const gfx::Rect& bounds)
     : delegate_(delegate),
       sender_(sender),
+      window_manager_(window_manager),
       bounds_(bounds),
       parent_(0),
       state_(UNINITIALIZED),
@@ -32,11 +31,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   opaque_handle++;
   handle_ = opaque_handle;
   delegate_->OnAcceleratedWidgetAvailable(opaque_handle, 1.0);
-
-  if (!g_delegate_ozone_wayland_)
-    g_delegate_ozone_wayland_ = new WindowManagerWayland();
-
-  g_delegate_ozone_wayland_->OnRootWindowCreated(this);
+  window_manager_->OnRootWindowCreated(this);
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
@@ -56,8 +51,8 @@ void OzoneWaylandWindow::InitPlatformWindow(
       // there's a catch because content_shell menus don't have parent and
       // therefore we use root window to calculate their position.
       OzoneWaylandWindow* active_window =
-          parent_window ? g_delegate_ozone_wayland_->GetWindow(parent_window)
-                        : g_delegate_ozone_wayland_->GetActiveWindow();
+          parent_window ? window_manager_->GetWindow(parent_window)
+                        : window_manager_->GetActiveWindow();
 
       DCHECK(active_window);
       gfx::Rect parent_bounds = active_window->GetBounds();
@@ -122,20 +117,15 @@ void OzoneWaylandWindow::Hide() {
 }
 
 void OzoneWaylandWindow::Close() {
-  g_delegate_ozone_wayland_->OnRootWindowClosed(this);
-  if (!g_delegate_ozone_wayland_->HasWindowsOpen()) {
-    // We have no open windows, free g_delegate_ozone_wayland_.
-    delete g_delegate_ozone_wayland_;
-    g_delegate_ozone_wayland_ = NULL;
-  }
+  window_manager_->OnRootWindowClosed(this);
 }
 
 void OzoneWaylandWindow::SetCapture() {
-  g_delegate_ozone_wayland_->GrabEvents(handle_);
+  window_manager_->GrabEvents(handle_);
 }
 
 void OzoneWaylandWindow::ReleaseCapture() {
-  g_delegate_ozone_wayland_->UngrabEvents(handle_);
+  window_manager_->UngrabEvents(handle_);
 }
 
 void OzoneWaylandWindow::ToggleFullscreen() {
@@ -160,7 +150,7 @@ void OzoneWaylandWindow::Minimize() {
 }
 
 void OzoneWaylandWindow::Restore() {
-  g_delegate_ozone_wayland_->Restore(this);
+  window_manager_->Restore(this);
   state_ = ui::RESTORE;
   SendWidgetState();
 }
@@ -178,7 +168,7 @@ void OzoneWaylandWindow::ConfineCursorToBounds(const gfx::Rect& bounds) {
 // WindowTreeHostDelegateWayland, ui::PlatformEventDispatcher implementation:
 bool OzoneWaylandWindow::CanDispatchEvent(
     const ui::PlatformEvent& ne) {
-  return g_delegate_ozone_wayland_->event_grabber() == handle_;
+  return window_manager_->event_grabber() == handle_;
 }
 
 uint32_t OzoneWaylandWindow::DispatchEvent(

@@ -24,6 +24,7 @@ class OzoneWaylandWindow : public PlatformWindow,
  public:
   OzoneWaylandWindow(PlatformWindowDelegate* delegate,
                      OzoneGpuPlatformSupportHost* sender,
+                     WindowManagerWayland* window_manager,
                      const gfx::Rect& bounds);
   ~OzoneWaylandWindow() override;
 
@@ -62,6 +63,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   void SendWidgetState();
   PlatformWindowDelegate* delegate_;   // Not owned.
   OzoneGpuPlatformSupportHost* sender_;  // Not owned.
+  WindowManagerWayland* window_manager_;  // Not owned.
   gfx::Rect bounds_;
   unsigned handle_;
   unsigned parent_;
@@ -71,7 +73,6 @@ class OzoneWaylandWindow : public PlatformWindow,
   int cursor_type_;
   base::string16 title_;
 
-  static WindowManagerWayland* g_delegate_ozone_wayland_;
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandWindow);
 };
 
