@@ -15,14 +15,11 @@
 
 namespace ui {
 
-class WindowChangeObserver;
 class OutputChangeObserver;
 
 // In OzoneWayland, Chrome relies on Wayland protocol to recieve callback of
 // any input/surface events. This class is responsible for the following:
 // 1) Convert native input events to |ui::Event| and dispatching to aura.
-// 2) Convert native events related to Window Activation and dispatch it to
-//    WindowChangeObserver
 class OZONE_WAYLAND_EXPORT EventConverterOzoneWayland {
  public:
   EventConverterOzoneWayland() { }

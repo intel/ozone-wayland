@@ -50,7 +50,6 @@ void WindowManagerWayland::OnRootWindowClosed(
   if (open_windows().empty()) {
     delete open_windows_;
     open_windows_ = NULL;
-    EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(NULL);
     return;
   }
 

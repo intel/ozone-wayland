@@ -10,8 +10,7 @@ namespace ui {
 EventFactoryOzoneWayland* EventFactoryOzoneWayland::impl_ = NULL;
 
 EventFactoryOzoneWayland::EventFactoryOzoneWayland()
-    : observer_(NULL),
-      ime_observer_(NULL),
+    : ime_observer_(NULL),
       output_observer_(NULL),
       ime_state_handler_(NULL) {
   impl_ = this;
@@ -26,11 +25,6 @@ EventFactoryOzoneWayland* EventFactoryOzoneWayland::GetInstance() {
   return impl_;
 }
 
-void EventFactoryOzoneWayland::SetWindowChangeObserver(
-    WindowChangeObserver* observer) {
-  observer_ = observer;
-}
-
 void EventFactoryOzoneWayland::SetIMEChangeObserver(
     IMEChangeObserver* observer) {
   ime_observer_ = observer;
@@ -39,11 +33,6 @@ void EventFactoryOzoneWayland::SetIMEChangeObserver(
 IMEChangeObserver*
 EventFactoryOzoneWayland::GetIMEChangeObserver() const {
   return ime_observer_;
-}
-
-WindowChangeObserver*
-EventFactoryOzoneWayland::GetWindowChangeObserver() const {
-  return observer_;
 }
 
 void EventFactoryOzoneWayland::SetOutputChangeObserver(

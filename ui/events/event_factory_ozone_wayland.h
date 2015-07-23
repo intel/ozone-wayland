@@ -13,7 +13,6 @@ namespace ui {
 class EventConverterOzoneWayland;
 class IMEChangeObserver;
 class OutputChangeObserver;
-class WindowChangeObserver;
 class IMEStateChangeHandler;
 
 class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
@@ -24,9 +23,6 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   // Returns the static instance last set using SetInstance().
   static EventFactoryOzoneWayland* GetInstance();
 
-  // Sets the window change observer. Ownership is retained by the caller.
-  void SetWindowChangeObserver(WindowChangeObserver* observer);
-  WindowChangeObserver* GetWindowChangeObserver() const;
   // Sets the output change observer. Ownership is retained by the caller.
   void SetOutputChangeObserver(OutputChangeObserver* observer);
   // Registered OutputChangeObserver. Ownership is not passed to the caller.
@@ -49,7 +45,6 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   IMEStateChangeHandler* GetImeStateChangeHandler() const;
 
  protected:
-  WindowChangeObserver* observer_;
   IMEChangeObserver* ime_observer_;
   OutputChangeObserver* output_observer_;
   IMEStateChangeHandler* ime_state_handler_;
