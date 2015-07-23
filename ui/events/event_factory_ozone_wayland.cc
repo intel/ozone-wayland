@@ -4,6 +4,9 @@
 
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 
+#include "base/basictypes.h"
+#include "base/logging.h"
+
 namespace ui {
 
 // static
@@ -32,16 +35,6 @@ void EventFactoryOzoneWayland::SetIMEChangeObserver(
 IMEChangeObserver*
 EventFactoryOzoneWayland::GetIMEChangeObserver() const {
   return ime_observer_;
-}
-
-void EventFactoryOzoneWayland::SetEventConverter(
-    EventConverterOzoneWayland* event_converter) {
-  event_converter_ = event_converter;
-}
-
-EventConverterOzoneWayland*
-EventFactoryOzoneWayland::GetEventConverter() const {
-  return event_converter_;
 }
 
 void EventFactoryOzoneWayland::SetIMEStateChangeHandler(

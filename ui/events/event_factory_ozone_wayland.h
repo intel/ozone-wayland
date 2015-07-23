@@ -5,12 +5,10 @@
 #ifndef OZONE_UI_EVENTS_EVENT_FACTORY_OZONE_WAYLAND_H_
 #define OZONE_UI_EVENTS_EVENT_FACTORY_OZONE_WAYLAND_H_
 
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
 #include "ozone/platform/ozone_export_wayland.h"
 
 namespace ui {
 
-class EventConverterOzoneWayland;
 class IMEChangeObserver;
 class IMEStateChangeHandler;
 
@@ -27,12 +25,6 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
   // Registered IMEChangeObserver. Ownership is not passed to the caller.
   IMEChangeObserver* GetIMEChangeObserver() const;
 
-  // Sets the EventConverter. Ownership is retained by the caller.
-  void SetEventConverter(EventConverterOzoneWayland* event_converter);
-  // EventConverter used to convert native input events to |ui::Event|.
-  // Ownership is not passed to the caller.
-  EventConverterOzoneWayland* GetEventConverter() const;
-
   // Sets the IME state change handler. Ownership is retained by the caller.
   void SetIMEStateChangeHandler(IMEStateChangeHandler* handler);
   // Registered IMEStateChangeHandler. Ownership is not passed to the caller.
@@ -41,7 +33,6 @@ class OZONE_WAYLAND_EXPORT EventFactoryOzoneWayland {
  protected:
   IMEChangeObserver* ime_observer_;
   IMEStateChangeHandler* ime_state_handler_;
-  EventConverterOzoneWayland* event_converter_;
   static EventFactoryOzoneWayland* impl_;  // not owned
 };
 

@@ -10,8 +10,7 @@
 namespace ui {
 
 GPUEventDispatcher::GPUEventDispatcher()
-    :EventConverterOzoneWayland(),
-     sender_(NULL),
+    :sender_(NULL),
      loop_(NULL),
      weak_ptr_factory_(this) {
 }

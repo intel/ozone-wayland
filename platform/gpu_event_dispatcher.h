@@ -8,61 +8,64 @@
 #include <queue>
 #include <string>
 
+#include "base/memory/shared_memory.h"
+#include "base/message_loop/message_loop.h"
 #include "ipc/ipc_sender.h"
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/platform/ozone_export_wayland.h"
+#include "ui/events/event_constants.h"
 
 namespace ui {
 
 // GPUEventDispatcher sends native events from GPU to Browser process over
 // IPC. All callbacks related to input need to be handled in Browser
 // process and hence the events are sent to it over IPC.
-class GPUEventDispatcher : public ui::EventConverterOzoneWayland {
+class OZONE_WAYLAND_EXPORT GPUEventDispatcher {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
   GPUEventDispatcher();
-  ~GPUEventDispatcher() override;
+  ~GPUEventDispatcher();
 
-  void ChannelEstablished(IPC::Sender* sender) override;
+  void ChannelEstablished(IPC::Sender* sender);
 
-  void MotionNotify(float x, float y) override;
+  void MotionNotify(float x, float y);
   void ButtonNotify(unsigned handle,
                     ui::EventType type,
                     ui::EventFlags flags,
                     float x,
-                    float y) override;
+                    float y);
   void AxisNotify(float x,
                   float y,
                   int xoffset,
-                  int yoffset) override;
-  void PointerEnter(unsigned handle, float x, float y) override;
-  void PointerLeave(unsigned handle, float x, float y) override;
-  void KeyNotify(ui::EventType type, unsigned code, int device_id) override;
+                  int yoffset);
+  void PointerEnter(unsigned handle, float x, float y);
+  void PointerLeave(unsigned handle, float x, float y);
+  void KeyNotify(ui::EventType type, unsigned code, int device_id);
   void VirtualKeyNotify(ui::EventType type,
                         uint32_t key,
-                        int device_id) override;
+                        int device_id);
   void TouchNotify(ui::EventType type,
                    float x,
                    float y,
                    int32_t touch_id,
-                   uint32_t time_stamp) override;
+                   uint32_t time_stamp);
 
-  void OutputSizeChanged(unsigned width, unsigned height) override;
+  void OutputSizeChanged(unsigned width, unsigned height);
   void WindowResized(unsigned handle,
                      unsigned width,
-                     unsigned height) override;
-  void WindowUnminimized(unsigned windowhandle) override;
-  void WindowDeActivated(unsigned windowhandle) override;
-  void WindowActivated(unsigned windowhandle) override;
-  void CloseWidget(unsigned handle) override;
+                     unsigned height);
+  void WindowUnminimized(unsigned windowhandle);
+  void WindowDeActivated(unsigned windowhandle);
+  void WindowActivated(unsigned windowhandle);
+  void CloseWidget(unsigned handle);
 
-  void Commit(unsigned handle, const std::string& text) override;
+  void Commit(unsigned handle, const std::string& text);
   void PreeditChanged(unsigned handle,
                       const std::string& text,
-                      const std::string& commit) override;
-  void PreeditEnd() override;
-  void PreeditStart() override;
+                      const std::string& commit);
+  void PreeditEnd();
+  void PreeditStart();
   void InitializeXKB(base::SharedMemoryHandle fd,
-                     uint32_t size) override;
+                     uint32_t size);
 
  private:
   // Posts task to main loop of the thread on which Dispatcher was initialized.

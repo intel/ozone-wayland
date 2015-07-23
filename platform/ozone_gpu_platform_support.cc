@@ -4,7 +4,7 @@
 
 #include "ozone/platform/ozone_gpu_platform_support.h"
 
-#include "ozone/ui/events/event_converter_ozone_wayland.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/ui/public/messages.h"
@@ -22,8 +22,7 @@ OzoneGpuPlatformSupport::~OzoneGpuPlatformSupport() {
 }
 
 void OzoneGpuPlatformSupport::OnChannelEstablished(IPC::Sender* sender) {
-  ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter()->
-      ChannelEstablished(sender);
+  display_->GetEventDispatcher()->ChannelEstablished(sender);
 
   sender_ =  sender;
   for (size_t i = 0; i < handlers_.size(); ++i)

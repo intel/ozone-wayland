@@ -121,9 +121,6 @@ class OzonePlatformWayland : public OzonePlatform {
     if (!wayland_display_->InitializeHardware())
       LOG(FATAL) << "failed to initialize display hardware";
 
-    event_factory_ozone_->SetEventConverter(
-        wayland_display_->GetEventDispatcher());
-
     gpu_platform_.reset(
         new ui::OzoneGpuPlatformSupport(wayland_display_.get()));
   }

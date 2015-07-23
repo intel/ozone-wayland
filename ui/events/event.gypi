@@ -7,7 +7,6 @@
     '<(DEPTH)/ui/events/events.gyp:events',
   ],
   'sources': [
-    'event_converter_ozone_wayland.h',
     'event_factory_ozone_wayland.h',
     'event_factory_ozone_wayland.cc',
     'ime_change_observer.h',
