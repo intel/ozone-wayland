@@ -24,8 +24,6 @@ RemoteStateChangeHandler::RemoteStateChangeHandler(
 RemoteStateChangeHandler::~RemoteStateChangeHandler() {
   while (!deferred_messages_.empty())
     deferred_messages_.pop();
-
-  proxy_->RemoveChannelObserver(this);
 }
 
 void RemoteStateChangeHandler::OnChannelEstablished() {

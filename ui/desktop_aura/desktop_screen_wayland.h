@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "ozone/ui/events/output_change_observer.h"
+#include "ozone/platform/desktop_platform_screen_delegate.h"
 #include "ui/gfx/display_change_notifier.h"
 #include "ui/gfx/screen.h"
 
@@ -22,12 +22,12 @@ class DesktopPlatformScreen;
 namespace views {
 
 class DesktopScreenWayland : public gfx::Screen,
-                             public ui::OutputChangeObserver {
+                             public ui::DesktopPlatformScreenDelegate {
  public:
   DesktopScreenWayland();
   ~DesktopScreenWayland() override;
 
-  // OutputChangeObserver overrides.
+  // DesktopPlatformScreenDelegate overrides.
   void OnOutputSizeChanged(unsigned width, unsigned height) override;
 
  private:
@@ -50,7 +50,7 @@ class DesktopScreenWayland : public gfx::Screen,
 
   // The display objects we present to chrome.
   std::vector<gfx::Display> displays_;
-  ui::DesktopPlatformScreen* platform_Screen_;
+  scoped_ptr<ui::DesktopPlatformScreen> platform_Screen_;
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
 

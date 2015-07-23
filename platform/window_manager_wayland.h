@@ -11,7 +11,7 @@
 
 #include "base/basictypes.h"
 #include "base/memory/shared_memory.h"
-#include "base/message_loop/message_loop.h"
+#include "base/memory/weak_ptr.h"
 #include "ui/events/event.h"
 #include "ui/events/event_source.h"
 #include "ui/events/ozone/evdev/event_modifiers_evdev.h"
@@ -20,6 +20,10 @@
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/ozone/public/gpu_platform_support_host.h"
+
+namespace ozonewayland {
+class OzoneWaylandScreen;
+}
 
 namespace ui {
 
@@ -37,6 +41,8 @@ class WindowManagerWayland
   void OnRootWindowCreated(OzoneWaylandWindow* window);
   void OnRootWindowClosed(OzoneWaylandWindow* window);
   void Restore(OzoneWaylandWindow* window);
+
+  void OnPlatformScreenCreated(ozonewayland::OzoneWaylandScreen* screen);
 
   OzoneWaylandWindow* GetWindow(unsigned handle);
   bool HasWindowsOpen() const;
@@ -161,6 +167,7 @@ class WindowManagerWayland
   EventModifiersEvdev modifiers_;
   // Keyboard state.
   KeyboardEvdev keyboard_;
+  ozonewayland::OzoneWaylandScreen* platform_screen_;
   // Support weak pointers for attach & detach callbacks.
   base::WeakPtrFactory<WindowManagerWayland> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(WindowManagerWayland);

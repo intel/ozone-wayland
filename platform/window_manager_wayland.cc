@@ -9,12 +9,13 @@
 
 #include "base/bind.h"
 #include "base/thread_task_runner_handle.h"
+#include "ozone/platform/desktop_platform_screen_delegate.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_change_observer.h"
-#include "ozone/ui/events/output_change_observer.h"
 #include "ozone/ui/public/messages.h"
+#include "ozone/wayland/ozone_wayland_screen.h"
 #include "ui/aura/window.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
@@ -31,12 +32,12 @@ WindowManagerWayland::WindowManagerWayland(OzoneGpuPlatformSupportHost* proxy)
                 KeyboardLayoutEngineManager::GetKeyboardLayoutEngine(),
                 base::Bind(&WindowManagerWayland::PostUiEvent,
                            base::Unretained(this))),
+      platform_screen_(NULL),
       weak_ptr_factory_(this) {
   proxy_->RegisterHandler(this);
 }
 
 WindowManagerWayland::~WindowManagerWayland() {
-  proxy_->UnregisterHandler(this);
 }
 
 void WindowManagerWayland::OnRootWindowCreated(
@@ -74,6 +75,12 @@ void WindowManagerWayland::OnRootWindowClosed(
 void WindowManagerWayland::Restore(OzoneWaylandWindow* window) {
   active_window_ = window;
   event_grabber_  = window->GetHandle();
+}
+
+void WindowManagerWayland::OnPlatformScreenCreated(
+      ozonewayland::OzoneWaylandScreen* screen) {
+  DCHECK(!platform_screen_);
+  platform_screen_ = screen;
 }
 
 bool WindowManagerWayland::HasWindowsOpen() const {
@@ -524,10 +531,8 @@ void WindowManagerWayland::NotifyTouchEvent(EventType type,
 
 void WindowManagerWayland::NotifyOutputSizeChanged(unsigned width,
                                                    unsigned height) {
-  OutputChangeObserver* observer =
-      EventFactoryOzoneWayland::GetInstance()->GetOutputChangeObserver();
-  if (observer)
-    observer->OnOutputSizeChanged(width, height);
+  if (platform_screen_)
+    platform_screen_->GetDelegate()->OnOutputSizeChanged(width, height);
 }
 
 void WindowManagerWayland::NotifyCommit(unsigned handle,

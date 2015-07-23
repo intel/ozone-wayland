@@ -19,7 +19,6 @@
 #include "base/native_library.h"
 #include "base/stl_util.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/output_change_observer.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
 #if defined(ENABLE_DRM_SUPPORT)

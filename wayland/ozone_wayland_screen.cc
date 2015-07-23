@@ -4,20 +4,19 @@
 
 #include "ozone/wayland/ozone_wayland_screen.h"
 
-#include "ozone/ui/desktop_aura/desktop_platform_screen.h"
-
-#include "ozone/platform/ozone_export_wayland.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/output_change_observer.h"
-#include "ozone/wayland/display_poll_thread.h"
-#include "ozone/wayland/egl/surface_ozone_wayland.h"
-#include "ozone/wayland/input/cursor.h"
+#include "ozone/platform/desktop_platform_screen_delegate.h"
+#include "ozone/platform/window_manager_wayland.h"
 #include "ozone/wayland/screen.h"
 
 namespace ozonewayland {
 
-OzoneWaylandScreen::OzoneWaylandScreen() : look_ahead_screen_(NULL) {
+OzoneWaylandScreen::OzoneWaylandScreen(
+    ui::DesktopPlatformScreenDelegate* observer,
+    ui::WindowManagerWayland* window_manager)
+  : look_ahead_screen_(NULL),
+    observer_(observer) {
   LookAheadOutputGeometry();
+  window_manager->OnPlatformScreenCreated(this);
 }
 
 OzoneWaylandScreen::~OzoneWaylandScreen() {
@@ -43,14 +42,9 @@ void OzoneWaylandScreen::LookAheadOutputGeometry() {
     while (look_ahead_screen_->Geometry().IsEmpty())
       wl_display_roundtrip(display);
 
-    ui::EventFactoryOzoneWayland* event_factory =
-        ui::EventFactoryOzoneWayland::GetInstance();
-    DCHECK(event_factory->GetOutputChangeObserver());
-
     unsigned width = look_ahead_screen_->Geometry().width();
     unsigned height = look_ahead_screen_->Geometry().height();
-    event_factory->GetOutputChangeObserver()->OnOutputSizeChanged(width,
-                                                                  height);
+    observer_->OnOutputSizeChanged(width, height);
   }
 
   if (look_ahead_screen_) {
@@ -77,11 +71,3 @@ void OzoneWaylandScreen::DisplayHandleOutputOnly(void *data,
 }
 
 }  // namespace ozonewayland
-
-namespace views {
-
-OZONE_WAYLAND_EXPORT ui::DesktopPlatformScreen* CreateDesktopPlatformScreen() {
-  return new ozonewayland::OzoneWaylandScreen();
-}
-
-}

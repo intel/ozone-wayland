@@ -9,17 +9,24 @@
 
 #include "ozone/platform/desktop_platform_screen.h"
 
+namespace ui {
+class DesktopPlatformScreenDelegate;
+class WindowManagerWayland;
+}
+
 namespace ozonewayland {
 
 class WaylandScreen;
 
 class OzoneWaylandScreen : public ui::DesktopPlatformScreen {
  public:
-  OzoneWaylandScreen();
+  OzoneWaylandScreen(ui::DesktopPlatformScreenDelegate* observer,
+                     ui::WindowManagerWayland* window_manager);
   ~OzoneWaylandScreen() override;
 
   // PlatformScreen:
   gfx::Point GetCursorScreenPoint() override;
+  ui::DesktopPlatformScreenDelegate* GetDelegate() const { return observer_; }
 
  private:
   void LookAheadOutputGeometry();
@@ -32,6 +39,7 @@ class OzoneWaylandScreen : public ui::DesktopPlatformScreen {
       const char *interface,
       uint32_t version);
   WaylandScreen* look_ahead_screen_;
+  ui::DesktopPlatformScreenDelegate* observer_;
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandScreen);
 };
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_EVENTS_OUTPUT_CHANGE_OBSERVER_H_
-#define OZONE_UI_EVENTS_OUTPUT_CHANGE_OBSERVER_H_
+#ifndef OZONE_PLATFORM_DESKTOP_PLATFORM_SCREEN_DELEGATE_H__
+#define OZONE_PLATFORM_DESKTOP_PLATFORM_SCREEN_DELEGATE_H__
 
 #include "ozone/platform/ozone_export_wayland.h"
 
@@ -12,15 +12,15 @@ namespace ui {
 // A simple observer interface for all clients interested in receiving various
 // output change notifications like size changes, when a new output is added,
 // etc.
-class OZONE_WAYLAND_EXPORT OutputChangeObserver {
+class OZONE_WAYLAND_EXPORT DesktopPlatformScreenDelegate {
  public:
   // Called when the current output size has changed.
   virtual void OnOutputSizeChanged(unsigned width, unsigned height) = 0;
 
  protected:
-  virtual ~OutputChangeObserver() {}
+  virtual ~DesktopPlatformScreenDelegate() {}
 };
 
 }  // namespace ui
 
-#endif  // OZONE_UI_EVENTS_OUPUT_CHANGE_OBSERVER_H_
+#endif  // OZONE_PLATFORM_DESKTOP_PLATFORM_SCREEN_DELEGATE_H__

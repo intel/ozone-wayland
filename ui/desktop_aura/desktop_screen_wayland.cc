@@ -5,9 +5,8 @@
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 
 #include "ozone/platform/desktop_platform_screen.h"
-#include "ozone/ui/desktop_aura/desktop_platform_screen.h"
+#include "ozone/platform/ozone_platform_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/aura/window.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 
@@ -17,12 +16,10 @@ DesktopScreenWayland::DesktopScreenWayland()
     : gfx::Screen(),
       rect_(0, 0, 0, 0),
       displays_() {
-  ui::EventFactoryOzoneWayland::GetInstance()->SetOutputChangeObserver(this);
-  platform_Screen_ = CreateDesktopPlatformScreen();
+  platform_Screen_ = CreatePlatformScreen(this);
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {
-  delete platform_Screen_;
 }
 
 void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {

@@ -15,12 +15,12 @@
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
 #include "ozone/wayland/display.h"
+#include "ozone/wayland/ozone_wayland_screen.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
 #include "ui/events/ozone/layout/xkb/xkb_evdev_codes.h"
 #include "ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.h"
 #include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/common/stub_overlay_manager.h"
-#include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/system_input_injector.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
@@ -78,6 +78,13 @@ class OzonePlatformWayland : public OzonePlatform {
                                gpu_platform_host_.get(),
                                window_manager_.get(),
                                bounds));
+  }
+
+  scoped_ptr<DesktopPlatformScreen> CreatePlatformScreen(
+      DesktopPlatformScreenDelegate* delegate) {
+    return scoped_ptr<DesktopPlatformScreen>(
+         new ozonewayland::OzoneWaylandScreen(delegate,
+                                              window_manager_.get()));
   }
 
   scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {
@@ -139,5 +146,12 @@ class OzonePlatformWayland : public OzonePlatform {
 }  // namespace
 
 OzonePlatform* CreateOzonePlatformWayland() { return new OzonePlatformWayland; }
+
+scoped_ptr<DesktopPlatformScreen> CreatePlatformScreen(
+    DesktopPlatformScreenDelegate* delegate) {
+  OzonePlatformWayland* platform =
+      static_cast<OzonePlatformWayland*>(ui::OzonePlatform::GetInstance());
+  return platform->CreatePlatformScreen(delegate);
+}
 
 }  // namespace ui
