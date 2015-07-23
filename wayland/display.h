@@ -28,6 +28,10 @@ struct gbm_device;
 struct wl_egl_window;
 struct wl_text_input_manager;
 
+namespace ui {
+class GPUEventDispatcher;
+}
+
 namespace ozonewayland {
 
 class WaylandDisplayPollThread;
@@ -121,6 +125,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
   void DrmAuthenticated();
   void SetDrmCapabilities(uint32_t);
 #endif
+  ui::GPUEventDispatcher* GetEventDispatcher() const  { return dispatcher_; }
 
  private:
   void InitializeDisplay();
@@ -162,6 +167,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
   WaylandDisplayPollThread* display_poll_thread_;
   gbm_device* device_;
   char* m_deviceName;
+  ui::GPUEventDispatcher* dispatcher_;
 
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandSeat*> seat_list_;

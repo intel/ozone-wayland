@@ -18,6 +18,7 @@
 #include "base/files/file_path.h"
 #include "base/native_library.h"
 #include "base/stl_util.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
@@ -86,6 +87,7 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     display_poll_thread_(NULL),
     device_(NULL),
     m_deviceName(NULL),
+    dispatcher_(NULL),
     screen_list_(),
     seat_list_(),
     widget_map_(),
@@ -365,6 +367,7 @@ void WaylandDisplay::InitializeDisplay() {
     return;
   }
 
+  dispatcher_ = new ui::GPUEventDispatcher();
   display_poll_thread_ = new WaylandDisplayPollThread(display_);
 }
 
@@ -441,6 +444,7 @@ void WaylandDisplay::Terminate() {
     display_ = NULL;
   }
 
+  delete dispatcher_;
   instance_ = NULL;
 }
 

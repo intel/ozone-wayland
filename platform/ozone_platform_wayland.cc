@@ -105,7 +105,6 @@ class OzonePlatformWayland : public OzonePlatform {
         new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
-    event_factory_ozone_->SetEventConverter(event_converter_.get());
     state_change_handler_.reset(
         new ui::RemoteStateChangeHandler(gpu_platform_host_.get()));
     window_manager_.reset(
@@ -116,14 +115,14 @@ class OzonePlatformWayland : public OzonePlatform {
     if (!event_factory_ozone_)
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
 
-    event_converter_.reset(new GPUEventDispatcher());
-    event_factory_ozone_->SetEventConverter(event_converter_.get());
-
     if (!wayland_display_)
       wayland_display_.reset(new ozonewayland::WaylandDisplay());
 
     if (!wayland_display_->InitializeHardware())
       LOG(FATAL) << "failed to initialize display hardware";
+
+    event_factory_ozone_->SetEventConverter(
+        wayland_display_->GetEventDispatcher());
 
     gpu_platform_.reset(
         new ui::OzoneGpuPlatformSupport(wayland_display_.get()));
@@ -131,7 +130,6 @@ class OzonePlatformWayland : public OzonePlatform {
 
  private:
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
-  scoped_ptr<ui::EventConverterOzoneWayland> event_converter_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
   scoped_ptr<ui::RemoteStateChangeHandler> state_change_handler_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
