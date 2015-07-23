@@ -105,15 +105,8 @@ class EventConverterInProcess : public ui::EventConverterOzoneWayland,
                         float y,
                         int32_t touch_id,
                         uint32_t time_stamp);
-  void NotifyCloseWidget(unsigned handle);
   void NotifyOutputSizeChanged(unsigned width,
                                unsigned height);
-  void NotifyWindowResized(unsigned handle,
-                           unsigned width,
-                           unsigned height);
-  void NotifyWindowUnminimized(unsigned handle);
-  void NotifyWindowDeActivated(unsigned handle);
-  void NotifyWindowActivated(unsigned handle);
   void NotifyCommit(unsigned handle,
                     const std::string& text);
   void NotifyPreeditChanged(unsigned handle,

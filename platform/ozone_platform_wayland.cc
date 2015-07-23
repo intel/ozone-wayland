@@ -104,7 +104,8 @@ class OzonePlatformWayland : public OzonePlatform {
     event_factory_ozone_->SetEventConverter(event_converter_.get());
     state_change_handler_.reset(
         new ui::RemoteStateChangeHandler(gpu_platform_host_.get()));
-    window_manager_.reset(new ui::WindowManagerWayland());
+    window_manager_.reset(
+        new ui::WindowManagerWayland(gpu_platform_host_.get()));
   }
 
   void InitializeGPU() override {
@@ -130,13 +131,13 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::EventConverterOzoneWayland> event_converter_;
   scoped_ptr<ui::CursorFactoryOzoneWayland> cursor_factory_ozone_;
-  scoped_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
-  scoped_ptr<ui::OzoneGpuPlatformSupport> gpu_platform_;
   scoped_ptr<ui::RemoteStateChangeHandler> state_change_handler_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   scoped_ptr<StubOverlayManager> overlay_manager_;
   scoped_ptr<ui::WindowManagerWayland> window_manager_;
   XkbEvdevCodes xkb_evdev_code_converter_;
+  scoped_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
+  scoped_ptr<ui::OzoneGpuPlatformSupport> gpu_platform_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
 

@@ -54,11 +54,6 @@ bool EventConverterInProcess::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, KeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, VirtualKeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OutputSizeChanged)
-  IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, CloseWidget)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Resized, WindowResized)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Activated, WindowActivated)
-  IPC_MESSAGE_HANDLER(WaylandWindow_DeActivated, WindowDeActivated)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Unminimized, WindowUnminimized)
   IPC_MESSAGE_HANDLER(WaylandInput_Commit, Commit)
   IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, PreeditChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_PreeditEnd, PreeditEnd)
@@ -144,10 +139,6 @@ void EventConverterInProcess::TouchNotify(ui::EventType type,
 }
 
 void EventConverterInProcess::CloseWidget(unsigned handle) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&EventConverterInProcess::NotifyCloseWidget,
-          weak_ptr_factory_.GetWeakPtr(), handle));
 }
 
 void EventConverterInProcess::OutputSizeChanged(unsigned width,
@@ -161,31 +152,15 @@ void EventConverterInProcess::OutputSizeChanged(unsigned width,
 void EventConverterInProcess::WindowResized(unsigned handle,
                                             unsigned width,
                                             unsigned height) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&EventConverterInProcess::NotifyWindowResized,
-          weak_ptr_factory_.GetWeakPtr(), handle, width, height));
 }
 
 void EventConverterInProcess::WindowUnminimized(unsigned handle) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&EventConverterInProcess::NotifyWindowUnminimized,
-          weak_ptr_factory_.GetWeakPtr(), handle));
 }
 
 void EventConverterInProcess::WindowDeActivated(unsigned windowhandle) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&EventConverterInProcess::NotifyWindowDeActivated,
-          weak_ptr_factory_.GetWeakPtr(), windowhandle));
 }
 
 void EventConverterInProcess::WindowActivated(unsigned windowhandle) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&EventConverterInProcess::NotifyWindowActivated,
-          weak_ptr_factory_.GetWeakPtr(), windowhandle));
 }
 
 void EventConverterInProcess::Commit(unsigned handle, const std::string& text) {
@@ -349,49 +324,12 @@ void EventConverterInProcess::NotifyTouchEvent(ui::EventType type,
   DispatchEvent(&touchev);
 }
 
-void EventConverterInProcess::NotifyCloseWidget(unsigned handle) {
-  ui::WindowChangeObserver* observer =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
-  if (observer)
-    observer->OnWindowClose(handle);
-}
-
 void EventConverterInProcess::NotifyOutputSizeChanged(unsigned width,
                                                       unsigned height) {
   ui::OutputChangeObserver* observer =
       ui::EventFactoryOzoneWayland::GetInstance()->GetOutputChangeObserver();
   if (observer)
     observer->OnOutputSizeChanged(width, height);
-}
-
-void EventConverterInProcess::NotifyWindowResized(unsigned handle,
-                                                  unsigned width,
-                                                  unsigned height) {
-  ui::WindowChangeObserver* observer =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
-  if (observer)
-    observer->OnWindowResized(handle, width, height);
-}
-
-void EventConverterInProcess::NotifyWindowUnminimized(unsigned handle) {
-  ui::WindowChangeObserver* observer =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
-  if (observer)
-    observer->OnWindowUnminimized(handle);
-}
-
-void EventConverterInProcess::NotifyWindowDeActivated(unsigned handle) {
-  ui::WindowChangeObserver* observer =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
-  if (observer)
-    observer->OnWindowDeActivated(handle);
-}
-
-void EventConverterInProcess::NotifyWindowActivated(unsigned handle) {
-  ui::WindowChangeObserver* observer =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetWindowChangeObserver();
-  if (observer)
-    observer->OnWindowActivated(handle);
 }
 
 void EventConverterInProcess::NotifyCommit(unsigned handle,

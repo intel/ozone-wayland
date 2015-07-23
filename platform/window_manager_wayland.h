@@ -16,18 +16,19 @@
 #include "ui/events/event_source.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/native_widget_types.h"
+#include "ui/ozone/public/gpu_platform_support_host.h"
 
 namespace ui {
+
+class OzoneGpuPlatformSupportHost;
 class OzoneWaylandWindow;
-}
-
-namespace ui {
 
 // A static class used by OzoneWaylandWindow for basic window management.
 class WindowManagerWayland
-    : public ui::WindowChangeObserver {
+    : public ui::WindowChangeObserver,
+      public GpuPlatformSupportHost {
  public:
-  WindowManagerWayland();
+  explicit WindowManagerWayland(OzoneGpuPlatformSupportHost* proxy);
   ~WindowManagerWayland() override;
 
   void OnRootWindowCreated(ui::OzoneWaylandWindow* window);
@@ -50,6 +51,20 @@ class WindowManagerWayland
   gfx::AcceleratedWidget event_grabber() const { return event_grabber_; }
 
  private:
+  // GpuPlatformSupportHost
+  void OnChannelEstablished(
+      int host_id,
+      scoped_refptr<base::SingleThreadTaskRunner> send_runner,
+      const base::Callback<void(IPC::Message*)>& send_callback) override;
+  void OnChannelDestroyed(int host_id) override;
+  bool OnMessageReceived(const IPC::Message&) override;
+  void WindowResized(unsigned windowhandle,
+                     unsigned width,
+                     unsigned height);
+  void WindowUnminimized(unsigned windowhandle);
+  void WindowDeActivated(unsigned windowhandle);
+  void WindowActivated(unsigned windowhandle);
+  void CloseWidget(unsigned handle);
   // Window Change Observer.
   void OnWindowFocused(unsigned handle) override;
   void OnWindowEnter(unsigned handle) override;
@@ -71,6 +86,9 @@ class WindowManagerWayland
   gfx::AcceleratedWidget event_grabber_ = gfx::kNullAcceleratedWidget;
   ui::OzoneWaylandWindow* active_window_;
   gfx::AcceleratedWidget current_capture_ = gfx::kNullAcceleratedWidget;
+  OzoneGpuPlatformSupportHost* proxy_;
+  // Support weak pointers for attach & detach callbacks.
+  base::WeakPtrFactory<WindowManagerWayland> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(WindowManagerWayland);
 };
 

@@ -6,8 +6,12 @@
 
 #include <string>
 
+#include "base/bind.h"
+#include "base/thread_task_runner_handle.h"
+#include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/ui/public/messages.h"
 #include "ui/aura/window.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/platform/platform_event_source.h"
@@ -15,13 +19,17 @@
 
 namespace ui {
 
-WindowManagerWayland::WindowManagerWayland()
+WindowManagerWayland::WindowManagerWayland(OzoneGpuPlatformSupportHost* proxy)
     : open_windows_(NULL),
-      active_window_(NULL) {
+      active_window_(NULL),
+      proxy_(proxy),
+      weak_ptr_factory_(this) {
   ui::EventFactoryOzoneWayland::GetInstance()->SetWindowChangeObserver(this);
+  proxy_->RegisterHandler(this);
 }
 
 WindowManagerWayland::~WindowManagerWayland() {
+  proxy_->UnregisterHandler(this);
 }
 
 void WindowManagerWayland::OnRootWindowCreated(
@@ -84,6 +92,67 @@ WindowManagerWayland::GetWindow(unsigned handle) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// GpuPlatformSupportHost implementation:
+void WindowManagerWayland::OnChannelEstablished(
+  int host_id, scoped_refptr<base::SingleThreadTaskRunner> send_runner,
+      const base::Callback<void(IPC::Message*)>& send_callback) {
+}
+
+void WindowManagerWayland::OnChannelDestroyed(int host_id) {
+}
+
+bool WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(WindowManagerWayland, message)
+  IPC_MESSAGE_HANDLER(WaylandInput_CloseWidget, CloseWidget)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Resized, WindowResized)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Activated, WindowActivated)
+  IPC_MESSAGE_HANDLER(WaylandWindow_DeActivated, WindowDeActivated)
+  IPC_MESSAGE_HANDLER(WaylandWindow_Unminimized, WindowUnminimized)
+  IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  return handled;
+}
+
+void WindowManagerWayland::WindowResized(unsigned handle,
+                                         unsigned width,
+                                         unsigned height) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::OnWindowResized,
+          weak_ptr_factory_.GetWeakPtr(), handle, width, height));
+}
+
+void WindowManagerWayland::WindowUnminimized(unsigned handle) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::OnWindowUnminimized,
+          weak_ptr_factory_.GetWeakPtr(), handle));
+}
+
+void WindowManagerWayland::WindowDeActivated(unsigned windowhandle) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::OnWindowDeActivated,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle));
+}
+
+void WindowManagerWayland::WindowActivated(unsigned windowhandle) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::OnWindowActivated,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle));
+}
+
+void WindowManagerWayland::CloseWidget(unsigned handle) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::OnWindowClose,
+          weak_ptr_factory_.GetWeakPtr(), handle));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // WindowManagerWayland, WindowChangeObserver implementation:
 void WindowManagerWayland::OnWindowFocused(unsigned handle) {
   OnActivationChanged(handle, true);
@@ -108,8 +177,8 @@ void WindowManagerWayland::OnWindowClose(unsigned handle) {
 }
 
 void WindowManagerWayland::OnWindowResized(unsigned handle,
-                                                    unsigned width,
-                                                    unsigned height) {
+                                           unsigned width,
+                                           unsigned height) {
   ui::OzoneWaylandWindow* window = GetWindow(handle);
   if (!window) {
     LOG(ERROR) << "Received invalid window handle " << handle
