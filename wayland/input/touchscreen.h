@@ -9,7 +9,7 @@
 #include "ui/gfx/geometry/point.h"
 
 namespace ui {
-class EventConverterOzoneWayland;
+class GPUEventDispatcher;
 }
 
 namespace ozonewayland {
@@ -57,7 +57,7 @@ class WaylandTouchscreen {
       void *data,
       struct wl_touch *wl_touch);
 
-  ui::EventConverterOzoneWayland* dispatcher_;
+  ui::GPUEventDispatcher* dispatcher_;
   gfx::Point pointer_position_;
   struct wl_touch* wl_touch_;
 

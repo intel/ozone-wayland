@@ -4,7 +4,7 @@
 
 #include "ozone/wayland/shell/shell_surface.h"
 
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/seat.h"
 
@@ -34,8 +34,8 @@ void WaylandShellSurface::FlushDisplay() const {
 
 void WaylandShellSurface::PopupDone() {
   WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
-  ui::EventConverterOzoneWayland* dispatcher =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
+  ui::GPUEventDispatcher* dispatcher =
+      WaylandDisplay::GetInstance()->GetEventDispatcher();
 
   if (!seat->GetGrabWindowHandle())
     return;
@@ -47,8 +47,8 @@ void WaylandShellSurface::WindowResized(void* data,
                                  unsigned width,
                                  unsigned height) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
-  ui::EventConverterOzoneWayland* dispatcher =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
+  ui::GPUEventDispatcher* dispatcher =
+      WaylandDisplay::GetInstance()->GetEventDispatcher();
   dispatcher->WindowResized(window->Handle(), width, height);
 }
 
@@ -56,8 +56,8 @@ void WaylandShellSurface::WindowActivated(void *data) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
   WaylandShellSurface* shellSurface = window->ShellSurface();
 
-  ui::EventConverterOzoneWayland* dispatcher =
-    ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
+  ui::GPUEventDispatcher* dispatcher =
+      WaylandDisplay::GetInstance()->GetEventDispatcher();
 
   if (shellSurface->IsMinimized()) {
     shellSurface->Unminimize();
@@ -69,8 +69,8 @@ void WaylandShellSurface::WindowActivated(void *data) {
 
 void WaylandShellSurface::WindowDeActivated(void *data) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
-  ui::EventConverterOzoneWayland* dispatcher =
-    ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
+  ui::GPUEventDispatcher* dispatcher =
+      WaylandDisplay::GetInstance()->GetEventDispatcher();
   dispatcher->WindowDeActivated(window->Handle());
 }
 

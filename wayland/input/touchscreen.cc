@@ -6,7 +6,7 @@
 
 #include <linux/input.h>
 
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/seat.h"
 #include "ozone/wayland/window.h"
@@ -34,8 +34,7 @@ void WaylandTouchscreen::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
     WaylandTouchscreen::OnTouchCancel,
   };
 
-  dispatcher_ =
-      ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter();
+  dispatcher_ = WaylandDisplay::GetInstance()->GetEventDispatcher();
 
   if ((caps & WL_SEAT_CAPABILITY_TOUCH)) {
     wl_touch_ = wl_seat_get_touch(seat);

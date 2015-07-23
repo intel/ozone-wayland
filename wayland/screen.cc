@@ -7,7 +7,7 @@
 
 #include <wayland-client.h>
 
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/wayland/display.h"
 
 namespace ozonewayland {
@@ -62,7 +62,7 @@ void WaylandScreen::OutputHandleMode(void* data,
     if (!WaylandDisplay::GetInstance())
       return;
 
-    ui::EventFactoryOzoneWayland::GetInstance()->GetEventConverter()->
+    WaylandDisplay::GetInstance()->GetEventDispatcher()->
         OutputSizeChanged(width, height);
   }
 }
