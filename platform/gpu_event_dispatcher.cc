@@ -5,7 +5,7 @@
 #include "ozone/platform/gpu_event_dispatcher.h"
 
 #include "base/bind.h"
-#include "ozone/ui/public/messages.h"
+#include "ozone/platform/messages.h"
 
 namespace ui {
 

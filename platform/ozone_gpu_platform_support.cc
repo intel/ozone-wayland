@@ -5,9 +5,9 @@
 #include "ozone/platform/ozone_gpu_platform_support.h"
 
 #include "ozone/platform/gpu_event_dispatcher.h"
+#include "ozone/platform/messages.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/ime_state_change_handler.h"
-#include "ozone/ui/public/messages.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/seat.h"
 

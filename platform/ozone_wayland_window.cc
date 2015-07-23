@@ -5,10 +5,10 @@
 #include "ozone/platform/ozone_wayland_window.h"
 
 #include "base/bind.h"
+#include "ozone/platform/messages.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/public/messages.h"
 #include "ui/events/ozone/events_ozone.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/screen.h"

@@ -4,4 +4,4 @@
 
 // Multiply-included file, hence no include guard.
 
-#include "ozone/ui/public/messages.h"
+#include "ozone/platform/messages.h"
