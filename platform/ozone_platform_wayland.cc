@@ -11,7 +11,6 @@
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
-#include "ozone/ui/events/event_converter_in_process.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
@@ -99,8 +98,6 @@ class OzonePlatformWayland : public OzonePlatform {
         new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
     event_factory_ozone_.reset(
         new ui::EventFactoryOzoneWayland());
-    event_converter_.reset(
-        new EventConverterInProcess(gpu_platform_host_.get()));
     event_factory_ozone_->SetEventConverter(event_converter_.get());
     state_change_handler_.reset(
         new ui::RemoteStateChangeHandler(gpu_platform_host_.get()));
@@ -112,10 +109,8 @@ class OzonePlatformWayland : public OzonePlatform {
     if (!event_factory_ozone_)
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
 
-    if (!event_converter_) {
-      event_converter_.reset(new RemoteEventDispatcher());
-      event_factory_ozone_->SetEventConverter(event_converter_.get());
-    }
+    event_converter_.reset(new RemoteEventDispatcher());
+    event_factory_ozone_->SetEventConverter(event_converter_.get());
 
     if (!wayland_display_)
       wayland_display_.reset(new ozonewayland::WaylandDisplay());

@@ -10,11 +10,14 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/memory/shared_memory.h"
 #include "base/message_loop/message_loop.h"
-#include "ozone/ui/events/window_change_observer.h"
 #include "ui/events/event.h"
 #include "ui/events/event_source.h"
+#include "ui/events/ozone/evdev/event_modifiers_evdev.h"
+#include "ui/events/ozone/evdev/keyboard_evdev.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
+#include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/ozone/public/gpu_platform_support_host.h"
 
@@ -25,20 +28,20 @@ class OzoneWaylandWindow;
 
 // A static class used by OzoneWaylandWindow for basic window management.
 class WindowManagerWayland
-    : public ui::WindowChangeObserver,
+    : public PlatformEventSource,
       public GpuPlatformSupportHost {
  public:
   explicit WindowManagerWayland(OzoneGpuPlatformSupportHost* proxy);
   ~WindowManagerWayland() override;
 
-  void OnRootWindowCreated(ui::OzoneWaylandWindow* window);
-  void OnRootWindowClosed(ui::OzoneWaylandWindow* window);
-  void Restore(ui::OzoneWaylandWindow* window);
+  void OnRootWindowCreated(OzoneWaylandWindow* window);
+  void OnRootWindowClosed(OzoneWaylandWindow* window);
+  void Restore(OzoneWaylandWindow* window);
 
-  ui::OzoneWaylandWindow* GetWindow(unsigned handle);
+  OzoneWaylandWindow* GetWindow(unsigned handle);
   bool HasWindowsOpen() const;
 
-  ui::OzoneWaylandWindow* GetActiveWindow() const { return active_window_; }
+  OzoneWaylandWindow* GetActiveWindow() const { return active_window_; }
 
   // Tries to set a given widget as the recipient for events. It will
   // fail if there is already another widget as recipient.
@@ -51,6 +54,18 @@ class WindowManagerWayland
   gfx::AcceleratedWidget event_grabber() const { return event_grabber_; }
 
  private:
+  void OnActivationChanged(unsigned windowhandle, bool active);
+  std::list<OzoneWaylandWindow*>& open_windows();
+  void OnWindowFocused(unsigned handle);
+  void OnWindowEnter(unsigned handle);
+  void OnWindowLeave(unsigned handle);
+  void OnWindowClose(unsigned handle);
+  void OnWindowResized(unsigned windowhandle,
+                       unsigned width,
+                       unsigned height);
+  void OnWindowUnminimized(unsigned windowhandle);
+  void OnWindowDeActivated(unsigned windowhandle);
+  void OnWindowActivated(unsigned windowhandle);
   // GpuPlatformSupportHost
   void OnChannelEstablished(
       int host_id,
@@ -58,35 +73,94 @@ class WindowManagerWayland
       const base::Callback<void(IPC::Message*)>& send_callback) override;
   void OnChannelDestroyed(int host_id) override;
   bool OnMessageReceived(const IPC::Message&) override;
+  void MotionNotify(float x, float y);
+  void ButtonNotify(unsigned handle,
+                    EventType type,
+                    EventFlags flags,
+                    float x,
+                    float y);
+  void AxisNotify(float x,
+                  float y,
+                  int xoffset,
+                  int yoffset);
+  void PointerEnter(unsigned handle, float x, float y);
+  void PointerLeave(unsigned handle, float x, float y);
+  void KeyNotify(EventType type, unsigned code, int device_id);
+  void VirtualKeyNotify(EventType type,
+                        uint32_t key,
+                        int device_id);
+  void TouchNotify(EventType type,
+                   float x,
+                   float y,
+                   int32_t touch_id,
+                   uint32_t time_stamp);
+  void CloseWidget(unsigned handle);
+
+  void OutputSizeChanged(unsigned width, unsigned height);
   void WindowResized(unsigned windowhandle,
                      unsigned width,
                      unsigned height);
   void WindowUnminimized(unsigned windowhandle);
   void WindowDeActivated(unsigned windowhandle);
   void WindowActivated(unsigned windowhandle);
-  void CloseWidget(unsigned handle);
-  // Window Change Observer.
-  void OnWindowFocused(unsigned handle) override;
-  void OnWindowEnter(unsigned handle) override;
-  void OnWindowLeave(unsigned handle) override;
-  void OnWindowClose(unsigned handle) override;
-  void OnWindowResized(unsigned windowhandle,
-                       unsigned width,
-                       unsigned height) override;
-  void OnWindowUnminimized(unsigned windowhandle) override;
-  void OnWindowDeActivated(unsigned windowhandle) override;
-  void OnWindowActivated(unsigned windowhandle) override;
 
-  void OnActivationChanged(unsigned windowhandle, bool active);
+  void Commit(unsigned handle, const std::string& text);
+  void PreeditChanged(unsigned handle,
+                      const std::string& text,
+                      const std::string& commit);
+  void PreeditEnd();
+  void PreeditStart();
+  void InitializeXKB(base::SharedMemoryHandle fd, uint32_t size);
+  // PlatformEventSource:
+  void OnDispatcherListChanged() override;
 
-  std::list<ui::OzoneWaylandWindow*>& open_windows();
+  // Dispatch event via PlatformEventSource.
+  void DispatchUiEventTask(scoped_ptr<Event> event);
+  // Post a task to dispatch an event.
+  void PostUiEvent(Event* event);
+
+  void NotifyMotion(float x,
+                    float y);
+  void NotifyButtonPress(unsigned handle,
+                         EventType type,
+                         EventFlags flags,
+                         float x,
+                         float y);
+  void NotifyAxis(float x,
+                  float y,
+                  int xoffset,
+                  int yoffset);
+  void NotifyPointerEnter(unsigned handle,
+                          float x,
+                          float y);
+  void NotifyPointerLeave(unsigned handle,
+                          float x,
+                          float y);
+  void NotifyTouchEvent(EventType type,
+                        float x,
+                        float y,
+                        int32_t touch_id,
+                        uint32_t time_stamp);
+  void NotifyOutputSizeChanged(unsigned width,
+                               unsigned height);
+  void NotifyCommit(unsigned handle,
+                    const std::string& text);
+  void NotifyPreeditChanged(unsigned handle,
+                            const std::string& text,
+                            const std::string& commit);
+  void NotifyPreeditEnd();
+  void NotifyPreeditStart();
 
   // List of all open aura::Window.
-  std::list<ui::OzoneWaylandWindow*>* open_windows_;
+  std::list<OzoneWaylandWindow*>* open_windows_;
   gfx::AcceleratedWidget event_grabber_ = gfx::kNullAcceleratedWidget;
-  ui::OzoneWaylandWindow* active_window_;
+  OzoneWaylandWindow* active_window_;
   gfx::AcceleratedWidget current_capture_ = gfx::kNullAcceleratedWidget;
   OzoneGpuPlatformSupportHost* proxy_;
+  // Modifier key state (shift, ctrl, etc).
+  EventModifiersEvdev modifiers_;
+  // Keyboard state.
+  KeyboardEvdev keyboard_;
   // Support weak pointers for attach & detach callbacks.
   base::WeakPtrFactory<WindowManagerWayland> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(WindowManagerWayland);
