@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
-#define OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
+#ifndef OZONE_PLATFORM_GPU_EVENT_DISPATCHER_H_
+#define OZONE_PLATFORM_GPU_EVENT_DISPATCHER_H_
 
 #include <queue>
 #include <string>
@@ -13,15 +13,14 @@
 
 namespace ui {
 
-// RemoteEventDispatcher sends native events from GPU to Browser process over
-// IPC. In Multi-process case, callbacks from Wayland are received in GPU
-// process side. All callbacks related to input need to be handled in Browser
+// GPUEventDispatcher sends native events from GPU to Browser process over
+// IPC. All callbacks related to input need to be handled in Browser
 // process and hence the events are sent to it over IPC.
-class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
+class GPUEventDispatcher : public ui::EventConverterOzoneWayland {
  public:
   typedef std::queue<IPC::Message*> DeferredMessages;
-  RemoteEventDispatcher();
-  ~RemoteEventDispatcher() override;
+  GPUEventDispatcher();
+  ~GPUEventDispatcher() override;
 
   void ChannelEstablished(IPC::Sender* sender) override;
 
@@ -73,10 +72,10 @@ class RemoteEventDispatcher : public ui::EventConverterOzoneWayland {
   base::MessageLoop* loop_;
   DeferredMessages deferred_messages_;
   // Support weak pointers for attach & detach callbacks.
-  base::WeakPtrFactory<RemoteEventDispatcher> weak_ptr_factory_;
-  DISALLOW_COPY_AND_ASSIGN(RemoteEventDispatcher);
+  base::WeakPtrFactory<GPUEventDispatcher> weak_ptr_factory_;
+  DISALLOW_COPY_AND_ASSIGN(GPUEventDispatcher);
 };
 
 }  // namespace ui
 
-#endif  // OZONE_UI_EVENTS_REMOTE_EVENT_DISPATCHER_H_
+#endif  // OZONE_PLATFORM_GPU_EVENT_DISPATCHER_H_

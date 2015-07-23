@@ -13,8 +13,6 @@
     'ime_change_observer.h',
     'ime_state_change_handler.h',
     'keyboard_codes_ozone.h',
-    'remote_event_dispatcher.h',
-    'remote_event_dispatcher.cc',
     'remote_state_change_handler.h',
     'remote_state_change_handler.cc',
     'window_constants.h',

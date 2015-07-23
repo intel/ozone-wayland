@@ -21,7 +21,7 @@ class WaylandDisplay;
 }
 
 namespace ui {
-class RemoteEventDispatcher;
+class GPUEventDispatcher;
 
 class OzoneGpuPlatformSupport : public GpuPlatformSupport {
  public:

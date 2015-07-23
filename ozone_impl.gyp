@@ -29,6 +29,8 @@
         'platform/desktop_platform_screen.h',
 	'platform/desktop_platform_screen_delegate.h',
         'platform/ozone_export_wayland.h',
+	'platform/gpu_event_dispatcher.h',
+	'platform/gpu_event_dispatcher.cc',
 	'platform/ozone_gpu_platform_support.h',
 	'platform/ozone_gpu_platform_support.cc',
 	'platform/ozone_gpu_platform_support_host.h',

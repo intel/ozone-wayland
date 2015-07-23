@@ -2,26 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ozone/ui/events/remote_event_dispatcher.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 
 #include "base/bind.h"
 #include "ozone/ui/public/messages.h"
 
 namespace ui {
 
-RemoteEventDispatcher::RemoteEventDispatcher()
+GPUEventDispatcher::GPUEventDispatcher()
     :EventConverterOzoneWayland(),
      sender_(NULL),
      loop_(NULL),
      weak_ptr_factory_(this) {
 }
 
-RemoteEventDispatcher::~RemoteEventDispatcher() {
+GPUEventDispatcher::~GPUEventDispatcher() {
   while (!deferred_messages_.empty())
     deferred_messages_.pop();
 }
 
-void RemoteEventDispatcher::ChannelEstablished(IPC::Sender* sender) {
+void GPUEventDispatcher::ChannelEstablished(IPC::Sender* sender) {
   loop_ = base::MessageLoop::current();
   sender_ = sender;
   while (!deferred_messages_.empty()) {
@@ -30,11 +30,11 @@ void RemoteEventDispatcher::ChannelEstablished(IPC::Sender* sender) {
   }
 }
 
-void RemoteEventDispatcher::MotionNotify(float x, float y) {
+void GPUEventDispatcher::MotionNotify(float x, float y) {
   Dispatch(new WaylandInput_MotionNotify(x, y));
 }
 
-void RemoteEventDispatcher::ButtonNotify(unsigned handle,
+void GPUEventDispatcher::ButtonNotify(unsigned handle,
                                          ui::EventType type,
                                          ui::EventFlags flags,
                                          float x,
@@ -42,38 +42,38 @@ void RemoteEventDispatcher::ButtonNotify(unsigned handle,
   Dispatch(new WaylandInput_ButtonNotify(handle, type, flags, x, y));
 }
 
-void RemoteEventDispatcher::AxisNotify(float x,
+void GPUEventDispatcher::AxisNotify(float x,
                                        float y,
                                        int xoffset,
                                        int yoffset) {
   Dispatch(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
 }
 
-void RemoteEventDispatcher::PointerEnter(unsigned handle,
+void GPUEventDispatcher::PointerEnter(unsigned handle,
                                          float x,
                                          float y) {
   Dispatch(new WaylandInput_PointerEnter(handle, x, y));
 }
 
-void RemoteEventDispatcher::PointerLeave(unsigned handle,
+void GPUEventDispatcher::PointerLeave(unsigned handle,
                                          float x,
                                          float y) {
   Dispatch(new WaylandInput_PointerLeave(handle, x, y));
 }
 
-void RemoteEventDispatcher::KeyNotify(ui::EventType type,
+void GPUEventDispatcher::KeyNotify(ui::EventType type,
                                       unsigned code,
                                       int device_id) {
   Dispatch(new WaylandInput_KeyNotify(type, code, device_id));
 }
 
-void RemoteEventDispatcher::VirtualKeyNotify(ui::EventType type,
+void GPUEventDispatcher::VirtualKeyNotify(ui::EventType type,
                                              uint32_t key,
                                              int device_id) {
   Dispatch(new WaylandInput_VirtualKeyNotify(type, key, device_id));
 }
 
-void RemoteEventDispatcher::TouchNotify(ui::EventType type,
+void GPUEventDispatcher::TouchNotify(ui::EventType type,
                                         float x,
                                         float y,
                                         int32_t touch_id,
@@ -81,70 +81,70 @@ void RemoteEventDispatcher::TouchNotify(ui::EventType type,
   Dispatch(new WaylandInput_TouchNotify(type, x, y, touch_id, time_stamp));
 }
 
-void RemoteEventDispatcher::OutputSizeChanged(unsigned width,
+void GPUEventDispatcher::OutputSizeChanged(unsigned width,
                                               unsigned height) {
   Dispatch(new WaylandInput_OutputSize(width, height));
 }
 
-void RemoteEventDispatcher::WindowResized(unsigned handle,
+void GPUEventDispatcher::WindowResized(unsigned handle,
                                           unsigned width,
                                           unsigned height) {
   Dispatch(new WaylandWindow_Resized(handle, width, height));
 }
 
-void RemoteEventDispatcher::WindowUnminimized(unsigned handle) {
+void GPUEventDispatcher::WindowUnminimized(unsigned handle) {
   Dispatch(new WaylandWindow_Unminimized(handle));
 }
 
-void RemoteEventDispatcher::WindowDeActivated(unsigned windowhandle) {
+void GPUEventDispatcher::WindowDeActivated(unsigned windowhandle) {
   Dispatch(new WaylandWindow_DeActivated(windowhandle));
 }
 
-void RemoteEventDispatcher::WindowActivated(unsigned windowhandle) {
+void GPUEventDispatcher::WindowActivated(unsigned windowhandle) {
   Dispatch(new WaylandWindow_Activated(windowhandle));
 }
 
-void RemoteEventDispatcher::CloseWidget(unsigned handle) {
+void GPUEventDispatcher::CloseWidget(unsigned handle) {
   Dispatch(new WaylandInput_CloseWidget(handle));
 }
 
-void RemoteEventDispatcher::Commit(unsigned handle,
+void GPUEventDispatcher::Commit(unsigned handle,
                                    const std::string& text) {
   Dispatch(new WaylandInput_Commit(handle, text));
 }
 
-void RemoteEventDispatcher::PreeditChanged(unsigned handle,
+void GPUEventDispatcher::PreeditChanged(unsigned handle,
                                            const std::string& text,
                                            const std::string& commit) {
   Dispatch(new WaylandInput_PreeditChanged(handle, text, commit));
 }
 
-void RemoteEventDispatcher::PreeditEnd() {
+void GPUEventDispatcher::PreeditEnd() {
   Dispatch(new WaylandInput_PreeditEnd());
 }
 
-void RemoteEventDispatcher::PreeditStart() {
+void GPUEventDispatcher::PreeditStart() {
   Dispatch(new WaylandInput_PreeditStart());
 }
 
-void RemoteEventDispatcher::InitializeXKB(base::SharedMemoryHandle fd,
+void GPUEventDispatcher::InitializeXKB(base::SharedMemoryHandle fd,
                                           uint32_t size) {
   Dispatch(new WaylandInput_InitializeXKB(fd, size));
 }
 
-void RemoteEventDispatcher::Dispatch(IPC::Message* message) {
+void GPUEventDispatcher::Dispatch(IPC::Message* message) {
   if (!loop_) {
     deferred_messages_.push(message);
     return;
   }
 
   loop_->task_runner()->PostTask(FROM_HERE,
-      base::Bind(&RemoteEventDispatcher::Send,
+      base::Bind(&GPUEventDispatcher::Send,
                  weak_ptr_factory_.GetWeakPtr(),
                  message));
 }
 
-void RemoteEventDispatcher::Send(IPC::Message* message) {
+void GPUEventDispatcher::Send(IPC::Message* message) {
   sender_->Send(message);
 }
 

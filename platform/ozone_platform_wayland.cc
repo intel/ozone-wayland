@@ -6,13 +6,13 @@
 
 #include "base/at_exit.h"
 #include "base/bind.h"
+#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/platform/ozone_gpu_platform_support.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/cursor/cursor_factory_ozone_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/remote_event_dispatcher.h"
 #include "ozone/ui/events/remote_state_change_handler.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/ozone_wayland_screen.h"
@@ -116,7 +116,7 @@ class OzonePlatformWayland : public OzonePlatform {
     if (!event_factory_ozone_)
       event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
 
-    event_converter_.reset(new RemoteEventDispatcher());
+    event_converter_.reset(new GPUEventDispatcher());
     event_factory_ozone_->SetEventConverter(event_converter_.get());
 
     if (!wayland_display_)
