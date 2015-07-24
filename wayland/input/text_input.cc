@@ -7,7 +7,6 @@
 #include <string>
 
 #include "ozone/platform/gpu_event_dispatcher.h"
-#include "ozone/ui/events/keyboard_codes_ozone.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/protocol/text-client-protocol.h"
