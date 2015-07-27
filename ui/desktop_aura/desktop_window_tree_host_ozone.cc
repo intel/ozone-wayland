@@ -156,9 +156,6 @@ void DesktopWindowTreeHostOzone::OnNativeWidgetCreated(
     delete aura_windows_;
     aura_windows_ = NULL;
   }
-
-  if (!params.parent)
-    state_ |= Active;
 }
 
 scoped_ptr<corewm::Tooltip>
@@ -238,21 +235,34 @@ aura::WindowTreeHost* DesktopWindowTreeHostOzone::AsWindowTreeHost() {
 
 void DesktopWindowTreeHostOzone::ShowWindowWithState(
     ui::WindowShowState show_state) {
-  if (show_state == ui::SHOW_STATE_NORMAL ||
-      show_state == ui::SHOW_STATE_MAXIMIZED ||
-      show_state == ui::SHOW_STATE_FULLSCREEN) {
-    Activate();
+  if (compositor())
+    compositor()->SetVisible(true);
+  state_ |= Visible;
+
+  switch (show_state) {
+    case ui::SHOW_STATE_NORMAL:
+      Activate();
+      break;
+    case ui::SHOW_STATE_MAXIMIZED:
+      Maximize();
+      break;
+    case ui::SHOW_STATE_MINIMIZED:
+      Minimize();
+      break;
+    case ui::SHOW_STATE_FULLSCREEN:
+      SetFullscreen(true);
+      break;
+    default:
+      break;
   }
 
-  state_ |= Visible;
   native_widget_delegate_->AsWidget()->SetInitialFocus(show_state);
 }
 
 void DesktopWindowTreeHostOzone::ShowMaximizedWithBounds(
     const gfx::Rect& restored_bounds) {
-  Maximize();
+  ShowWindowWithState(ui::SHOW_STATE_MAXIMIZED);
   previous_bounds_ = restored_bounds;
-  Show();
 }
 
 bool DesktopWindowTreeHostOzone::IsVisible() const {
@@ -260,9 +270,10 @@ bool DesktopWindowTreeHostOzone::IsVisible() const {
 }
 
 void DesktopWindowTreeHostOzone::SetSize(const gfx::Size& requested_size) {
-  gfx::Size size = AdjustSize(requested_size);
+  gfx::Size size_in_pixels = ToPixelRect(gfx::Rect(requested_size)).size();
+  size_in_pixels = AdjustSize(size_in_pixels);
   gfx::Rect new_bounds = platform_window_->GetBounds();
-  new_bounds.set_size(size);
+  new_bounds.set_size(size_in_pixels);
   platform_window_->SetBounds(new_bounds);
 }
 
@@ -273,7 +284,8 @@ void DesktopWindowTreeHostOzone::StackAtTop() {
 }
 
 void DesktopWindowTreeHostOzone::CenterWindow(const gfx::Size& size) {
-  gfx::Rect parent_bounds = GetWorkAreaBoundsInScreen();
+  gfx::Size size_in_pixels = ToPixelRect(gfx::Rect(size)).size();
+  gfx::Rect parent_bounds_in_pixels = GetWorkAreaBoundsInScreen();
 
   // If |window_|'s transient parent bounds are big enough to contain |size|,
   // use them instead.
@@ -282,19 +294,21 @@ void DesktopWindowTreeHostOzone::CenterWindow(const gfx::Size& size) {
         wm::GetTransientParent(content_window_)->GetBoundsInScreen();
     if (transient_parent_rect.height() >= size.height() &&
       transient_parent_rect.width() >= size.width()) {
-      parent_bounds = transient_parent_rect;
+      parent_bounds_in_pixels = ToPixelRect(transient_parent_rect);
     }
   }
 
-  gfx::Rect window_bounds(
-      parent_bounds.x() + (parent_bounds.width() - size.width()) / 2,
-      parent_bounds.y() + (parent_bounds.height() - size.height()) / 2,
-      size.width(),
-      size.height());
+  gfx::Rect window_bounds_in_pixels(
+      parent_bounds_in_pixels.x() +
+          (parent_bounds_in_pixels.width() - size_in_pixels.width()) / 2,
+      parent_bounds_in_pixels.y() +
+          (parent_bounds_in_pixels.height() - size_in_pixels.height()) / 2,
+      size_in_pixels.width(), size_in_pixels.height());
   // Don't size the window bigger than the parent, otherwise the user may not be
   // able to close or move it.
-  window_bounds.AdjustToFit(parent_bounds);
-  platform_window_->SetBounds(window_bounds);
+  window_bounds_in_pixels.AdjustToFit(parent_bounds_in_pixels);
+
+  SetBounds(window_bounds_in_pixels);
 }
 
 void DesktopWindowTreeHostOzone::GetWindowPlacement(
@@ -333,7 +347,7 @@ gfx::Rect DesktopWindowTreeHostOzone::GetClientAreaBoundsInScreen() const {
 
 gfx::Rect DesktopWindowTreeHostOzone::GetRestoredBounds() const {
   if (!previous_bounds_.IsEmpty())
-    return previous_bounds_;
+    return ToDIPRect(previous_bounds_);
 
   return GetWindowBoundsInScreen();
 }
@@ -345,11 +359,10 @@ gfx::Rect DesktopWindowTreeHostOzone::GetWorkAreaBoundsInScreen() const {
     NOTREACHED() << "Unable to retrieve valid gfx::Screen";
 
   gfx::Display display = screen->GetPrimaryDisplay();
-  return display.bounds();
+  return ToDIPRect(display.bounds());
 }
 
 void DesktopWindowTreeHostOzone::SetShape(SkRegion* native_region) {
-  // TODO(erg):
   NOTIMPLEMENTED();
 }
 
@@ -377,7 +390,6 @@ void DesktopWindowTreeHostOzone::Maximize() {
   platform_window_->Maximize();
   if (IsMinimized())
     ShowWindowWithState(ui::SHOW_STATE_MAXIMIZED);
-  Relayout();
 }
 
 void DesktopWindowTreeHostOzone::Minimize() {
@@ -558,7 +570,6 @@ void DesktopWindowTreeHostOzone::FlashFrame(bool flash_frame) {
 }
 
 void DesktopWindowTreeHostOzone::OnRootViewLayout() {
-  NOTIMPLEMENTED();
 }
 
 void DesktopWindowTreeHostOzone::OnNativeWidgetFocus() {
@@ -576,12 +587,23 @@ bool DesktopWindowTreeHostOzone::IsTranslucentWindowOpacitySupported() const {
 }
 
 void DesktopWindowTreeHostOzone::SizeConstraintsChanged() {
-  NOTIMPLEMENTED();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostOzone, aura::WindowTreeHost implementation:
+
+gfx::Transform DesktopWindowTreeHostOzone::GetRootTransform() const {
+  gfx::Display display = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay();
+  aura::Window* win = const_cast<aura::Window*>(window());
+  display = gfx::Screen::GetNativeScreen()->GetDisplayNearestWindow(win);
+
+  float scale = display.device_scale_factor();
+  gfx::Transform transform;
+  transform.Scale(scale, scale);
+  return transform;
+}
+
 ui::EventSource* DesktopWindowTreeHostOzone::GetEventSource() {
   return this;
 }
@@ -594,8 +616,7 @@ void DesktopWindowTreeHostOzone::ShowImpl() {
   if (state_ & Visible)
     return;
 
-  platform_window_->Show();
-  ShowWindow();
+  ShowWindowWithState(ui::SHOW_STATE_NORMAL);
   native_widget_delegate_->OnNativeWidgetVisibilityChanged(true);
 }
 
@@ -792,8 +813,9 @@ void DesktopWindowTreeHostOzone::DispatchEvent(ui::Event* event) {
 
 void DesktopWindowTreeHostOzone::InitOzoneWindow(
     const Widget::InitParams& params) {
-  const gfx::Rect& bounds = gfx::Rect(params.bounds.origin(),
-                                      AdjustSize(params.bounds.size()));
+  const gfx::Rect& bounds_in_pixels = ToPixelRect(params.bounds);
+  const gfx::Rect& bounds = gfx::Rect(bounds_in_pixels.origin(),
+                                      AdjustSize(bounds_in_pixels.size()));
   platform_window_ =
       ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
   DCHECK(window_);
@@ -874,18 +896,36 @@ DesktopWindowTreeHostOzone::open_windows() {
 }
 
 gfx::Size DesktopWindowTreeHostOzone::AdjustSize(
-    const gfx::Size& requested_size) {
+    const gfx::Size& requested_size_in_pixels) {
   std::vector<gfx::Display> displays =
       gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE)->GetAllDisplays();
   // Compare against all monitor sizes. The window manager can move the window
   // to whichever monitor it wants.
   for (size_t i = 0; i < displays.size(); ++i) {
-    if (requested_size == displays[i].size()) {
-      return gfx::Size(requested_size.width() - 1,
-                       requested_size.height() - 1);
+    if (requested_size_in_pixels == displays[i].GetSizeInPixel()) {
+      return gfx::Size(requested_size_in_pixels.width() - 1,
+                       requested_size_in_pixels.height() - 1);
     }
   }
-  return requested_size;
+
+  // Do not request a 0x0 window size.
+  gfx::Size size_in_pixels = requested_size_in_pixels;
+  size_in_pixels.SetToMax(gfx::Size(1, 1));
+  return size_in_pixels;
+}
+
+gfx::Rect DesktopWindowTreeHostOzone::ToDIPRect(
+    const gfx::Rect& rect_in_pixels) const {
+  gfx::RectF rect_in_dip = rect_in_pixels;
+  GetRootTransform().TransformRectReverse(&rect_in_dip);
+  return gfx::ToEnclosingRect(rect_in_dip);
+}
+
+gfx::Rect DesktopWindowTreeHostOzone::ToPixelRect(
+    const gfx::Rect& rect_in_dip) const {
+  gfx::RectF rect_in_pixels = rect_in_dip;
+  GetRootTransform().TransformRect(&rect_in_pixels);
+  return gfx::ToEnclosingRect(rect_in_pixels);
 }
 
 // static

@@ -122,6 +122,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void SizeConstraintsChanged() override;
 
   // Overridden from aura::WindowTreeHost:
+  gfx::Transform GetRootTransform() const override;
   ui::EventSource* GetEventSource() override;
   gfx::AcceleratedWidget GetAcceleratedWidget() override;
   void ShowImpl() override;
@@ -168,6 +169,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void ShowWindow();
 
   static std::list<gfx::AcceleratedWidget>& open_windows();
+  gfx::Rect ToDIPRect(const gfx::Rect& rect_in_pixels) const;
+  gfx::Rect ToPixelRect(const gfx::Rect& rect_in_dip) const;
 
   RootWindowState state_;
   bool has_capture_;
