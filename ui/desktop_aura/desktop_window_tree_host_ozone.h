@@ -171,9 +171,11 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   static std::list<gfx::AcceleratedWidget>& open_windows();
   gfx::Rect ToDIPRect(const gfx::Rect& rect_in_pixels) const;
   gfx::Rect ToPixelRect(const gfx::Rect& rect_in_dip) const;
+  void ResetWindowRegion();
 
   RootWindowState state_;
   bool has_capture_;
+  bool custom_window_shape_;
 
   // Original bounds of DRWH.
   gfx::Rect previous_bounds_;

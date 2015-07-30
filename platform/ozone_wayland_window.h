@@ -6,6 +6,7 @@
 #define OZONE_PLATFORM_OZONE_WAYLAND_WINDOW_H_
 
 #include "ozone/ui/events/window_constants.h"
+#include "third_party/skia/include/core/SkRegion.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/native_widget_types.h"
@@ -36,6 +37,8 @@ class OzoneWaylandWindow : public PlatformWindow,
                           gfx::AcceleratedWidget parent_window) override;
   void SetWidgetCursor(int cursor_type) override;
   void SetWidgetTitle(const base::string16& title) override;
+  void SetWindowShape(const SkPath& path) override;
+  void SetOpacity(unsigned char opacity) override;
   gfx::Rect GetBounds() override;
   void SetBounds(const gfx::Rect& bounds) override;
   void Show() override;
@@ -61,15 +64,19 @@ class OzoneWaylandWindow : public PlatformWindow,
 
  private:
   void SendWidgetState();
+  void AddRegion();
+  void ResetRegion();
   PlatformWindowDelegate* delegate_;   // Not owned.
   OzoneGpuPlatformSupportHost* sender_;  // Not owned.
   WindowManagerWayland* window_manager_;  // Not owned.
+  bool transparent_;
   gfx::Rect bounds_;
   unsigned handle_;
   unsigned parent_;
   gfx::Point pos_;
   ui::WidgetType type_;
   ui::WidgetState state_;
+  SkRegion* region_;
   int cursor_type_;
   base::string16 title_;
 

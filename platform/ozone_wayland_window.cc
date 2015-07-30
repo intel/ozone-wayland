@@ -23,9 +23,11 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
     : delegate_(delegate),
       sender_(sender),
       window_manager_(window_manager),
+      transparent_(false),
       bounds_(bounds),
       parent_(0),
       state_(UNINITIALIZED),
+      region_(NULL),
       cursor_type_(-1) {
   static int opaque_handle = 0;
   opaque_handle++;
@@ -37,6 +39,8 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
 OzoneWaylandWindow::~OzoneWaylandWindow() {
   sender_->RemoveChannelObserver(this);
   PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
+  if (region_)
+    delete region_;
 }
 
 void OzoneWaylandWindow::InitPlatformWindow(
@@ -95,6 +99,30 @@ void OzoneWaylandWindow::SetWidgetTitle(const base::string16& title) {
     return;
 
   sender_->Send(new WaylandWindow_Title(handle_, title_));
+}
+
+void OzoneWaylandWindow::SetWindowShape(const SkPath& path) {
+  ResetRegion();
+  if (transparent_)
+    return;
+
+  region_ = new SkRegion();
+  SkRegion clip_region;
+  clip_region.setRect(pos_.x(), pos_.y(), bounds_.width(), bounds_.height());
+  region_->setPath(path, clip_region);
+  AddRegion();
+}
+
+void OzoneWaylandWindow::SetOpacity(unsigned char opacity) {
+  if (opacity == 255) {
+    if (transparent_) {
+      AddRegion();
+      transparent_ = false;
+    }
+  } else if (!transparent_) {
+    ResetRegion();
+    transparent_ = true;
+  }
 }
 
 gfx::Rect OzoneWaylandWindow::GetBounds() {
@@ -193,6 +221,8 @@ void OzoneWaylandWindow::OnChannelEstablished() {
 
   if (cursor_type_ >= 0)
     sender_->Send(new WaylandWindow_Cursor(cursor_type_));
+
+  AddRegion();
 }
 
 void OzoneWaylandWindow::OnChannelDestroyed() {
@@ -203,6 +233,33 @@ void OzoneWaylandWindow::SendWidgetState() {
     return;
 
   sender_->Send(new WaylandWindow_State(handle_, state_));
+}
+
+void OzoneWaylandWindow::AddRegion() {
+  if (sender_->IsConnected() && region_ && !region_->isEmpty()) {
+     const SkIRect& rect = region_->getBounds();
+     sender_->Send(new WaylandDisplay_AddRegion(handle_,
+                                                rect.left(),
+                                                rect.top(),
+                                                rect.right(),
+                                                rect.bottom()));
+  }
+}
+
+void OzoneWaylandWindow::ResetRegion() {
+  if (region_) {
+    if (sender_->IsConnected() && !region_->isEmpty()) {
+      const SkIRect& rect = region_->getBounds();
+      sender_->Send(new WaylandDisplay_SubRegion(handle_,
+                                                 rect.left(),
+                                                 rect.top(),
+                                                 rect.right(),
+                                                 rect.bottom()));
+    }
+
+    delete region_;
+    region_ = NULL;
+  }
 }
 
 }  // namespace ui

@@ -126,4 +126,21 @@ void WaylandWindow::Resize(unsigned width, unsigned height) {
   display->FlushDisplay();
 }
 
+void WaylandWindow::AddRegion(int left, int top, int right, int bottom) {
+  wl_compositor* com = WaylandDisplay::GetInstance()->GetCompositor();
+  struct wl_region *region = wl_compositor_create_region(com);
+  wl_region_add(region, left, top, right, bottom);
+  wl_surface_set_input_region(shell_surface_->GetWLSurface(), region);
+  wl_surface_set_opaque_region(shell_surface_->GetWLSurface(), region);
+  wl_region_destroy(region);
+}
+
+void WaylandWindow::SubRegion(int left, int top, int right, int bottom) {
+  wl_compositor* com = WaylandDisplay::GetInstance()->GetCompositor();
+  struct wl_region *region = wl_compositor_create_region(com);
+  wl_region_subtract(region, left, top, right, bottom);
+  wl_surface_set_opaque_region(shell_surface_->GetWLSurface(), region);
+  wl_region_destroy(region);
+}
+
 }  // namespace ozonewayland

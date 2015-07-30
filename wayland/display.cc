@@ -347,6 +347,20 @@ void WaylandDisplay::CreateWidget(unsigned widget,
   }
 }
 
+void WaylandDisplay::AddRegion(unsigned handle, int left, int top,
+                               int right, int bottom) {
+  WaylandWindow* widget = GetWidget(handle);
+  DCHECK(widget);
+  widget->AddRegion(left, top, right, bottom);
+}
+
+void WaylandDisplay::SubRegion(unsigned handle, int left, int top,
+                               int right, int bottom) {
+  WaylandWindow* widget = GetWidget(handle);
+  DCHECK(widget);
+  widget->SubRegion(left, top, right, bottom);
+}
+
 void WaylandDisplay::InitializeDisplay() {
   DCHECK(!display_);
   display_ = wl_display_connect(NULL);

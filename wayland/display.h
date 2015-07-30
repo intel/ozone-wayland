@@ -118,6 +118,8 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
                     unsigned x,
                     unsigned y,
                     ui::WidgetType type);
+  void AddRegion(unsigned widget, int left, int top, int right, int bottom);
+  void SubRegion(unsigned widget, int left, int top, int right, int bottom);
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);

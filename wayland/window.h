@@ -57,6 +57,8 @@ class WaylandWindow {
 
   // Immediately Resizes window and flushes Wayland Display.
   void Resize(unsigned width, unsigned height);
+  void AddRegion(int left, int top, int right, int bottom);
+  void SubRegion(int left, int top, int right, int bottom);
   gfx::Rect GetBounds() const { return allocation_; }
 
  private:

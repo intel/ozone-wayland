@@ -46,6 +46,10 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
                       unsigned x,
                       unsigned y,
                       ui::WidgetType type);
+  void OnDisplayAddRegion(unsigned widget, int left, int top,
+                          int right, int bottom);
+  void OnDisplaySubRegion(unsigned widget, int left, int top,
+                          int right, int bottom);
   void OnWidgetImeReset();
   void OnWidgetShowInputPanel();
   void OnWidgetHideInputPanel();

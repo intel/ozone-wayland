@@ -15,6 +15,7 @@
 #include "ui/base/hit_test.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/geometry/insets.h"
+#include "ui/gfx/path.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/platform_window/platform_window.h"
@@ -51,6 +52,7 @@ DesktopWindowTreeHostOzone::DesktopWindowTreeHostOzone(
     : aura::WindowTreeHost(),
       state_(Uninitialized),
       has_capture_(false),
+      custom_window_shape_(false),
       previous_bounds_(0, 0, 0, 0),
       previous_maximize_bounds_(0, 0, 0, 0),
       window_(0),
@@ -363,7 +365,23 @@ gfx::Rect DesktopWindowTreeHostOzone::GetWorkAreaBoundsInScreen() const {
 }
 
 void DesktopWindowTreeHostOzone::SetShape(SkRegion* native_region) {
-  NOTIMPLEMENTED();
+  custom_window_shape_ = false;
+  gfx::Path window_mask;
+
+  if (native_region) {
+    gfx::Transform transform = GetRootTransform();
+    if (!transform.IsIdentity() && !native_region->isEmpty()) {
+      SkPath path_in_dip;
+      if (native_region->getBoundaryPath(&path_in_dip)) {
+        path_in_dip.transform(transform.matrix(), &window_mask);
+      }
+    }
+
+    custom_window_shape_ = true;
+    delete native_region;
+  }
+
+  platform_window_->SetWindowShape(window_mask);
 }
 
 void DesktopWindowTreeHostOzone::Activate() {
@@ -542,8 +560,8 @@ bool DesktopWindowTreeHostOzone::IsFullscreen() const {
 }
 
 void DesktopWindowTreeHostOzone::SetOpacity(unsigned char opacity) {
-  // TODO(erg):
-  NOTIMPLEMENTED();
+  content_window_->layer()->SetOpacity(opacity / 255.0);
+  platform_window_->SetOpacity(opacity);
 }
 
 void DesktopWindowTreeHostOzone::SetWindowIcons(
@@ -696,6 +714,7 @@ void DesktopWindowTreeHostOzone::OnBoundsChanged(
   // TODO(kalyan): Add support to check if origin has really changed.
   native_widget_delegate_->AsWidget()->OnNativeWidgetMove();
   OnHostResized(new_bounds.size());
+  ResetWindowRegion();
 }
 
 void DesktopWindowTreeHostOzone::OnDamageRect(const gfx::Rect& damaged_rect) {
@@ -885,6 +904,7 @@ void DesktopWindowTreeHostOzone::Relayout() {
     non_client_view->InvalidateLayout();
   }
   widget->GetRootView()->Layout();
+  ResetWindowRegion();
 }
 
 std::list<gfx::AcceleratedWidget>&
@@ -926,6 +946,34 @@ gfx::Rect DesktopWindowTreeHostOzone::ToPixelRect(
   gfx::RectF rect_in_pixels = rect_in_dip;
   GetRootTransform().TransformRect(&rect_in_pixels);
   return gfx::ToEnclosingRect(rect_in_pixels);
+}
+
+void DesktopWindowTreeHostOzone::ResetWindowRegion() {
+  if (custom_window_shape_)
+    return;
+
+  gfx::Path window_mask;
+  const gfx::Rect& bounds_in_pixels = platform_window_->GetBounds();
+  if (!IsMaximized() && !IsFullscreen()) {
+    views::Widget* widget = native_widget_delegate_->AsWidget();
+    if (widget->non_client_view()) {
+      // Some frame views define a custom (non-rectangular) window mask. If
+      // so, use it to define the window shape. If not, fall through.
+      widget->non_client_view()->GetWindowMask(bounds_in_pixels.size(),
+                                               &window_mask);
+    }
+  }
+
+  if (!window_mask.countPoints()) {
+    // TODO(kalyan): handle the case where window has system borders..
+    SkRect rect = { 0,
+                    0,
+                    SkIntToScalar(bounds_in_pixels.width()),
+                    SkIntToScalar(bounds_in_pixels.height()) };
+    window_mask.addRect(rect);
+  }
+
+  platform_window_->SetWindowShape(window_mask);
 }
 
 // static

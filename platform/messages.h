@@ -18,7 +18,6 @@
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/ipc/gfx_param_traits.h"
 
-
 #define IPC_MESSAGE_START LastIPCMsgStart
 
 IPC_ENUM_TRAITS_MAX_VALUE(ui::EventFlags,
@@ -140,3 +139,17 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PreeditChanged, // NOLINT(readability/
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditEnd)  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditStart)  // NOLINT(readability/fn_size)
+
+IPC_MESSAGE_CONTROL5(WaylandDisplay_AddRegion,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     int /* left */,
+                     int /* top */,
+                     int /* right */,
+                     int /* bottom */)
+
+IPC_MESSAGE_CONTROL5(WaylandDisplay_SubRegion,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     int /* left */,
+                     int /* top */,
+                     int /* right */,
+                     int /* bottom */)
