@@ -176,6 +176,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   RootWindowState state_;
   bool has_capture_;
   bool custom_window_shape_;
+  bool always_on_top_;
 
   // Original bounds of DRWH.
   gfx::Rect previous_bounds_;

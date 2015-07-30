@@ -53,6 +53,7 @@ DesktopWindowTreeHostOzone::DesktopWindowTreeHostOzone(
       state_(Uninitialized),
       has_capture_(false),
       custom_window_shape_(false),
+      always_on_top_(false),
       previous_bounds_(0, 0, 0, 0),
       previous_maximize_bounds_(0, 0, 0, 0),
       window_(0),
@@ -453,12 +454,11 @@ bool DesktopWindowTreeHostOzone::HasCapture() const {
 }
 
 void DesktopWindowTreeHostOzone::SetAlwaysOnTop(bool always_on_top) {
-  NOTIMPLEMENTED();
+  always_on_top_ = always_on_top;
 }
 
 bool DesktopWindowTreeHostOzone::IsAlwaysOnTop() const {
-  NOTIMPLEMENTED();
-  return false;
+  return always_on_top_;
 }
 
 void DesktopWindowTreeHostOzone::SetVisibleOnAllWorkspaces(
