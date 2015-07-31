@@ -366,6 +366,22 @@ void WaylandDisplay::MoveCursor(const gfx::Point& location) {
   primary_seat_->MoveCursor(location);
 }
 
+void WaylandDisplay::ResetIme() {
+  primary_seat_->ResetIme();
+}
+
+void WaylandDisplay::ImeCaretBoundsChanged(gfx::Rect rect) {
+  primary_seat_->ImeCaretBoundsChanged(rect);
+}
+
+void WaylandDisplay::ShowInputPanel() {
+  primary_seat_->ShowInputPanel();
+}
+
+void WaylandDisplay::HideInputPanel() {
+  primary_seat_->HideInputPanel();
+}
+
 void WaylandDisplay::InitializeDisplay() {
   DCHECK(!display_);
   display_ = wl_display_connect(NULL);

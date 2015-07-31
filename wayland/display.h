@@ -123,6 +123,10 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
   void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
                        const gfx::Point& location);
   void MoveCursor(const gfx::Point& location);
+  void ResetIme();
+  void ImeCaretBoundsChanged(gfx::Rect rect);
+  void ShowInputPanel();
+  void HideInputPanel();
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);

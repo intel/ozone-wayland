@@ -6,10 +6,7 @@
 
 #include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/platform/messages.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/ime_state_change_handler.h"
 #include "ozone/wayland/display.h"
-#include "ozone/wayland/seat.h"
 
 namespace ui {
 
@@ -114,18 +111,15 @@ void OzoneGpuPlatformSupport::OnDisplayMoveCursor(const gfx::Point& location) {
 }
 
 void OzoneGpuPlatformSupport::OnWidgetImeReset() {
-  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
-      ResetIme();
+  display_->ResetIme();
 }
 
 void OzoneGpuPlatformSupport::OnWidgetShowInputPanel() {
-  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
-      ShowInputPanel();
+  display_->ShowInputPanel();
 }
 
 void OzoneGpuPlatformSupport::OnWidgetHideInputPanel() {
-  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
-      HideInputPanel();
+  display_->HideInputPanel();
 }
 
 void OzoneGpuPlatformSupport::RelinquishGpuResources(

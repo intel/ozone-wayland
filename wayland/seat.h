@@ -9,8 +9,8 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "ozone/ui/events/ime_state_change_handler.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "ui/gfx/geometry/rect.h"
 
 namespace ozonewayland {
 
@@ -20,10 +20,10 @@ class WaylandDisplay;
 class WaylandTouchscreen;
 class WaylandTextInput;
 
-class WaylandSeat : public ui::IMEStateChangeHandler {
+class WaylandSeat {
  public:
   WaylandSeat(WaylandDisplay* display, uint32_t id);
-  ~WaylandSeat() override;
+  ~WaylandSeat();
 
   wl_seat* GetWLSeat() const { return seat_; }
   WaylandKeyboard* GetKeyBoard() const { return input_keyboard_; }
@@ -37,10 +37,10 @@ class WaylandSeat : public ui::IMEStateChangeHandler {
                        const gfx::Point& location);
   void MoveCursor(const gfx::Point& location);
 
-  void ResetIme() override;
-  void ImeCaretBoundsChanged(gfx::Rect rect) override;
-  void ShowInputPanel() override;
-  void HideInputPanel() override;
+  void ResetIme();
+  void ImeCaretBoundsChanged(gfx::Rect rect);
+  void ShowInputPanel();
+  void HideInputPanel();
 
  private:
   static void OnSeatCapabilities(void *data,
@@ -51,7 +51,7 @@ class WaylandSeat : public ui::IMEStateChangeHandler {
   unsigned focused_window_handle_;
   unsigned grab_window_handle_;
   uint32_t grab_button_;
-  wl_seat* seat_;
+  struct wl_seat* seat_;
   WaylandKeyboard* input_keyboard_;
   WaylandPointer* input_pointer_;
   WaylandTouchscreen* input_touch_;
