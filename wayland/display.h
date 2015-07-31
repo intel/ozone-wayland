@@ -23,6 +23,7 @@
 
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_constants.h"
+#include "ui/ozone/public/gpu_platform_support.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
 
 struct gbm_device;
@@ -31,6 +32,10 @@ struct wl_text_input_manager;
 
 namespace ui {
 class GPUEventDispatcher;
+}
+
+namespace IPC {
+class Sender;
 }
 
 namespace ozonewayland {
@@ -46,7 +51,8 @@ typedef std::map<unsigned, WaylandWindow*> WindowMap;
 // WaylandDisplay is a wrapper around wl_display. Once we get a valid
 // wl_display, the Wayland server will send different events to register
 // the Wayland compositor, shell, screens, input devices, ...
-class WaylandDisplay : public ui::SurfaceFactoryOzone {
+class WaylandDisplay : public ui::SurfaceFactoryOzone,
+                       public ui::GpuPlatformSupport {
  public:
   WaylandDisplay();
   ~WaylandDisplay() override;
@@ -163,6 +169,12 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
       uint32_t name,
       const char *interface,
       uint32_t version);
+
+  // GpuPlatformSupport:
+  void OnChannelEstablished(IPC::Sender* sender) override;
+  bool OnMessageReceived(const IPC::Message& message) override;
+  void RelinquishGpuResources(const base::Closure& callback) override;
+  IPC::MessageFilter* GetMessageFilter() override;
 
   // WaylandDisplay manages the memory of all these pointers.
   wl_display* display_;

@@ -7,7 +7,6 @@
 #include "base/at_exit.h"
 #include "base/bind.h"
 #include "ozone/platform/gpu_event_dispatcher.h"
-#include "ozone/platform/ozone_gpu_platform_support.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"
@@ -67,7 +66,7 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
   GpuPlatformSupport* GetGpuPlatformSupport() override {
-    return gpu_platform_.get();
+    return wayland_display_.get();
   }
 
   scoped_ptr<PlatformWindow> CreatePlatformWindow(
@@ -120,9 +119,6 @@ class OzonePlatformWayland : public OzonePlatform {
 
     if (!wayland_display_->InitializeHardware())
       LOG(FATAL) << "failed to initialize display hardware";
-
-    gpu_platform_.reset(
-        new ui::OzoneGpuPlatformSupport(wayland_display_.get()));
   }
 
  private:
@@ -134,7 +130,6 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::WindowManagerWayland> window_manager_;
   XkbEvdevCodes xkb_evdev_code_converter_;
   scoped_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
-  scoped_ptr<ui::OzoneGpuPlatformSupport> gpu_platform_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
 

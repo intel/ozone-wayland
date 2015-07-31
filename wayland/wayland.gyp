@@ -58,6 +58,7 @@
       'dependencies': [
         '../../base/base.gyp:base',
 	'../../skia/skia.gyp:skia',
+        '<(DEPTH)/ui/gfx/ipc/gfx_ipc.gyp:gfx_ipc',
         '../../ui/ozone/ozone.gyp:ozone_base',
       ],
       'include_dirs': [

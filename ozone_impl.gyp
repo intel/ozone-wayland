@@ -34,8 +34,6 @@
 	'platform/messages.h',
 	'platform/message_generator.h',
 	'platform/message_generator.cc',
-	'platform/ozone_gpu_platform_support.h',
-	'platform/ozone_gpu_platform_support.cc',
 	'platform/ozone_gpu_platform_support_host.h',
 	'platform/ozone_gpu_platform_support_host.cc',
         'platform/ozone_platform_wayland.cc',

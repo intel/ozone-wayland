@@ -19,6 +19,7 @@
 #include "base/native_library.h"
 #include "base/stl_util.h"
 #include "ozone/platform/gpu_event_dispatcher.h"
+#include "ozone/platform/messages.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
@@ -572,6 +573,38 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   } else {
     disp->shell_->Initialize(registry, name, interface, version);
   }
+}
+
+void WaylandDisplay::OnChannelEstablished(IPC::Sender* sender) {
+  dispatcher_->ChannelEstablished(sender);
+}
+
+bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(WaylandDisplay, message)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_State, SetWidgetState)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_Create, CreateWidget)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_Title, SetWidgetTitle)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, AddRegion)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_SubRegion, SubRegion)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_CursorSet, SetCursorBitmap)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_MoveCursor, MoveCursor)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_ImeReset, ResetIme)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_ShowInputPanel, ShowInputPanel)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_HideInputPanel, HideInputPanel)
+  IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  return handled;
+}
+
+void WaylandDisplay::RelinquishGpuResources(
+    const base::Closure& callback) {
+  callback.Run();
+}
+
+IPC::MessageFilter* WaylandDisplay::GetMessageFilter() {
+  return NULL;
 }
 
 }  // namespace ozonewayland
