@@ -29,8 +29,6 @@
         'platform/desktop_platform_screen.h',
 	'platform/desktop_platform_screen_delegate.h',
         'platform/ozone_export_wayland.h',
-	'platform/gpu_event_dispatcher.h',
-	'platform/gpu_event_dispatcher.cc',
 	'platform/messages.h',
 	'platform/message_generator.h',
 	'platform/message_generator.cc',

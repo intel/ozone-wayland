@@ -6,7 +6,6 @@
 
 #include <string>
 
-#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/input/keyboard.h"
 #include "ozone/wayland/protocol/text-client-protocol.h"
@@ -37,8 +36,7 @@ void WaylandTextInput::OnCommitString(void* data,
                                       struct wl_text_input* text_input,
                                       uint32_t serial,
                                       const char* text) {
-  ui::GPUEventDispatcher* dispatcher =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
+  WaylandDisplay* dispatcher = WaylandDisplay::GetInstance();
   DCHECK(static_cast<WaylandTextInput*>(data)->last_active_window_);
   dispatcher->Commit(static_cast<WaylandTextInput*>(data)->
       last_active_window_->Handle(), std::string(text));
@@ -49,8 +47,7 @@ void WaylandTextInput::OnPreeditString(void* data,
                                        uint32_t serial,
                                        const char* text,
                                        const char* commit) {
-  ui::GPUEventDispatcher* dispatcher =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
+  WaylandDisplay* dispatcher = WaylandDisplay::GetInstance();
   DCHECK(static_cast<WaylandTextInput*>(data)->last_active_window_);
   dispatcher->PreeditChanged(static_cast<WaylandTextInput*>(data)->
      last_active_window_->Handle(), std::string(text), std::string(commit));
@@ -97,8 +94,7 @@ void WaylandTextInput::OnKeysym(void* data,
   WaylandDisplay::GetInstance()->SetSerial(serial);
   if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     type = ui::ET_KEY_RELEASED;
-  ui::GPUEventDispatcher* dispatcher =
-       WaylandDisplay::GetInstance()->GetEventDispatcher();
+  WaylandDisplay* dispatcher = WaylandDisplay::GetInstance();
   const uint32_t device_id = wl_proxy_get_id(
       reinterpret_cast<wl_proxy*>(text_input));
   dispatcher->VirtualKeyNotify(type, key, device_id);

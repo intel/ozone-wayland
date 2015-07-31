@@ -8,10 +8,6 @@
 #include "ozone/wayland/display.h"
 #include "ui/gfx/geometry/point.h"
 
-namespace ui {
-class GPUEventDispatcher;
-}
-
 namespace ozonewayland {
 
 class WaylandCursor;
@@ -63,7 +59,7 @@ class WaylandPointer {
       wl_surface* surface);
 
   WaylandCursor* cursor_;
-  ui::GPUEventDispatcher* dispatcher_;
+  WaylandDisplay* dispatcher_;
   // Keeps track of the last position for the motion event. We want to
   // dispatch this with events such as wheel or button which don't have a
   // position associated on Wayland.

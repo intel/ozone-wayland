@@ -15,10 +15,12 @@
 #endif
 #include <string>
 
+#include "base/bind.h"
 #include "base/files/file_path.h"
 #include "base/native_library.h"
 #include "base/stl_util.h"
-#include "ozone/platform/gpu_event_dispatcher.h"
+#include "base/message_loop/message_loop.h"
+#include "ipc/ipc_sender.h"
 #include "ozone/platform/messages.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display_poll_thread.h"
@@ -88,7 +90,8 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     display_poll_thread_(NULL),
     device_(NULL),
     m_deviceName(NULL),
-    dispatcher_(NULL),
+    sender_(NULL),
+    loop_(NULL),
     screen_list_(),
     seat_list_(),
     widget_map_(),
@@ -96,7 +99,8 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     processing_events_(false),
     m_authenticated_(false),
     m_fd_(-1),
-    m_capabilities_(0) {
+    m_capabilities_(0),
+    weak_ptr_factory_(this) {
 }
 
 WaylandDisplay::~WaylandDisplay() {
@@ -261,6 +265,109 @@ scoped_ptr<ui::SurfaceOzoneCanvas> WaylandDisplay::CreateCanvasForWidget(
   return scoped_ptr<ui::SurfaceOzoneCanvas>();
 }
 
+void WaylandDisplay::InitializeDisplay() {
+  DCHECK(!display_);
+  display_ = wl_display_connect(NULL);
+  if (!display_)
+    return;
+
+  instance_ = this;
+  static const struct wl_registry_listener registry_all = {
+    WaylandDisplay::DisplayHandleGlobal
+  };
+
+  registry_ = wl_display_get_registry(display_);
+  wl_registry_add_listener(registry_, &registry_all, this);
+  shell_ = new WaylandShell();
+
+  if (wl_display_roundtrip(display_) < 0) {
+    Terminate();
+    return;
+  }
+
+  display_poll_thread_ = new WaylandDisplayPollThread(display_);
+}
+
+WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
+  WaylandWindow* window = new WaylandWindow(w);
+  widget_map_[w] = window;
+
+  return window;
+}
+
+void WaylandDisplay::StartProcessingEvents() {
+  DCHECK(display_poll_thread_);
+  // Start polling for wayland events.
+  if (!processing_events_) {
+    display_poll_thread_->StartProcessingEvents();
+    processing_events_ = true;
+  }
+}
+
+void WaylandDisplay::StopProcessingEvents() {
+  DCHECK(display_poll_thread_);
+  // Start polling for wayland events.
+  if (processing_events_) {
+    display_poll_thread_->StopProcessingEvents();
+    processing_events_ = false;
+  }
+}
+
+void WaylandDisplay::Terminate() {
+  if (!widget_map_.empty()) {
+    STLDeleteValues(&widget_map_);
+    widget_map_.clear();
+  }
+
+  for (WaylandSeat* seat : seat_list_)
+    delete seat;
+
+  for (WaylandScreen* screen : screen_list_)
+    delete screen;
+
+  screen_list_.clear();
+  seat_list_.clear();
+
+  if (text_input_manager_)
+    wl_text_input_manager_destroy(text_input_manager_);
+
+#if defined(ENABLE_DRM_SUPPORT)
+  if (m_deviceName)
+    delete m_deviceName;
+
+  if (m_drm) {
+    wl_drm_destroy(m_drm);
+    m_drm = NULL;
+  }
+
+  close(m_fd_);
+#endif
+  if (compositor_)
+    wl_compositor_destroy(compositor_);
+
+  delete shell_;
+  if (shm_)
+    wl_shm_destroy(shm_);
+
+  if (registry_)
+    wl_registry_destroy(registry_);
+
+  delete display_poll_thread_;
+
+  if (display_) {
+    wl_display_flush(display_);
+    wl_display_disconnect(display_);
+    display_ = NULL;
+  }
+
+  instance_ = NULL;
+}
+
+WaylandWindow* WaylandDisplay::GetWidget(unsigned w) const {
+  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
+  return it == widget_map_.end() ? NULL : it->second;
+}
+
 void WaylandDisplay::SetWidgetState(unsigned w,
                                     ui::WidgetState state) {
   switch (state) {
@@ -383,110 +490,6 @@ void WaylandDisplay::HideInputPanel() {
   primary_seat_->HideInputPanel();
 }
 
-void WaylandDisplay::InitializeDisplay() {
-  DCHECK(!display_);
-  display_ = wl_display_connect(NULL);
-  if (!display_)
-    return;
-
-  instance_ = this;
-  static const struct wl_registry_listener registry_all = {
-    WaylandDisplay::DisplayHandleGlobal
-  };
-
-  registry_ = wl_display_get_registry(display_);
-  wl_registry_add_listener(registry_, &registry_all, this);
-  shell_ = new WaylandShell();
-
-  if (wl_display_roundtrip(display_) < 0) {
-    Terminate();
-    return;
-  }
-
-  dispatcher_ = new ui::GPUEventDispatcher();
-  display_poll_thread_ = new WaylandDisplayPollThread(display_);
-}
-
-WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
-  WaylandWindow* window = new WaylandWindow(w);
-  widget_map_[w] = window;
-
-  return window;
-}
-
-void WaylandDisplay::StartProcessingEvents() {
-  DCHECK(display_poll_thread_);
-  // Start polling for wayland events.
-  if (!processing_events_) {
-    display_poll_thread_->StartProcessingEvents();
-    processing_events_ = true;
-  }
-}
-
-void WaylandDisplay::StopProcessingEvents() {
-  DCHECK(display_poll_thread_);
-  // Start polling for wayland events.
-  if (processing_events_) {
-    display_poll_thread_->StopProcessingEvents();
-    processing_events_ = false;
-  }
-}
-
-void WaylandDisplay::Terminate() {
-  if (!widget_map_.empty()) {
-    STLDeleteValues(&widget_map_);
-    widget_map_.clear();
-  }
-
-  for (WaylandSeat* seat : seat_list_)
-    delete seat;
-
-  for (WaylandScreen* screen : screen_list_)
-    delete screen;
-
-  screen_list_.clear();
-  seat_list_.clear();
-
-  if (text_input_manager_)
-    wl_text_input_manager_destroy(text_input_manager_);
-
-#if defined(ENABLE_DRM_SUPPORT)
-  if (m_deviceName)
-    delete m_deviceName;
-
-  if (m_drm) {
-    wl_drm_destroy(m_drm);
-    m_drm = NULL;
-  }
-
-  close(m_fd_);
-#endif
-  if (compositor_)
-    wl_compositor_destroy(compositor_);
-
-  delete shell_;
-  if (shm_)
-    wl_shm_destroy(shm_);
-
-  if (registry_)
-    wl_registry_destroy(registry_);
-
-  delete display_poll_thread_;
-
-  if (display_) {
-    wl_display_flush(display_);
-    wl_display_disconnect(display_);
-    display_ = NULL;
-  }
-
-  delete dispatcher_;
-  instance_ = NULL;
-}
-
-WaylandWindow* WaylandDisplay::GetWidget(unsigned w) const {
-  std::map<unsigned, WaylandWindow*>::const_iterator it = widget_map_.find(w);
-  return it == widget_map_.end() ? NULL : it->second;
-}
 #if defined(ENABLE_DRM_SUPPORT)
 void WaylandDisplay::DrmHandleDevice(const char* device) {
   drm_magic_t magic;
@@ -576,7 +579,8 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
 }
 
 void WaylandDisplay::OnChannelEstablished(IPC::Sender* sender) {
-  dispatcher_->ChannelEstablished(sender);
+  loop_ = base::MessageLoop::current();
+  sender_ = sender;
 }
 
 bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
@@ -605,6 +609,124 @@ void WaylandDisplay::RelinquishGpuResources(
 
 IPC::MessageFilter* WaylandDisplay::GetMessageFilter() {
   return NULL;
+}
+
+void WaylandDisplay::MotionNotify(float x, float y) {
+  Dispatch(new WaylandInput_MotionNotify(x, y));
+}
+
+void WaylandDisplay::ButtonNotify(unsigned handle,
+                                  ui::EventType type,
+                                  ui::EventFlags flags,
+                                  float x,
+                                  float y) {
+  Dispatch(new WaylandInput_ButtonNotify(handle, type, flags, x, y));
+}
+
+void WaylandDisplay::AxisNotify(float x,
+                                float y,
+                                int xoffset,
+                                int yoffset) {
+  Dispatch(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
+}
+
+void WaylandDisplay::PointerEnter(unsigned handle,
+                                  float x,
+                                  float y) {
+  Dispatch(new WaylandInput_PointerEnter(handle, x, y));
+}
+
+void WaylandDisplay::PointerLeave(unsigned handle,
+                                  float x,
+                                  float y) {
+  Dispatch(new WaylandInput_PointerLeave(handle, x, y));
+}
+
+void WaylandDisplay::KeyNotify(ui::EventType type,
+                               unsigned code,
+                               int device_id) {
+  Dispatch(new WaylandInput_KeyNotify(type, code, device_id));
+}
+
+void WaylandDisplay::VirtualKeyNotify(ui::EventType type,
+                                      uint32_t key,
+                                      int device_id) {
+  Dispatch(new WaylandInput_VirtualKeyNotify(type, key, device_id));
+}
+
+void WaylandDisplay::TouchNotify(ui::EventType type,
+                                 float x,
+                                 float y,
+                                 int32_t touch_id,
+                                 uint32_t time_stamp) {
+  Dispatch(new WaylandInput_TouchNotify(type, x, y, touch_id, time_stamp));
+}
+
+void WaylandDisplay::OutputSizeChanged(unsigned width,
+                                       unsigned height) {
+  Dispatch(new WaylandInput_OutputSize(width, height));
+}
+
+void WaylandDisplay::WindowResized(unsigned handle,
+                                   unsigned width,
+                                   unsigned height) {
+  Dispatch(new WaylandWindow_Resized(handle, width, height));
+}
+
+void WaylandDisplay::WindowUnminimized(unsigned handle) {
+  Dispatch(new WaylandWindow_Unminimized(handle));
+}
+
+void WaylandDisplay::WindowDeActivated(unsigned windowhandle) {
+  Dispatch(new WaylandWindow_DeActivated(windowhandle));
+}
+
+void WaylandDisplay::WindowActivated(unsigned windowhandle) {
+  Dispatch(new WaylandWindow_Activated(windowhandle));
+}
+
+void WaylandDisplay::CloseWidget(unsigned handle) {
+  Dispatch(new WaylandInput_CloseWidget(handle));
+}
+
+void WaylandDisplay::Commit(unsigned handle,
+                            const std::string& text) {
+  Dispatch(new WaylandInput_Commit(handle, text));
+}
+
+void WaylandDisplay::PreeditChanged(unsigned handle,
+                                    const std::string& text,
+                                    const std::string& commit) {
+  Dispatch(new WaylandInput_PreeditChanged(handle, text, commit));
+}
+
+void WaylandDisplay::PreeditEnd() {
+  Dispatch(new WaylandInput_PreeditEnd());
+}
+
+void WaylandDisplay::PreeditStart() {
+  Dispatch(new WaylandInput_PreeditStart());
+}
+
+void WaylandDisplay::InitializeXKB(base::SharedMemoryHandle fd,
+                                   uint32_t size) {
+  Dispatch(new WaylandInput_InitializeXKB(fd, size));
+}
+
+void WaylandDisplay::Dispatch(IPC::Message* message) {
+  if (!loop_) {
+    delete message;
+    return;
+  }
+
+  loop_->task_runner()->PostTask(FROM_HERE,
+      base::Bind(&WaylandDisplay::Send,
+                 weak_ptr_factory_.GetWeakPtr(),
+                 message));
+}
+
+void WaylandDisplay::Send(IPC::Message* message) {
+  sender_->Send(message);
 }
 
 }  // namespace ozonewayland

@@ -7,10 +7,6 @@
 
 #include "ozone/wayland/display.h"
 
-namespace ui {
-class GPUEventDispatcher;
-}
-
 namespace ozonewayland {
 
 class WaylandKeyboard {
@@ -54,7 +50,7 @@ class WaylandKeyboard {
                              uint32_t group);
 
   wl_keyboard* input_keyboard_;
-  ui::GPUEventDispatcher* dispatcher_;
+  WaylandDisplay* dispatcher_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandKeyboard);
 };

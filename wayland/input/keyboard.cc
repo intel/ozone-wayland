@@ -4,7 +4,6 @@
 
 #include "ozone/wayland/input/keyboard.h"
 
-#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
 
 namespace ozonewayland {
@@ -28,7 +27,7 @@ void WaylandKeyboard::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   };
 
   dispatcher_ =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
+      WaylandDisplay::GetInstance();
 
   if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !input_keyboard_) {
     input_keyboard_ = wl_seat_get_keyboard(seat);

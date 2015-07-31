@@ -8,10 +8,6 @@
 #include "ozone/wayland/display.h"
 #include "ui/gfx/geometry/point.h"
 
-namespace ui {
-class GPUEventDispatcher;
-}
-
 namespace ozonewayland {
 
 class WaylandWindow;
@@ -57,7 +53,7 @@ class WaylandTouchscreen {
       void *data,
       struct wl_touch *wl_touch);
 
-  ui::GPUEventDispatcher* dispatcher_;
+  WaylandDisplay* dispatcher_;
   gfx::Point pointer_position_;
   struct wl_touch* wl_touch_;
 

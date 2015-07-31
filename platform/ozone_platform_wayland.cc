@@ -6,7 +6,6 @@
 
 #include "base/at_exit.h"
 #include "base/bind.h"
-#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"

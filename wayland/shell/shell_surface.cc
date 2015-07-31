@@ -4,7 +4,6 @@
 
 #include "ozone/wayland/shell/shell_surface.h"
 
-#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/seat.h"
 
@@ -33,13 +32,12 @@ void WaylandShellSurface::FlushDisplay() const {
 }
 
 void WaylandShellSurface::PopupDone() {
-  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
-  ui::GPUEventDispatcher* dispatcher =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
+  WaylandDisplay* display = WaylandDisplay::GetInstance();
+  WaylandSeat* seat = display->PrimarySeat();
 
   if (!seat->GetGrabWindowHandle())
     return;
-  dispatcher->CloseWidget(seat->GetGrabWindowHandle());
+  display->CloseWidget(seat->GetGrabWindowHandle());
   seat->SetGrabWindowHandle(0, 0);
 }
 
@@ -47,17 +45,14 @@ void WaylandShellSurface::WindowResized(void* data,
                                  unsigned width,
                                  unsigned height) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
-  ui::GPUEventDispatcher* dispatcher =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
-  dispatcher->WindowResized(window->Handle(), width, height);
+  WaylandDisplay::GetInstance()->WindowResized(window->Handle(), width, height);
 }
 
 void WaylandShellSurface::WindowActivated(void *data) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
   WaylandShellSurface* shellSurface = window->ShellSurface();
 
-  ui::GPUEventDispatcher* dispatcher =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
+  WaylandDisplay* dispatcher = WaylandDisplay::GetInstance();
 
   if (shellSurface->IsMinimized()) {
     shellSurface->Unminimize();
@@ -69,9 +64,7 @@ void WaylandShellSurface::WindowActivated(void *data) {
 
 void WaylandShellSurface::WindowDeActivated(void *data) {
   WaylandWindow *window = static_cast<WaylandWindow*>(data);
-  ui::GPUEventDispatcher* dispatcher =
-      WaylandDisplay::GetInstance()->GetEventDispatcher();
-  dispatcher->WindowDeActivated(window->Handle());
+  WaylandDisplay::GetInstance()->WindowDeActivated(window->Handle());
 }
 
 }  // namespace ozonewayland

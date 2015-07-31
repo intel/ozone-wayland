@@ -6,7 +6,6 @@
 
 #include <linux/input.h>
 
-#include "ozone/platform/gpu_event_dispatcher.h"
 #include "ozone/wayland/input/cursor.h"
 #include "ozone/wayland/seat.h"
 #include "ozone/wayland/window.h"
@@ -39,7 +38,7 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   if (!cursor_)
     cursor_ = new WaylandCursor();
 
-  dispatcher_ = WaylandDisplay::GetInstance()->GetEventDispatcher();
+  dispatcher_ = WaylandDisplay::GetInstance();
 
   if ((caps & WL_SEAT_CAPABILITY_POINTER) && !cursor_->GetInputPointer()) {
     input_pointer_ = wl_seat_get_pointer(seat);
