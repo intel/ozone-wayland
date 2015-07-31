@@ -6,8 +6,11 @@
 #define OZONE_WAYLAND_SEAT_H_
 
 #include <wayland-client.h>
+#include <vector>
+
 #include "base/basictypes.h"
 #include "ozone/ui/events/ime_state_change_handler.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace ozonewayland {
 
@@ -31,6 +34,8 @@ class WaylandSeat : public ui::IMEStateChangeHandler {
   void SetFocusWindowHandle(unsigned windowhandle);
   void SetGrabWindowHandle(unsigned windowhandle, uint32_t button);
   void SetCursorType(int cursor_type);
+  void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
+                       const gfx::Point& location);
 
   void ResetIme() override;
   void ImeCaretBoundsChanged(gfx::Rect rect) override;

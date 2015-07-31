@@ -361,6 +361,11 @@ void WaylandDisplay::SubRegion(unsigned handle, int left, int top,
   widget->SubRegion(left, top, right, bottom);
 }
 
+void WaylandDisplay::SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
+                                     const gfx::Point& location) {
+  primary_seat_->SetCursorBitmap(bitmaps, location);
+}
+
 void WaylandDisplay::InitializeDisplay() {
   DCHECK(!display_);
   display_ = wl_display_connect(NULL);

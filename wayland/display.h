@@ -19,6 +19,7 @@
 #include <wayland-client.h>
 #include <list>
 #include <map>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "ozone/ui/events/window_constants.h"
@@ -68,7 +69,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
 
   WaylandShell* GetShell() const { return shell_; }
 
-  wl_shm* shm() const { return shm_; }
+  wl_shm* GetShm() const { return shm_; }
   wl_compositor* GetCompositor() const { return compositor_; }
   struct wl_text_input_manager* GetTextInputManager() const;
 
@@ -120,6 +121,8 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
                     ui::WidgetType type);
   void AddRegion(unsigned widget, int left, int top, int right, int bottom);
   void SubRegion(unsigned widget, int left, int top, int right, int bottom);
+  void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
+                       const gfx::Point& location);
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);

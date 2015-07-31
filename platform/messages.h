@@ -5,6 +5,7 @@
 // Multiply-included message file, hence no include guard here.
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/memory/shared_memory.h"
@@ -14,6 +15,7 @@
 #include "ipc/ipc_param_traits.h"
 #include "ipc/param_traits_macros.h"
 #include "ozone/ui/events/window_constants.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/events/event_constants.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/ipc/gfx_param_traits.h"
@@ -153,3 +155,7 @@ IPC_MESSAGE_CONTROL5(WaylandDisplay_SubRegion,  // NOLINT(readability/fn_size)
                      int /* top */,
                      int /* right */,
                      int /* bottom */)
+
+IPC_MESSAGE_CONTROL2(WaylandDisplay_CursorSet,  // NOLINT(readability/fn_size)
+                     std::vector<SkBitmap>,
+                     gfx::Point)

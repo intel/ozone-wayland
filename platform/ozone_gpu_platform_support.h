@@ -10,6 +10,7 @@
 #include "base/observer_list.h"
 #include "base/strings/string16.h"
 #include "ozone/ui/events/window_constants.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/ozone/public/gpu_platform_support.h"
 
 namespace IPC {
@@ -18,6 +19,10 @@ class Sender;
 
 namespace ozonewayland  {
 class WaylandDisplay;
+}
+
+namespace gfx {
+class Point;
 }
 
 namespace ui {
@@ -50,6 +55,8 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
                           int right, int bottom);
   void OnDisplaySubRegion(unsigned widget, int left, int top,
                           int right, int bottom);
+  void OnDisplaySetCursor(const std::vector<SkBitmap>& bitmaps,
+                          const gfx::Point& location);
   void OnWidgetImeReset();
   void OnWidgetShowInputPanel();
   void OnWidgetHideInputPanel();

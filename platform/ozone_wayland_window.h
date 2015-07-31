@@ -5,6 +5,7 @@
 #ifndef OZONE_PLATFORM_OZONE_WAYLAND_WINDOW_H_
 #define OZONE_PLATFORM_OZONE_WAYLAND_WINDOW_H_
 
+#include "base/memory/ref_counted.h"
 #include "ozone/ui/events/window_constants.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
@@ -15,6 +16,7 @@
 
 namespace ui {
 
+class BitmapCursorOzone;
 class OzoneGpuPlatformSupportHost;
 class PlatformWindowDelegate;
 class WindowManagerWayland;
@@ -66,6 +68,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   void SendWidgetState();
   void AddRegion();
   void ResetRegion();
+  void SetCursor();
   PlatformWindowDelegate* delegate_;   // Not owned.
   OzoneGpuPlatformSupportHost* sender_;  // Not owned.
   WindowManagerWayland* window_manager_;  // Not owned.
@@ -79,6 +82,8 @@ class OzoneWaylandWindow : public PlatformWindow,
   SkRegion* region_;
   int cursor_type_;
   base::string16 title_;
+  // The current cursor bitmap (immutable).
+  scoped_refptr<BitmapCursorOzone> bitmap_;
 
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandWindow);
 };

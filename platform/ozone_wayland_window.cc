@@ -4,11 +4,13 @@
 
 #include "ozone/platform/ozone_wayland_window.h"
 
+#include <vector>
 #include "base/bind.h"
 #include "ozone/platform/messages.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/window_manager_wayland.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
+#include "ui/base/cursor/ozone/bitmap_cursor_factory_ozone.h"
 #include "ui/events/ozone/events_ozone.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/screen.h"
@@ -184,6 +186,17 @@ void OzoneWaylandWindow::Restore() {
 }
 
 void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
+  scoped_refptr<BitmapCursorOzone> bitmap =
+      BitmapCursorFactoryOzone::GetBitmapCursor(cursor);
+
+  if (bitmap_ == bitmap)
+    return;
+
+  bitmap_ = bitmap;
+  if (!sender_->IsConnected())
+    return;
+
+  SetCursor();
 }
 
 void OzoneWaylandWindow::MoveCursorTo(const gfx::Point& location) {
@@ -223,6 +236,7 @@ void OzoneWaylandWindow::OnChannelEstablished() {
     sender_->Send(new WaylandWindow_Cursor(cursor_type_));
 
   AddRegion();
+  SetCursor();
 }
 
 void OzoneWaylandWindow::OnChannelDestroyed() {
@@ -259,6 +273,16 @@ void OzoneWaylandWindow::ResetRegion() {
 
     delete region_;
     region_ = NULL;
+  }
+}
+
+void OzoneWaylandWindow::SetCursor() {
+  if (bitmap_) {
+    sender_->Send(new WaylandDisplay_CursorSet(bitmap_->bitmaps(),
+                                               bitmap_->hotspot()));
+  } else {
+    sender_->Send(new WaylandDisplay_CursorSet(std::vector<SkBitmap>(),
+                                               gfx::Point()));
   }
 }
 

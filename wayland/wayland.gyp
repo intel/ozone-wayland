@@ -57,6 +57,7 @@
       },
       'dependencies': [
         '../../base/base.gyp:base',
+	'../../skia/skia.gyp:skia',
         '../../ui/ozone/ozone.gyp:ozone_base',
       ],
       'include_dirs': [

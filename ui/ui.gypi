@@ -3,7 +3,6 @@
 # found in the LICENSE file.
 {
   'includes': [
-    'cursor/cursor.gypi',
     'events/event.gypi',
     'webui/webui.gypi',
    ],
