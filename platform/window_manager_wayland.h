@@ -12,6 +12,7 @@
 #include "base/basictypes.h"
 #include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
+#include "ui/base/cursor/cursor.h"
 #include "ui/events/event.h"
 #include "ui/events/event_source.h"
 #include "ui/events/ozone/evdev/event_modifiers_evdev.h"
@@ -43,6 +44,9 @@ class WindowManagerWayland
   void Restore(OzoneWaylandWindow* window);
 
   void OnPlatformScreenCreated(ozonewayland::OzoneWaylandScreen* screen);
+
+  PlatformCursor GetPlatformCursor();
+  void SetPlatformCursor(PlatformCursor cursor);
 
   OzoneWaylandWindow* GetWindow(unsigned handle);
   bool HasWindowsOpen() const;
@@ -168,6 +172,7 @@ class WindowManagerWayland
   // Keyboard state.
   KeyboardEvdev keyboard_;
   ozonewayland::OzoneWaylandScreen* platform_screen_;
+  PlatformCursor platform_cursor_;
   // Support weak pointers for attach & detach callbacks.
   base::WeakPtrFactory<WindowManagerWayland> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(WindowManagerWayland);

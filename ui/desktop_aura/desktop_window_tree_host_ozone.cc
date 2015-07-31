@@ -691,9 +691,6 @@ void DesktopWindowTreeHostOzone::ShowWindow() {
 }
 
 void DesktopWindowTreeHostOzone::SetCursorNative(gfx::NativeCursor cursor) {
-  // TODO(kalyan): Remove this.
-  platform_window_->SetWidgetCursor(cursor.native_type());
-
   platform_window_->SetCursor(cursor.platform());
 }
 

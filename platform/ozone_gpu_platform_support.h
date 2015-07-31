@@ -45,7 +45,6 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
   void OnWidgetStateChanged(unsigned handleid,
                             ui::WidgetState state);
   void OnWidgetTitleChanged(unsigned widget, base::string16 title);
-  void OnWidgetCursorChanged(int cursor_type);
   void OnWidgetCreate(unsigned widget,
                       unsigned parent,
                       unsigned x,

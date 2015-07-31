@@ -113,7 +113,6 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
                       ui::WidgetState state);
   void SetWidgetTitle(unsigned w,
                       const base::string16& title);
-  void SetWidgetCursor(int cursor_type);
   void CreateWidget(unsigned widget,
                     unsigned parent,
                     unsigned x,

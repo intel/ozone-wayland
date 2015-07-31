@@ -49,7 +49,6 @@ bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_Create, OnWidgetCreate)
   IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Cursor, OnWidgetCursorChanged)
   IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, OnDisplayAddRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SubRegion, OnDisplaySubRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_CursorSet, OnDisplaySetCursor)
@@ -78,10 +77,6 @@ void OzoneGpuPlatformSupport::OnWidgetStateChanged(unsigned handleid,
 void OzoneGpuPlatformSupport::OnWidgetTitleChanged(unsigned widget,
                                                    base::string16 title) {
   display_->SetWidgetTitle(widget, title);
-}
-
-void OzoneGpuPlatformSupport::OnWidgetCursorChanged(int cursor_type) {
-  display_->SetWidgetCursor(cursor_type);
 }
 
 void OzoneGpuPlatformSupport::OnWidgetCreate(unsigned widget,

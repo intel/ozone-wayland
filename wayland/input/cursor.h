@@ -6,7 +6,6 @@
 #define OZONE_WAYLAND_INPUT_CURSOR_H_
 
 #include <wayland-client.h>
-#include <wayland-cursor.h>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -24,47 +23,9 @@ namespace ozonewayland {
 
 class WaylandCursor {
  public:
-  enum CursorType {
-    CURSOR_UNSET = 0,
-    CURSOR_DEFAULT,
-    CURSOR_BOTTOM_LEFT,
-    CURSOR_BOTTOM_RIGHT,
-    CURSOR_BOTTOM,
-    CURSOR_CROSS,
-    CURSOR_FLEUR,
-    CURSOR_DRAGGING,
-    CURSOR_LEFT_PTR,
-    CURSOR_LEFT,
-    CURSOR_LEFT_ARROW,
-    CURSOR_RIGHT,
-    CURSOR_TOP_LEFT,
-    CURSOR_TOP_LEFT_ARROW,
-    CURSOR_TOP_RIGHT,
-    CURSOR_TOP,
-    CURSOR_UP_ARROW,
-    CURSOR_WAIT,
-    CURSOR_WATCH,
-    CURSOR_IBEAM,
-    CURSOR_HAND1,
-    CURSOR_TEXT,
-    CURSOR_QUESTION_ARROW,
-    CURSOR_V_DOUBLE_ARROW,
-    CURSOR_H_DOUBLE_ARROW
-  };
-
-  explicit WaylandCursor(wl_shm* shm);
+  WaylandCursor();
   ~WaylandCursor();
 
-  // Destroys CursorData. WaylandDisplay is responsible for calling this as
-  // needed. No other class should call this.
-  static void Clear();
-
-  // Initializes CursorData. WaylandDisplay is responsible for calling this as
-  // needed. No other class should call this. We do it this way to avoid
-  // initializing theme under sandbox.
-  static void InitializeCursorData(wl_shm* shm);
-
-  void Update(CursorType type, uint32_t serial);
   void UpdateBitmap(const std::vector<SkBitmap>& bitmaps,
                     const gfx::Point& location,
                     uint32_t serial);
@@ -75,11 +36,11 @@ class WaylandCursor {
  private:
   bool CreateSHMBuffer(int width, int height);
   void HideCursor(uint32_t serial);
-  wl_pointer* input_pointer_;
+
+  struct wl_pointer* input_pointer_;
   struct wl_surface* pointer_surface_;
   struct wl_buffer* buffer_;
   struct wl_shm* shm_;
-  CursorType current_cursor_;
   base::SharedMemory* sh_memory_;
   int width_;
   int height_;

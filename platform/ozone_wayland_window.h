@@ -37,7 +37,6 @@ class OzoneWaylandWindow : public PlatformWindow,
   // PlatformWindow:
   void InitPlatformWindow(PlatformWindowType type,
                           gfx::AcceleratedWidget parent_window) override;
-  void SetWidgetCursor(int cursor_type) override;
   void SetWidgetTitle(const base::string16& title) override;
   void SetWindowShape(const SkPath& path) override;
   void SetOpacity(unsigned char opacity) override;

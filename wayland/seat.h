@@ -33,7 +33,6 @@ class WaylandSeat : public ui::IMEStateChangeHandler {
   uint32_t GetGrabButton() const { return grab_button_; }
   void SetFocusWindowHandle(unsigned windowhandle);
   void SetGrabWindowHandle(unsigned windowhandle, uint32_t button);
-  void SetCursorType(int cursor_type);
   void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
                        const gfx::Point& location);
 

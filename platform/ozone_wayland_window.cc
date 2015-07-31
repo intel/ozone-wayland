@@ -87,14 +87,6 @@ void OzoneWaylandWindow::InitPlatformWindow(
   sender_->AddChannelObserver(this);
 }
 
-void OzoneWaylandWindow::SetWidgetCursor(int cursor_type) {
-  cursor_type_ = cursor_type;
-  if (!sender_->IsConnected())
-    return;
-
-  sender_->Send(new WaylandWindow_Cursor(cursor_type_));
-}
-
 void OzoneWaylandWindow::SetWidgetTitle(const base::string16& title) {
   title_ = title;
   if (!sender_->IsConnected())
@@ -186,13 +178,13 @@ void OzoneWaylandWindow::Restore() {
 }
 
 void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
-  scoped_refptr<BitmapCursorOzone> bitmap =
-      BitmapCursorFactoryOzone::GetBitmapCursor(cursor);
-
-  if (bitmap_ == bitmap)
+  if (window_manager_->GetPlatformCursor() == cursor)
     return;
 
+  scoped_refptr<BitmapCursorOzone> bitmap =
+      BitmapCursorFactoryOzone::GetBitmapCursor(cursor);
   bitmap_ = bitmap;
+  window_manager_->SetPlatformCursor(cursor);
   if (!sender_->IsConnected())
     return;
 
@@ -231,9 +223,6 @@ void OzoneWaylandWindow::OnChannelEstablished() {
 
   if (title_.length())
     sender_->Send(new WaylandWindow_Title(handle_, title_));
-
-  if (cursor_type_ >= 0)
-    sender_->Send(new WaylandWindow_Cursor(cursor_type_));
 
   AddRegion();
   SetCursor();

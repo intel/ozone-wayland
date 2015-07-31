@@ -37,7 +37,7 @@ void WaylandPointer::OnSeatCapabilities(wl_seat *seat, uint32_t caps) {
   };
 
   if (!cursor_)
-    cursor_ = new WaylandCursor(WaylandDisplay::GetInstance()->GetShm());
+    cursor_ = new WaylandCursor();
 
   dispatcher_ = WaylandDisplay::GetInstance()->GetEventDispatcher();
 

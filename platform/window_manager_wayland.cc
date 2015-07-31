@@ -83,6 +83,14 @@ void WindowManagerWayland::OnPlatformScreenCreated(
   platform_screen_ = screen;
 }
 
+PlatformCursor WindowManagerWayland::GetPlatformCursor() {
+  return platform_cursor_;
+}
+
+void WindowManagerWayland::SetPlatformCursor(PlatformCursor cursor) {
+  platform_cursor_ = cursor;
+}
+
 bool WindowManagerWayland::HasWindowsOpen() const {
   return open_windows_ ? !open_windows_->empty() : false;
 }
