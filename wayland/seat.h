@@ -35,6 +35,7 @@ class WaylandSeat : public ui::IMEStateChangeHandler {
   void SetGrabWindowHandle(unsigned windowhandle, uint32_t button);
   void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
                        const gfx::Point& location);
+  void MoveCursor(const gfx::Point& location);
 
   void ResetIme() override;
   void ImeCaretBoundsChanged(gfx::Rect rect) override;

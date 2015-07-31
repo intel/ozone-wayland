@@ -192,6 +192,7 @@ void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
 }
 
 void OzoneWaylandWindow::MoveCursorTo(const gfx::Point& location) {
+  sender_->Send(new WaylandDisplay_MoveCursor(location));
 }
 
 void OzoneWaylandWindow::ConfineCursorToBounds(const gfx::Rect& bounds) {

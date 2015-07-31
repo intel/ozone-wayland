@@ -99,6 +99,16 @@ void WaylandSeat::SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
       bitmaps, location, WaylandDisplay::GetInstance()->GetSerial());
 }
 
+void WaylandSeat::MoveCursor(const gfx::Point& location) {
+  if (!input_pointer_) {
+    LOG(WARNING) << "Tried to move cursor without input configured";
+    return;
+  }
+
+  input_pointer_->Cursor()->MoveCursor(
+      location, WaylandDisplay::GetInstance()->GetSerial());
+}
+
 void WaylandSeat::ResetIme() {
   text_input_->ResetIme();
 }

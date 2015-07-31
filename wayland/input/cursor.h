@@ -29,6 +29,7 @@ class WaylandCursor {
   void UpdateBitmap(const std::vector<SkBitmap>& bitmaps,
                     const gfx::Point& location,
                     uint32_t serial);
+  void MoveCursor(const gfx::Point& location, uint32_t serial);
 
   wl_pointer* GetInputPointer() const { return input_pointer_; }
   void SetInputPointer(wl_pointer* pointer);

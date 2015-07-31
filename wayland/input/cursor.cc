@@ -70,6 +70,14 @@ void WaylandCursor::UpdateBitmap(const std::vector<SkBitmap>& cursor_image,
   wl_surface_commit(pointer_surface_);
 }
 
+void WaylandCursor::MoveCursor(const gfx::Point& location, uint32_t serial) {
+  if (!input_pointer_)
+    return;
+
+  wl_pointer_set_cursor(input_pointer_, serial, pointer_surface_,
+                         location.x(), location.y());
+}
+
 bool WaylandCursor::CreateSHMBuffer(int width, int height) {
   if (width == width_ && height == height_)
     return true;

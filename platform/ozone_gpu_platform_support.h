@@ -56,6 +56,7 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
                           int right, int bottom);
   void OnDisplaySetCursor(const std::vector<SkBitmap>& bitmaps,
                           const gfx::Point& location);
+  void OnDisplayMoveCursor(const gfx::Point& location);
   void OnWidgetImeReset();
   void OnWidgetShowInputPanel();
   void OnWidgetHideInputPanel();

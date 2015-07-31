@@ -156,3 +156,6 @@ IPC_MESSAGE_CONTROL5(WaylandDisplay_SubRegion,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL2(WaylandDisplay_CursorSet,  // NOLINT(readability/fn_size)
                      std::vector<SkBitmap>,
                      gfx::Point)
+
+IPC_MESSAGE_CONTROL1(WaylandDisplay_MoveCursor,  // NOLINT(readability/fn_size)
+                     gfx::Point)

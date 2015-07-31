@@ -52,6 +52,7 @@ bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, OnDisplayAddRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SubRegion, OnDisplaySubRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_CursorSet, OnDisplaySetCursor)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_MoveCursor, OnDisplayMoveCursor)
   IPC_MESSAGE_HANDLER(WaylandWindow_ImeReset, OnWidgetImeReset)
   IPC_MESSAGE_HANDLER(WaylandWindow_ShowInputPanel, OnWidgetShowInputPanel)
   IPC_MESSAGE_HANDLER(WaylandWindow_HideInputPanel, OnWidgetHideInputPanel)
@@ -106,6 +107,10 @@ void OzoneGpuPlatformSupport::OnDisplaySubRegion(unsigned widget,
 void OzoneGpuPlatformSupport::OnDisplaySetCursor(
     const std::vector<SkBitmap>& bitmaps, const gfx::Point& location) {
   display_->SetCursorBitmap(bitmaps, location);
+}
+
+void OzoneGpuPlatformSupport::OnDisplayMoveCursor(const gfx::Point& location) {
+  display_->MoveCursor(location);
 }
 
 void OzoneGpuPlatformSupport::OnWidgetImeReset() {

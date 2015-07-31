@@ -122,6 +122,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone {
   void SubRegion(unsigned widget, int left, int top, int right, int bottom);
   void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
                        const gfx::Point& location);
+  void MoveCursor(const gfx::Point& location);
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);

@@ -362,6 +362,10 @@ void WaylandDisplay::SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
   primary_seat_->SetCursorBitmap(bitmaps, location);
 }
 
+void WaylandDisplay::MoveCursor(const gfx::Point& location) {
+  primary_seat_->MoveCursor(location);
+}
+
 void WaylandDisplay::InitializeDisplay() {
   DCHECK(!display_);
   display_ = wl_display_connect(NULL);

@@ -696,7 +696,7 @@ void DesktopWindowTreeHostOzone::SetCursorNative(gfx::NativeCursor cursor) {
 
 void DesktopWindowTreeHostOzone::MoveCursorToNative(
     const gfx::Point& location) {
-  NOTIMPLEMENTED();
+  platform_window_->MoveCursorTo(location);
 }
 
 void DesktopWindowTreeHostOzone::OnCursorVisibilityChangedNative(bool show) {
