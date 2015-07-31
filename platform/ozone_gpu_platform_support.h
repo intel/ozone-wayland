@@ -42,14 +42,14 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
   void RelinquishGpuResources(const base::Closure& callback) override;
   IPC::MessageFilter* GetMessageFilter() override;
 
-  void OnWidgetStateChanged(unsigned handleid,
-                            ui::WidgetState state);
-  void OnWidgetTitleChanged(unsigned widget, base::string16 title);
-  void OnWidgetCreate(unsigned widget,
-                      unsigned parent,
-                      unsigned x,
-                      unsigned y,
-                      ui::WidgetType type);
+  void OnDisplayStateChanged(unsigned handleid,
+                             ui::WidgetState state);
+  void OnDisplayTitleChanged(unsigned widget, base::string16 title);
+  void OnDisplayCreate(unsigned widget,
+                       unsigned parent,
+                       unsigned x,
+                       unsigned y,
+                       ui::WidgetType type);
   void OnDisplayAddRegion(unsigned widget, int left, int top,
                           int right, int bottom);
   void OnDisplaySubRegion(unsigned widget, int left, int top,
@@ -57,9 +57,9 @@ class OzoneGpuPlatformSupport : public GpuPlatformSupport {
   void OnDisplaySetCursor(const std::vector<SkBitmap>& bitmaps,
                           const gfx::Point& location);
   void OnDisplayMoveCursor(const gfx::Point& location);
-  void OnWidgetImeReset();
-  void OnWidgetShowInputPanel();
-  void OnWidgetHideInputPanel();
+  void OnDisplayImeReset();
+  void OnDisplayShowInputPanel();
+  void OnDisplayHideInputPanel();
 
  private:
   IPC::Sender* sender_;

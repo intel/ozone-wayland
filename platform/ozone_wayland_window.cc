@@ -92,7 +92,7 @@ void OzoneWaylandWindow::SetWidgetTitle(const base::string16& title) {
   if (!sender_->IsConnected())
     return;
 
-  sender_->Send(new WaylandWindow_Title(handle_, title_));
+  sender_->Send(new WaylandDisplay_Title(handle_, title_));
 }
 
 void OzoneWaylandWindow::SetWindowShape(const SkPath& path) {
@@ -214,16 +214,16 @@ uint32_t OzoneWaylandWindow::DispatchEvent(
 }
 
 void OzoneWaylandWindow::OnChannelEstablished() {
-  sender_->Send(new WaylandWindow_Create(handle_,
-                                         parent_,
-                                         pos_.x(),
-                                         pos_.y(),
-                                         type_));
+  sender_->Send(new WaylandDisplay_Create(handle_,
+                                          parent_,
+                                          pos_.x(),
+                                          pos_.y(),
+                                          type_));
   if (state_)
-    sender_->Send(new WaylandWindow_State(handle_, state_));
+    sender_->Send(new WaylandDisplay_State(handle_, state_));
 
   if (title_.length())
-    sender_->Send(new WaylandWindow_Title(handle_, title_));
+    sender_->Send(new WaylandDisplay_Title(handle_, title_));
 
   AddRegion();
   SetCursor();
@@ -236,7 +236,7 @@ void OzoneWaylandWindow::SendWidgetState() {
   if (!sender_->IsConnected())
     return;
 
-  sender_->Send(new WaylandWindow_State(handle_, state_));
+  sender_->Send(new WaylandDisplay_State(handle_, state_));
 }
 
 void OzoneWaylandWindow::AddRegion() {

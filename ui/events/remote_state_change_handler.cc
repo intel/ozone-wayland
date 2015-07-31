@@ -39,7 +39,7 @@ void RemoteStateChangeHandler::OnChannelDestroyed() {
 }
 
 void RemoteStateChangeHandler::ResetIme() {
-  Send(new WaylandWindow_ImeReset());
+  Send(new WaylandDisplay_ImeReset());
 }
 
 void RemoteStateChangeHandler::ImeCaretBoundsChanged(gfx::Rect rect) {
@@ -47,11 +47,11 @@ void RemoteStateChangeHandler::ImeCaretBoundsChanged(gfx::Rect rect) {
 }
 
 void RemoteStateChangeHandler::HideInputPanel() {
-  Send(new WaylandWindow_HideInputPanel());
+  Send(new WaylandDisplay_HideInputPanel());
 }
 
 void RemoteStateChangeHandler::ShowInputPanel() {
-  Send(new WaylandWindow_ShowInputPanel());
+  Send(new WaylandDisplay_ShowInputPanel());
 }
 
 void RemoteStateChangeHandler::Send(IPC::Message* message) {

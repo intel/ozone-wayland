@@ -43,16 +43,16 @@ void OzoneGpuPlatformSupport::UnregisterHandler(GpuPlatformSupport* handler) {
 bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(OzoneGpuPlatformSupport, message)
-  IPC_MESSAGE_HANDLER(WaylandWindow_State, OnWidgetStateChanged)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Create, OnWidgetCreate)
-  IPC_MESSAGE_HANDLER(WaylandWindow_Title, OnWidgetTitleChanged)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_State, OnDisplayStateChanged)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_Create, OnDisplayCreate)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_Title, OnDisplayTitleChanged)
   IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, OnDisplayAddRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SubRegion, OnDisplaySubRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_CursorSet, OnDisplaySetCursor)
   IPC_MESSAGE_HANDLER(WaylandDisplay_MoveCursor, OnDisplayMoveCursor)
-  IPC_MESSAGE_HANDLER(WaylandWindow_ImeReset, OnWidgetImeReset)
-  IPC_MESSAGE_HANDLER(WaylandWindow_ShowInputPanel, OnWidgetShowInputPanel)
-  IPC_MESSAGE_HANDLER(WaylandWindow_HideInputPanel, OnWidgetHideInputPanel)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_ImeReset, OnDisplayImeReset)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_ShowInputPanel, OnDisplayShowInputPanel)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_HideInputPanel, OnDisplayHideInputPanel)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -67,21 +67,21 @@ bool OzoneGpuPlatformSupport::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void OzoneGpuPlatformSupport::OnWidgetStateChanged(unsigned handleid,
-                                                   ui::WidgetState state) {
+void OzoneGpuPlatformSupport::OnDisplayStateChanged(unsigned handleid,
+                                                    ui::WidgetState state) {
   display_->SetWidgetState(handleid, state);
 }
 
-void OzoneGpuPlatformSupport::OnWidgetTitleChanged(unsigned widget,
-                                                   base::string16 title) {
+void OzoneGpuPlatformSupport::OnDisplayTitleChanged(unsigned widget,
+                                                    base::string16 title) {
   display_->SetWidgetTitle(widget, title);
 }
 
-void OzoneGpuPlatformSupport::OnWidgetCreate(unsigned widget,
-                                             unsigned parent,
-                                             unsigned x,
-                                             unsigned y,
-                                             ui::WidgetType type) {
+void OzoneGpuPlatformSupport::OnDisplayCreate(unsigned widget,
+                                              unsigned parent,
+                                              unsigned x,
+                                              unsigned y,
+                                              ui::WidgetType type) {
   display_->CreateWidget(widget, parent, x, y, type);
 }
 
@@ -110,15 +110,15 @@ void OzoneGpuPlatformSupport::OnDisplayMoveCursor(const gfx::Point& location) {
   display_->MoveCursor(location);
 }
 
-void OzoneGpuPlatformSupport::OnWidgetImeReset() {
+void OzoneGpuPlatformSupport::OnDisplayImeReset() {
   display_->ResetIme();
 }
 
-void OzoneGpuPlatformSupport::OnWidgetShowInputPanel() {
+void OzoneGpuPlatformSupport::OnDisplayShowInputPanel() {
   display_->ShowInputPanel();
 }
 
-void OzoneGpuPlatformSupport::OnWidgetHideInputPanel() {
+void OzoneGpuPlatformSupport::OnDisplayHideInputPanel() {
   display_->HideInputPanel();
 }
 

@@ -31,6 +31,10 @@ IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetState,
 IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetType,
                           ui::POPUP)
 
+//------------------------------------------------------------------------------
+// Browser Messages
+// These messages are from the GPU to the browser process.
+
 IPC_MESSAGE_CONTROL2(WaylandInput_InitializeXKB,  // NOLINT(readability/fn_size)
                      base::SharedMemoryHandle /*fd*/,
                      uint32_t /*size*/)
@@ -101,31 +105,8 @@ IPC_MESSAGE_CONTROL1(WaylandWindow_DeActivated,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandWindow_Activated,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/)
 
-IPC_MESSAGE_CONTROL2(WaylandWindow_State,  // NOLINT(readability/fn_size)
-                     unsigned /* window handle */,
-                     ui::WidgetState /*state*/)
-
-IPC_MESSAGE_CONTROL5(WaylandWindow_Create,  // NOLINT(readability/fn_size)
-                     unsigned /* window handle */,
-                     unsigned /* window parent */,
-                     unsigned /* x */,
-                     unsigned /* y */,
-                     ui::WidgetType /* window type */)
-
-IPC_MESSAGE_CONTROL2(WaylandWindow_Title,  // NOLINT(readability/fn_size)
-                     unsigned /* window handle */,
-                     base::string16 /* window title */)
-
-IPC_MESSAGE_CONTROL0(WaylandWindow_ImeReset)  // NOLINT(readability/fn_size)
-
 IPC_MESSAGE_CONTROL1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/
                      gfx::Rect /* ImeCaretBoundsChanged */)  //      fn_size)
-
-IPC_MESSAGE_CONTROL0(WaylandWindow_ShowInputPanel)  // NOLINT(readability/
-                                                   //         fn_size)
-
-IPC_MESSAGE_CONTROL0(WaylandWindow_HideInputPanel)  // NOLINT(readability/
-                                                   //         fn_size)
 
 IPC_MESSAGE_CONTROL2(WaylandInput_Commit,  // NOLINT(readability/fn_size)
                      unsigned,
@@ -138,6 +119,33 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PreeditChanged, // NOLINT(readability/
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditEnd)  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditStart)  // NOLINT(readability/fn_size)
+
+//------------------------------------------------------------------------------
+// GPU Messages
+// These messages are from the Browser to the GPU process.
+
+IPC_MESSAGE_CONTROL2(WaylandDisplay_State,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     ui::WidgetState /*state*/)
+
+IPC_MESSAGE_CONTROL5(WaylandDisplay_Create,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     unsigned /* window parent */,
+                     unsigned /* x */,
+                     unsigned /* y */,
+                     ui::WidgetType /* window type */)
+
+IPC_MESSAGE_CONTROL2(WaylandDisplay_Title,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     base::string16 /* window title */)
+
+IPC_MESSAGE_CONTROL0(WaylandDisplay_ImeReset)  // NOLINT(readability/fn_size)
+
+IPC_MESSAGE_CONTROL0(WaylandDisplay_ShowInputPanel)  // NOLINT(readability/
+                                                     //         fn_size)
+
+IPC_MESSAGE_CONTROL0(WaylandDisplay_HideInputPanel)  // NOLINT(readability/
+                                                     //         fn_size)
 
 IPC_MESSAGE_CONTROL5(WaylandDisplay_AddRegion,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
