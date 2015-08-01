@@ -9,7 +9,6 @@
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/ozone_wayland_screen.h"
 #include "ui/base/cursor/ozone/bitmap_cursor_factory_ozone.h"
@@ -100,16 +99,11 @@ class OzonePlatformWayland : public OzonePlatform {
     overlay_manager_.reset(new StubOverlayManager());
     KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(make_scoped_ptr(
         new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
-    event_factory_ozone_.reset(
-        new ui::EventFactoryOzoneWayland());
     window_manager_.reset(
         new ui::WindowManagerWayland(gpu_platform_host_.get()));
   }
 
   void InitializeGPU() override {
-    if (!event_factory_ozone_)
-      event_factory_ozone_.reset(new ui::EventFactoryOzoneWayland());
-
     if (!wayland_display_)
       wayland_display_.reset(new ozonewayland::WaylandDisplay());
 
@@ -118,7 +112,6 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
  private:
-  scoped_ptr<ui::EventFactoryOzoneWayland> event_factory_ozone_;
   scoped_ptr<ui::BitmapCursorFactoryOzone> cursor_factory_ozone_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   scoped_ptr<StubOverlayManager> overlay_manager_;

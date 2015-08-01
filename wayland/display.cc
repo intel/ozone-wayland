@@ -22,7 +22,6 @@
 #include "base/stl_util.h"
 #include "ipc/ipc_sender.h"
 #include "ozone/platform/messages.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
 #if defined(ENABLE_DRM_SUPPORT)

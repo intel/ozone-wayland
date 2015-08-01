@@ -4,8 +4,6 @@
 
 #include "ozone/wayland/input/keyboard.h"
 
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
-
 namespace ozonewayland {
 
 WaylandKeyboard::WaylandKeyboard() : input_keyboard_(NULL),
