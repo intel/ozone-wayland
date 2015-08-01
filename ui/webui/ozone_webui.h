@@ -12,6 +12,7 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/observer_list.h"
+#include "ozone/platform/ozone_export_wayland.h"
 #include "ui/base/ime/linux/linux_input_method_context.h"
 #include "ui/events/linux/text_edit_key_bindings_delegate_auralinux.h"
 #include "ui/gfx/color_utils.h"
@@ -30,6 +31,10 @@ namespace gfx {
 class Image;
 }
 
+namespace ui {
+class OzoneGpuPlatformSupportHost;
+}
+
 using ui::TextEditCommandAuraLinux;
 
 namespace views {
@@ -40,7 +45,7 @@ class NativeThemeChangeObserver;
 class WindowButtonOrderObserver;
 // Interface to Wayland desktop features.
 //
-class OzoneWebUI : public views::LinuxUI {
+class OZONE_WAYLAND_EXPORT OzoneWebUI : public views::LinuxUI {
  public:
   OzoneWebUI();
   ~OzoneWebUI() override;
@@ -110,6 +115,7 @@ class OzoneWebUI : public views::LinuxUI {
 
  private:
   gfx::FontRenderParams params_;
+  ui::OzoneGpuPlatformSupportHost* host_;
   DISALLOW_COPY_AND_ASSIGN(OzoneWebUI);
 };
 

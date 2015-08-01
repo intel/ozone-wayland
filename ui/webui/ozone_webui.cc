@@ -14,18 +14,24 @@
 #include "base/nix/mime_util_xdg.h"
 #include "base/stl_util.h"
 #include "base/strings/stringprintf.h"
+#include "ozone/platform/ozone_gpu_platform_support_host.h"
+#include "ozone/platform/ozone_platform_wayland.h"
 #include "ozone/ui/webui/input_method_context_impl_wayland.h"
 #include "ozone/ui/webui/select_file_dialog_impl_webui.h"
 
 namespace views {
 
-OzoneWebUI::OzoneWebUI() {
+OzoneWebUI::OzoneWebUI() : host_(NULL) {
 }
 
 OzoneWebUI::~OzoneWebUI() {
 }
 
 void OzoneWebUI::Initialize() {
+  // TODO(kalyan): This is a hack, get rid  of this.
+  ui::OzonePlatform* platform = ui::OzonePlatform::GetInstance();
+  host_ = static_cast<ui::OzoneGpuPlatformSupportHost*>(
+      platform->GetGpuPlatformSupportHost());
 }
 
 ui::SelectFileDialog* OzoneWebUI::CreateSelectFileDialog(
@@ -36,8 +42,9 @@ ui::SelectFileDialog* OzoneWebUI::CreateSelectFileDialog(
 
 scoped_ptr<ui::LinuxInputMethodContext> OzoneWebUI::CreateInputMethodContext(
       ui::LinuxInputMethodContextDelegate* delegate, bool is_simple) const {
+  DCHECK(host_);
   return scoped_ptr<ui::LinuxInputMethodContext>(
-           new ui::InputMethodContextImplWayland(delegate));
+           new ui::InputMethodContextImplWayland(delegate, host_));
 }
 
 gfx::FontRenderParams OzoneWebUI::GetDefaultFontRenderParams() const {
@@ -175,5 +182,5 @@ float OzoneWebUI::GetDeviceScaleFactor() const {
 }  // namespace views
 
 views::LinuxUI* BuildWebUI() {
-  return new views::OzoneWebUI;
+  return new views::OzoneWebUI();
 }

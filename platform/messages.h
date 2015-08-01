@@ -105,9 +105,6 @@ IPC_MESSAGE_CONTROL1(WaylandWindow_DeActivated,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandWindow_Activated,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/)
 
-IPC_MESSAGE_CONTROL1(WaylandWindow_ImeCaretBoundsChanged, // NOLINT(readability/
-                     gfx::Rect /* ImeCaretBoundsChanged */)  //      fn_size)
-
 IPC_MESSAGE_CONTROL2(WaylandInput_Commit,  // NOLINT(readability/fn_size)
                      unsigned,
                      std::string)
@@ -139,14 +136,6 @@ IPC_MESSAGE_CONTROL2(WaylandDisplay_Title,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
                      base::string16 /* window title */)
 
-IPC_MESSAGE_CONTROL0(WaylandDisplay_ImeReset)  // NOLINT(readability/fn_size)
-
-IPC_MESSAGE_CONTROL0(WaylandDisplay_ShowInputPanel)  // NOLINT(readability/
-                                                     //         fn_size)
-
-IPC_MESSAGE_CONTROL0(WaylandDisplay_HideInputPanel)  // NOLINT(readability/
-                                                     //         fn_size)
-
 IPC_MESSAGE_CONTROL5(WaylandDisplay_AddRegion,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
                      int /* left */,
@@ -167,3 +156,11 @@ IPC_MESSAGE_CONTROL2(WaylandDisplay_CursorSet,  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_CONTROL1(WaylandDisplay_MoveCursor,  // NOLINT(readability/fn_size)
                      gfx::Point)
+
+IPC_MESSAGE_CONTROL0(WaylandDisplay_ImeReset)  // NOLINT(readability/fn_size)
+
+IPC_MESSAGE_CONTROL0(WaylandDisplay_ShowInputPanel)  // NOLINT(readability/
+                                                     //         fn_size)
+
+IPC_MESSAGE_CONTROL0(WaylandDisplay_HideInputPanel)  // NOLINT(readability/
+                                                     //         fn_size)

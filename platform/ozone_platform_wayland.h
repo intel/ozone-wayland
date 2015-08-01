@@ -20,7 +20,6 @@ OZONE_WAYLAND_EXPORT OzonePlatform* CreateOzonePlatformWayland();
 // TODO(kalyan): This is a hack, get rid  of this.
 OZONE_WAYLAND_EXPORT scoped_ptr<DesktopPlatformScreen> CreatePlatformScreen(
       DesktopPlatformScreenDelegate* delegate);
-
 }  // namespace ui
 
 #endif  // OZONE_PLATFORM_OZONE_PLATFORM_WAYLAND_H_

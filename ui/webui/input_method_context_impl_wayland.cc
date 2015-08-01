@@ -6,15 +6,18 @@
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
+#include "ozone/platform/messages.h"
+#include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"
-#include "ozone/ui/events/ime_state_change_handler.h"
 #include "ui/base/ime/composition_text.h"
 
 namespace ui {
 
 InputMethodContextImplWayland::InputMethodContextImplWayland(
-    LinuxInputMethodContextDelegate* delegate)
-    : delegate_(delegate) {
+    LinuxInputMethodContextDelegate* delegate,
+    OzoneGpuPlatformSupportHost* sender)
+    : delegate_(delegate),
+      sender_(sender) {
   CHECK(delegate_);
   ui::EventFactoryOzoneWayland::GetInstance()->SetIMEChangeObserver(this);
 }
@@ -30,8 +33,7 @@ bool InputMethodContextImplWayland::DispatchKeyEvent(
 }
 
 void InputMethodContextImplWayland::Reset() {
-  EventFactoryOzoneWayland::GetInstance()->GetImeStateChangeHandler()->
-      ResetIme();
+  sender_->Send(new WaylandDisplay_ImeReset());
 }
 
 void InputMethodContextImplWayland::Focus() {
@@ -56,6 +58,14 @@ void InputMethodContextImplWayland::OnPreeditChanged(
   ui::CompositionText composition_text;
   composition_text.text = base::string16(base::ASCIIToUTF16(text.c_str()));
   delegate_->OnPreeditChanged(composition_text);
+}
+
+void InputMethodContextImplWayland::HideInputPanel() {
+  sender_->Send(new WaylandDisplay_HideInputPanel());
+}
+
+void InputMethodContextImplWayland::ShowInputPanel() {
+  sender_->Send(new WaylandDisplay_ShowInputPanel());
 }
 
 }  // namespace ui

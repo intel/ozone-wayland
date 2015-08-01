@@ -10,6 +10,8 @@
       'dependencies': [
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         '<(DEPTH)/build/linux/system.gyp:pangocairo',
+	'<(DEPTH)/ui/gfx/ipc/gfx_ipc.gyp:gfx_ipc',
+	'<(DEPTH)/ipc/ipc.gyp:ipc',
       ],
       'sources': [
         'file_picker_web_dialog.h',

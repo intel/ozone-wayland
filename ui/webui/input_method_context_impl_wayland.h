@@ -14,14 +14,17 @@
 
 namespace ui {
 
+class OzoneGpuPlatformSupportHost;
+
 // An implementation of LinuxInputMethodContext for IME support on Ozone
 // platform using Wayland.
 class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
   : public LinuxInputMethodContext,
     public IMEChangeObserver {
  public:
-  explicit InputMethodContextImplWayland(
-      ui::LinuxInputMethodContextDelegate* delegate);
+  InputMethodContextImplWayland(
+      ui::LinuxInputMethodContextDelegate* delegate,
+      OzoneGpuPlatformSupportHost* sender);
   ~InputMethodContextImplWayland() override;
 
   // overriden from ui::LinuxInputMethodContext
@@ -39,8 +42,11 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
   void OnCommit(unsigned handle, const std::string& text) override;
 
  private:
+  void ShowInputPanel();
+  void HideInputPanel();
   // Must not be NULL.
   LinuxInputMethodContextDelegate* delegate_;
+  OzoneGpuPlatformSupportHost* sender_;  // Not owned.
   DISALLOW_COPY_AND_ASSIGN(InputMethodContextImplWayland);
 };
 

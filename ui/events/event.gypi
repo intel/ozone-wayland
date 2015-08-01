@@ -10,9 +10,6 @@
     'event_factory_ozone_wayland.h',
     'event_factory_ozone_wayland.cc',
     'ime_change_observer.h',
-    'ime_state_change_handler.h',
-    'remote_state_change_handler.h',
-    'remote_state_change_handler.cc',
     'window_constants.h',
    ],
 }
