@@ -17,9 +17,9 @@
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
+#include "base/message_loop/message_loop.h"
 #include "base/native_library.h"
 #include "base/stl_util.h"
-#include "base/message_loop/message_loop.h"
 #include "ipc/ipc_sender.h"
 #include "ozone/platform/messages.h"
 #include "ozone/ui/events/event_factory_ozone_wayland.h"

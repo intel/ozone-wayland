@@ -255,10 +255,6 @@ bool WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, KeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, VirtualKeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OutputSizeChanged)
-  IPC_MESSAGE_HANDLER(WaylandInput_Commit, Commit)
-  IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, PreeditChanged)
-  IPC_MESSAGE_HANDLER(WaylandInput_PreeditEnd, PreeditEnd)
-  IPC_MESSAGE_HANDLER(WaylandInput_PreeditStart, PreeditStart)
   IPC_MESSAGE_HANDLER(WaylandInput_InitializeXKB, InitializeXKB)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
@@ -382,36 +378,6 @@ void WindowManagerWayland::WindowActivated(unsigned windowhandle) {
       FROM_HERE,
       base::Bind(&WindowManagerWayland::OnWindowActivated,
           weak_ptr_factory_.GetWeakPtr(), windowhandle));
-}
-
-void WindowManagerWayland::Commit(unsigned handle, const std::string& text) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&WindowManagerWayland::NotifyCommit,
-          weak_ptr_factory_.GetWeakPtr(), handle, text));
-}
-
-void WindowManagerWayland::PreeditChanged(unsigned handle,
-                                          const std::string& text,
-                                          const std::string& commit) {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&WindowManagerWayland::NotifyPreeditChanged,
-          weak_ptr_factory_.GetWeakPtr(), handle, text, commit));
-}
-
-void WindowManagerWayland::PreeditEnd() {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&WindowManagerWayland::NotifyPreeditEnd,
-          weak_ptr_factory_.GetWeakPtr()));
-}
-
-void WindowManagerWayland::PreeditStart() {
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&WindowManagerWayland::NotifyPreeditStart,
-          weak_ptr_factory_.GetWeakPtr()));
 }
 
 void WindowManagerWayland::InitializeXKB(base::SharedMemoryHandle fd,
@@ -541,29 +507,6 @@ void WindowManagerWayland::NotifyOutputSizeChanged(unsigned width,
                                                    unsigned height) {
   if (platform_screen_)
     platform_screen_->GetDelegate()->OnOutputSizeChanged(width, height);
-}
-
-void WindowManagerWayland::NotifyCommit(unsigned handle,
-                                        const std::string& text) {
-  IMEChangeObserver* observer =
-      EventFactoryOzoneWayland::GetInstance()->GetIMEChangeObserver();
-  if (observer)
-    observer->OnCommit(handle, text);
-}
-
-void WindowManagerWayland::NotifyPreeditChanged(unsigned handle,
-                                                const std::string& text,
-                                                const std::string& commit) {
-  IMEChangeObserver* observer =
-      EventFactoryOzoneWayland::GetInstance()->GetIMEChangeObserver();
-  if (observer)
-    observer->OnPreeditChanged(handle, text, commit);
-}
-
-void WindowManagerWayland::NotifyPreeditEnd() {
-}
-
-void WindowManagerWayland::NotifyPreeditStart() {
 }
 
 }  // namespace ui

@@ -114,12 +114,6 @@ class WindowManagerWayland
   void WindowDeActivated(unsigned windowhandle);
   void WindowActivated(unsigned windowhandle);
 
-  void Commit(unsigned handle, const std::string& text);
-  void PreeditChanged(unsigned handle,
-                      const std::string& text,
-                      const std::string& commit);
-  void PreeditEnd();
-  void PreeditStart();
   void InitializeXKB(base::SharedMemoryHandle fd, uint32_t size);
   // PlatformEventSource:
   void OnDispatcherListChanged() override;
@@ -153,13 +147,6 @@ class WindowManagerWayland
                         uint32_t time_stamp);
   void NotifyOutputSizeChanged(unsigned width,
                                unsigned height);
-  void NotifyCommit(unsigned handle,
-                    const std::string& text);
-  void NotifyPreeditChanged(unsigned handle,
-                            const std::string& text,
-                            const std::string& commit);
-  void NotifyPreeditEnd();
-  void NotifyPreeditStart();
 
   // List of all open aura::Window.
   std::list<OzoneWaylandWindow*>* open_windows_;

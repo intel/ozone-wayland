@@ -7,10 +7,11 @@
 
 #include <string>
 
+#include "base/memory/weak_ptr.h"
 #include "ozone/platform/ozone_export_wayland.h"
-#include "ozone/ui/events/ime_change_observer.h"
 #include "ui/base/ime/linux/linux_input_method_context.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/ozone/public/gpu_platform_support_host.h"
 
 namespace ui {
 
@@ -20,7 +21,7 @@ class OzoneGpuPlatformSupportHost;
 // platform using Wayland.
 class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
   : public LinuxInputMethodContext,
-    public IMEChangeObserver {
+    public GpuPlatformSupportHost {
  public:
   InputMethodContextImplWayland(
       ui::LinuxInputMethodContextDelegate* delegate,
@@ -34,19 +35,32 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
   void Blur() override;
   void SetCursorLocation(const gfx::Rect&) override;
 
-
-  // overriden from ui::IMEChangeObserver
+ private:
+  // GpuPlatformSupportHost
+  void OnChannelEstablished(
+      int host_id,
+      scoped_refptr<base::SingleThreadTaskRunner> send_runner,
+      const base::Callback<void(IPC::Message*)>& send_callback) override;
+  void OnChannelDestroyed(int host_id) override;
+  bool OnMessageReceived(const IPC::Message&) override;
   void OnPreeditChanged(unsigned handle,
                         const std::string& text,
-                        const std::string& commit) override;
-  void OnCommit(unsigned handle, const std::string& text) override;
-
- private:
+                        const std::string& commit);
+  void OnCommit(unsigned handle, const std::string& text);
   void ShowInputPanel();
   void HideInputPanel();
+  void Commit(unsigned handle, const std::string& text);
+  void PreeditChanged(unsigned handle,
+                      const std::string& text,
+                      const std::string& commit);
+  void PreeditEnd();
+  void PreeditStart();
+
   // Must not be NULL.
   LinuxInputMethodContextDelegate* delegate_;
   OzoneGpuPlatformSupportHost* sender_;  // Not owned.
+  // Support weak pointers for attach & detach callbacks.
+  base::WeakPtrFactory<InputMethodContextImplWayland> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(InputMethodContextImplWayland);
 };
 

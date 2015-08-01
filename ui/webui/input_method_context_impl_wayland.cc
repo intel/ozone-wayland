@@ -4,11 +4,12 @@
 
 #include "ozone/ui/webui/input_method_context_impl_wayland.h"
 
+#include "base/bind.h"
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/thread_task_runner_handle.h"
 #include "ozone/platform/messages.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
-#include "ozone/ui/events/event_factory_ozone_wayland.h"
 #include "ui/base/ime/composition_text.h"
 
 namespace ui {
@@ -17,12 +18,14 @@ InputMethodContextImplWayland::InputMethodContextImplWayland(
     LinuxInputMethodContextDelegate* delegate,
     OzoneGpuPlatformSupportHost* sender)
     : delegate_(delegate),
-      sender_(sender) {
+      sender_(sender),
+      weak_ptr_factory_(this) {
   CHECK(delegate_);
-  ui::EventFactoryOzoneWayland::GetInstance()->SetIMEChangeObserver(this);
+  sender_->RegisterHandler(this);
 }
 
 InputMethodContextImplWayland::~InputMethodContextImplWayland() {
+  sender_->UnregisterHandler(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +49,28 @@ void InputMethodContextImplWayland::SetCursorLocation(const gfx::Rect&) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// InputMethodContextImplWayland, ui::LinuxInputMethodContext implementation:
+// GpuPlatformSupportHost implementation:
+void InputMethodContextImplWayland::OnChannelEstablished(
+    int host_id, scoped_refptr<base::SingleThreadTaskRunner> send_runner,
+        const base::Callback<void(IPC::Message*)>& send_callback) {
+}
+
+void InputMethodContextImplWayland::OnChannelDestroyed(int host_id) {
+}
+
+bool InputMethodContextImplWayland::OnMessageReceived(
+    const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(InputMethodContextImplWayland, message)
+  IPC_MESSAGE_HANDLER(WaylandInput_Commit, Commit)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditChanged, PreeditChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditEnd, PreeditEnd)
+  IPC_MESSAGE_HANDLER(WaylandInput_PreeditStart, PreeditStart)
+  IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  return handled;
+}
 
 void InputMethodContextImplWayland::OnCommit(unsigned handle,
                                              const std::string& text) {
@@ -66,6 +90,29 @@ void InputMethodContextImplWayland::HideInputPanel() {
 
 void InputMethodContextImplWayland::ShowInputPanel() {
   sender_->Send(new WaylandDisplay_ShowInputPanel());
+}
+
+void InputMethodContextImplWayland::Commit(unsigned handle,
+                                           const std::string& text) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&InputMethodContextImplWayland::OnCommit,
+          weak_ptr_factory_.GetWeakPtr(), handle, text));
+}
+
+void InputMethodContextImplWayland::PreeditChanged(unsigned handle,
+                                                   const std::string& text,
+                                                   const std::string& commit) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&InputMethodContextImplWayland::OnPreeditChanged,
+          weak_ptr_factory_.GetWeakPtr(), handle, text, commit));
+}
+
+void InputMethodContextImplWayland::PreeditEnd() {
+}
+
+void InputMethodContextImplWayland::PreeditStart() {
 }
 
 }  // namespace ui
