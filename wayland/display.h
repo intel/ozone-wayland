@@ -26,7 +26,7 @@
 #include "base/basictypes.h"
 #include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
-#include "ozone/ui/events/window_constants.h"
+#include "ozone/platform/window_constants.h"
 #include "ui/events/event_constants.h"
 #include "ui/ozone/public/gpu_platform_support.h"
 #include "ui/ozone/public/surface_factory_ozone.h"

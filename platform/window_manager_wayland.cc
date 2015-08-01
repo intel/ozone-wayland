@@ -13,7 +13,6 @@
 #include "ozone/platform/messages.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
-#include "ozone/ui/events/ime_change_observer.h"
 #include "ozone/wayland/ozone_wayland_screen.h"
 #include "ui/aura/window.h"
 #include "ui/events/event_utils.h"

@@ -14,7 +14,7 @@
 #include "ipc/ipc_message_utils.h"
 #include "ipc/ipc_param_traits.h"
 #include "ipc/param_traits_macros.h"
-#include "ozone/ui/events/window_constants.h"
+#include "ozone/platform/window_constants.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/events/event_constants.h"
 #include "ui/gfx/geometry/rect.h"

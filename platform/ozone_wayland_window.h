@@ -6,7 +6,7 @@
 #define OZONE_PLATFORM_OZONE_WAYLAND_WINDOW_H_
 
 #include "base/memory/ref_counted.h"
-#include "ozone/ui/events/window_constants.h"
+#include "ozone/platform/window_constants.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
