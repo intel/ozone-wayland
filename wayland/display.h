@@ -126,16 +126,11 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
                     ui::EventFlags flags,
                     float x,
                     float y);
-  void AxisNotify(float x,
-                  float y,
-                  int xoffset,
-                  int yoffset);
+  void AxisNotify(float x, float y, int xoffset, int yoffset);
   void PointerEnter(unsigned handle, float x, float y);
   void PointerLeave(unsigned handle, float x, float y);
   void KeyNotify(ui::EventType type, unsigned code, int device_id);
-  void VirtualKeyNotify(ui::EventType type,
-                        uint32_t key,
-                        int device_id);
+  void VirtualKeyNotify(ui::EventType type, uint32_t key, int device_id);
   void TouchNotify(ui::EventType type,
                    float x,
                    float y,
@@ -143,9 +138,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
                    uint32_t time_stamp);
 
   void OutputSizeChanged(unsigned width, unsigned height);
-  void WindowResized(unsigned handle,
-                     unsigned width,
-                     unsigned height);
+  void WindowResized(unsigned handle, unsigned width, unsigned height);
   void WindowUnminimized(unsigned windowhandle);
   void WindowDeActivated(unsigned windowhandle);
   void WindowActivated(unsigned windowhandle);
@@ -157,8 +150,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
                       const std::string& commit);
   void PreeditEnd();
   void PreeditStart();
-  void InitializeXKB(base::SharedMemoryHandle fd,
-                     uint32_t size);
+  void InitializeXKB(base::SharedMemoryHandle fd, uint32_t size);
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);
@@ -186,10 +178,8 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
 
   void Terminate();
   WaylandWindow* GetWidget(unsigned w) const;
-  void SetWidgetState(unsigned widget,
-                      ui::WidgetState state);
-  void SetWidgetTitle(unsigned w,
-                      const base::string16& title);
+  void SetWidgetState(unsigned widget, ui::WidgetState state);
+  void SetWidgetTitle(unsigned w, const base::string16& title);
   void CreateWidget(unsigned widget,
                     unsigned parent,
                     int x,

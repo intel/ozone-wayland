@@ -367,8 +367,7 @@ WaylandWindow* WaylandDisplay::GetWidget(unsigned w) const {
   return it == widget_map_.end() ? NULL : it->second;
 }
 
-void WaylandDisplay::SetWidgetState(unsigned w,
-                                    ui::WidgetState state) {
+void WaylandDisplay::SetWidgetState(unsigned w, ui::WidgetState state) {
   switch (state) {
     case ui::FULLSCREEN:
     {
@@ -417,8 +416,7 @@ void WaylandDisplay::SetWidgetState(unsigned w,
   }
 }
 
-void WaylandDisplay::SetWidgetTitle(unsigned w,
-                                    const base::string16& title) {
+void WaylandDisplay::SetWidgetTitle(unsigned w, const base::string16& title) {
   WaylandWindow* widget = GetWidget(w);
   DCHECK(widget);
   widget->SetWindowTitle(title);
@@ -631,8 +629,7 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void WaylandDisplay::RelinquishGpuResources(
-    const base::Closure& callback) {
+void WaylandDisplay::RelinquishGpuResources(const base::Closure& callback) {
   callback.Run();
 }
 
@@ -659,15 +656,11 @@ void WaylandDisplay::AxisNotify(float x,
   Dispatch(new WaylandInput_AxisNotify(x, y, xoffset, yoffset));
 }
 
-void WaylandDisplay::PointerEnter(unsigned handle,
-                                  float x,
-                                  float y) {
+void WaylandDisplay::PointerEnter(unsigned handle, float x, float y) {
   Dispatch(new WaylandInput_PointerEnter(handle, x, y));
 }
 
-void WaylandDisplay::PointerLeave(unsigned handle,
-                                  float x,
-                                  float y) {
+void WaylandDisplay::PointerLeave(unsigned handle, float x, float y) {
   Dispatch(new WaylandInput_PointerLeave(handle, x, y));
 }
 
@@ -691,8 +684,7 @@ void WaylandDisplay::TouchNotify(ui::EventType type,
   Dispatch(new WaylandInput_TouchNotify(type, x, y, touch_id, time_stamp));
 }
 
-void WaylandDisplay::OutputSizeChanged(unsigned width,
-                                       unsigned height) {
+void WaylandDisplay::OutputSizeChanged(unsigned width, unsigned height) {
   Dispatch(new WaylandInput_OutputSize(width, height));
 }
 
@@ -737,8 +729,7 @@ void WaylandDisplay::PreeditStart() {
   Dispatch(new WaylandInput_PreeditStart());
 }
 
-void WaylandDisplay::InitializeXKB(base::SharedMemoryHandle fd,
-                                   uint32_t size) {
+void WaylandDisplay::InitializeXKB(base::SharedMemoryHandle fd, uint32_t size) {
   Dispatch(new WaylandInput_InitializeXKB(fd, size));
 }
 
