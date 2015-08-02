@@ -407,8 +407,11 @@ void WaylandDisplay::SetWidgetState(unsigned w,
       break;
     }
     case ui::HIDE:
-      NOTIMPLEMENTED() << " HIDE " << w;
+    {
+      WaylandWindow* widget = GetWidget(w);
+      widget->Hide();
       break;
+    }
     default:
       break;
   }
@@ -423,8 +426,8 @@ void WaylandDisplay::SetWidgetTitle(unsigned w,
 
 void WaylandDisplay::CreateWidget(unsigned widget,
                                   unsigned parent,
-                                  unsigned x,
-                                  unsigned y,
+                                  int x,
+                                  int y,
                                   ui::WidgetType type) {
   DCHECK(!GetWidget(widget));
   WaylandWindow* window = CreateAcceleratedSurface(widget);
@@ -439,6 +442,7 @@ void WaylandDisplay::CreateWidget(unsigned widget,
     NOTIMPLEMENTED();
     break;
   case ui::POPUP:
+  case ui::TOOLTIP:
     DCHECK(parent_window);
     window->SetShellAttributes(WaylandWindow::POPUP,
                                parent_window->ShellSurface(),
@@ -448,6 +452,31 @@ void WaylandDisplay::CreateWidget(unsigned widget,
   default:
     break;
   }
+}
+
+void WaylandDisplay::MoveWindow(unsigned widget,
+                                unsigned parent,
+                                ui::WidgetType type,
+                                const gfx::Rect& rect) {
+  WaylandWindow::ShellType shell_type;
+  switch (type) {
+  case ui::WINDOW:
+    shell_type = WaylandWindow::TOPLEVEL;
+    break;
+  case ui::WINDOWFRAMELESS:
+    NOTIMPLEMENTED();
+    break;
+  case ui::POPUP:
+  case ui::TOOLTIP:
+    shell_type = WaylandWindow::POPUP;
+    break;
+  default:
+    break;
+  }
+
+  WaylandWindow* popup = GetWidget(widget);
+  WaylandWindow* parent_window = GetWidget(parent);
+  popup->Move(shell_type, parent_window->ShellSurface(), rect);
 }
 
 void WaylandDisplay::AddRegion(unsigned handle, int left, int top,
@@ -587,6 +616,7 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(WaylandDisplay, message)
   IPC_MESSAGE_HANDLER(WaylandDisplay_State, SetWidgetState)
   IPC_MESSAGE_HANDLER(WaylandDisplay_Create, CreateWidget)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_MoveWindow, MoveWindow)
   IPC_MESSAGE_HANDLER(WaylandDisplay_Title, SetWidgetTitle)
   IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, AddRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SubRegion, SubRegion)

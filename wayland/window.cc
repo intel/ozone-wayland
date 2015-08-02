@@ -47,12 +47,13 @@ void WaylandWindow::SetShellAttributes(ShellType type) {
 
   type_ = type;
   shell_surface_->UpdateShellSurface(type_, NULL, 0, 0);
+  allocation_.set_origin(gfx::Point(0, 0));
 }
 
 void WaylandWindow::SetShellAttributes(ShellType type,
                                        WaylandShellSurface* shell_parent,
-                                       unsigned x,
-                                       unsigned y) {
+                                       int x,
+                                       int y) {
   DCHECK(shell_parent && (type == POPUP));
 
   if (!shell_surface_) {
@@ -63,6 +64,7 @@ void WaylandWindow::SetShellAttributes(ShellType type,
 
   type_ = type;
   shell_surface_->UpdateShellSurface(type_, shell_parent, x, y);
+  allocation_.set_origin(gfx::Point(x, y));
 }
 
 void WaylandWindow::SetWindowTitle(const base::string16& title) {
@@ -81,6 +83,12 @@ void WaylandWindow::Minimize() {
 void WaylandWindow::Show() {
   WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
   seat->SetFocusWindowHandle(handle_);
+}
+
+void WaylandWindow::Hide() {
+  WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
+  if (seat && seat->GetFocusWindowHandle() == handle_)
+    seat->SetFocusWindowHandle(0);
 }
 
 void WaylandWindow::Restore() {
@@ -120,10 +128,26 @@ void WaylandWindow::Resize(unsigned width, unsigned height) {
   if (!shell_surface_ || !window_)
     return;
 
-  window_->Resize(width, height);
-  WaylandDisplay* display = WaylandDisplay::GetInstance();
-  DCHECK(display);
-  display->FlushDisplay();
+  window_->Resize(allocation_.width(), allocation_.height());
+  WaylandDisplay::GetInstance()->FlushDisplay();
+}
+
+void WaylandWindow::Move(ShellType type, WaylandShellSurface* shell_parent,
+                         const gfx::Rect& rect) {
+  int x = rect.x();
+  int y = rect.y();
+  if ((allocation_.x() == x) && (allocation_.y() == y))
+    return;
+
+  if (!shell_surface_ || !window_) {
+    SetShellAttributes(type, shell_parent, x, y);
+    return;
+  }
+
+  int move_x = x - allocation_.x();
+  int move_y = y - allocation_.y();
+  allocation_ = rect;
+  window_->Move(allocation_.width(), allocation_.height(), move_x, move_y);
 }
 
 void WaylandWindow::AddRegion(int left, int top, int right, int bottom) {

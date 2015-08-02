@@ -29,7 +29,7 @@ IPC_ENUM_TRAITS_MAX_VALUE(ui::EventType,
 IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetState,
                           ui::DESTROYED)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetType,
-                          ui::POPUP)
+                          ui::TOOLTIP)
 
 //------------------------------------------------------------------------------
 // Browser Messages
@@ -128,9 +128,15 @@ IPC_MESSAGE_CONTROL2(WaylandDisplay_State,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL5(WaylandDisplay_Create,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,
                      unsigned /* window parent */,
-                     unsigned /* x */,
-                     unsigned /* y */,
+                     int /* x */,
+                     int /* y */,
                      ui::WidgetType /* window type */)
+
+IPC_MESSAGE_CONTROL4(WaylandDisplay_MoveWindow,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     unsigned /* window parent */,
+                     ui::WidgetType /* window type */,
+                     gfx::Rect /* rect */)
 
 IPC_MESSAGE_CONTROL2(WaylandDisplay_Title,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */,

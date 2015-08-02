@@ -27,8 +27,8 @@ class WaylandShellSurface {
                                       WaylandWindow::ShellType type) = 0;
   virtual void UpdateShellSurface(WaylandWindow::ShellType type,
                                   WaylandShellSurface* shell_parent,
-                                  unsigned x,
-                                  unsigned y) = 0;
+                                  int x,
+                                  int y) = 0;
   virtual void SetWindowTitle(const base::string16& title) = 0;
   virtual void Maximize() = 0;
   virtual void Minimize() = 0;

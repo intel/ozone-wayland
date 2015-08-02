@@ -20,10 +20,11 @@ class EGLWindow {
   ~EGLWindow();
 
   wl_egl_window* egl_window() const { return window_; }
-  bool Resize(int32_t width, int32_t height);
+  void Resize(int width, int height);
+  void Move(int width, int height, int x, int y);
 
  private:
-  wl_egl_window* window_;
+  struct wl_egl_window* window_;
   DISALLOW_COPY_AND_ASSIGN(EGLWindow);
 };
 

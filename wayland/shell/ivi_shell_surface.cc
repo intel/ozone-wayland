@@ -47,8 +47,8 @@ void IVIShellSurface::InitializeShellSurface(WaylandWindow* window,
 
 void IVIShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                          WaylandShellSurface* shell_parent,
-                                         unsigned x,
-                                         unsigned y) {
+                                         int x,
+                                         int y) {
   WaylandShellSurface::FlushDisplay();
 }
 

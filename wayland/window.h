@@ -34,16 +34,15 @@ class WaylandWindow {
   ~WaylandWindow();
 
   void SetShellAttributes(ShellType type);
-  void SetShellAttributes(ShellType type,
-                          WaylandShellSurface* shell_parent,
-                          unsigned x,
-                          unsigned y);
+  void SetShellAttributes(ShellType type, WaylandShellSurface* shell_parent,
+                          int x, int y);
   void SetWindowTitle(const base::string16& title);
   void Maximize();
   void Minimize();
   void Restore();
   void SetFullscreen();
   void Show();
+  void Hide();
 
   ShellType Type() const { return type_; }
   unsigned Handle() const { return handle_; }
@@ -57,6 +56,9 @@ class WaylandWindow {
 
   // Immediately Resizes window and flushes Wayland Display.
   void Resize(unsigned width, unsigned height);
+  void Move(ShellType type,
+            WaylandShellSurface* shell_parent,
+            const gfx::Rect& rect);
   void AddRegion(int left, int top, int right, int bottom);
   void SubRegion(int left, int top, int right, int bottom);
   gfx::Rect GetBounds() const { return allocation_; }

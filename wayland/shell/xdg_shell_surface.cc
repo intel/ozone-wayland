@@ -57,8 +57,8 @@ void XDGShellSurface::InitializeShellSurface(WaylandWindow* window,
 
 void XDGShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                          WaylandShellSurface* shell_parent,
-                                         unsigned x,
-                                         unsigned y) {
+                                         int x,
+                                         int y) {
   switch (type) {
   case WaylandWindow::TOPLEVEL: {
     if (maximized_) {

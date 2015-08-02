@@ -47,8 +47,8 @@ void WLShellSurface::InitializeShellSurface(WaylandWindow* window,
 
 void WLShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
                                         WaylandShellSurface* shell_parent,
-                                        unsigned x,
-                                        unsigned y) {
+                                        int x,
+                                        int y) {
   switch (type) {
   case WaylandWindow::TOPLEVEL:
     wl_shell_surface_set_toplevel(shell_surface_);

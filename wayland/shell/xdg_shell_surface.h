@@ -24,8 +24,8 @@ class XDGShellSurface : public WaylandShellSurface {
                               WaylandWindow::ShellType type) override;
   void UpdateShellSurface(WaylandWindow::ShellType type,
                           WaylandShellSurface* shell_parent,
-                          unsigned x,
-                          unsigned y) override;
+                          int x,
+                          int y) override;
   void SetWindowTitle(const base::string16& title) override;
   void Maximize() override;
   void Minimize() override;

@@ -889,6 +889,9 @@ void DesktopWindowTreeHostOzone::InitOzoneWindow(
     SetWindowIcons(gfx::ImageSkia(), *window_icon);
   }
 
+  if (params.keep_on_top)
+    always_on_top_ = true;
+
   CreateCompositor(GetAcceleratedWidget());
 }
 

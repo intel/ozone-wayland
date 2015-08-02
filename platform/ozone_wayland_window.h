@@ -68,6 +68,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   void AddRegion();
   void ResetRegion();
   void SetCursor();
+  void ValidateBounds();
   PlatformWindowDelegate* delegate_;   // Not owned.
   OzoneGpuPlatformSupportHost* sender_;  // Not owned.
   WindowManagerWayland* window_manager_;  // Not owned.
@@ -75,7 +76,6 @@ class OzoneWaylandWindow : public PlatformWindow,
   gfx::Rect bounds_;
   unsigned handle_;
   unsigned parent_;
-  gfx::Point pos_;
   ui::WidgetType type_;
   ui::WidgetState state_;
   SkRegion* region_;

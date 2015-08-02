@@ -34,7 +34,6 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   opaque_handle++;
   handle_ = opaque_handle;
   delegate_->OnAcceleratedWidgetAvailable(opaque_handle, 1.0);
-  window_manager_->OnRootWindowCreated(this);
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
@@ -48,33 +47,29 @@ void OzoneWaylandWindow::InitPlatformWindow(
     PlatformWindowType type, gfx::AcceleratedWidget parent_window) {
   PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
   switch (type) {
-    case PLATFORM_WINDOW_TYPE_TOOLTIP:
     case PLATFORM_WINDOW_TYPE_POPUP:
     case PLATFORM_WINDOW_TYPE_MENU: {
-      // Wayland surfaces don't know their position on the screen and transient
-      // surfaces always require a parent surface for relative placement. Here
-      // there's a catch because content_shell menus don't have parent and
-      // therefore we use root window to calculate their position.
-      OzoneWaylandWindow* active_window =
-          parent_window ? window_manager_->GetWindow(parent_window)
-                        : window_manager_->GetActiveWindow();
-
-      DCHECK(active_window);
-      gfx::Rect parent_bounds = active_window->GetBounds();
-      parent_ = active_window->GetHandle();
+      parent_ = parent_window;
+      if (!parent_ && window_manager_->GetActiveWindow())
+        parent_ = window_manager_->GetActiveWindow()->GetHandle();
       type_ = ui::POPUP;
-      // Don't size the window bigger than the parent, otherwise the user may
-      // not be able to close or move it.
-      // Transient type expects a position relative to the parent
-      pos_ = gfx::Point(bounds_.x() - parent_bounds.x(),
-                        bounds_.y() - parent_bounds.y());
+      ValidateBounds();
+      window_manager_->OnRootWindowCreated(this);
+      break;
+    }
+    case PLATFORM_WINDOW_TYPE_TOOLTIP: {
+      parent_ = parent_window;
+      if (!parent_ && window_manager_->GetActiveWindow())
+        parent_ = window_manager_->GetActiveWindow()->GetHandle();
+      type_ = ui::TOOLTIP;
+      bounds_.set_origin(gfx::Point(0, 0));
       break;
     }
     case PLATFORM_WINDOW_TYPE_BUBBLE:
     case PLATFORM_WINDOW_TYPE_WINDOW:
       parent_ = 0;
-      pos_ = gfx::Point(0, 0);
       type_ = ui::WINDOW;
+      window_manager_->OnRootWindowCreated(this);
       break;
     case PLATFORM_WINDOW_TYPE_WINDOW_FRAMELESS:
       NOTIMPLEMENTED();
@@ -101,7 +96,7 @@ void OzoneWaylandWindow::SetWindowShape(const SkPath& path) {
 
   region_ = new SkRegion();
   SkRegion clip_region;
-  clip_region.setRect(pos_.x(), pos_.y(), bounds_.width(), bounds_.height());
+  clip_region.setRect(0, 0, bounds_.width(), bounds_.height());
   region_->setPath(path, clip_region);
   AddRegion();
 }
@@ -123,7 +118,17 @@ gfx::Rect OzoneWaylandWindow::GetBounds() {
 }
 
 void OzoneWaylandWindow::SetBounds(const gfx::Rect& bounds) {
+  int original_x = bounds_.x();
+  int original_y = bounds_.y();
   bounds_ = bounds;
+  if (type_ == ui::TOOLTIP)
+    ValidateBounds();
+
+  if ((original_x != bounds_.x()) || (original_y  != bounds_.y())) {
+    sender_->Send(new WaylandDisplay_MoveWindow(handle_, parent_,
+                                                type_, bounds_));
+  }
+
   delegate_->OnBoundsChanged(bounds_);
 }
 
@@ -134,11 +139,16 @@ void OzoneWaylandWindow::Show() {
 
 void OzoneWaylandWindow::Hide() {
   state_ = ui::HIDE;
-  SendWidgetState();
+
+  if (type_ == ui::TOOLTIP)
+    delegate_->OnCloseRequest();
+  else
+    SendWidgetState();
 }
 
 void OzoneWaylandWindow::Close() {
-  window_manager_->OnRootWindowClosed(this);
+  if (type_ != ui::TOOLTIP)
+    window_manager_->OnRootWindowClosed(this);
 }
 
 void OzoneWaylandWindow::SetCapture() {
@@ -215,8 +225,8 @@ uint32_t OzoneWaylandWindow::DispatchEvent(
 void OzoneWaylandWindow::OnChannelEstablished() {
   sender_->Send(new WaylandDisplay_Create(handle_,
                                           parent_,
-                                          pos_.x(),
-                                          pos_.y(),
+                                          bounds_.x(),
+                                          bounds_.y(),
                                           type_));
   if (state_)
     sender_->Send(new WaylandDisplay_State(handle_, state_));
@@ -273,6 +283,31 @@ void OzoneWaylandWindow::SetCursor() {
     sender_->Send(new WaylandDisplay_CursorSet(std::vector<SkBitmap>(),
                                                gfx::Point()));
   }
+}
+
+void OzoneWaylandWindow::ValidateBounds() {
+  DCHECK(parent_);
+  gfx::Rect parent_bounds = window_manager_->GetWindow(parent_)->GetBounds();
+  int x = bounds_.x() - parent_bounds.x();
+  int y = bounds_.y() - parent_bounds.y();
+
+  if (x < parent_bounds.x()) {
+    x = parent_bounds.x();
+  } else {
+    int width = x + bounds_.width();
+    if (width > parent_bounds.width())
+      x -= width - parent_bounds.width();
+  }
+
+  if (y < parent_bounds.y()) {
+    y = parent_bounds.y();
+  } else {
+    int height = y + bounds_.height();
+    if (height > parent_bounds.height())
+      y -= height - parent_bounds.height();
+  }
+
+  bounds_.set_origin(gfx::Point(x, y));
 }
 
 }  // namespace ui

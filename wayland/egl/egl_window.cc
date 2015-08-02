@@ -18,10 +18,12 @@ EGLWindow::~EGLWindow() {
   wl_egl_window_destroy(window_);
 }
 
-bool EGLWindow::Resize(int32_t width, int32_t height) {
-  // TODO(kalyan): Check if we need to sync display here.
+void EGLWindow::Resize(int width, int height) {
   wl_egl_window_resize(window_, width, height, 0, 0);
-  return true;
+}
+
+void EGLWindow::Move(int width, int height, int x, int y) {
+  wl_egl_window_resize(window_, width, height, x, y);
 }
 
 }  // namespace ozonewayland

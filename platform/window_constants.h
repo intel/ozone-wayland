@@ -24,9 +24,10 @@ namespace ui {
   enum WidgetType {
     WINDOW = 1,  // A decorated Window.
     WINDOWFRAMELESS = 2,  // An undecorated Window.
-    POPUP = 3  // An undecorated Window, with transient positioning relative to
+    POPUP = 3,  // An undecorated Window, with transient positioning relative to
       // its parent and in which the input pointer is implicit grabbed
       // (i.e. Wayland install the grab) by the Window.
+    TOOLTIP = 4
   };
 
 }  // namespace ui
