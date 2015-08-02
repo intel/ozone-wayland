@@ -473,8 +473,13 @@ void WaylandDisplay::MoveWindow(unsigned widget,
   }
 
   WaylandWindow* popup = GetWidget(widget);
-  WaylandWindow* parent_window = GetWidget(parent);
-  popup->Move(shell_type, parent_window->ShellSurface(), rect);
+  WaylandShellSurface* shell_parent  = NULL;
+  WaylandWindow* parent_window  = NULL;
+  if (parent) {
+    parent_window = GetWidget(parent);
+    shell_parent = parent_window->ShellSurface();
+  }
+  popup->Move(shell_type, shell_parent, rect);
 }
 
 void WaylandDisplay::AddRegion(unsigned handle, int left, int top,
