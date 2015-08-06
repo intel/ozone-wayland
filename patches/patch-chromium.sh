@@ -3,7 +3,7 @@
 PATCH_DIR=`pwd`/src/ozone/patches/
 HACKING_BRANCH=master-ozone
 HACKING_OZONE_BRANCH=master-ozonewayland
-RELEASE_BRANCH=45.0.2421.0
+RELEASE_BRANCH=44.0.2403.107
 
 echo "Ozone-Wayland: patching Chromium"
 cd src/

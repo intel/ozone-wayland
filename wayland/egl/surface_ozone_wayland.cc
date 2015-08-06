@@ -36,7 +36,7 @@ bool SurfaceOzoneWayland::OnSwapBuffers() {
 }
 
 bool SurfaceOzoneWayland::OnSwapBuffersAsync(
-    const ui::SwapCompletionCallback& callback) {
+    const SwapCompletionCallback& callback) {
   return true;
 }
 
