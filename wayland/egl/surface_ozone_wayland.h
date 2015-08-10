@@ -22,7 +22,7 @@ class SurfaceOzoneWayland : public ui::SurfaceOzoneEGL {
   intptr_t GetNativeWindow() override;
   bool ResizeNativeWindow(const gfx::Size& viewport_size) override;
   bool OnSwapBuffers() override;
-  bool OnSwapBuffersAsync(const SwapCompletionCallback& callback) override;
+  bool OnSwapBuffersAsync(const ui::SwapCompletionCallback& callback) override;
   scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider() override;
 
  private:
