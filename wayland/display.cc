@@ -133,8 +133,6 @@ void WaylandDisplay::DestroyWindow(unsigned w) {
 }
 
 gfx::AcceleratedWidget WaylandDisplay::GetNativeWindow(unsigned window_handle) {
-  // Ensure we are processing wayland event requests.
-  StartProcessingEvents();
   WaylandWindow* widget = GetWidget(window_handle);
   DCHECK(widget);
   widget->RealizeAcceleratedWidget();
@@ -149,6 +147,9 @@ bool WaylandDisplay::InitializeHardware() {
     return false;
   }
 
+  // Ensure we are processing wayland event requests. This needs to be done here
+  // so we start polling before sandbox is initialized.
+  StartProcessingEvents();
   return true;
 }
 
