@@ -26,6 +26,8 @@
       'sources': [
         'media/media_ozone_platform_wayland.cc',
         'media/media_ozone_platform_wayland.h',
+	'platform/client_native_pixmap_factory_wayland.cc',
+	'platform/client_native_pixmap_factory_wayland.h',
         'platform/desktop_platform_screen.h',
 	'platform/desktop_platform_screen_delegate.h',
         'platform/ozone_export_wayland.h',

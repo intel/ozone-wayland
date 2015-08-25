@@ -310,4 +310,8 @@ void OzoneWaylandWindow::ValidateBounds() {
   bounds_.set_origin(gfx::Point(x, y));
 }
 
+PlatformImeController* OzoneWaylandWindow::GetPlatformImeController() {
+  return nullptr;
+}
+
 }  // namespace ui
