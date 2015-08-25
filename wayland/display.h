@@ -114,8 +114,8 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
       proc_address) override;
   const int32* GetEGLSurfaceProperties(const int32* desired_list) override;
   scoped_refptr<ui::NativePixmap> CreateNativePixmap(
-      gfx::AcceleratedWidget widget, gfx::Size size, BufferFormat format,
-          BufferUsage usage) override;
+      gfx::AcceleratedWidget widget, gfx::Size size, gfx::BufferFormat format,
+          gfx::BufferUsage usage) override;
 
   scoped_ptr<ui::SurfaceOzoneCanvas> CreateCanvasForWidget(
       gfx::AcceleratedWidget widget) override;

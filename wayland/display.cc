@@ -231,8 +231,8 @@ WaylandDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
 scoped_refptr<ui::NativePixmap> WaylandDisplay::CreateNativePixmap(
     gfx::AcceleratedWidget widget,
     gfx::Size size,
-    BufferFormat format,
-    BufferUsage usage) {
+    gfx::BufferFormat format,
+    gfx::BufferUsage usage) {
 #if defined(ENABLE_DRM_SUPPORT)
   if (usage == MAP)
     return NULL;
