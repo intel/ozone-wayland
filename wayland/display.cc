@@ -635,10 +635,6 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void WaylandDisplay::RelinquishGpuResources(const base::Closure& callback) {
-  callback.Run();
-}
-
 IPC::MessageFilter* WaylandDisplay::GetMessageFilter() {
   return NULL;
 }

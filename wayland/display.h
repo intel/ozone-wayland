@@ -208,7 +208,6 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   // GpuPlatformSupport:
   void OnChannelEstablished(IPC::Sender* sender) override;
   bool OnMessageReceived(const IPC::Message& message) override;
-  void RelinquishGpuResources(const base::Closure& callback) override;
   IPC::MessageFilter* GetMessageFilter() override;
   // Posts task to main loop of the thread on which Dispatcher was initialized.
   void Dispatch(IPC::Message* message);
