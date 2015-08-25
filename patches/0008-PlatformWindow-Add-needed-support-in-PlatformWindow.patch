@@ -1,7 +1,7 @@
-From a372c0e2673b3cacb43f8159d8badf6c9bb395c8 Mon Sep 17 00:00:00 2001
+From ed1ce0e41ed0410f3c724a298674d7e30c668a8b Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Fri, 31 Jul 2015 02:20:58 -0700
-Subject: [PATCH] PlatformWindow: Add needed support in PlatformWindow.
+Date: Mon, 24 Aug 2015 20:03:09 -0700
+Subject: [PATCH] Add needed support in PlatformWindow.
 
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.
@@ -10,7 +10,7 @@ need to be evaluated further before trying to upstream them.
  1 file changed, 20 insertions(+)
 
 diff --git a/ui/platform_window/platform_window.h b/ui/platform_window/platform_window.h
-index 6e6ace1..9042316 100644
+index 67d3206..a063cfd 100644
 --- a/ui/platform_window/platform_window.h
 +++ b/ui/platform_window/platform_window.h
 @@ -6,12 +6,16 @@
@@ -29,8 +29,8 @@ index 6e6ace1..9042316 100644
 +
  namespace ui {
  
- class PlatformWindowDelegate;
-@@ -22,8 +26,24 @@ class PlatformWindowDelegate;
+ class PlatformImeController;
+@@ -23,8 +27,24 @@ class PlatformWindowDelegate;
  // underlying platform windowing system (i.e. X11/Win/OSX).
  class PlatformWindow {
   public:
