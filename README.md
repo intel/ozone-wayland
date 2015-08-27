@@ -78,15 +78,14 @@ now we can clone Ozone-Wayland and fetch all the dependencies of it, including C
 
   ```
   $ gclient config ssh://git@github.com/01org/ozone-wayland.git --name=src/ozone --deps-file ".DEPS.git"
+  $ gclient sync 
   $ export GYP_DEFINES='component=static_library use_ash=1 use_aura=1 chromeos=0 use_ozone=1 use_xkbcommon=1' 
   ```
   If you want to enable HWA Video Decoding, you need to have the following GYP_DEFINES:
   ```
    $ export GYP_DEFINES='component=static_library use_ash=1 use_aura=1 chromeos=0 use_ozone=1 use_xkbcommon=1 proprietary_codecs=1 ffmpeg_branding=Chrome'
    ```
-  ```
-   $ gclient sync 
-   ```
+   
 It may take a considerable time for downloading the trees. If everything went
 fine, now we're able to build.
 
