@@ -113,6 +113,23 @@ void OzoneWaylandWindow::SetOpacity(unsigned char opacity) {
   }
 }
 
+void OzoneWaylandWindow::RequestDragData(const std::string& mime_type) {
+  sender_->Send(new WaylandDisplay_RequestDragData(mime_type));
+}
+
+void OzoneWaylandWindow::RequestSelectionData(const std::string& mime_type) {
+  sender_->Send(new WaylandDisplay_RequestSelectionData(mime_type));
+}
+
+void OzoneWaylandWindow::DragWillBeAccepted(uint32_t serial,
+                                            const std::string& mime_type) {
+  sender_->Send(new WaylandDisplay_DragWillBeAccepted(serial, mime_type));
+}
+
+void OzoneWaylandWindow::DragWillBeRejected(uint32_t serial) {
+  sender_->Send(new WaylandDisplay_DragWillBeRejected(serial));
+}
+
 gfx::Rect OzoneWaylandWindow::GetBounds() {
   return bounds_;
 }

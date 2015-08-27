@@ -254,6 +254,11 @@ bool WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, VirtualKeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OutputSizeChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_InitializeXKB, InitializeXKB)
+  IPC_MESSAGE_HANDLER(WaylandInput_DragEnter, DragEnter)
+  IPC_MESSAGE_HANDLER(WaylandInput_DragData, DragData)
+  IPC_MESSAGE_HANDLER(WaylandInput_DragLeave, DragLeave)
+  IPC_MESSAGE_HANDLER(WaylandInput_DragMotion, DragMotion)
+  IPC_MESSAGE_HANDLER(WaylandInput_DragDrop, DragDrop)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -375,6 +380,53 @@ void WindowManagerWayland::WindowActivated(unsigned windowhandle) {
   base::ThreadTaskRunnerHandle::Get()->PostTask(
       FROM_HERE,
       base::Bind(&WindowManagerWayland::OnWindowActivated,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle));
+}
+
+void WindowManagerWayland::DragEnter(
+    unsigned windowhandle,
+    float x,
+    float y,
+    const std::vector<std::string>& mime_types,
+    uint32_t serial) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifyDragEnter,
+          weak_ptr_factory_.GetWeakPtr(),
+          windowhandle, x, y, mime_types, serial));
+}
+
+void WindowManagerWayland::DragData(unsigned windowhandle,
+                                    base::FileDescriptor pipefd) {
+  // TODO(mcatanzaro): pipefd will be leaked if the WindowManagerWayland is
+  // destroyed before NotifyDragData is called.
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifyDragData,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle, pipefd));
+}
+
+void WindowManagerWayland::DragLeave(unsigned windowhandle) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifyDragLeave,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle));
+}
+
+void WindowManagerWayland::DragMotion(unsigned windowhandle,
+                                      float x,
+                                      float y,
+                                      uint32_t time) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifyDragMotion,
+          weak_ptr_factory_.GetWeakPtr(), windowhandle, x, y, time));
+}
+
+void WindowManagerWayland::DragDrop(unsigned windowhandle) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifyDragDrop,
           weak_ptr_factory_.GetWeakPtr(), windowhandle));
 }
 
@@ -505,6 +557,66 @@ void WindowManagerWayland::NotifyOutputSizeChanged(unsigned width,
                                                    unsigned height) {
   if (platform_screen_)
     platform_screen_->GetDelegate()->OnOutputSizeChanged(width, height);
+}
+
+void WindowManagerWayland::NotifyDragEnter(
+    unsigned windowhandle,
+    float x,
+    float y,
+    const std::vector<std::string>& mime_types,
+    uint32_t serial) {
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << windowhandle
+               << " from GPU process";
+    return;
+  }
+  window->GetDelegate()->OnDragEnter(windowhandle, x, y, mime_types, serial);
+}
+
+void WindowManagerWayland::NotifyDragData(unsigned windowhandle,
+                                          base::FileDescriptor pipefd) {
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << windowhandle
+               << " from GPU process";
+    close(pipefd.fd);
+    return;
+  }
+  window->GetDelegate()->OnDragDataReceived(pipefd.fd);
+}
+
+void WindowManagerWayland::NotifyDragLeave(unsigned windowhandle) {
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << windowhandle
+               << " from GPU process";
+    return;
+  }
+  window->GetDelegate()->OnDragLeave();
+}
+
+void WindowManagerWayland::NotifyDragMotion(unsigned windowhandle,
+                                            float x,
+                                            float y,
+                                            uint32_t time) {
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << windowhandle
+               << " from GPU process";
+    return;
+  }
+  window->GetDelegate()->OnDragMotion(x, y, time);
+}
+
+void WindowManagerWayland::NotifyDragDrop(unsigned windowhandle) {
+  ui::OzoneWaylandWindow* window = GetWindow(windowhandle);
+  if (!window) {
+    LOG(ERROR) << "Received invalid window handle " << windowhandle
+               << " from GPU process";
+    return;
+  }
+  window->GetDelegate()->OnDragDrop();
 }
 
 }  // namespace ui
