@@ -79,6 +79,10 @@
         }],
       ],
       'sources': [
+        'data_device.cc',
+        'data_device.h',
+        'data_offer.cc',
+        'data_offer.h',
         'display.cc',
         'display.h',
         'display_poll_thread.cc',
