@@ -145,8 +145,17 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void OnWindowStateChanged(ui::PlatformWindowState new_state) override;
   void OnLostCapture() override;
   void OnAcceleratedWidgetAvailable(gfx::AcceleratedWidget widget,
-                                     float device_pixel_ratio) override;
+                                    float device_pixel_ratio) override;
   void OnActivationChanged(bool active) override;
+  void OnDragEnter(unsigned windowhandle,
+                   float x,
+                   float y,
+                   const std::vector<std::string>& mime_types,
+                   uint32_t serial) override;
+  void OnDragDataReceived(int fd) override;
+  void OnDragLeave() override;
+  void OnDragMotion(float x, float y, uint32_t time) override;
+  void OnDragDrop() override;
 
  private:
   enum {

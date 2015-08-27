@@ -170,7 +170,8 @@ DesktopWindowTreeHostOzone::CreateTooltip() {
 scoped_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostOzone::CreateDragDropClient(
     DesktopNativeCursorManager* cursor_manager) {
-  drag_drop_client_ = new DesktopDragDropClientWayland(window());
+  drag_drop_client_ = new DesktopDragDropClientWayland(window(),
+                                                       platform_window_.get());
   return make_scoped_ptr(drag_drop_client_);
 }
 
@@ -742,6 +743,40 @@ void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
 
   desktop_native_widget_aura_->HandleActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
+}
+
+void DesktopWindowTreeHostOzone::OnDragEnter(
+    unsigned windowhandle,
+    float x,
+    float y,
+    const std::vector<std::string>& mime_types,
+    uint32_t serial) {
+  if (drag_drop_client_)
+    drag_drop_client_->OnDragEnter(windowhandle, x, y, mime_types, serial);
+}
+
+void DesktopWindowTreeHostOzone::OnDragDataReceived(int fd) {
+  if (drag_drop_client_)
+    drag_drop_client_->OnDragDataReceived(fd);
+  else
+    close(fd);
+}
+
+void DesktopWindowTreeHostOzone::OnDragLeave() {
+  if (drag_drop_client_)
+    drag_drop_client_->OnDragLeave();
+}
+
+void DesktopWindowTreeHostOzone::OnDragMotion(float x,
+                                              float y,
+                                              uint32_t time) {
+  if (drag_drop_client_)
+    drag_drop_client_->OnDragMotion(x, y, time);
+}
+
+void DesktopWindowTreeHostOzone::OnDragDrop() {
+  if (drag_drop_client_)
+    drag_drop_client_->OnDragDrop();
 }
 
 void DesktopWindowTreeHostOzone::OnLostCapture() {
