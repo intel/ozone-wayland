@@ -13,6 +13,7 @@
 #include "ui/aura/client/focus_client.h"
 #include "ui/aura/window_property.h"
 #include "ui/base/hit_test.h"
+#include "ui/base/ime/input_method.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/geometry/insets.h"
 #include "ui/gfx/path.h"
@@ -817,6 +818,12 @@ void DesktopWindowTreeHostOzone::DispatchEvent(ui::Event* event) {
     }
     break;
     }
+    case ui::ET_KEY_PRESSED:
+    case ui::ET_KEY_RELEASED: {
+      GetInputMethod()->DispatchKeyEvent(static_cast<ui::KeyEvent*>(event));
+      break;
+    }
+
     default:
       break;
   }
