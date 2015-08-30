@@ -791,32 +791,33 @@ void DesktopWindowTreeHostOzone::DispatchEvent(ui::Event* event) {
     case ui::ET_MOUSE_PRESSED:
     case ui::ET_MOUSE_ENTERED:
     case ui::ET_MOUSE_EXITED: {
-    // In Windows, the native events sent to chrome are separated into client
-    // and non-client versions of events, which we record on our LocatedEvent
-    // structures. On Desktop Ozone, we emulate the concept of non-client.
-    // Before we pass this event to the cross platform event handling framework,
-    // we need to make sure it is appropriately marked as non-client if it's in
-    // the non client area, or otherwise, we can get into a state where the a
-    // window is set as the |mouse_pressed_handler_| in
-    // window_event_dispatcher.cc despite the mouse button being released.
-    //
-    // We can't do this later in the dispatch process because we share that
-    // with ash, and ash gets confused about event IS_NON_CLIENT-ness on
-    // events, since ash doesn't expect this bit to be set, because it's never
-    // been set before. (This works on ash on Windows because none of the mouse
-    // events on the ash desktop are clicking in what Windows considers to be a
-    // non client area.) Likewise, we won't want to do the following in any
-    // WindowTreeHost that hosts ash.
-    ui::MouseEvent* mouseev = static_cast<ui::MouseEvent*>(event);
-    if (content_window_ && content_window_->delegate()) {
-      int flags = mouseev->flags();
-      int hit_test_code =
-        content_window_->delegate()->GetNonClientComponent(mouseev->location());
-      if (hit_test_code != HTCLIENT && hit_test_code != HTNOWHERE)
-        flags |= ui::EF_IS_NON_CLIENT;
-     mouseev->set_flags(flags);
-    }
-    break;
+      // In Windows, the native events sent to chrome are separated into client
+      // and non-client versions of events, which we record on our LocatedEvent
+      // structures. On Desktop Ozone, we emulate the concept of non-client.
+      // Before we pass this event to the cross platform event handling
+      // framework, we need to make sure it is appropriately marked as
+      // non-client if it's in the non client area, or otherwise, we can get
+      // into a state where the a window is set as the |mouse_pressed_handler_|
+      // in window_event_dispatcher.cc despite the mouse button being released.
+      //
+      // We can't do this later in the dispatch process because we share that
+      // with ash, and ash gets confused about event IS_NON_CLIENT-ness on
+      // events, since ash doesn't expect this bit to be set, because it's never
+      // been set before. (This works on ash on Windows because none of the
+      // mouse events on the ash desktop are clicking in what Windows considers
+      // to be a non client area.) Likewise, we won't want to do the following
+      // in any WindowTreeHost that hosts ash.
+      ui::MouseEvent* mouseev = static_cast<ui::MouseEvent*>(event);
+      if (content_window_ && content_window_->delegate()) {
+        int flags = mouseev->flags();
+        int hit_test_code =
+            content_window_->delegate()->GetNonClientComponent(
+                mouseev->location());
+        if (hit_test_code != HTCLIENT && hit_test_code != HTNOWHERE)
+          flags |= ui::EF_IS_NON_CLIENT;
+        mouseev->set_flags(flags);
+      }
+      break;
     }
     case ui::ET_KEY_PRESSED:
     case ui::ET_KEY_RELEASED: {
