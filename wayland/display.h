@@ -232,8 +232,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandSeat*> seat_list_;
   WindowMap widget_map_;
-  // Messages are not sent by host until connection is established. Display
-  // queues all these messages to send after connection is established.
+  // Display queues messages till Channel is establised.
   DeferredMessages deferred_messages_;
   unsigned serial_;
   bool processing_events_ :1;
