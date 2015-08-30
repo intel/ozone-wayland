@@ -314,6 +314,7 @@ void WaylandDisplay::StopProcessingEvents() {
 }
 
 void WaylandDisplay::Terminate() {
+  loop_ = NULL;
   if (!widget_map_.empty()) {
     STLDeleteValues(&widget_map_);
     widget_map_.clear();
@@ -359,6 +360,9 @@ void WaylandDisplay::Terminate() {
     wl_display_disconnect(display_);
     display_ = NULL;
   }
+
+  while (!deferred_messages_.empty())
+    deferred_messages_.pop();
 
   instance_ = NULL;
 }
@@ -613,6 +617,10 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
 void WaylandDisplay::OnChannelEstablished(IPC::Sender* sender) {
   loop_ = base::MessageLoop::current();
   sender_ = sender;
+  while (!deferred_messages_.empty()) {
+    Dispatch(deferred_messages_.front());
+    deferred_messages_.pop();
+  }
 }
 
 bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
@@ -737,7 +745,7 @@ void WaylandDisplay::InitializeXKB(base::SharedMemoryHandle fd, uint32_t size) {
 
 void WaylandDisplay::Dispatch(IPC::Message* message) {
   if (!loop_) {
-    delete message;
+    deferred_messages_.push(message);
     return;
   }
 
@@ -748,6 +756,10 @@ void WaylandDisplay::Dispatch(IPC::Message* message) {
 }
 
 void WaylandDisplay::Send(IPC::Message* message) {
+  // The GPU process never sends synchronous IPC, so clear the unblock flag.
+  // This ensures the message is treated as a synchronous one and helps preserve
+  // order. Check set_unblock in ipc_messages.h for explanation.
+  message->set_unblock(true);
   sender_->Send(message);
 }
 

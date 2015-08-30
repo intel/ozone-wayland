@@ -160,6 +160,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
 #endif
 
  private:
+  typedef std::queue<IPC::Message*> DeferredMessages;
   void InitializeDisplay();
   // Creates a WaylandWindow backed by EGL Window and maps it to w. This can be
   // useful for callers to track a particular surface. By default the type of
@@ -231,6 +232,9 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   std::list<WaylandScreen*> screen_list_;
   std::list<WaylandSeat*> seat_list_;
   WindowMap widget_map_;
+  // Messages are not sent by host until connection is established. Display
+  // queues all these messages to send after connection is established.
+  DeferredMessages deferred_messages_;
   unsigned serial_;
   bool processing_events_ :1;
   bool m_authenticated_ :1;
