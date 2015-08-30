@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ui/ozone/platform/drm/common/client_native_pixmap_factory_drm.h"
+#include "ozone/platform/client_native_pixmap_factory_wayland.h"
 
 #include "ui/ozone/common/stub_client_native_pixmap_factory.h"
 
