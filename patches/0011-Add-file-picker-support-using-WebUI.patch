@@ -1,6 +1,6 @@
-From 6844d9b2cfd5af5eae36429eda36fc299d4972fa Mon Sep 17 00:00:00 2001
+From 9997fdae9dfcf73cba847513800afba6e8b6ff09 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
-Date: Mon, 24 Aug 2015 19:55:15 -0700
+Date: Sun, 30 Aug 2015 16:39:07 -0700
 Subject: [PATCH] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
@@ -15,7 +15,7 @@ File browsing UI will be added later.
  .../browser/resources/file_picker/file_picker.css  |  72 +++++++++
  .../browser/resources/file_picker/file_picker.html |  37 +++++
  .../browser/resources/file_picker/file_picker.js   |  51 +++++++
- .../aura/chrome_browser_main_extra_parts_aura.cc   |   8 +
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |  10 +-
  .../ui/webui/chrome_web_ui_controller_factory.cc   |   3 +
  .../browser/ui/webui/file_picker/file_picker_ui.cc |  46 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |  24 +++
@@ -24,7 +24,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |   3 +
  chrome/common/url_constants.h                      |   2 +
  tools/gritsettings/resource_ids                    |   2 +-
- 14 files changed, 427 insertions(+), 1 deletion(-)
+ 14 files changed, 428 insertions(+), 2 deletions(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -244,7 +244,7 @@ index 0000000..4161330
 +document.addEventListener('DOMContentLoaded',
 +                          filePicker.initialize);
 diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-index 9e9476b..dccb14b 100644
+index 9e9476b..e257134 100644
 --- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 +++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 @@ -29,6 +29,10 @@
@@ -269,6 +269,15 @@ index 9e9476b..dccb14b 100644
  }
  
  void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
+@@ -114,7 +122,7 @@ void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
+ #endif
+ #endif
+
+-#if defined(USE_X11) && !defined(OS_CHROMEOS)
++#if (defined(USE_X11) || defined(USE_OZONE)) && !defined(OS_CHROMEOS)
+   if (GetInitialDesktop() != chrome::HOST_DESKTOP_TYPE_ASH)
+     views::LinuxUI::instance()->Initialize();
+ #endif
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 index 6fd567b..e173307 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
