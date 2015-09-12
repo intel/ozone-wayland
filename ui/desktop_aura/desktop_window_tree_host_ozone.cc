@@ -753,6 +753,8 @@ void DesktopWindowTreeHostOzone::OnAcceleratedWidgetAvailable(
       gfx::AcceleratedWidget widget,
        float device_pixel_ratio) {
   window_ = widget;
+  CreateCompositor();
+  WindowTreeHost::OnAcceleratedWidgetAvailable();
 }
 
 void DesktopWindowTreeHostOzone::OnCloseRequest() {
@@ -899,8 +901,6 @@ void DesktopWindowTreeHostOzone::InitOzoneWindow(
 
   if (params.keep_on_top)
     always_on_top_ = true;
-
-  CreateCompositor(GetAcceleratedWidget());
 }
 
 void DesktopWindowTreeHostOzone::Relayout() {
