@@ -87,6 +87,10 @@ class OzonePlatformWayland : public OzonePlatform {
     return nullptr;
   }
 
+  base::ScopedFD OpenClientNativePixmapDevice() const override {
+    return base::ScopedFD();
+  }
+
   void InitializeUI() override {
     // For tests.
     if (wayland_display_.get())
