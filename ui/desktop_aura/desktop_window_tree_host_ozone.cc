@@ -469,7 +469,7 @@ void DesktopWindowTreeHostOzone::SetVisibleOnAllWorkspaces(
 
 bool DesktopWindowTreeHostOzone::SetWindowTitle(const base::string16& title) {
   if (title.compare(title_)) {
-    platform_window_->SetWidgetTitle(title);
+    platform_window_->SetTitle(title);
     title_ = title;
     return true;
   }

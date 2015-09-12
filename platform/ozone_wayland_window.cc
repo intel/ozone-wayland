@@ -81,7 +81,7 @@ void OzoneWaylandWindow::InitPlatformWindow(
   sender_->AddChannelObserver(this);
 }
 
-void OzoneWaylandWindow::SetWidgetTitle(const base::string16& title) {
+void OzoneWaylandWindow::SetTitle(const base::string16& title) {
   title_ = title;
   if (!sender_->IsConnected())
     return;
