@@ -2,11 +2,14 @@
 
 import os
 
+def jhbuilddir():
+  return os.path.dirname(os.path.realpath(__file__))
+
 use_local_modulesets = True
-moduleset = os.getcwd() + '/wayland.modules'
+moduleset = jhbuilddir() + '/wayland.modules'
 modules = ['weston']
-checkoutroot = os.getcwd() + '/../../../out/wayland/source'
-prefix = os.getcwd() +'/../../../out/wayland/root'
+checkoutroot = jhbuilddir() + '/../../../out/wayland/source'
+prefix = jhbuilddir() + '/../../../out/wayland/root'
 autogenargs=''
 
 os.environ['EGL_PLATFORM'] = 'wayland'
