@@ -117,6 +117,39 @@ IPC_MESSAGE_CONTROL0(WaylandInput_PreeditEnd)  // NOLINT(readability/fn_size)
 
 IPC_MESSAGE_CONTROL0(WaylandInput_PreeditStart)  // NOLINT(readability/fn_size)
 
+IPC_MESSAGE_CONTROL5(WaylandInput_DragEnter,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     float /* x */,
+                     float /* y */,
+                     std::vector<std::string> /* mime_types */,
+                     uint32_t /* serial */)
+
+IPC_MESSAGE_CONTROL2(WaylandInput_DragData,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     base::FileDescriptor /* pipefd */)
+
+IPC_MESSAGE_CONTROL1(WaylandInput_DragLeave,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */)
+
+IPC_MESSAGE_CONTROL4(WaylandInput_DragMotion,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */,
+                     float /* x */,
+                     float /* y */,
+                     uint32_t /* time */)
+
+IPC_MESSAGE_CONTROL1(WaylandInput_DragDrop,  // NOLINT(readability/fn_size)
+                     unsigned /* window handle */)
+
+IPC_MESSAGE_CONTROL1(  // NOLINT(readability/fn_size)
+    WaylandInput_SelectionChanged,
+    std::vector<std::string> /* mime_types */)
+
+IPC_MESSAGE_CONTROL1(WaylandInput_SelectionData,  // NOLINT(readability/fn_size)
+                     base::FileDescriptor /* pipefd */)
+
+IPC_MESSAGE_CONTROL0(WaylandInput_SelectionCleared)  // NOLINT(readability/
+                                                     //        fn_size)
+
 //------------------------------------------------------------------------------
 // GPU Messages
 // These messages are from the Browser to the GPU process.
@@ -170,3 +203,17 @@ IPC_MESSAGE_CONTROL0(WaylandDisplay_ShowInputPanel)  // NOLINT(readability/
 
 IPC_MESSAGE_CONTROL0(WaylandDisplay_HideInputPanel)  // NOLINT(readability/
                                                      //         fn_size)
+
+IPC_MESSAGE_CONTROL1(WaylandDisplay_RequestDragData,  // NOLINT(readability/
+                     std::string /* mime_type */)     //        fn_size)
+
+IPC_MESSAGE_CONTROL1(  // NOLINT(readability/fn_size)
+    WaylandDisplay_RequestSelectionData,
+    std::string /* mime_type */)
+
+IPC_MESSAGE_CONTROL2(WaylandDisplay_DragWillBeAccepted,  // NOLINT(readability/
+                     uint32_t /* serial */,              //        fn_size)
+                     std::string /* mime_type */)
+
+IPC_MESSAGE_CONTROL1(WaylandDisplay_DragWillBeRejected,  // NOLINT(readability/
+                     uint32_t /* serial */)              //        fn_size)

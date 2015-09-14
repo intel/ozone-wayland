@@ -22,6 +22,7 @@
 #include "base/stl_util.h"
 #include "ipc/ipc_sender.h"
 #include "ozone/platform/messages.h"
+#include "ozone/wayland/data_device.h"
 #include "ozone/wayland/display_poll_thread.h"
 #include "ozone/wayland/egl/surface_ozone_wayland.h"
 #if defined(ENABLE_DRM_SUPPORT)
@@ -81,6 +82,7 @@ WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
     display_(NULL),
     registry_(NULL),
     compositor_(NULL),
+    data_device_manager_(NULL),
     shell_(NULL),
     shm_(NULL),
     text_input_manager_(NULL),
@@ -332,6 +334,9 @@ void WaylandDisplay::Terminate() {
   if (text_input_manager_)
     wl_text_input_manager_destroy(text_input_manager_);
 
+  if (data_device_manager_)
+    wl_data_device_manager_destroy(data_device_manager_);
+
 #if defined(ENABLE_DRM_SUPPORT)
   if (m_deviceName)
     delete m_deviceName;
@@ -526,6 +531,23 @@ void WaylandDisplay::HideInputPanel() {
   primary_seat_->HideInputPanel();
 }
 
+void WaylandDisplay::RequestDragData(const std::string& mime_type) {
+  primary_seat_->GetDataDevice()->RequestDragData(mime_type);
+}
+
+void WaylandDisplay::RequestSelectionData(const std::string& mime_type) {
+  primary_seat_->GetDataDevice()->RequestSelectionData(mime_type);
+}
+
+void WaylandDisplay::DragWillBeAccepted(uint32_t serial,
+                                        const std::string& mime_type) {
+  primary_seat_->GetDataDevice()->DragWillBeAccepted(serial, mime_type);
+}
+
+void WaylandDisplay::DragWillBeRejected(uint32_t serial) {
+  primary_seat_->GetDataDevice()->DragWillBeRejected(serial);
+}
+
 #if defined(ENABLE_DRM_SUPPORT)
 void WaylandDisplay::DrmHandleDevice(const char* device) {
   drm_magic_t magic;
@@ -583,6 +605,9 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   if (strcmp(interface, "wl_compositor") == 0) {
     disp->compositor_ = static_cast<wl_compositor*>(
         wl_registry_bind(registry, name, &wl_compositor_interface, 1));
+  } else if (strcmp(interface, "wl_data_device_manager") == 0) {
+    disp->data_device_manager_ = static_cast<wl_data_device_manager*>(
+        wl_registry_bind(registry, name, &wl_data_device_manager_interface, 1));
 #if defined(ENABLE_DRM_SUPPORT)
   } else if (!strcmp(interface, "wl_drm")) {
     m_drm = static_cast<struct wl_drm*>(wl_registry_bind(registry,
@@ -600,6 +625,10 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     // (kalyan) Support extended output.
     disp->primary_screen_ = disp->screen_list_.front();
   } else if (strcmp(interface, "wl_seat") == 0) {
+    // TODO(mcatanzaro): The display passed to WaylandInputDevice must have a
+    // valid data device manager. We should ideally be robust to the compositor
+    // advertising a wl_seat first. No known compositor does this, fortunately.
+    CHECK(disp->data_device_manager_);
     WaylandSeat* seat = new WaylandSeat(disp, name);
     disp->seat_list_.push_back(seat);
     disp->primary_seat_ = disp->seat_list_.front();
@@ -637,6 +666,10 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandDisplay_ImeReset, ResetIme)
   IPC_MESSAGE_HANDLER(WaylandDisplay_ShowInputPanel, ShowInputPanel)
   IPC_MESSAGE_HANDLER(WaylandDisplay_HideInputPanel, HideInputPanel)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_RequestDragData, RequestDragData)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_RequestSelectionData, RequestSelectionData)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_DragWillBeAccepted, DragWillBeAccepted)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_DragWillBeRejected, DragWillBeRejected)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -741,6 +774,47 @@ void WaylandDisplay::PreeditStart() {
 
 void WaylandDisplay::InitializeXKB(base::SharedMemoryHandle fd, uint32_t size) {
   Dispatch(new WaylandInput_InitializeXKB(fd, size));
+}
+
+void WaylandDisplay::DragEnter(unsigned windowhandle,
+                               float x,
+                               float y,
+                               const std::vector<std::string>& mime_types,
+                               uint32_t serial) {
+  Dispatch(new WaylandInput_DragEnter(windowhandle, x, y, mime_types, serial));
+}
+
+void WaylandDisplay::DragData(unsigned windowhandle,
+                              base::FileDescriptor pipefd) {
+  Dispatch(new WaylandInput_DragData(windowhandle, pipefd));
+}
+
+void WaylandDisplay::DragLeave(unsigned windowhandle) {
+  Dispatch(new WaylandInput_DragLeave(windowhandle));
+}
+
+void WaylandDisplay::DragMotion(unsigned windowhandle,
+                                float x,
+                                float y,
+                                uint32_t time) {
+  Dispatch(new WaylandInput_DragMotion(windowhandle, x, y, time));
+}
+
+void WaylandDisplay::DragDrop(unsigned windowhandle) {
+  Dispatch(new WaylandInput_DragDrop(windowhandle));
+}
+
+void WaylandDisplay::SelectionChanged(
+    const std::vector<std::string>& mime_types) {
+  Dispatch(new WaylandInput_SelectionChanged(mime_types));
+}
+
+void WaylandDisplay::SelectionData(base::FileDescriptor pipefd) {
+  Dispatch(new WaylandInput_SelectionData(pipefd));
+}
+
+void WaylandDisplay::SelectionCleared() {
+  Dispatch(new WaylandInput_SelectionCleared());
 }
 
 void WaylandDisplay::Dispatch(IPC::Message* message) {

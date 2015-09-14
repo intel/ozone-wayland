@@ -6,8 +6,8 @@ Subject: [PATCH] Add needed support in PlatformWindow.
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.
 ---
- ui/platform_window/platform_window.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ ui/platform_window/platform_window.h | 38 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
 diff --git a/ui/platform_window/platform_window.h b/ui/platform_window/platform_window.h
 index 67d3206..a063cfd 100644
@@ -15,22 +15,22 @@ index 67d3206..a063cfd 100644
 +++ b/ui/platform_window/platform_window.h
 @@ -6,12 +6,16 @@
  #define UI_PLATFORM_WINDOW_PLATFORM_WINDOW_H_
- 
+
  #include "base/memory/scoped_ptr.h"
 +#include "base/strings/string16.h"
 +#include "third_party/skia/include/core/SkPath.h"
  #include "ui/base/cursor/cursor.h"
- 
+
  namespace gfx {
  class Rect;
  }
- 
+
 +class SkPath;
 +
  namespace ui {
- 
+
  class PlatformImeController;
-@@ -23,8 +27,24 @@ class PlatformWindowDelegate;
+@@ -23,8 +25,40 @@ class PlatformWindowDelegate;
  // underlying platform windowing system (i.e. X11/Win/OSX).
  class PlatformWindow {
   public:
@@ -45,16 +45,32 @@ index 67d3206..a063cfd 100644
 +  };
 +
    virtual ~PlatformWindow() {}
- 
+
 +  virtual void InitPlatformWindow(PlatformWindowType type,
 +                                  gfx::AcceleratedWidget parent_window) { }
 +  virtual void SetWidgetTitle(const base::string16& title) { }
 +  virtual void SetWindowShape(const SkPath& path) { }
 +  virtual void SetOpacity(unsigned char opacity) { }
 +
++  // Asks the GPU process to send data of type |mime_type|.
++  virtual void RequestDragData(const std::string& mime_type) { }
++  virtual void RequestSelectionData(const std::string& mime_type) { }
++
++  // Indicates to the drag source that the data will or will not be accepted
++  // at the current (x, y) coordinates. Note that there is a harmless race here.
++  // The browser process could decide to accept or reject the data based on
++  // old (x, y) coordinates that have since been updated by a new DragMotion
++  // event in the GPU process. This doesn't matter because the browser process
++  // will promptly correct the matter by calling one of these functions again
++  // when it receives the DragMotion event, and these functions are only used to
++  // provide user feedback: they don't affect correctness.
++  virtual void DragWillBeAccepted(uint32_t serial,
++                                  const std::string& mime_type) { }
++  virtual void DragWillBeRejected(uint32_t serial) { }
++
    virtual void Show() = 0;
    virtual void Hide() = 0;
    virtual void Close() = 0;
--- 
-1.9.1
+--
+2.4.3
 

@@ -5,6 +5,7 @@
 #ifndef OZONE_PLATFORM_OZONE_WAYLAND_WINDOW_H_
 #define OZONE_PLATFORM_OZONE_WAYLAND_WINDOW_H_
 
+#include <string>
 #include "base/memory/ref_counted.h"
 #include "ozone/platform/window_constants.h"
 #include "third_party/skia/include/core/SkRegion.h"
@@ -40,6 +41,11 @@ class OzoneWaylandWindow : public PlatformWindow,
   void SetWidgetTitle(const base::string16& title) override;
   void SetWindowShape(const SkPath& path) override;
   void SetOpacity(unsigned char opacity) override;
+  void RequestDragData(const std::string& mime_type) override;
+  void RequestSelectionData(const std::string& mime_type) override;
+  void DragWillBeAccepted(uint32_t serial,
+                          const std::string& mime_type) override;
+  void DragWillBeRejected(uint32_t serial) override;
   gfx::Rect GetBounds() override;
   void SetBounds(const gfx::Rect& bounds) override;
   void Show() override;
