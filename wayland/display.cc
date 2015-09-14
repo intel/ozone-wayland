@@ -804,6 +804,19 @@ void WaylandDisplay::DragDrop(unsigned windowhandle) {
   Dispatch(new WaylandInput_DragDrop(windowhandle));
 }
 
+void WaylandDisplay::SelectionChanged(
+    const std::vector<std::string>& mime_types) {
+  Dispatch(new WaylandInput_SelectionChanged(mime_types));
+}
+
+void WaylandDisplay::SelectionData(base::FileDescriptor pipefd) {
+  Dispatch(new WaylandInput_SelectionData(pipefd));
+}
+
+void WaylandDisplay::SelectionCleared() {
+  Dispatch(new WaylandInput_SelectionCleared());
+}
+
 void WaylandDisplay::Dispatch(IPC::Message* message) {
   if (!loop_) {
     deferred_messages_.push(message);

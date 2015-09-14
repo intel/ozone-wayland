@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/bind.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/thread_task_runner_handle.h"
 #include "ozone/platform/desktop_platform_screen_delegate.h"
 #include "ozone/platform/messages.h"
@@ -15,10 +16,16 @@
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/wayland/ozone_wayland_screen.h"
 #include "ui/aura/window.h"
+#include "ui/base/clipboard/clipboard_wayland.h"
+#include "ui/base/clipboard/scoped_clipboard_writer.h"
 #include "ui/events/event_utils.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/platform_window/platform_window_delegate.h"
+
+// TODO(mcatanzaro): Remove.
+#undef DCHECK
+#define DCHECK(n) CHECK(n)
 
 namespace ui {
 
@@ -259,6 +266,9 @@ bool WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_DragLeave, DragLeave)
   IPC_MESSAGE_HANDLER(WaylandInput_DragMotion, DragMotion)
   IPC_MESSAGE_HANDLER(WaylandInput_DragDrop, DragDrop)
+  IPC_MESSAGE_HANDLER(WaylandInput_SelectionChanged, SelectionChanged)
+  IPC_MESSAGE_HANDLER(WaylandInput_SelectionData, SelectionData)
+  IPC_MESSAGE_HANDLER(WaylandInput_SelectionCleared, SelectionCleared)
   IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -428,6 +438,30 @@ void WindowManagerWayland::DragDrop(unsigned windowhandle) {
       FROM_HERE,
       base::Bind(&WindowManagerWayland::NotifyDragDrop,
           weak_ptr_factory_.GetWeakPtr(), windowhandle));
+}
+
+void WindowManagerWayland::SelectionChanged(
+    const std::vector<std::string>& mime_types) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifySelectionChanged,
+          weak_ptr_factory_.GetWeakPtr(), mime_types));
+}
+
+void WindowManagerWayland::SelectionData(base::FileDescriptor pipefd) {
+  // TODO(mcatanzaro): pipefd will be leaked here if the WindowManagerWayland
+  // is destroyed before NotifySelectionData is called.
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifySelectionData,
+          weak_ptr_factory_.GetWeakPtr(), pipefd));
+}
+
+void WindowManagerWayland::SelectionCleared() {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&WindowManagerWayland::NotifySelectionCleared,
+          weak_ptr_factory_.GetWeakPtr()));
 }
 
 void WindowManagerWayland::InitializeXKB(base::SharedMemoryHandle fd,
@@ -617,6 +651,65 @@ void WindowManagerWayland::NotifyDragDrop(unsigned windowhandle) {
     return;
   }
   window->GetDelegate()->OnDragDrop();
+}
+
+void WindowManagerWayland::NotifySelectionChanged(
+    const std::vector<std::string>& mime_types) {
+  VLOG(1) <<  __FUNCTION__ << " mime_types=" << &mime_types;
+
+  // TODO(mcatanzaro): Pick interesting MIME types, one at a time, and place
+  // them into the clipboard. This requires splitting DragDataCollector out of
+  // DesktopDragDropClientWayland, and renaming it to something like
+  // DataOfferDataCollector.
+  if (active_window_ && !mime_types.empty())
+    active_window_->RequestSelectionData("text/plain");
+}
+
+void WindowManagerWayland::NotifySelectionData(base::FileDescriptor pipefd) {
+  VLOG(1) <<  __FUNCTION__ << " pipefd=" << pipefd.fd;
+
+  // TODO(mcatanzaro): Move this blocking I/O to the file thread.
+  // base::ThreadRestrictions::AssertIOAllowed();
+
+  // TODO(mcatanzaro): Fix this code duplication with DragDataCollector.
+  ssize_t bytes_read;
+  std::string data;
+  for (;;) {
+    char buffer[PIPE_BUF + 1];
+    bytes_read = HANDLE_EINTR(read(pipefd.fd,
+                                   buffer,
+                                   sizeof(buffer) - 1));
+    if (bytes_read == 0)
+      break;
+    if (bytes_read == -1)
+      break;
+    buffer[bytes_read] = '\0';
+    data += buffer;
+  }
+  close(pipefd.fd);
+
+  if (data.empty()) {
+    // TODO(mcatanzaro): Figure out why Weston keeps sending an empty selection.
+    // It's valid for this to be empty, but it should not be happening normally.
+    return;
+  }
+
+  ScopedClipboardWriter writer(CLIPBOARD_TYPE_COPY_PASTE);
+  base::string16 utf16;
+  base::UTF8ToUTF16(data.c_str(), data.length(), &utf16);
+  if (!utf16.empty())
+    writer.WriteText(utf16);
+
+  VLOG(1) << "Added " << utf16 << " to clipboard";
+}
+
+void WindowManagerWayland::NotifySelectionCleared() {
+  VLOG(1) <<  __FUNCTION__;
+
+  ClipboardWayland* clipboard =
+      static_cast<ClipboardWayland*>(Clipboard::GetForCurrentThread());
+  if (clipboard)
+    clipboard->Clear();
 }
 
 }  // namespace ui

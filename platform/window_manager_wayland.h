@@ -123,6 +123,9 @@ class WindowManagerWayland
   void DragLeave(unsigned windowhandle);
   void DragMotion(unsigned windowhandle, float x, float y, uint32_t time);
   void DragDrop(unsigned windowhandle);
+  void SelectionChanged(const std::vector<std::string>& mime_types);
+  void SelectionData(base::FileDescriptor pipefd);
+  void SelectionCleared();
 
   void InitializeXKB(base::SharedMemoryHandle fd, uint32_t size);
   // PlatformEventSource:
@@ -167,6 +170,9 @@ class WindowManagerWayland
   void NotifyDragLeave(unsigned windowhandle);
   void NotifyDragMotion(unsigned windowhandle, float x, float y, uint32_t time);
   void NotifyDragDrop(unsigned windowhandle);
+  void NotifySelectionChanged(const std::vector<std::string>& mime_types);
+  void NotifySelectionData(base::FileDescriptor pipefd);
+  void NotifySelectionCleared();
 
   // List of all open aura::Window.
   std::list<OzoneWaylandWindow*>* open_windows_;

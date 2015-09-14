@@ -140,6 +140,16 @@ IPC_MESSAGE_CONTROL4(WaylandInput_DragMotion,  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandInput_DragDrop,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */)
 
+IPC_MESSAGE_CONTROL1(  // NOLINT(readability/fn_size)
+    WaylandInput_SelectionChanged,
+    std::vector<std::string> /* mime_types */)
+
+IPC_MESSAGE_CONTROL1(WaylandInput_SelectionData,  // NOLINT(readability/fn_size)
+                     base::FileDescriptor /* pipefd */)
+
+IPC_MESSAGE_CONTROL0(WaylandInput_SelectionCleared)  // NOLINT(readability/
+                                                     //        fn_size)
+
 //------------------------------------------------------------------------------
 // GPU Messages
 // These messages are from the Browser to the GPU process.

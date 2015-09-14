@@ -164,6 +164,9 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   void DragLeave(unsigned windowhandle);
   void DragMotion(unsigned windowhandle, float x, float y, uint32_t time);
   void DragDrop(unsigned windowhandle);
+  void SelectionChanged(const std::vector<std::string>& mime_types);
+  void SelectionData(base::FileDescriptor pipefd);
+  void SelectionCleared();
 
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.

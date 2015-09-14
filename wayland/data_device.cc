@@ -40,7 +40,10 @@ void WaylandDataDevice::RequestDragData(const std::string& mime_type) {
 }
 
 void WaylandDataDevice::RequestSelectionData(const std::string& mime_type) {
-  NOTIMPLEMENTED();
+  if (selection_offer_) {
+    int pipefd = selection_offer_->Receive(mime_type);
+    display_.SelectionData({pipefd, true});
+  }
 }
 
 void WaylandDataDevice::DragWillBeAccepted(uint32_t serial,
@@ -126,14 +129,15 @@ void WaylandDataDevice::OnSelection(void* data,
   // there is no longer clipboard data available to paste.
   if (!id) {
     self->selection_offer_.reset();
+    self->display_.SelectionCleared();
     return;
   }
 
   DCHECK(self->new_offer_);
   self->selection_offer_ = self->new_offer_.Pass();
 
-  // TODO(mcatanzaro): Get the selection data to the browser process.
-  NOTIMPLEMENTED();
+  self->display_.SelectionChanged(
+      self->selection_offer_->GetAvailableMimeTypes());
 }
 
 }  // namespace ozonewayland
