@@ -37,33 +37,47 @@
     </dependencies>
   </autotools>
 
-  <autotools id="mesa" skip-autogen="never" autogenargs="--enable-gles2 --disable-gallium-egl --with-egl-platforms=x11,wayland,drm --enable-gbm --enable-shared-glapi --with-gallium-drivers=r300,r600,swrast,nouveau">
+  <autotools id="mesa" skip-autogen="never" autogenargs="--enable-gles2 --disable-gallium-egl --enable-gbm --enable-shared-glapi --with-gallium-drivers=r300,r600,swrast,nouveau">
     <branch repo="mesa" tag="c696a318ef1eb58f65fb867d5616bbefd1def31e"/>
+    <if condition-set="x11">
+      <autogenargs value="--with-egl-platforms=x11,wayland,drm"/>
+    </if>
+    <if condition-unset="x11">
+      <autogenargs value="--with-egl-platforms=wayland,drm"/>
+    </if>
     <dependencies>
       <dep package="drm"/>
       <dep package="glproto"/>
       <dep package="libudev"/>
-      <dep package="libX11"/>
-      <dep package="libX11-xcb"/>
-      <dep package="libXdamage"/>
-      <dep package="libXext"/>
-      <dep package="libXfixes"/>
-      <dep package="libxcb"/>
-      <dep package="libxcb-dri2"/>
-      <dep package="libxcb-dri3"/>
-      <dep package="libxcb-glx"/>
-      <dep package="libxcb-present"/>
-      <dep package="libxcb-sync"/>
-      <dep package="libxcb-xfixes"/>
-      <dep package="libxshmfence"/>
       <dep package="llvm"/>
       <dep package="mako"/>
       <dep package="wayland"/>
+      <if condition-set="x11">
+        <dep package="libX11"/>
+        <dep package="libX11-xcb"/>
+        <dep package="libXdamage"/>
+        <dep package="libXext"/>
+        <dep package="libXfixes"/>
+        <dep package="libxcb"/>
+        <dep package="libxcb-dri2"/>
+        <dep package="libxcb-dri3"/>
+        <dep package="libxcb-glx"/>
+        <dep package="libxcb-present"/>
+        <dep package="libxcb-sync"/>
+        <dep package="libxcb-xfixes"/>
+        <dep package="libxshmfence"/>
+      </if>
     </dependencies>
   </autotools>
 
-  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11">
+  <autotools id="wayland">
     <branch repo="wayland" tag="d08c079739caa966350ce9fb8b620f8a69dfb05f"/>
+    <if condition-set="x11">
+      <autogenargs value="--with-egl-platforms=x11,wayland,drm"/>
+    </if>
+    <if condition-unset="x11">
+      <autogenargs value="--with-egl-platforms=wayland,drm"/>
+    </if>
     <dependencies>
       <dep package="doxygen"/>
       <dep package="glproto"/>
@@ -77,16 +91,21 @@
 
   <autotools id="weston" autogenargs="--disable-setuid-install --enable-demo-client-install">
     <branch repo="wayland" tag="0c944b07c451212bd287e79985a99333b8d4c368"/>
+    <if condition-unset="x11">
+      <autogenargs value="--disable-x11-compositor --disable-xwayland"/>
+    </if>
     <dependencies>
       <dep package="cairo"/>
       <dep package="libinput"/>
       <dep package="libinput"/>
-      <dep package="libXcursor"/>
-      <dep package="libxcb"/>
-      <dep package="libxcb-composite"/>
-      <dep package="libxcb-xfixes"/>
       <dep package="libxkbcommon"/>
       <dep package="wayland"/>
+      <if condition-set="x11">
+        <dep package="libXcursor"/>
+        <dep package="libxcb"/>
+        <dep package="libxcb-composite"/>
+        <dep package="libxcb-xfixes"/>
+      </if>
     </dependencies>
   </autotools>
 
