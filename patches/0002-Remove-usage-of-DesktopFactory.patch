@@ -1,7 +1,7 @@
-From f9c37cd5e07c4e5ed5178dd41121382ae06a67da Mon Sep 17 00:00:00 2001
+From dd2d10fd0d86dd811c2f4f52b1e91bc3663d70cd Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Tue, 23 Dec 2014 04:38:36 -0800
-Subject: [PATCH 02/15] Remove usage of DesktopFactory.
+Date: Wed, 16 Sep 2015 18:54:04 -0700
+Subject: [PATCH] Remove usage of DesktopFactory.
 
 This is highly experimental. Eventually, the goal is to only have
 platform specific parts in Wayland and core implementation as part
@@ -20,10 +20,10 @@ discussion upstream.
  delete mode 100644 ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index de876a8..dcdaff2 100644
+index 81f653e..e1ce764 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -450,12 +450,6 @@
+@@ -465,12 +465,6 @@
        'widget/desktop_aura/desktop_window_tree_host_win.cc',
        'widget/desktop_aura/desktop_window_tree_host_win.h',
      ],
@@ -34,9 +34,9 @@ index de876a8..dcdaff2 100644
 -      'widget/desktop_aura/desktop_window_tree_host_ozone.cc',
 -    ],
      'views_test_support_sources': [
-       'controls/textfield/textfield_test_api.cc',
-       'controls/textfield/textfield_test_api.h',
-@@ -725,9 +719,6 @@
+       'animation/test/ink_drop_animation_test_api.cc',
+       'animation/test/ink_drop_animation_test_api.h',
+@@ -747,9 +741,6 @@
              ['OS == "win"', {
                'sources': [ '<@(views_desktop_aura_win_sources)' ],
              }],
