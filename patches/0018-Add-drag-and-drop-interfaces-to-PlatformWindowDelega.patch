@@ -1,0 +1,48 @@
+From 5c333c821fe28f263f3b4d9d40f8df7cb416549b Mon Sep 17 00:00:00 2001
+From: Michael Catanzaro <mcatanzaro@igalia.com>
+Date: Mon, 13 Jul 2015 19:46:39 -0500
+Subject: [PATCH] Add drag-and-drop interfaces to PlatformWindowDelegate
+
+Based on a patch by Kalyan Kondapally
+---
+ ui/platform_window/platform_window_delegate.h | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/ui/platform_window/platform_window_delegate.h b/ui/platform_window/platform_window_delegate.h
+index 67c63a7..18162a5 100644
+--- a/ui/platform_window/platform_window_delegate.h
++++ b/ui/platform_window/platform_window_delegate.h
+@@ -7,6 +7,8 @@
+
+ #include "ui/gfx/native_widget_types.h"
+
++#include <vector>
++
+ namespace gfx {
+ class Rect;
+ }
+@@ -47,6 +49,22 @@ class PlatformWindowDelegate {
+                                             float device_pixel_ratio) = 0;
+
+   virtual void OnActivationChanged(bool active) = 0;
++
++  virtual void OnDragEnter(unsigned windowhandle,
++                           float x,
++                           float y,
++                           const std::vector<std::string>& mime_types,
++                           uint32_t serial) { }
++
++  virtual void OnDragDataReceived(int fd) { }
++
++  virtual void OnDragLeave() { }
++
++  virtual void OnDragMotion(float x,
++                            float y,
++                            uint32_t time) { }
++
++  virtual void OnDragDrop() { }
+ };
+
+ }  // namespace ui
+--
+2.4.3

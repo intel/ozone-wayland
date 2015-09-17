@@ -1,16 +1,16 @@
-From 4776786053dc169b83c404f748a9506909d6f305 Mon Sep 17 00:00:00 2001
+From b307e455675cbff6f6f3c3061b4cb722fd9ecf8c Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Fri, 11 Sep 2015 22:31:20 -0700
-Subject: [PATCH] Add needed support in PlatformWindow.
+Subject: [PATCH 1/8] Add needed support in PlatformWindow.
 
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.
 ---
- ui/platform_window/platform_window.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ ui/platform_window/platform_window.h | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/ui/platform_window/platform_window.h b/ui/platform_window/platform_window.h
-index a8fd6ee..f305e866f 100644
+index a8fd6ee..93dae5b 100644
 --- a/ui/platform_window/platform_window.h
 +++ b/ui/platform_window/platform_window.h
 @@ -7,12 +7,15 @@
@@ -29,7 +29,7 @@ index a8fd6ee..f305e866f 100644
  namespace ui {
  
  class PlatformImeController;
-@@ -24,8 +27,23 @@ class PlatformWindowDelegate;
+@@ -24,8 +27,39 @@ class PlatformWindowDelegate;
  // underlying platform windowing system (i.e. X11/Win/OSX).
  class PlatformWindow {
   public:
@@ -50,9 +50,25 @@ index a8fd6ee..f305e866f 100644
 +  virtual void SetWindowShape(const SkPath& path) { }
 +  virtual void SetOpacity(unsigned char opacity) { }
 +
++  // Asks the GPU process to send data of type |mime_type|.
++  virtual void RequestDragData(const std::string& mime_type) { }
++  virtual void RequestSelectionData(const std::string& mime_type) { }
++
++  // Indicates to the drag source that the data will or will not be accepted
++  // at the current (x, y) coordinates. Note that there is a harmless race here.
++  // The browser process could decide to accept or reject the data based on
++  // old (x, y) coordinates that have since been updated by a new DragMotion
++  // event in the GPU process. This doesn't matter because the browser process
++  // will promptly correct the matter by calling one of these functions again
++  // when it receives the DragMotion event, and these functions are only used to
++  // provide user feedback: they don't affect correctness.
++  virtual void DragWillBeAccepted(uint32_t serial,
++                                  const std::string& mime_type) { }
++  virtual void DragWillBeRejected(uint32_t serial) { }
++
    virtual void Show() = 0;
    virtual void Hide() = 0;
    virtual void Close() = 0;
 -- 
-1.9.1
+2.4.3
 

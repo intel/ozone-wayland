@@ -84,6 +84,9 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   wl_compositor* GetCompositor() const { return compositor_; }
   struct wl_text_input_manager* GetTextInputManager() const;
 
+  wl_data_device_manager*
+  GetDataDeviceManager() const { return data_device_manager_; }
+
   int GetDisplayFd() const { return wl_display_get_fd(display_); }
   unsigned GetSerial() const { return serial_; }
   void SetSerial(unsigned serial) { serial_ = serial; }
@@ -151,6 +154,17 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   void PreeditEnd();
   void PreeditStart();
   void InitializeXKB(base::SharedMemoryHandle fd, uint32_t size);
+
+  void DragEnter(unsigned windowhandle,
+                 float x,
+                 float y,
+                 const std::vector<std::string>& mime_types,
+                 uint32_t serial);
+  void DragData(unsigned windowhandle, base::FileDescriptor pipefd);
+  void DragLeave(unsigned windowhandle);
+  void DragMotion(unsigned windowhandle, float x, float y, uint32_t time);
+  void DragDrop(unsigned windowhandle);
+
 #if defined(ENABLE_DRM_SUPPORT)
   // DRM related.
   void DrmHandleDevice(const char*);
@@ -197,6 +211,10 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   void ImeCaretBoundsChanged(gfx::Rect rect);
   void ShowInputPanel();
   void HideInputPanel();
+  void RequestDragData(const std::string& mime_type);
+  void RequestSelectionData(const std::string& mime_type);
+  void DragWillBeAccepted(uint32_t serial, const std::string& mime_type);
+  void DragWillBeRejected(uint32_t serial);
   // This handler resolves all server events used in initialization. It also
   // handles input device registration, screen registration.
   static void DisplayHandleGlobal(
@@ -218,6 +236,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   wl_display* display_;
   wl_registry* registry_;
   wl_compositor* compositor_;
+  wl_data_device_manager* data_device_manager_;
   WaylandShell* shell_;
   wl_shm* shm_;
   struct wl_text_input_manager* text_input_manager_;
