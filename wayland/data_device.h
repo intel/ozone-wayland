@@ -6,7 +6,9 @@
 #define OZONE_WAYLAND_DATA_DEVICE_H_
 
 #include <wayland-client.h>
+
 #include <string>
+
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "ozone/wayland/window.h"
