@@ -1,7 +1,7 @@
-From dd2d10fd0d86dd811c2f4f52b1e91bc3663d70cd Mon Sep 17 00:00:00 2001
+From 69a933f8d3e37177abfd831d0a67e3755abd05f0 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Wed, 16 Sep 2015 18:54:04 -0700
-Subject: [PATCH] Remove usage of DesktopFactory.
+Subject: [PATCH 02/13] Remove usage of DesktopFactory.
 
 This is highly experimental. Eventually, the goal is to only have
 platform specific parts in Wayland and core implementation as part
@@ -20,10 +20,10 @@ discussion upstream.
  delete mode 100644 ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 81f653e..e1ce764 100644
+index f1d71a7..6fcfa93 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -465,12 +465,6 @@
+@@ -463,12 +463,6 @@
        'widget/desktop_aura/desktop_window_tree_host_win.cc',
        'widget/desktop_aura/desktop_window_tree_host_win.h',
      ],

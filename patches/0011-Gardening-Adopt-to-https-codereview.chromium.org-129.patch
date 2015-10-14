@@ -1,7 +1,7 @@
-From f3799ea81398c1ecb3ff6004390d75e2159fd317 Mon Sep 17 00:00:00 2001
+From 406806c444e7b4c1d3c6f3adf96e11b6a10cec93 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 25 Aug 2015 00:12:01 -0700
-Subject: [PATCH] Gardening: Adopt to
+Subject: [PATCH 11/13] Gardening: Adopt to
  https://codereview.chromium.org/1299713003
 
 Need to fix this upstream.

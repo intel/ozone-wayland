@@ -1,7 +1,7 @@
-From 7e8c022c7ffcf2b2f08f7e3be810a77e488247a5 Mon Sep 17 00:00:00 2001
+From f1f59e906197bca058153991b31c1dc0534bd66d Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Wed, 8 Jul 2015 16:56:56 -0700
-Subject: [PATCH 14/15] Remove ATK dependency
+Subject: [PATCH 10/13] Remove ATK dependency
 
 ---
  ui/views/accessibility/native_view_accessibility.cc | 2 ++
@@ -9,7 +9,7 @@ Subject: [PATCH 14/15] Remove ATK dependency
  2 files changed, 6 insertions(+)
 
 diff --git a/ui/views/accessibility/native_view_accessibility.cc b/ui/views/accessibility/native_view_accessibility.cc
-index a11f773..f88a7e2 100644
+index db8367f..11f5acc 100644
 --- a/ui/views/accessibility/native_view_accessibility.cc
 +++ b/ui/views/accessibility/native_view_accessibility.cc
 @@ -24,7 +24,9 @@ NativeViewAccessibility::NativeViewAccessibility(View* view)
@@ -23,10 +23,10 @@ index a11f773..f88a7e2 100644
  
  NativeViewAccessibility::~NativeViewAccessibility() {
 diff --git a/ui/views/view.cc b/ui/views/view.cc
-index 3c2aed7..24dc267 100644
+index f5905e3..0d9b0d4 100644
 --- a/ui/views/view.cc
 +++ b/ui/views/view.cc
-@@ -1260,8 +1260,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
+@@ -1259,8 +1259,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
  // Accessibility----------------------------------------------------------------
  
  gfx::NativeViewAccessible View::GetNativeViewAccessible() {
@@ -37,7 +37,7 @@ index 3c2aed7..24dc267 100644
    if (native_view_accessibility_)
      return native_view_accessibility_->GetNativeObject();
    return NULL;
-@@ -1274,8 +1276,10 @@ void View::NotifyAccessibilityEvent(
+@@ -1273,8 +1275,10 @@ void View::NotifyAccessibilityEvent(
      ViewsDelegate::GetInstance()->NotifyAccessibilityEvent(this, event_type);
  
    if (send_native_event && GetWidget()) {
