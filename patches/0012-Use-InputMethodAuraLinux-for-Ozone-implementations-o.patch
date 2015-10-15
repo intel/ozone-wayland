@@ -1,7 +1,8 @@
-From 07ab4ca0e2a7cb8441188cbad3b858cf3260a6a9 Mon Sep 17 00:00:00 2001
+From b950962dc1d9ec0770c87fbcc9f59864fd962e65 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Sun, 30 Aug 2015 16:43:43 -0700
-Subject: [PATCH] Use InputMethodAuraLinux for Ozone implementations on Linux
+Subject: [PATCH 12/13] Use InputMethodAuraLinux for Ozone implementations on
+ Linux
 
 InputMethodAuraLinux provides an ui::InputMethod implementation
 for Aura on Linux platforms. Currently, this is initialized only
@@ -33,5 +34,6 @@ index b4aa3cd..aadb0d5 100644
        !defined(OS_CHROMEOS)
    return make_scoped_ptr(new InputMethodAuraLinux(delegate));
  #else
---
+-- 
 1.9.1
+

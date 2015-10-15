@@ -1,7 +1,7 @@
-From 71d233f372d83785b7c22c5f1faef80a1b2a1419 Mon Sep 17 00:00:00 2001
+From 7fa5ffb9399f710b389974aa3a931703f8c7fbb8 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 15 Sep 2015 01:34:13 -0700
-Subject: [PATCH] Media: Use upstream Video Accelerator.
+Subject: [PATCH 09/13] Media: Use upstream Video Accelerator.
 
 ---
  chrome/browser/password_manager/password_store_factory.cc |  2 +-
@@ -10,7 +10,7 @@ Subject: [PATCH] Media: Use upstream Video Accelerator.
  3 files changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/chrome/browser/password_manager/password_store_factory.cc b/chrome/browser/password_manager/password_store_factory.cc
-index 1879e41..fcf59a5 100644
+index a35215c7..18a2e1a 100644
 --- a/chrome/browser/password_manager/password_store_factory.cc
 +++ b/chrome/browser/password_manager/password_store_factory.cc
 @@ -62,7 +62,7 @@ const LocalProfileId kInvalidLocalProfileId =
@@ -58,11 +58,11 @@ index 5205404..87b8a94 100644
  }
  
 diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-index c244d6c..2a29d6c 100644
+index 8f7fd64d..9873886 100644
 --- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 +++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-@@ -316,7 +316,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
-       dlopen(I965DrvVideoPath, RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
+@@ -314,7 +314,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
+         dlopen(I965HybridDrvVideoPath, RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
        dlopen("libva.so.1", RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
  #if defined(USE_OZONE)
 -      dlopen("libva-drm.so.1", RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
