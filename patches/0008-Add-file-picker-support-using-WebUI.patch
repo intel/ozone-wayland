@@ -1,4 +1,4 @@
-From 58baa59f89b8cbbfa93ec8c2aa2b9d62849b0683 Mon Sep 17 00:00:00 2001
+From a41a39c33702581e94ad2cb5070fbfd380dbb375 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Fri, 11 Sep 2015 18:45:01 -0700
 Subject: [PATCH 08/13] Add file picker support using WebUI
@@ -33,7 +33,7 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 631128e..5a68ffc 100644
+index 13460dd..b402883 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
 @@ -15164,6 +15164,14 @@ After you create a new supervised user, you can manage their settings at any tim
@@ -552,7 +552,7 @@ index 0000000..3f10e85
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 2405f7a..b2b6124 100644
+index 2405f7a..a0b2fbf 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
 @@ -403,6 +403,9 @@
@@ -569,7 +569,7 @@ index 2405f7a..b2b6124 100644
          '../content/content.gyp:content_browser',
          '../content/content.gyp:content_common',
          '../crypto/crypto.gyp:crypto',
-+        '../ozone/ui/webui/webui.gypi:webui',
++        '../ozone/ozone_impl.gyp:webui',
          '../skia/skia.gyp:skia',
          '../sync/sync.gyp:sync',
          '../third_party/cacheinvalidation/cacheinvalidation.gyp:cacheinvalidation',
@@ -643,5 +643,5 @@ index a5bcffe..8607674 100644
    "chrome/browser/resources/component_extension_resources.grd": {
      "includes": [1000],
 -- 
-1.9.1
+2.5.0
 

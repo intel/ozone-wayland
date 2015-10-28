@@ -4,6 +4,9 @@
 # found in the LICENSE file.
 
 {
+   'includes': [
+       'ui/ui.gypi',
+    ],
   'targets': [
     {
       'target_name': 'wayland',
@@ -17,10 +20,7 @@
       'include_dirs': [
         '..',
       ],
-      'includes': [
-        'ui/ui.gypi',
-      ],
-      'defines': [
+        'defines': [
         'OZONE_WAYLAND_IMPLEMENTATION',
       ],
       'sources': [
