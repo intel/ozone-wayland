@@ -1,4 +1,4 @@
-From 4a0ddbba228c61cff2ed03fae86c48e8f5550ea8 Mon Sep 17 00:00:00 2001
+From b44713554066eacad74834d7863f4ab64d636ff5 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Mon, 27 Oct 2014 15:22:48 -0700
 Subject: [PATCH 06/13] Fix crash when switching to console(VT) mode
@@ -28,5 +28,5 @@ index ed83b85..0d94726 100644
    SetRealGLApi();
  
 -- 
-1.9.1
+2.5.0
 

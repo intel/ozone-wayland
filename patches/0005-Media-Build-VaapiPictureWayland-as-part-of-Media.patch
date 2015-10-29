@@ -1,4 +1,4 @@
-From c2c95e206877fa607028156b1854157b516ec423 Mon Sep 17 00:00:00 2001
+From 4ec4228c4ba2660040edc0ffcf086865259b0c7d Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Thu, 9 Jul 2015 00:53:02 -0700
 Subject: [PATCH 05/13] Media: Build VaapiPictureWayland as part of Media.
@@ -11,10 +11,10 @@ to figure out how we could use upstream VaapiWrapper.
  1 file changed, 32 insertions(+), 19 deletions(-)
 
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index feea62c..5c58210 100644
+index 095004a..2fce813 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -860,7 +860,7 @@
+@@ -866,7 +866,7 @@
          },
        ],
      }],
@@ -23,7 +23,7 @@ index feea62c..5c58210 100644
        'sources': [
          'common/gpu/media/accelerated_video_decoder.h',
          'common/gpu/media/h264_decoder.cc',
-@@ -916,7 +916,7 @@
+@@ -922,7 +922,7 @@
          'common/gpu/media/tegra_v4l2_device.h',
        ],
      }],
@@ -32,7 +32,7 @@ index feea62c..5c58210 100644
        'dependencies': [
          '../media/media.gyp:media',
          '../third_party/libyuv/libyuv.gyp:libyuv',
-@@ -927,18 +927,19 @@
+@@ -933,18 +933,19 @@
          'common/gpu/media/vaapi_jpeg_decode_accelerator.h',
          'common/gpu/media/vaapi_jpeg_decoder.cc',
          'common/gpu/media/vaapi_jpeg_decoder.h',
@@ -58,7 +58,7 @@ index feea62c..5c58210 100644
              'sig_files': [
                'common/gpu/media/va.sigs',
                'common/gpu/media/va_x11.sigs',
-@@ -949,21 +950,33 @@
+@@ -955,21 +956,33 @@
              'common/gpu/media/vaapi_tfp_picture.h',
            ],
          }, {
@@ -104,5 +104,5 @@ index feea62c..5c58210 100644
          'stubs_filename_root': 'va_stubs',
          'project_path': 'content/common/gpu/media',
 -- 
-1.9.1
+2.5.0
 

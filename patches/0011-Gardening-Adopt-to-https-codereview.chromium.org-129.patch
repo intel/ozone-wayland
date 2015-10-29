@@ -1,4 +1,4 @@
-From 406806c444e7b4c1d3c6f3adf96e11b6a10cec93 Mon Sep 17 00:00:00 2001
+From 8bf1ed63585a859d55b09cc1db84c0eb732134ec Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 25 Aug 2015 00:12:01 -0700
 Subject: [PATCH 11/13] Gardening: Adopt to
@@ -11,10 +11,10 @@ Need to fix this upstream.
  2 files changed, 9 insertions(+)
 
 diff --git a/ui/gl/gl_image_egl.cc b/ui/gl/gl_image_egl.cc
-index 0ebd7cc..0d1faf2 100644
+index 6f72c4f..6223b3a 100644
 --- a/ui/gl/gl_image_egl.cc
 +++ b/ui/gl/gl_image_egl.cc
-@@ -75,4 +75,9 @@ bool GLImageEGL::ScheduleOverlayPlane(gfx::AcceleratedWidget widget,
+@@ -80,4 +80,9 @@ bool GLImageEGL::ScheduleOverlayPlane(AcceleratedWidget widget,
    return false;
  }
  
@@ -25,10 +25,10 @@ index 0ebd7cc..0d1faf2 100644
 +
  }  // namespace gfx
 diff --git a/ui/gl/gl_image_egl.h b/ui/gl/gl_image_egl.h
-index 14cc40b..be75306 100644
+index 4110fd0d..ac6233a 100644
 --- a/ui/gl/gl_image_egl.h
 +++ b/ui/gl/gl_image_egl.h
-@@ -36,6 +36,10 @@ class GL_EXPORT GLImageEGL : public GLImage {
+@@ -33,6 +33,10 @@ class GL_EXPORT GLImageEGL : public GLImage {
                              const Rect& bounds_rect,
                              const RectF& crop_rect) override;
  
@@ -40,5 +40,5 @@ index 14cc40b..be75306 100644
    ~GLImageEGL() override;
  
 -- 
-1.9.1
+2.5.0
 
