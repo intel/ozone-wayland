@@ -720,6 +720,12 @@ void DesktopWindowTreeHostOzone::OnDamageRect(const gfx::Rect& damaged_rect) {
   compositor()->ScheduleRedrawRect(damaged_rect);
 }
 
+void DesktopWindowTreeHostOzone::OnAcceleratedWidgetDestroyed() {
+  gfx::AcceleratedWidget window = compositor()->ReleaseAcceleratedWidget();
+  DCHECK_EQ(window, window_);
+  window_ = gfx::kNullAcceleratedWidget;
+}
+
 void DesktopWindowTreeHostOzone::OnActivationChanged(bool active) {
   if (active == (state_ & Active))
     return;
