@@ -1,4 +1,4 @@
-From b950962dc1d9ec0770c87fbcc9f59864fd962e65 Mon Sep 17 00:00:00 2001
+From de269e5ab37fd4b1ec9f83d97d64aaef3dc9c0bf Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Sun, 30 Aug 2015 16:43:43 -0700
 Subject: [PATCH 12/13] Use InputMethodAuraLinux for Ozone implementations on
@@ -13,7 +13,7 @@ implementations on non-chromeos platforms.
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/ui/base/ime/input_method_factory.cc b/ui/base/ime/input_method_factory.cc
-index b4aa3cd..aadb0d5 100644
+index 12e38ea..f2b39b0 100644
 --- a/ui/base/ime/input_method_factory.cc
 +++ b/ui/base/ime/input_method_factory.cc
 @@ -14,7 +14,7 @@
@@ -24,8 +24,8 @@ index b4aa3cd..aadb0d5 100644
 +#elif defined(USE_AURA) && defined(OS_LINUX) && \
        !defined(OS_CHROMEOS)
  #include "ui/base/ime/input_method_auralinux.h"
- #else
-@@ -56,7 +56,7 @@ scoped_ptr<InputMethod> CreateInputMethod(
+ #elif defined(OS_ANDROID)
+@@ -58,7 +58,7 @@ scoped_ptr<InputMethod> CreateInputMethod(
    return make_scoped_ptr(new InputMethodWin(delegate, widget));
  #elif defined(OS_MACOSX)
    return make_scoped_ptr(new InputMethodMac(delegate));
@@ -33,7 +33,7 @@ index b4aa3cd..aadb0d5 100644
 +#elif defined(USE_AURA) && defined(OS_LINUX) && \
        !defined(OS_CHROMEOS)
    return make_scoped_ptr(new InputMethodAuraLinux(delegate));
- #else
+ #elif defined(OS_ANDROID)
 -- 
-1.9.1
+2.5.0
 

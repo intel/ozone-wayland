@@ -1,4 +1,4 @@
-From a41a39c33702581e94ad2cb5070fbfd380dbb375 Mon Sep 17 00:00:00 2001
+From 62024662bb879594bdd49a583379f6d86de54c74 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Fri, 11 Sep 2015 18:45:01 -0700
 Subject: [PATCH 08/13] Add file picker support using WebUI
@@ -33,10 +33,10 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 13460dd..b402883 100644
+index 4ec7811..6f51ca7 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -15164,6 +15164,14 @@ After you create a new supervised user, you can manage their settings at any tim
+@@ -15087,6 +15087,14 @@ Please check your email at <ph name="ACCOUNT_EMAIL">$2<ex>jane.doe@gmail.com</ex
          Allows users to opt in to the collection of invalid TLS/SSL certificate chains.
        </message>
  
@@ -52,10 +52,10 @@ index 13460dd..b402883 100644
          <ph name="URL">
            $1<ex>www.google.com</ex>
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index 5ab7e27..7336559 100644
+index 4b5f85e..443f7b6e 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -464,6 +464,9 @@
+@@ -461,6 +461,9 @@
        <if expr="enable_media_router">
          <part file="media_router_resources.grdp" />
        </if>
@@ -552,10 +552,10 @@ index 0000000..3f10e85
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 2405f7a..a0b2fbf 100644
+index b0a5c11..de6cb6c 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -403,6 +403,9 @@
+@@ -338,6 +338,9 @@
        'browser/ui/webui/favicon_source.h',
        'browser/ui/webui/fileicon_source.cc',
        'browser/ui/webui/fileicon_source.h',
@@ -565,15 +565,15 @@ index 2405f7a..a0b2fbf 100644
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
        'browser/ui/webui/gcm_internals_ui.cc',
-@@ -2781,6 +2784,7 @@
+@@ -2784,6 +2787,7 @@
          '../content/content.gyp:content_browser',
          '../content/content.gyp:content_common',
          '../crypto/crypto.gyp:crypto',
-+        '../ozone/ozone_impl.gyp:webui',
++        '../ozone/ui/webui/webui.gypi:webui',
          '../skia/skia.gyp:skia',
          '../sync/sync.gyp:sync',
          '../third_party/cacheinvalidation/cacheinvalidation.gyp:cacheinvalidation',
-@@ -3146,6 +3150,7 @@
+@@ -3149,6 +3153,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',
@@ -582,7 +582,7 @@ index 2405f7a..a0b2fbf 100644
                ],
              }],
 diff --git a/chrome/common/url_constants.cc b/chrome/common/url_constants.cc
-index 8f0185c..85e50b3 100644
+index 9cdcd2c..0bd0bb7 100644
 --- a/chrome/common/url_constants.cc
 +++ b/chrome/common/url_constants.cc
 @@ -43,6 +43,7 @@ const char kChromeUIExtensionsFrameURL[] = "chrome://extensions-frame/";
@@ -601,7 +601,7 @@ index 8f0185c..85e50b3 100644
  const char kChromeUIFlagsHost[] = "flags";
  const char kChromeUIFlashHost[] = "flash";
  const char kChromeUIGCMInternalsHost[] = "gcm-internals";
-@@ -599,6 +601,7 @@ const char* const kChromeHostURLs[] = {
+@@ -602,6 +604,7 @@ const char* const kChromeHostURLs[] = {
    kChromeUICreditsHost,
    kChromeUIDeviceLogHost,
    kChromeUIDNSHost,
@@ -610,7 +610,7 @@ index 8f0185c..85e50b3 100644
    kChromeUIHistoryHost,
    kChromeUIInvalidationsHost,
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index 6dc3784..ac7e7ff 100644
+index 337cd7f..d0f6e8a 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
 @@ -39,6 +39,7 @@ extern const char kChromeUIExtensionsFrameURL[];

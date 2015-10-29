@@ -1,4 +1,4 @@
-From 27fae9e25bc0bf4df58b56eaf89a0c27028d4ae6 Mon Sep 17 00:00:00 2001
+From aa7ea6617f0566e7e05e55f41fcf3db3ab3d9039 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Fri, 11 Sep 2015 22:31:20 -0700
 Subject: [PATCH 07/13] Add needed support in PlatformWindow.
@@ -10,11 +10,10 @@ need to be evaluated further before trying to upstream them.
  1 file changed, 34 insertions(+)
 
 diff --git a/ui/platform_window/platform_window.h b/ui/platform_window/platform_window.h
-index a8fd6ee..93dae5b 100644
+index a8fd6ee..95dd61e 100644
 --- a/ui/platform_window/platform_window.h
 +++ b/ui/platform_window/platform_window.h
-@@ -7,12 +7,15 @@
- 
+@@ -8,11 +8,14 @@
  #include "base/memory/scoped_ptr.h"
  #include "base/strings/string16.h"
  #include "ui/base/cursor/cursor.h"
@@ -70,5 +69,5 @@ index a8fd6ee..93dae5b 100644
    virtual void Hide() = 0;
    virtual void Close() = 0;
 -- 
-1.9.1
+2.5.0
 
