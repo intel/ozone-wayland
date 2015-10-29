@@ -146,6 +146,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void OnLostCapture() override;
   void OnAcceleratedWidgetAvailable(gfx::AcceleratedWidget widget,
                                     float device_pixel_ratio) override;
+  void OnAcceleratedWidgetDestroyed() override;
   void OnActivationChanged(bool active) override;
   void OnDragEnter(unsigned windowhandle,
                    float x,
