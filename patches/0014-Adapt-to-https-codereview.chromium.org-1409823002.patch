@@ -1,0 +1,34 @@
+From 37e3f2b04e0bee5ba99a2d37c1f2876aa1416e44 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Fri, 6 Nov 2015 15:10:24 -0800
+Subject: [PATCH] Adapt to https://codereview.chromium.org/1409823002
+
+Key input does not work due to this change(728aa809a).
+This CL fixes the problem.
+---
+ ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
+index 50db863..0e0626f 100644
+--- a/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
++++ b/ui/events/ozone/layout/xkb/xkb_keyboard_layout_engine.cc
+@@ -682,8 +682,13 @@ bool XkbKeyboardLayoutEngine::SetCurrentLayoutByName(
+       true);
+   return true;
+ #else
+-  // NOTIMPLEMENTED();
+-  return false;
++  xkb_keymap* keymap = xkb_map_new_from_string(
++      xkb_context_.get(), layout_name.c_str(), XKB_KEYMAP_FORMAT_TEXT_V1,
++      XKB_KEYMAP_COMPILE_NO_FLAGS);
++  if (!keymap)
++    return false;
++  SetKeymap(keymap);
++  return true;
+ #endif  // defined(OS_CHROMEOS)
+ }
+ 
+-- 
+1.9.1
+
