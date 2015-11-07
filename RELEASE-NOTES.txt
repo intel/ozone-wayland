@@ -1,0 +1,53 @@
+========================================================================
+Milestone South Sister.
+Release Date: 6 November 2015.
+========================================================================
+
+Based on Chromium-
+Version: 48.0.2548.0.
+Channel: Beta.
+Branch: 2548.
+
+---------------------------------------------------------------------
+
+New Features enabled in this release:
+-
+
+---------------------------------------------------------------------
+
+Fixed Issues:
+Full list can be found here:
+https://github.com/01org/ozone-wayland/issues?q=milestone%3ARazzberry-C46+is%3Aclosed
+
+---------------------------------------------------------------------
+
+Known Issues:
+1) Missing Drag and Drop support.
+
+---------------------------------------------------------------------
+
+The release has been tested on Ubuntu 14.04, x86-64 against the following
+dependencies:
+
+1) Wayland and Weston.
+   Version: 1.7.91
+   Wayland Revision:d08c079739caa966350ce9fb8b620f8a69dfb05f
+   Weston Revision:0c944b07c451212bd287e79985a99333b8d4c368
+2) Mesa.
+   Version: 10.6.0-devel
+   Revision:c696a318ef1eb58f65fb867d5616bbefd1def31e
+3) DRM.
+   Version: 2.4.61
+   Revision:b2360626c4aa1dccdf3fe258b833121748d64d35
+4) GLProto.
+   Version: 1.4.17
+   Revision:bd3d751e1eb17efb39f65093271bb4ac071aa9e0
+5) libunwind.
+   Revision:6e3254ea6e6fa6c433cd38f9716a0b3b4110de64
+6) libxkbcommon.
+   Revision:8e1fed6c68ca23d8a6f31c30e36417f4c07274b1
+7) Cairo.
+   Version: 1.14.3
+   Revision:8b798c320f6fd2d87349d0a716304474022bc5ea
+8) Pixman.
+   Revision:cf086d4949092861dc3729465a3881d229cc1060
