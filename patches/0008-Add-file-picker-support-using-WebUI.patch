@@ -1,7 +1,7 @@
-From 62024662bb879594bdd49a583379f6d86de54c74 Mon Sep 17 00:00:00 2001
+From 3124c8baddd7661ed5f2845333fff9086a03373d Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Fri, 11 Sep 2015 18:45:01 -0700
-Subject: [PATCH 08/13] Add file picker support using WebUI
+Subject: [PATCH 08/14] Add file picker support using WebUI
 
 File-picker has not been supported in oz-wl because Gtk+2 does not work under
 Wayland, but Chromium Linux version still uses Gtk+2 for file-picker.
@@ -15,7 +15,7 @@ File browsing UI will be added later.
  .../browser/resources/file_picker/file_picker.css  |  72 +++++++++
  .../browser/resources/file_picker/file_picker.html |  37 +++++
  .../browser/resources/file_picker/file_picker.js   |  51 +++++++
- .../aura/chrome_browser_main_extra_parts_aura.cc   |  10 +-
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |   9 ++
  .../ui/webui/chrome_web_ui_controller_factory.cc   |   3 +
  .../browser/ui/webui/file_picker/file_picker_ui.cc |  46 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |  24 +++
@@ -24,7 +24,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |   3 +
  chrome/common/url_constants.h                      |   2 +
  tools/gritsettings/resource_ids                    |   2 +-
- 14 files changed, 428 insertions(+), 2 deletions(-)
+ 14 files changed, 428 insertions(+), 1 deletion(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -33,10 +33,10 @@ File browsing UI will be added later.
  create mode 100644 chrome/browser/ui/webui/file_picker/file_picker_web_dialog.cc
 
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
-index 4ec7811..6f51ca7 100644
+index 4f8ba8c..ccb56c1 100644
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -15087,6 +15087,14 @@ Please check your email at <ph name="ACCOUNT_EMAIL">$2<ex>jane.doe@gmail.com</ex
+@@ -14505,6 +14505,14 @@ Please check your email at <ph name="ACCOUNT_EMAIL">$2<ex>jane.doe@gmail.com</ex
          Allows users to opt in to the collection of invalid TLS/SSL certificate chains.
        </message>
  
@@ -52,10 +52,10 @@ index 4ec7811..6f51ca7 100644
          <ph name="URL">
            $1<ex>www.google.com</ex>
 diff --git a/chrome/browser/browser_resources.grd b/chrome/browser/browser_resources.grd
-index 4b5f85e..443f7b6e 100644
+index 9d10fcb..d2b50cb 100644
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -461,6 +461,9 @@
+@@ -468,6 +468,9 @@
        <if expr="enable_media_router">
          <part file="media_router_resources.grdp" />
        </if>
@@ -244,10 +244,10 @@ index 0000000..4161330
 +document.addEventListener('DOMContentLoaded',
 +                          filePicker.initialize);
 diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-index 9e9476b..e257134 100644
+index 62c391d..a97503f 100644
 --- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 +++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-@@ -29,6 +29,10 @@
+@@ -30,6 +30,10 @@
  #include "ui/views/linux_ui/linux_ui.h"
  #endif
  
@@ -258,31 +258,28 @@ index 9e9476b..e257134 100644
  #if defined(USE_X11) && !defined(OS_CHROMEOS)
  #include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
  #endif
-@@ -104,6 +108,10 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
-     ui::InitializeInputMethodForTesting();
+@@ -103,11 +107,16 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
+     return;
    }
  #endif
 +
-+#if defined(OS_LINUX) && defined(USE_OZONE)
++#if defined(USE_OZONE)
 +  views::LinuxUI::SetInstance(BuildWebUI());
++#else
+   // TODO(erg): Refactor this into a dlopen call when we add a GTK3 port.
+   views::LinuxUI* gtk2_ui = BuildGtk2UI();
+   gtk2_ui->SetNativeThemeOverride(base::Bind(&GetNativeThemeForWindow));
+   views::LinuxUI::SetInstance(gtk2_ui);
+ #endif
 +#endif
  }
  
  void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
-@@ -114,7 +122,7 @@ void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
- #endif
- #endif
- 
--#if defined(USE_X11) && !defined(OS_CHROMEOS)
-+#if (defined(USE_X11) || defined(USE_OZONE)) && !defined(OS_CHROMEOS)
-   if (GetInitialDesktop() != chrome::HOST_DESKTOP_TYPE_ASH)
-     views::LinuxUI::instance()->Initialize();
- #endif
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-index c7a3e9e..15cd3aa 100644
+index 3128710..0af69cc 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -75,6 +75,7 @@
+@@ -78,6 +78,7 @@
  #include "ui/gfx/favicon_size.h"
  #include "ui/web_dialogs/web_dialog_ui.h"
  #include "url/gurl.h"
@@ -290,7 +287,7 @@ index c7a3e9e..15cd3aa 100644
  
  #if !defined(DISABLE_NACL)
  #include "chrome/browser/ui/webui/nacl_ui.h"
-@@ -333,6 +334,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+@@ -337,6 +338,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
      return &NewWebUI<DomainReliabilityInternalsUI>;
    if (url.host() == chrome::kChromeUIFlagsHost)
      return &NewWebUI<FlagsUI>;
@@ -552,10 +549,10 @@ index 0000000..3f10e85
 +
 +}  // namespace ui
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index b0a5c11..de6cb6c 100644
+index 534237d..d350e6d 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -338,6 +338,9 @@
+@@ -340,6 +340,9 @@
        'browser/ui/webui/favicon_source.h',
        'browser/ui/webui/fileicon_source.cc',
        'browser/ui/webui/fileicon_source.h',
@@ -565,7 +562,7 @@ index b0a5c11..de6cb6c 100644
        'browser/ui/webui/flags_ui.cc',
        'browser/ui/webui/flags_ui.h',
        'browser/ui/webui/gcm_internals_ui.cc',
-@@ -2784,6 +2787,7 @@
+@@ -2859,6 +2862,7 @@
          '../content/content.gyp:content_browser',
          '../content/content.gyp:content_common',
          '../crypto/crypto.gyp:crypto',
@@ -573,7 +570,7 @@ index b0a5c11..de6cb6c 100644
          '../skia/skia.gyp:skia',
          '../sync/sync.gyp:sync',
          '../third_party/cacheinvalidation/cacheinvalidation.gyp:cacheinvalidation',
-@@ -3149,6 +3153,7 @@
+@@ -3233,6 +3237,7 @@
                'dependencies': [
                  '../build/linux/system.gyp:dbus',
                  '../build/linux/system.gyp:fontconfig',
@@ -582,10 +579,10 @@ index b0a5c11..de6cb6c 100644
                ],
              }],
 diff --git a/chrome/common/url_constants.cc b/chrome/common/url_constants.cc
-index 9cdcd2c..0bd0bb7 100644
+index aebdf34..5713ef7 100644
 --- a/chrome/common/url_constants.cc
 +++ b/chrome/common/url_constants.cc
-@@ -43,6 +43,7 @@ const char kChromeUIExtensionsFrameURL[] = "chrome://extensions-frame/";
+@@ -44,6 +44,7 @@ const char kChromeUIExtensionsFrameURL[] = "chrome://extensions-frame/";
  const char kChromeUIExtensionsURL[] = "chrome://extensions/";
  const char kChromeUIFallbackIconURL[] = "chrome://fallback-icon/";
  const char kChromeUIFaviconURL[] = "chrome://favicon/";
@@ -610,10 +607,10 @@ index 9cdcd2c..0bd0bb7 100644
    kChromeUIHistoryHost,
    kChromeUIInvalidationsHost,
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index 337cd7f..d0f6e8a 100644
+index 603c363..38ced1a 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
-@@ -39,6 +39,7 @@ extern const char kChromeUIExtensionsFrameURL[];
+@@ -40,6 +40,7 @@ extern const char kChromeUIExtensionsFrameURL[];
  extern const char kChromeUIExtensionsURL[];
  extern const char kChromeUIFallbackIconURL[];
  extern const char kChromeUIFaviconURL[];
@@ -630,7 +627,7 @@ index 337cd7f..d0f6e8a 100644
  extern const char kChromeUIFlashHost[];
  extern const char kChromeUIGCMInternalsHost[];
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index a5bcffe..8607674 100644
+index 93949e3..7a98f2f 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
 @@ -16,7 +16,7 @@
@@ -643,5 +640,5 @@ index a5bcffe..8607674 100644
    "chrome/browser/resources/component_extension_resources.grd": {
      "includes": [1000],
 -- 
-2.5.0
+1.9.1
 

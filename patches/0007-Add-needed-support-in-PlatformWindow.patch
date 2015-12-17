@@ -1,7 +1,7 @@
-From aa7ea6617f0566e7e05e55f41fcf3db3ab3d9039 Mon Sep 17 00:00:00 2001
+From 9bf21357ea3608510bf71fc6de24b43be8f09f56 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Fri, 11 Sep 2015 22:31:20 -0700
-Subject: [PATCH 07/13] Add needed support in PlatformWindow.
+Subject: [PATCH 07/14] Add needed support in PlatformWindow.
 
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.
@@ -69,5 +69,5 @@ index a8fd6ee..95dd61e 100644
    virtual void Hide() = 0;
    virtual void Close() = 0;
 -- 
-2.5.0
+1.9.1
 

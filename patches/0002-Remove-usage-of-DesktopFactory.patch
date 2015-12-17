@@ -1,7 +1,7 @@
-From 6f0460d123159e31d07e3f95f0170c1dbb72cd8a Mon Sep 17 00:00:00 2001
+From c374176fcce9db70b1be9ee635afa4bf88567fef Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Wed, 16 Sep 2015 18:54:04 -0700
-Subject: [PATCH 02/13] Remove usage of DesktopFactory.
+Subject: [PATCH 02/14] Remove usage of DesktopFactory.
 
 This is highly experimental. Eventually, the goal is to only have
 platform specific parts in Wayland and core implementation as part
@@ -12,18 +12,18 @@ discussion upstream.
  .../widget/desktop_aura/desktop_factory_ozone.cc   | 29 -------------
  .../widget/desktop_aura/desktop_factory_ozone.h    | 50 ----------------------
  .../widget/desktop_aura/desktop_screen_ozone.cc    | 15 -------
- .../desktop_aura/desktop_window_tree_host_ozone.cc | 20 ---------
- 5 files changed, 123 deletions(-)
+ .../desktop_aura/desktop_window_tree_host_ozone.cc | 26 -----------
+ 5 files changed, 129 deletions(-)
  delete mode 100644 ui/views/widget/desktop_aura/desktop_factory_ozone.cc
  delete mode 100644 ui/views/widget/desktop_aura/desktop_factory_ozone.h
  delete mode 100644 ui/views/widget/desktop_aura/desktop_screen_ozone.cc
  delete mode 100644 ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 152488d..140cd01 100644
+index 3630e9d..f8d59fb 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -466,12 +466,6 @@
+@@ -476,12 +476,6 @@
        'widget/desktop_aura/desktop_window_tree_host_win.cc',
        'widget/desktop_aura/desktop_window_tree_host_win.h',
      ],
@@ -36,7 +36,7 @@ index 152488d..140cd01 100644
      'views_test_support_sources': [
        'animation/test/ink_drop_animation_test_api.cc',
        'animation/test/ink_drop_animation_test_api.h',
-@@ -750,9 +744,6 @@
+@@ -765,9 +759,6 @@
              ['OS == "win"', {
                'sources': [ '<@(views_desktop_aura_win_sources)' ],
              }],
@@ -160,15 +160,16 @@ index 9708ad8..0000000
 -}  // namespace views
 diff --git a/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc b/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
 deleted file mode 100644
-index 1a78a9a..0000000
+index e67af41..0000000
 --- a/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
 +++ /dev/null
-@@ -1,20 +0,0 @@
+@@ -1,26 +0,0 @@
 -// Copyright 2013 The Chromium Authors. All rights reserved.
 -// Use of this source code is governed by a BSD-style license that can be
 -// found in the LICENSE file.
 -
 -#include "ui/aura/window_tree_host.h"
+-#include "ui/native_theme/native_theme_aura.h"
 -#include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
 -#include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 -
@@ -183,7 +184,12 @@ index 1a78a9a..0000000
 -                                         desktop_native_widget_aura);
 -}
 -
+-// static
+-ui::NativeTheme* DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
+-  return ui::NativeThemeAura::instance();
+-}
+-
 -}  // namespace views
 -- 
-2.5.0
+1.9.1
 

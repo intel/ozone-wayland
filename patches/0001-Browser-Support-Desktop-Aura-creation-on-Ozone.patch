@@ -1,24 +1,22 @@
-From 9045ea372b8d8ee1cb27ad1e646b7a4b7b57b9a0 Mon Sep 17 00:00:00 2001
+From 5bd399976aaf3b2d308968d905537afdb11423c7 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 3 Mar 2015 14:29:53 -0800
-Subject: [PATCH 01/13] Browser: Support Desktop Aura creation on Ozone
+Subject: [PATCH 01/14] Browser: Support Desktop Aura creation on Ozone
 
-This CL creates BrowserDesktopRootWindowHostOzone and gives support
-for Aura Ozone implementations
 ---
- .../browser_desktop_root_window_host_ozone.cc      | 129 +++++++++++++++++++++
- .../frame/browser_desktop_root_window_host_ozone.h |  45 +++++++
+ .../browser_desktop_root_window_host_ozone.cc      | 123 +++++++++++++++++++++
+ .../frame/browser_desktop_root_window_host_ozone.h |  45 ++++++++
  chrome/chrome_browser_ui.gypi                      |   2 +
- 3 files changed, 176 insertions(+)
+ 3 files changed, 170 insertions(+)
  create mode 100644 chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
  create mode 100644 chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.h
 
 diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
 new file mode 100644
-index 0000000..447f578
+index 0000000..4eea86a
 --- /dev/null
 +++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,123 @@
 +// Copyright (c) 2014 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -41,38 +39,32 @@ index 0000000..447f578
 +// because we need to also look up whether we're using the native theme.
 +class DesktopThemeProvider : public ui::ThemeProvider {
 + public:
-+  explicit DesktopThemeProvider(ThemeService* delegate)
++  explicit DesktopThemeProvider(const ui::ThemeProvider& delegate)
 +      : delegate_(delegate) {
 +  }
 +
-+  bool UsingSystemTheme() const override {
-+    return delegate_->UsingSystemTheme();
-+  }
 +  gfx::ImageSkia* GetImageSkiaNamed(int id) const override {
-+    if (delegate_->UsingSystemTheme())
-+      return delegate_->GetImageSkiaNamed(id);
-+
-+    return delegate_->GetImageSkiaNamed(
++    return delegate_.GetImageSkiaNamed(
 +        chrome::MapThemeImage(chrome::HOST_DESKTOP_TYPE_NATIVE, id));
 +  }
-+  SkColor GetColor(int id) const override { return delegate_->GetColor(id); }
++  SkColor GetColor(int id) const override { return delegate_.GetColor(id); }
 +  int GetDisplayProperty(int id) const override {
-+    return delegate_->GetDisplayProperty(id);
++    return delegate_.GetDisplayProperty(id);
 +  }
 +  bool ShouldUseNativeFrame() const override {
-+    return delegate_->ShouldUseNativeFrame();
++    return delegate_.ShouldUseNativeFrame();
 +  }
 +  bool HasCustomImage(int id) const override {
-+    return delegate_->HasCustomImage(
++    return delegate_.HasCustomImage(
 +        chrome::MapThemeImage(chrome::HOST_DESKTOP_TYPE_NATIVE, id));
 +  }
 +  base::RefCountedMemory* GetRawData(int id, ui::ScaleFactor scale_factor)
 +      const override {
-+    return delegate_->GetRawData(id, scale_factor);
++    return delegate_.GetRawData(id, scale_factor);
 +  }
 +
 + private:
-+  ThemeService* delegate_;
++  const ui::ThemeProvider& delegate_;
 +
 +  DISALLOW_COPY_AND_ASSIGN(DesktopThemeProvider);
 +};
@@ -91,8 +83,8 @@ index 0000000..447f578
 +                                   desktop_native_widget_aura),
 +      browser_view_(browser_view) {
 +  scoped_ptr<ui::ThemeProvider> theme_provider(
-+      new DesktopThemeProvider(ThemeServiceFactory::GetForProfile(
-+                                   browser_view->browser()->profile())));
++      new DesktopThemeProvider(ThemeService::GetThemeProviderForProfile(
++          browser_view->browser()->profile())));
 +  browser_frame->SetThemeProvider(theme_provider.Pass());
 +}
 +
@@ -200,10 +192,10 @@ index 0000000..4096680
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 9ac4512..b0a5c11 100644
+index 8a0b093..534237d 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1308,6 +1308,8 @@
+@@ -1348,6 +1348,8 @@
        'browser/ui/views/frame/browser_desktop_window_tree_host_x11.h',
        'browser/ui/views/frame/desktop_browser_frame_auralinux.cc',
        'browser/ui/views/frame/desktop_browser_frame_auralinux.h',
@@ -213,5 +205,5 @@ index 9ac4512..b0a5c11 100644
        'browser/ui/views/frame/global_menu_bar_registrar_x11.h',
        'browser/ui/views/frame/global_menu_bar_x11.cc',
 -- 
-2.5.0
+1.9.1
 

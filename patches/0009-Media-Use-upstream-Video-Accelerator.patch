@@ -1,29 +1,15 @@
-From 1238b55e0e8b2d5529c81ec3371986f81889dc57 Mon Sep 17 00:00:00 2001
+From c6609ba5d3572e0979aeb57347abf3103c56ac9d Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 15 Sep 2015 01:34:13 -0700
-Subject: [PATCH 09/13] Media: Use upstream Video Accelerator.
+Subject: [PATCH 09/14] Media: Use upstream Video Accelerator.
 
 ---
- chrome/browser/password_manager/password_store_factory.cc |  2 +-
- content/common/gpu/media/gpu_video_decode_accelerator.cc  | 10 +++-------
- content/common/sandbox_linux/bpf_gpu_policy_linux.cc      |  2 +-
- 3 files changed, 5 insertions(+), 9 deletions(-)
+ content/common/gpu/media/gpu_video_decode_accelerator.cc | 10 +++-------
+ content/common/sandbox_linux/bpf_gpu_policy_linux.cc     |  2 +-
+ 2 files changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/chrome/browser/password_manager/password_store_factory.cc b/chrome/browser/password_manager/password_store_factory.cc
-index 3b9ea6d..55f46be 100644
---- a/chrome/browser/password_manager/password_store_factory.cc
-+++ b/chrome/browser/password_manager/password_store_factory.cc
-@@ -61,7 +61,7 @@ const LocalProfileId kInvalidLocalProfileId =
-     static_cast<LocalProfileId>(0);
- #endif
- 
--#if defined(USE_LIBSECRET)
-+#if defined(USE_LIBSECRET) && !defined(USE_OZONE)
- const char kLibsecretFieldTrialName[] = "Libsecret";
- const char kLibsecretFieldTrialDisabledGroupName[] = "Disabled";
- #endif
 diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.cc b/content/common/gpu/media/gpu_video_decode_accelerator.cc
-index 3a0071f..592b1fe 100644
+index 23c19f1..eacc599 100644
 --- a/content/common/gpu/media/gpu_video_decode_accelerator.cc
 +++ b/content/common/gpu/media/gpu_video_decode_accelerator.cc
 @@ -44,7 +44,8 @@
@@ -34,9 +20,9 @@ index 3a0071f..592b1fe 100644
 +#include "content/common/gpu/media/vaapi_video_decode_accelerator.h"
 +#include "ui/gl/gl_implementation.h"
  #elif defined(OS_ANDROID)
- #include "content/common/gpu/media/android_copying_backing_strategy.h"
- #include "content/common/gpu/media/android_deferred_rendering_backing_strategy.h"
-@@ -350,7 +351,7 @@ void GpuVideoDecodeAccelerator::BindImage(uint32 client_texture_id,
+ #include "content/common/gpu/media/android_video_decode_accelerator.h"
+ #endif
+@@ -443,7 +444,7 @@ void GpuVideoDecodeAccelerator::BindImage(uint32 client_texture_id,
  scoped_ptr<media::VideoDecodeAccelerator>
  GpuVideoDecodeAccelerator::CreateVaapiVDA() {
    scoped_ptr<media::VideoDecodeAccelerator> decoder;
@@ -45,7 +31,7 @@ index 3a0071f..592b1fe 100644
    decoder.reset(new VaapiVideoDecodeAccelerator(
        make_context_current_, base::Bind(&GpuVideoDecodeAccelerator::BindImage,
                                          base::Unretained(this))));
-@@ -372,11 +373,6 @@ GpuVideoDecodeAccelerator::CreateVTVDA() {
+@@ -465,11 +466,6 @@ GpuVideoDecodeAccelerator::CreateVTVDA() {
  scoped_ptr<media::VideoDecodeAccelerator>
  GpuVideoDecodeAccelerator::CreateOzoneVDA() {
    scoped_ptr<media::VideoDecodeAccelerator> decoder;
@@ -58,7 +44,7 @@ index 3a0071f..592b1fe 100644
  }
  
 diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-index 8f7fd64d..9873886 100644
+index e8c3127..6fdaae8 100644
 --- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 +++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 @@ -314,7 +314,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
@@ -71,5 +57,5 @@ index 8f7fd64d..9873886 100644
        dlopen("libva-x11.so.1", RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
  #endif
 -- 
-2.5.0
+1.9.1
 
