@@ -1035,7 +1035,7 @@ DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
       return native_theme;
   }
 
-  return ui::NativeTheme::instance();
+  return ui::NativeTheme::GetInstanceForWeb();
 }
 
 DesktopWindowTreeHost* DesktopWindowTreeHost::Create(
