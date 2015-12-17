@@ -112,6 +112,7 @@ class OZONE_WAYLAND_EXPORT OzoneWebUI : public views::LinuxUI {
 
   void UpdateDeviceScaleFactor(float scalefactor) override;
   float GetDeviceScaleFactor() const override;
+  bool GetTint(int id, color_utils::HSL* tint) const override;
 
  private:
   gfx::FontRenderParams params_;

@@ -179,6 +179,10 @@ float OzoneWebUI::GetDeviceScaleFactor() const {
   return 0.0;
 }
 
+bool OzoneWebUI::GetTint(int id, color_utils::HSL* tint) const {
+  return true;
+}
+
 }  // namespace views
 
 views::LinuxUI* BuildWebUI() {
