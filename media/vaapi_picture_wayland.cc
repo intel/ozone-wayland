@@ -82,7 +82,7 @@ bool VaapiPictureWayland::CreateEGLImage(VAImage* va_image) {
   attribs[5] = va_image->pitches[0] / 4;
 
   // Create an EGLImage out of the same buffer.
-  gl_image_ = new gfx::GLImageEGL(size());
+  gl_image_ = new gl::GLImageEGL(size());
   if (!gl_image_->Initialize(EGL_DRM_BUFFER_MESA,
                              (EGLClientBuffer) buffer_info.handle,
                              attribs)) {
@@ -104,7 +104,7 @@ bool VaapiPictureWayland::DownloadFromSurface(
   return true;
 }
 
-scoped_refptr<gfx::GLImage> VaapiPictureWayland::GetImageToBind() {
+scoped_refptr<gl::GLImage> VaapiPictureWayland::GetImageToBind() {
   return gl_image_;
 }
 
