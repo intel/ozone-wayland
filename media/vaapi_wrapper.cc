@@ -117,6 +117,7 @@ static std::vector<VAConfigAttrib> GetRequiredAttribs(
 
 CONTENT_EXPORT VASurface::VASurface(VASurfaceID va_surface_id,
                      const gfx::Size& size,
+                     unsigned int va_format,
                      const ReleaseCB& release_cb)
     : va_surface_id_(va_surface_id), size_(size), release_cb_(release_cb) {
   DCHECK(!release_cb_.is_null());
@@ -576,7 +577,7 @@ scoped_refptr<VASurface> VaapiWrapper::CreateUnownedSurface(
   // of the destruction order. All the surfaces will be destroyed
   // before VaapiWrapper.
   va_surface = new VASurface(
-      va_surface_id, size,
+      va_surface_id, size, va_format,
       base::Bind(&VaapiWrapper::DestroyUnownedSurface, base::Unretained(this)));
 
   return va_surface;

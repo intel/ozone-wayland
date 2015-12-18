@@ -1,7 +1,7 @@
-From 42f8d4bb7f16a218fb24314e8860a536243b39aa Mon Sep 17 00:00:00 2001
+From 121124fc1a8df447401bda5a0747e6e6165f162a Mon Sep 17 00:00:00 2001
 From: Michael Catanzaro <mcatanzaro@igalia.com>
 Date: Mon, 13 Jul 2015 19:46:39 -0500
-Subject: [PATCH 13/13] Add drag-and-drop interfaces to PlatformWindowDelegate
+Subject: [PATCH 13/14] Add drag-and-drop interfaces to PlatformWindowDelegate
 
 Based on a patch by Kalyan Kondapally
 ---
@@ -45,5 +45,5 @@ index f7cdb1a..7960d4b 100644
  
  }  // namespace ui
 -- 
-2.5.0
+1.9.1
 

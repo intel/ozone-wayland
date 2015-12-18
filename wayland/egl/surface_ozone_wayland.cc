@@ -35,9 +35,8 @@ bool SurfaceOzoneWayland::OnSwapBuffers() {
   return true;
 }
 
-bool SurfaceOzoneWayland::OnSwapBuffersAsync(
+void SurfaceOzoneWayland::OnSwapBuffersAsync(
     const ui::SwapCompletionCallback& callback) {
-  return true;
 }
 
 scoped_ptr<gfx::VSyncProvider> SurfaceOzoneWayland::CreateVSyncProvider() {

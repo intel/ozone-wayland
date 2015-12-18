@@ -30,7 +30,7 @@ class VaapiPictureWayland : public VaapiPicture {
 
   bool Initialize() override;
   bool DownloadFromSurface(const scoped_refptr<VASurface>& va_surface) override;
-  scoped_refptr<gfx::GLImage> GetImageToBind() override;
+  scoped_refptr<gl::GLImage> GetImageToBind() override;
 
  private:
   bool CreateEGLImage(VAImage* va_image);
@@ -41,7 +41,7 @@ class VaapiPictureWayland : public VaapiPicture {
 
   scoped_ptr<VAImage> va_image_;
   // EGLImage bound to the GL textures used by the VDA client.
-  scoped_refptr<gfx::GLImageEGL> gl_image_;
+  scoped_refptr<gl::GLImageEGL> gl_image_;
 
   DISALLOW_COPY_AND_ASSIGN(VaapiPictureWayland);
 };

@@ -1,7 +1,7 @@
-From de269e5ab37fd4b1ec9f83d97d64aaef3dc9c0bf Mon Sep 17 00:00:00 2001
+From 051757e83fd6d28ca1193646259295d686554d96 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Sun, 30 Aug 2015 16:43:43 -0700
-Subject: [PATCH 12/13] Use InputMethodAuraLinux for Ozone implementations on
+Subject: [PATCH 12/14] Use InputMethodAuraLinux for Ozone implementations on
  Linux
 
 InputMethodAuraLinux provides an ui::InputMethod implementation
@@ -35,5 +35,5 @@ index 12e38ea..f2b39b0 100644
    return make_scoped_ptr(new InputMethodAuraLinux(delegate));
  #elif defined(OS_ANDROID)
 -- 
-2.5.0
+1.9.1
 

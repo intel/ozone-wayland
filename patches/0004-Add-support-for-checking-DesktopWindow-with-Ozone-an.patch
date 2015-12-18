@@ -1,7 +1,7 @@
-From 5ecc0b64fdff2a5e66b3878e45b111781693f371 Mon Sep 17 00:00:00 2001
+From de7e9ba4fdc3c4c9689b585f7806c62e9a548609 Mon Sep 17 00:00:00 2001
 From: Kondapally Kalyan <kalyan.kondapally@intel.com>
 Date: Tue, 17 Jun 2014 20:24:19 +0300
-Subject: [PATCH 04/13] Add support for checking DesktopWindow with Ozone and
+Subject: [PATCH 04/14] Add support for checking DesktopWindow with Ozone and
  Ash.
 
 Only windows hosted by a DesktopWindowTreeHost implementation can be mapped
@@ -38,5 +38,5 @@ index f6c5a7b..800a4e2 100644
    NOTREACHED();
    return true;
 -- 
-2.5.0
+1.9.1
 
