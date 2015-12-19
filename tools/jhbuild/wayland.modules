@@ -15,45 +15,109 @@
       href="git://github.com/"/>
   <repository type="git" name="gnu" default="yes"
       href="git://git.sv.gnu.org"/>
+  <repository type="system" name="system"/>
 
   <autotools id="pixman">
     <branch repo="freedesktop" tag="cf086d4949092861dc3729465a3881d229cc1060"/>
   </autotools>
 
-  <autotools id="cairo" autogenargs="--enable-gl --enable-xcb">
+  <autotools id="cairo" autogenargs="--enable-gl">
     <branch repo="freedesktop" tag="8b798c320f6fd2d87349d0a716304474022bc5ea"/>
+    <if condition-set="x11">
+      <autogenargs value="--enable-xcb"/>
+    </if>
     <dependencies>
-      <dep package="pixman"/>
+      <dep package="doxygen"/>
+      <dep package="libpng"/>
       <dep package="mesa"/>
+      <dep package="pixman"/>
     </dependencies>
   </autotools>
 
   <autotools id="drm" autogenargs="--enable-nouveau-experimental-api">
     <branch repo="mesa" tag="b2360626c4aa1dccdf3fe258b833121748d64d35"/>
+    <dependencies>
+      <dep package="pthread-stubs"/>
+    </dependencies>
   </autotools>
 
-  <autotools id="mesa" skip-autogen="never" autogenargs="--enable-gles2 --disable-gallium-egl --with-egl-platforms=x11,wayland,drm --enable-gbm --enable-shared-glapi --with-gallium-drivers=r300,r600,swrast,nouveau">
+  <autotools id="mesa" skip-autogen="never" autogenargs="--enable-gles2 --disable-gallium-egl --enable-gbm --enable-shared-glapi --with-gallium-drivers=r300,r600,swrast,nouveau">
     <branch repo="mesa" tag="c696a318ef1eb58f65fb867d5616bbefd1def31e"/>
+    <if condition-set="x11">
+      <autogenargs value="--with-egl-platforms=x11,wayland,drm"/>
+    </if>
+    <if condition-unset="x11">
+      <autogenargs value="--with-egl-platforms=wayland,drm"/>
+    </if>
     <dependencies>
       <dep package="drm"/>
-      <dep package="glproto"/>
+      <dep package="expat"/>
+      <dep package="libudev"/>
+      <dep package="llvm"/>
+      <dep package="mako"/>
+      <dep package="wayland"/>
+      <if condition-set="x11">
+        <dep package="dri3proto"/>
+        <dep package="glproto"/>
+        <dep package="libX11"/>
+        <dep package="libX11-xcb"/>
+        <dep package="libXdamage"/>
+        <dep package="libXext"/>
+        <dep package="libXfixes"/>
+        <dep package="libxcb"/>
+        <dep package="libxcb-dri2"/>
+        <dep package="libxcb-dri3"/>
+        <dep package="libxcb-glx"/>
+        <dep package="libxcb-present"/>
+        <dep package="libxcb-sync"/>
+        <dep package="libxcb-xfixes"/>
+        <dep package="libxshmfence"/>
+        <dep package="presentproto"/>
+      </if>
     </dependencies>
   </autotools>
 
-  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11">
+  <autotools id="wayland">
     <branch repo="wayland" tag="d08c079739caa966350ce9fb8b620f8a69dfb05f"/>
+    <if condition-set="x11">
+      <autogenargs value="--with-egl-platforms=x11,wayland,drm"/>
+    </if>
+    <if condition-unset="x11">
+      <autogenargs value="--with-egl-platforms=wayland,drm"/>
+    </if>
     <dependencies>
+      <dep package="doxygen"/>
+      <dep package="graphviz"/>
+      <dep package="libffi"/>
+      <dep package="libxkbcommon"/>
       <dep package="libunwind"/>
+      <dep package="xmlto"/>
+      <if condition-set="x11">
+        <dep package="glproto"/>
+      </if>
     </dependencies>
   </autotools>
 
-  <autotools id="weston" autogenargs="--disable-setuid-install">
+  <autotools id="weston" autogenargs="--disable-setuid-install --enable-demo-client-install">
     <branch repo="wayland" tag="0c944b07c451212bd287e79985a99333b8d4c368"/>
+    <if condition-unset="x11">
+      <autogenargs value="--disable-x11-compositor --disable-xwayland"/>
+    </if>
     <dependencies>
       <dep package="cairo"/>
-      <dep package="wayland"/>
       <dep package="libinput"/>
+      <dep package="libjpeg"/>
+      <dep package="libmtdev"/>
       <dep package="libxkbcommon"/>
+      <dep package="pam"/>
+      <dep package="wayland"/>
+      <if condition-set="x11">
+        <dep package="libXcursor"/>
+        <dep package="libxcb"/>
+        <dep package="libxcb-composite"/>
+        <dep package="libxcb-shm"/>
+        <dep package="libxcb-xfixes"/>
+      </if>
     </dependencies>
   </autotools>
 
@@ -61,9 +125,11 @@
     <branch repo="gnu" tag="6e3254ea6e6fa6c433cd38f9716a0b3b4110de64"/>
   </autotools>
 
-  <autotools id="glproto" >
-    <branch repo="xorg-proto" tag="bd3d751e1eb17efb39f65093271bb4ac071aa9e0"/>
-  </autotools>
+  <if condition-set="x11">
+    <autotools id="glproto" >
+      <branch repo="xorg-proto" tag="bd3d751e1eb17efb39f65093271bb4ac071aa9e0"/>
+    </autotools>
+  </if>
 
   <autotools id="libxkbcommon" autogenargs="--with-xkb-config-root=/usr/share/X11/xkb">
     <branch repo="github" module="xkbcommon/libxkbcommon.git" tag="8e1fed6c68ca23d8a6f31c30e36417f4c07274b1"/>
@@ -71,6 +137,188 @@
 
   <autotools id="libinput">
     <branch repo="wayland" tag="12000e737e5f57180826c8178aa291b8706db6bc"/>
+    <dependencies>
+      <dep package="libevdev"/>
+    </dependencies>
   </autotools>
 
+  <!-- System modules must be provided by the OS, not built by jhbuild. -->
+
+  <systemmodule id="doxygen">
+    <branch repo="system"/>
+    <systemdependencies>
+      <dep type="path" name="doxygen"/>
+    </systemdependencies>
+  </systemmodule>
+
+  <systemmodule id="dri3proto">
+    <pkg-config>dri3proto.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="expat">
+    <pkg-config>expat.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="graphviz">
+    <branch repo="system"/>
+    <systemdependencies>
+      <dep type="path" name="dot"/>
+    </systemdependencies>
+  </systemmodule>
+
+  <systemmodule id="libevdev">
+    <pkg-config>libevdev.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libffi">
+    <pkg-config>libffi.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libjpeg">
+    <systemdependencies>
+      <dep type="c_include" name="jpeglib.h"/>
+    </systemdependencies>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libmtdev">
+    <pkg-config>mtdev.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libpciaccess">
+    <pkg-config>pciaccess.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libpng">
+    <pkg-config>libpng.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libudev">
+    <pkg-config>libudev.pc</pkg-config>
+    <branch repo="system" version="151"/>
+  </systemmodule>
+
+  <systemmodule id="libX11">
+    <pkg-config>x11.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libX11-xcb">
+    <pkg-config>x11-xcb.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libxcb">
+    <pkg-config>xcb.pc</pkg-config>
+    <branch repo="system" version="1.8"/>
+  </systemmodule>
+  <systemmodule id="libxcb-composite">
+    <pkg-config>xcb-composite.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-dri2">
+    <pkg-config>xcb-dri2.pc</pkg-config>
+    <branch repo="system" version="1.8"/>
+  </systemmodule>
+  <systemmodule id="libxcb-dri3">
+    <pkg-config>xcb-dri3.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-glx">
+    <pkg-config>xcb-glx.pc</pkg-config>
+    <branch repo="system" version="1.8.1"/>
+  </systemmodule>
+  <systemmodule id="libxcb-present">
+    <pkg-config>xcb-present.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-render">
+    <pkg-config>xcb-render.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-shm">
+    <pkg-config>xcb-shm.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-sync">
+    <pkg-config>xcb-sync.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-xfixes">
+    <pkg-config>xcb-xfixes.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+  <systemmodule id="libxcb-xkb">
+    <pkg-config>xcb-xkb.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libXcursor">
+    <pkg-config>xcursor.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libXdamage">
+    <pkg-config>xdamage.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libXext">
+    <pkg-config>xext.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libXfixes">
+    <pkg-config>xfixes.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="libxshmfence">
+    <pkg-config>xshmfence.pc</pkg-config>
+    <branch repo="system" version="1.1"/>
+  </systemmodule>
+
+  <systemmodule id="llvm">
+    <branch repo="system" version="3.1"/>
+    <systemdependencies>
+      <dep type="c_include" name="llvm-c/Core.h"/>
+    </systemdependencies>
+  </systemmodule>
+
+  <systemmodule id="mako">
+    <branch repo="system"/>
+    <systemdependencies>
+      <dep type="python2" name="mako"/>
+    </systemdependencies>
+  </systemmodule>
+
+  <systemmodule id="pam">
+    <branch repo="system"/>
+    <systemdependencies>
+      <dep type="c_include" name="security/pam_appl.h"/>
+    </systemdependencies>
+  </systemmodule>
+
+  <systemmodule id="presentproto">
+    <pkg-config>presentproto.pc</pkg-config>
+    <branch repo="system" version="1.0"/>
+  </systemmodule>
+
+  <systemmodule id="pthread-stubs">
+    <pkg-config>pthread-stubs.pc</pkg-config>
+    <branch repo="system"/>
+  </systemmodule>
+
+  <systemmodule id="xmlto">
+    <branch repo="system"/>
+    <systemdependencies>
+      <dep type="path" name="xmlto"/>
+    </systemdependencies>
+  </systemmodule>
 </moduleset>

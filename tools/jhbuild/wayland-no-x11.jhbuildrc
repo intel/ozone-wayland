@@ -1,0 +1,9 @@
+# -*- mode: python -*-
+
+import os
+
+# Building without X11 support means you won't be able to run X applications in
+# Weston, and it means you will not be able to run Weston itself under X.
+conditions.discard('x11')
+
+execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'wayland.jhbuildrc'))
