@@ -21,7 +21,7 @@ namespace content {
 
 class VaapiPictureWayland : public VaapiPicture {
  public:
-  VaapiPictureWayland(VaapiWrapper* vaapi_wrapper,
+  VaapiPictureWayland(const scoped_refptr<VaapiWrapper>& vaapi_wrapper,
                       const base::Callback<bool(void)> make_context_current,
                       int32 picture_buffer_id,
                       uint32 texture_id,
@@ -37,7 +37,7 @@ class VaapiPictureWayland : public VaapiPicture {
 
   base::Callback<bool(void)> make_context_current_; //NOLINT
 
-  VaapiWrapper* va_wrapper_;
+  const scoped_refptr<VaapiWrapper>&  va_wrapper_;
 
   scoped_ptr<VAImage> va_image_;
   // EGLImage bound to the GL textures used by the VDA client.
