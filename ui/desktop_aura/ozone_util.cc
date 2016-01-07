@@ -34,9 +34,10 @@ VIEWS_EXPORT bool IsFullScreenMode() {
 
 // TODO(Kalyan): Remove this once https://codereview.chromium.org/176893002/
 // is fixed.
-VIEWS_EXPORT aura::Window* GetLocalProcessWindowAtPoint(
+VIEWS_EXPORT gfx::NativeWindow GetLocalProcessWindowAtPoint(
     chrome::HostDesktopType host_desktop_type,
     const gfx::Point& screen_point,
-    const std::set<aura::Window*>& ignore) {
+    const std::set<gfx::NativeWindow>& ignore,
+    gfx::NativeWindow source) {
   return NULL;
 }
