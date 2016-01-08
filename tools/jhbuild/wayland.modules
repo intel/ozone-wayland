@@ -21,7 +21,7 @@
   </autotools>
 
   <autotools id="cairo" autogenargs="--enable-gl --enable-xcb">
-    <branch repo="freedesktop" tag="8b798c320f6fd2d87349d0a716304474022bc5ea"/>
+    <branch repo="freedesktop" tag="db8a7f1697c49ae4942d2aa49eed52dd73dd9c7a"/>
     <dependencies>
       <dep package="pixman"/>
       <dep package="mesa"/>
@@ -40,22 +40,28 @@
     </dependencies>
   </autotools>
 
-  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11">
-    <branch repo="wayland" tag="d08c079739caa966350ce9fb8b620f8a69dfb05f"/>
+  <autotools id="wayland" autogenargs="--disable-documentation">
+    <branch repo="wayland" tag="87321d0f2fb61a3808e7a0cc1d71f82d065b2cd2"/>
     <dependencies>
       <dep package="libunwind"/>
     </dependencies>
   </autotools>
 
+  <autotools id="wayland-protocols">
+    <branch repo="wayland" tag="a5585f3de3b4847b611b246526ccfe8c4a1473bb"/>
+  </autotools>
+
   <autotools id="weston" autogenargs="--disable-setuid-install">
-    <branch repo="wayland" tag="0c944b07c451212bd287e79985a99333b8d4c368"/>
+    <branch repo="wayland" tag="1c2201b543416838e4a14df61e2230049f6b098"/>
     <dependencies>
       <dep package="cairo"/>
       <dep package="wayland"/>
+      <dep package="wayland-protocols"/>
       <dep package="libinput"/>
       <dep package="libxkbcommon"/>
     </dependencies>
   </autotools>
+
 
   <autotools id="libunwind">
     <branch repo="gnu" tag="6e3254ea6e6fa6c433cd38f9716a0b3b4110de64"/>
@@ -66,7 +72,7 @@
   </autotools>
 
   <autotools id="libxkbcommon" autogenargs="--with-xkb-config-root=/usr/share/X11/xkb">
-    <branch repo="github" module="xkbcommon/libxkbcommon.git" tag="8e1fed6c68ca23d8a6f31c30e36417f4c07274b1"/>
+    <branch repo="github" module="xkbcommon/libxkbcommon.git" tag="7f3bb16729c5c1e3864ff249eb7ca40bdc6a2963"/>
   </autotools>
 
   <autotools id="libinput">
