@@ -1,4 +1,4 @@
-From 3124c8baddd7661ed5f2845333fff9086a03373d Mon Sep 17 00:00:00 2001
+From e3956cea61b64f7be441d646559937b9bc7311c6 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Fri, 11 Sep 2015 18:45:01 -0700
 Subject: [PATCH 08/14] Add file picker support using WebUI
@@ -15,7 +15,7 @@ File browsing UI will be added later.
  .../browser/resources/file_picker/file_picker.css  |  72 +++++++++
  .../browser/resources/file_picker/file_picker.html |  37 +++++
  .../browser/resources/file_picker/file_picker.js   |  51 +++++++
- .../aura/chrome_browser_main_extra_parts_aura.cc   |   9 ++
+ .../aura/chrome_browser_main_extra_parts_aura.cc   |  12 ++
  .../ui/webui/chrome_web_ui_controller_factory.cc   |   3 +
  .../browser/ui/webui/file_picker/file_picker_ui.cc |  46 ++++++
  .../browser/ui/webui/file_picker/file_picker_ui.h  |  24 +++
@@ -24,7 +24,7 @@ File browsing UI will be added later.
  chrome/common/url_constants.cc                     |   3 +
  chrome/common/url_constants.h                      |   2 +
  tools/gritsettings/resource_ids                    |   2 +-
- 14 files changed, 428 insertions(+), 1 deletion(-)
+ 14 files changed, 431 insertions(+), 1 deletion(-)
  create mode 100644 chrome/browser/resources/file_picker/file_picker.css
  create mode 100644 chrome/browser/resources/file_picker/file_picker.html
  create mode 100644 chrome/browser/resources/file_picker/file_picker.js
@@ -244,7 +244,7 @@ index 0000000..4161330
 +document.addEventListener('DOMContentLoaded',
 +                          filePicker.initialize);
 diff --git a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
-index 62c391d..a97503f 100644
+index 62c391d..9389337 100644
 --- a/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 +++ b/chrome/browser/ui/aura/chrome_browser_main_extra_parts_aura.cc
 @@ -30,6 +30,10 @@
@@ -258,23 +258,28 @@ index 62c391d..a97503f 100644
  #if defined(USE_X11) && !defined(OS_CHROMEOS)
  #include "chrome/browser/ui/libgtk2ui/gtk2_ui.h"
  #endif
-@@ -103,11 +107,16 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
-     return;
-   }
+@@ -108,6 +112,10 @@ void ChromeBrowserMainExtraPartsAura::PreEarlyInitialization() {
+   gtk2_ui->SetNativeThemeOverride(base::Bind(&GetNativeThemeForWindow));
+   views::LinuxUI::SetInstance(gtk2_ui);
  #endif
 +
 +#if defined(USE_OZONE)
 +  views::LinuxUI::SetInstance(BuildWebUI());
-+#else
-   // TODO(erg): Refactor this into a dlopen call when we add a GTK3 port.
-   views::LinuxUI* gtk2_ui = BuildGtk2UI();
-   gtk2_ui->SetNativeThemeOverride(base::Bind(&GetNativeThemeForWindow));
-   views::LinuxUI::SetInstance(gtk2_ui);
- #endif
 +#endif
  }
  
  void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
+@@ -123,6 +131,10 @@ void ChromeBrowserMainExtraPartsAura::ToolkitInitialized() {
+ #endif
+   views::LinuxUI::instance()->Initialize();
+ #endif
++
++#if defined(USE_OZONE)
++  views::LinuxUI::instance()->Initialize();
++#endif
+ }
+ 
+ void ChromeBrowserMainExtraPartsAura::PreCreateThreads() {
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 index 3128710..0af69cc 100644
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
