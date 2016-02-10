@@ -37,6 +37,8 @@
     <dependencies>
       <dep package="drm"/>
       <dep package="glproto"/>
+      <dep package="wayland"/>
+      <dep package="wayland-protocols"/>
     </dependencies>
   </autotools>
 
