@@ -865,7 +865,7 @@ void DesktopWindowTreeHostOzone::DispatchEvent(ui::Event* event) {
     case ui::ET_KEY_PRESSED:
     case ui::ET_KEY_RELEASED: {
       GetInputMethod()->DispatchKeyEvent(static_cast<ui::KeyEvent*>(event));
-      break;
+      return;
     }
 
     default:
