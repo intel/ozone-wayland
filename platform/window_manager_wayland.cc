@@ -140,6 +140,9 @@ void WindowManagerWayland::OnActivationChanged(unsigned windowhandle,
   }
 
   if (active) {
+    if (active_window_ && active_window_ == window)
+        return;
+
     if (current_capture_) {
       event_grabber_ = windowhandle;
       return;
