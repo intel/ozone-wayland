@@ -6,6 +6,7 @@
 
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/window.h"
+#include "third_party/khronos/EGL/egl.h"
 #include "ui/gfx/vsync_provider.h"
 
 namespace ozonewayland {
@@ -39,8 +40,12 @@ void SurfaceOzoneWayland::OnSwapBuffersAsync(
     const ui::SwapCompletionCallback& callback) {
 }
 
-scoped_ptr<gfx::VSyncProvider> SurfaceOzoneWayland::CreateVSyncProvider() {
-  return scoped_ptr<gfx::VSyncProvider>();
+std::unique_ptr<gfx::VSyncProvider> SurfaceOzoneWayland::CreateVSyncProvider() {
+  return std::unique_ptr<gfx::VSyncProvider>();
+}
+
+void* SurfaceOzoneWayland::GetEGLSurfaceConfig(const ui::EglConfigCallbacks& egl) {
+  return nullptr;
 }
 
 }  // namespace ozonewayland

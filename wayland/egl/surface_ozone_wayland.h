@@ -5,8 +5,7 @@
 #ifndef OZONE_WAYLAND_EGL_SURFACE_OZONE_WAYLAND
 #define OZONE_WAYLAND_EGL_SURFACE_OZONE_WAYLAND
 
-#include "base/basictypes.h"
-#include "base/memory/scoped_ptr.h"
+#include "base/macros.h"
 #include "ui/gfx/gfx_export.h"
 #include "ui/ozone/public/surface_ozone_egl.h"
 
@@ -23,7 +22,8 @@ class SurfaceOzoneWayland : public ui::SurfaceOzoneEGL {
   bool ResizeNativeWindow(const gfx::Size& viewport_size) override;
   bool OnSwapBuffers() override;
   void OnSwapBuffersAsync(const ui::SwapCompletionCallback& callback) override;
-  scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider() override;
+  std::unique_ptr<gfx::VSyncProvider> CreateVSyncProvider() override;
+  void* GetEGLSurfaceConfig(const ui::EglConfigCallbacks& egl) override;
 
  private:
   unsigned handle_;

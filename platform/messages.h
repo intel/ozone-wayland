@@ -7,18 +7,20 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/memory/shared_memory.h"
 #include "base/strings/string16.h"
+#include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_utils.h"
-#include "ipc/ipc_param_traits.h"
-#include "ipc/param_traits_macros.h"
+#include "ipc/ipc_platform_file.h"
 #include "ozone/platform/window_constants.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/events/event_constants.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/gfx/ipc/geometry/gfx_param_traits.h"
 #include "ui/gfx/ipc/gfx_param_traits.h"
+#include "ui/gfx/ipc/skia/gfx_skia_param_traits.h"
 
 #define IPC_MESSAGE_START LastIPCMsgStart
 

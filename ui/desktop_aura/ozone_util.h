@@ -5,8 +5,7 @@
 #ifndef OZONE_IMPL_DESKTOP_AURA_OZONE_UTIL_H_
 #define OZONE_IMPL_DESKTOP_AURA_OZONE_UTIL_H_
 
-#include "base/basictypes.h"
-
+#include "base/macros.h"
 #include "ui/views/views_export.h"
 
 namespace ui {

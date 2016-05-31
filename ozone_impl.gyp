@@ -16,7 +16,8 @@
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '<(DEPTH)/ui/events/ozone/events_ozone.gyp:events_ozone_evdev',
         '<(DEPTH)/ui/gfx/ipc/gfx_ipc.gyp:gfx_ipc',
-        'wayland/wayland.gyp:wayland_toolkit'
+        'wayland/wayland.gyp:wayland_toolkit',
+        'webui'
       ],
       'include_dirs': [
         '..',
@@ -44,6 +45,14 @@
 	'platform/window_constants.h',
         'platform/window_manager_wayland.cc',
         'platform/window_manager_wayland.h',
+        'ui/webui/file_picker_web_dialog.h',
+        'ui/webui/select_file_dialog_impl_webui.h',
+        'ui/webui/select_file_dialog_impl_webui.cc',
+        'ui/webui/ozone_webui.h',
+        'ui/webui/ozone_webui.cc',
+        'ui/webui/input_method_context_impl_wayland.h',
+        'ui/webui/input_method_context_impl_wayland.cc',
+
       ],
     },
   ]

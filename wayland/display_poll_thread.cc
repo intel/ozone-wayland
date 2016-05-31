@@ -19,9 +19,9 @@ const int MAX_EVENTS = 16;
 
 WaylandDisplayPollThread::WaylandDisplayPollThread(wl_display* display)
     : base::Thread("WaylandDisplayPollThread"),
-      display_(display),
       polling_(true, false),
-      stop_polling_(true, false) {
+      stop_polling_(true, false), 
+      display_(display) {
   DCHECK(display_);
 }
 

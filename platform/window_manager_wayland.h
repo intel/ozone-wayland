@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
 #include "ui/base/cursor/cursor.h"
@@ -129,7 +129,7 @@ class WindowManagerWayland
   void OnDispatcherListChanged() override;
 
   // Dispatch event via PlatformEventSource.
-  void DispatchUiEventTask(scoped_ptr<Event> event);
+  void DispatchUiEventTask(std::unique_ptr<Event> event);
   // Post a task to dispatch an event.
   void PostUiEvent(Event* event);
 

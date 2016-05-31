@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "ui/aura/window_tree_host.h"
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
@@ -64,8 +64,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void Init(aura::Window* content_window,
             const views::Widget::InitParams& params) override;
   void OnNativeWidgetCreated(const views::Widget::InitParams& params) override;
-  scoped_ptr<corewm::Tooltip> CreateTooltip() override;
-  scoped_ptr<aura::client::DragDropClient> CreateDragDropClient(
+  std::unique_ptr<corewm::Tooltip> CreateTooltip() override;
+  std::unique_ptr<aura::client::DragDropClient> CreateDragDropClient(
       DesktopNativeCursorManager* cursor_manager) override;
   void Close() override;
   void CloseNow() override;
@@ -206,7 +206,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   std::set<DesktopWindowTreeHostOzone*> window_children_;
 
   // Platform-specific part of this DesktopWindowTreeHost.
-  scoped_ptr<ui::PlatformWindow> platform_window_;
+  std::unique_ptr<ui::PlatformWindow> platform_window_;
   base::WeakPtrFactory<DesktopWindowTreeHostOzone> close_widget_factory_;
 
   // A list of all (top-level) windows that have been created but not yet

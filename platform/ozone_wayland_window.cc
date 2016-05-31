@@ -37,7 +37,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
 }
 
 OzoneWaylandWindow::~OzoneWaylandWindow() {
-  sender_->RemoveChannelObserver(this);
+  sender_->RemoveGpuThreadObserver(this);
   PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
   if (region_)
     delete region_;
@@ -78,7 +78,7 @@ void OzoneWaylandWindow::InitPlatformWindow(
       break;
   }
 
-  sender_->AddChannelObserver(this);
+  sender_->AddGpuThreadObserver(this);
 }
 
 void OzoneWaylandWindow::SetTitle(const base::string16& title) {
@@ -177,7 +177,7 @@ void OzoneWaylandWindow::ReleaseCapture() {
 }
 
 void OzoneWaylandWindow::ToggleFullscreen() {
-  gfx::Screen *screen = gfx::Screen::GetScreenByType(gfx::SCREEN_TYPE_NATIVE);
+  gfx::Screen *screen = gfx::Screen::GetScreen();
   if (!screen)
     NOTREACHED() << "Unable to retrieve valid gfx::Screen";
 
@@ -239,7 +239,7 @@ uint32_t OzoneWaylandWindow::DispatchEvent(
   return POST_DISPATCH_STOP_PROPAGATION;
 }
 
-void OzoneWaylandWindow::OnChannelEstablished() {
+void OzoneWaylandWindow::OnGpuThreadReady() {
   sender_->Send(new WaylandDisplay_Create(handle_,
                                           parent_,
                                           bounds_.x(),
@@ -255,7 +255,7 @@ void OzoneWaylandWindow::OnChannelEstablished() {
   SetCursor();
 }
 
-void OzoneWaylandWindow::OnChannelDestroyed() {
+void OzoneWaylandWindow::OnGpuThreadRetired() {
 }
 
 void OzoneWaylandWindow::SendWidgetState() {

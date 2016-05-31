@@ -23,8 +23,8 @@ class VaapiPictureWayland : public VaapiPicture {
  public:
   VaapiPictureWayland(const scoped_refptr<VaapiWrapper>& vaapi_wrapper,
                       const base::Callback<bool(void)> make_context_current,
-                      int32 picture_buffer_id,
-                      uint32 texture_id,
+                      int32_t picture_buffer_id,
+                      uint32_t texture_id,
                       const gfx::Size& size);
   ~VaapiPictureWayland() override;
 
@@ -39,7 +39,7 @@ class VaapiPictureWayland : public VaapiPicture {
 
   const scoped_refptr<VaapiWrapper>&  va_wrapper_;
 
-  scoped_ptr<VAImage> va_image_;
+  std::unique_ptr<VAImage> va_image_;
   // EGLImage bound to the GL textures used by the VDA client.
   scoped_refptr<gl::GLImageEGL> gl_image_;
 

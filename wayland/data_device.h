@@ -7,10 +7,10 @@
 
 #include <wayland-client.h>
 
+#include <memory>
 #include <string>
 
-#include "base/basictypes.h"
-#include "base/memory/scoped_ptr.h"
+#include "base/macros.h"
 #include "ozone/wayland/window.h"
 
 namespace ozonewayland {
@@ -64,17 +64,17 @@ class WaylandDataDevice {
   // offer, it is not immediately possible to know whether the new offer is the
   // drag offer or the selection offer. This variable is used to store ownership
   // of new data offers temporarily until its identity becomes known.
-  scoped_ptr<WaylandDataOffer> new_offer_;
+  std::unique_ptr<WaylandDataOffer> new_offer_;
 
   // Offer to receive data from another process via drag-and-drop, or null if no
   // drag-and-drop from another process is in progress.
-  scoped_ptr<WaylandDataOffer> drag_offer_;
+  std::unique_ptr<WaylandDataOffer> drag_offer_;
   // Window corresponding to |drag_offer_|, null if |drag_offer_| is null.
   WaylandWindow* window_;
 
   // Offer that holds the most-recent clipboard selection, or null if no
   // clipboard data is available.
-  scoped_ptr<WaylandDataOffer> selection_offer_;
+  std::unique_ptr<WaylandDataOffer> selection_offer_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandDataDevice);
 };

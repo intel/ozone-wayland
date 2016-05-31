@@ -8,7 +8,7 @@
 #include <wayland-client.h>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 namespace base {

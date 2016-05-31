@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/compiler_specific.h"
 #include "base/observer_list.h"
 #include "ozone/platform/ozone_export_wayland.h"
@@ -51,7 +51,7 @@ class OZONE_WAYLAND_EXPORT OzoneWebUI : public views::LinuxUI {
   ~OzoneWebUI() override;
 
   // ui::LinuxInputMethodContextFactory:
-  scoped_ptr<ui::LinuxInputMethodContext> CreateInputMethodContext(
+  std::unique_ptr<ui::LinuxInputMethodContext> CreateInputMethodContext(
       ui::LinuxInputMethodContextDelegate* delegate, bool is_simple)
       const override;
 
@@ -91,14 +91,14 @@ class OZONE_WAYLAND_EXPORT OzoneWebUI : public views::LinuxUI {
   void SetDownloadCount(int count) const override;
   void SetProgressFraction(float percentage) const override;
   bool IsStatusIconSupported() const override;
-  scoped_ptr<StatusIconLinux> CreateLinuxStatusIcon(
+  std::unique_ptr<StatusIconLinux> CreateLinuxStatusIcon(
       const gfx::ImageSkia& image,
       const base::string16& tool_tip) const override;
   gfx::Image GetIconForContentType(const std::string& content_type,
                                    int size) const override;
-  scoped_ptr<Border> CreateNativeBorder(
+  std::unique_ptr<Border> CreateNativeBorder(
       views::LabelButton* owning_button,
-      scoped_ptr<views::LabelButtonBorder> border) override;
+      std::unique_ptr<views::LabelButtonBorder> border) override;
   void AddWindowButtonOrderObserver(
       WindowButtonOrderObserver* observer) override;
   void RemoveWindowButtonOrderObserver(

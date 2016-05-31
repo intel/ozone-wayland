@@ -76,7 +76,7 @@ void WaylandDataDevice::OnEnter(void* data,
 
   DCHECK(self->new_offer_);
   DCHECK(!self->drag_offer_);
-  self->drag_offer_ = self->new_offer_.Pass();
+  self->drag_offer_ = std::move(self->new_offer_);
 
   DCHECK(!self->window_);
   self->window_ = static_cast<WaylandWindow*>(
@@ -130,7 +130,7 @@ void WaylandDataDevice::OnSelection(void* data,
   }
 
   DCHECK(self->new_offer_);
-  self->selection_offer_ = self->new_offer_.Pass();
+  self->selection_offer_ = std::move(self->new_offer_);
 
   // TODO(mcatanzaro): Get the selection data to the browser process.
   NOTIMPLEMENTED();

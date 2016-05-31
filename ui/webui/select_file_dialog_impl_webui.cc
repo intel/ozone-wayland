@@ -71,7 +71,7 @@ void SelectFileDialogImplWebUI::SelectFileImpl(
 
   // FIXME(joone): The title, default_path, and file_types should be passed
   //               to ShowDialog.
-  FilePickerWebDialog::ShowDialog(type, owning_window, web_contents, listener_);
+  // FilePickerWebDialog::ShowDialog(type, owning_window, web_contents, listener_);
 }
 
 bool SelectFileDialogImplWebUI::CallDirectoryExistsOnUIThread(

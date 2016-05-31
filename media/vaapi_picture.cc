@@ -15,8 +15,8 @@ namespace content {
 linked_ptr<VaapiPicture> VaapiPicture::CreatePicture(
     const scoped_refptr<VaapiWrapper>& vaapi_wrapper,
     const base::Callback<bool(void)> make_context_current,
-    int32 picture_buffer_id,
-    uint32 texture_id,
+    int32_t picture_buffer_id,
+    uint32_t texture_id,
     const gfx::Size& size) {
   linked_ptr<VaapiPicture> picture;
   picture.reset(new VaapiPictureWayland(vaapi_wrapper, make_context_current,
@@ -33,7 +33,7 @@ bool VaapiPicture::AllowOverlay() const {
 }
 
 // static
-uint32 VaapiPicture::GetGLTextureTarget() {
+uint32_t VaapiPicture::GetGLTextureTarget() {
   return GL_TEXTURE_2D;
 }
 
