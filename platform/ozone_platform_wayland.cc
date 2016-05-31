@@ -4,8 +4,11 @@
 
 #include "ozone/platform/ozone_platform_wayland.h"
 
+#include <memory>
+
 #include "base/at_exit.h"
 #include "base/bind.h"
+#include "base/memory/ptr_util.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
 #include "ozone/platform/window_manager_wayland.h"
@@ -54,8 +57,8 @@ class OzonePlatformWayland : public OzonePlatform {
     return NULL;
   }
 
-  scoped_ptr<SystemInputInjector> CreateSystemInputInjector() override {
-    return scoped_ptr<SystemInputInjector>();
+  std::unique_ptr<SystemInputInjector> CreateSystemInputInjector() override {
+    return std::unique_ptr<SystemInputInjector>();
   }
 
   GpuPlatformSupportHost* GetGpuPlatformSupportHost() override {
@@ -66,28 +69,28 @@ class OzonePlatformWayland : public OzonePlatform {
     return wayland_display_.get();
   }
 
-  scoped_ptr<PlatformWindow> CreatePlatformWindow(
+  std::unique_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
       const gfx::Rect& bounds) override {
-    return scoped_ptr<PlatformWindow>(
+    return std::unique_ptr<PlatformWindow>(
         new OzoneWaylandWindow(delegate,
                                gpu_platform_host_.get(),
                                window_manager_.get(),
                                bounds));
   }
 
-  scoped_ptr<DesktopPlatformScreen> CreatePlatformScreen(
+  std::unique_ptr<DesktopPlatformScreen> CreatePlatformScreen(
       DesktopPlatformScreenDelegate* delegate) {
-    return scoped_ptr<DesktopPlatformScreen>(
+    return std::unique_ptr<DesktopPlatformScreen>(
          new ozonewayland::OzoneWaylandScreen(delegate,
                                               window_manager_.get()));
   }
 
-  scoped_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {
+  std::unique_ptr<NativeDisplayDelegate> CreateNativeDisplayDelegate() override {
     return nullptr;
   }
 
-  base::ScopedFD OpenClientNativePixmapDevice() const override {
+  base::ScopedFD OpenClientNativePixmapDevice() const {
     return base::ScopedFD();
   }
 
@@ -101,7 +104,7 @@ class OzonePlatformWayland : public OzonePlatform {
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
     cursor_factory_ozone_.reset(new ui::BitmapCursorFactoryOzone());
     overlay_manager_.reset(new StubOverlayManager());
-    KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(make_scoped_ptr(
+    KeyboardLayoutEngineManager::SetKeyboardLayoutEngine(base::WrapUnique(
         new XkbKeyboardLayoutEngine(xkb_evdev_code_converter_)));
     window_manager_.reset(
         new ui::WindowManagerWayland(gpu_platform_host_.get()));
@@ -116,12 +119,12 @@ class OzonePlatformWayland : public OzonePlatform {
   }
 
  private:
-  scoped_ptr<ui::BitmapCursorFactoryOzone> cursor_factory_ozone_;
-  scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
-  scoped_ptr<StubOverlayManager> overlay_manager_;
-  scoped_ptr<ui::WindowManagerWayland> window_manager_;
+  std::unique_ptr<ui::BitmapCursorFactoryOzone> cursor_factory_ozone_;
+  std::unique_ptr<ozonewayland::WaylandDisplay> wayland_display_;
+  std::unique_ptr<StubOverlayManager> overlay_manager_;
+  std::unique_ptr<ui::WindowManagerWayland> window_manager_;
   XkbEvdevCodes xkb_evdev_code_converter_;
-  scoped_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
+  std::unique_ptr<ui::OzoneGpuPlatformSupportHost> gpu_platform_host_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
 
@@ -129,7 +132,7 @@ class OzonePlatformWayland : public OzonePlatform {
 
 OzonePlatform* CreateOzonePlatformWayland() { return new OzonePlatformWayland; }
 
-scoped_ptr<DesktopPlatformScreen> CreatePlatformScreen(
+std::unique_ptr<DesktopPlatformScreen> CreatePlatformScreen(
     DesktopPlatformScreenDelegate* delegate) {
   OzonePlatformWayland* platform =
       static_cast<OzonePlatformWayland*>(ui::OzonePlatform::GetInstance());

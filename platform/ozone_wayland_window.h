@@ -12,7 +12,7 @@
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/native_widget_types.h"
-#include "ui/ozone/platform/drm/host/channel_observer.h"
+#include "ui/ozone/platform/drm/host/gpu_thread_observer.h"
 #include "ui/platform_window/platform_window.h"
 
 namespace ui {
@@ -24,7 +24,7 @@ class WindowManagerWayland;
 
 class OzoneWaylandWindow : public PlatformWindow,
                            public PlatformEventDispatcher,
-                           public ChannelObserver {
+                           public GpuThreadObserver {
  public:
   OzoneWaylandWindow(PlatformWindowDelegate* delegate,
                      OzoneGpuPlatformSupportHost* sender,
@@ -66,9 +66,9 @@ class OzoneWaylandWindow : public PlatformWindow,
   bool CanDispatchEvent(const PlatformEvent& event) override;
   uint32_t DispatchEvent(const PlatformEvent& event) override;
 
-  // ChannelObserver:
-  void OnChannelEstablished() override;
-  void OnChannelDestroyed() override;
+  // GpuThreadObserver:
+  void OnGpuThreadReady() override;
+  void OnGpuThreadRetired() override;
 
  private:
   void SendWidgetState();

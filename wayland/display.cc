@@ -159,9 +159,9 @@ intptr_t WaylandDisplay::GetNativeDisplay() {
   return (intptr_t)display_;
 }
 
-scoped_ptr<ui::SurfaceOzoneEGL> WaylandDisplay::CreateEGLSurfaceForWidget(
+std::unique_ptr<ui::SurfaceOzoneEGL> WaylandDisplay::CreateEGLSurfaceForWidget(
     gfx::AcceleratedWidget w) {
-  return make_scoped_ptr<ui::SurfaceOzoneEGL>(new SurfaceOzoneWayland(w));
+  return std::unique_ptr<ui::SurfaceOzoneEGL>(new SurfaceOzoneWayland(w));
 }
 
 bool WaylandDisplay::LoadEGLGLES2Bindings(
@@ -209,8 +209,8 @@ bool WaylandDisplay::LoadEGLGLES2Bindings(
   return true;
 }
 
-const int32*
-WaylandDisplay::GetEGLSurfaceProperties(const int32* desired_list) {
+const int32_t*
+WaylandDisplay::GetEGLSurfaceProperties(const int32_t* desired_list) {
   static const EGLint kConfigAttribs[] = {
     EGL_BUFFER_SIZE, 32,
     EGL_ALPHA_SIZE, 8,
@@ -249,7 +249,7 @@ scoped_refptr<ui::NativePixmap> WaylandDisplay::CreateNativePixmap(
 #endif
 }
 
-scoped_ptr<ui::SurfaceOzoneCanvas> WaylandDisplay::CreateCanvasForWidget(
+std::unique_ptr<ui::SurfaceOzoneCanvas> WaylandDisplay::CreateCanvasForWidget(
     gfx::AcceleratedWidget widget) {
   LOG(FATAL) << "The browser process has attempted to start the GPU process in "
              << "software rendering mode. Software rendering is not supported "
@@ -264,7 +264,7 @@ scoped_ptr<ui::SurfaceOzoneCanvas> WaylandDisplay::CreateCanvasForWidget(
              << "-e gdb --eval-command=run --args''";
 
   // This code will obviously never be reached, but it placates -Wreturn-type.
-  return scoped_ptr<ui::SurfaceOzoneCanvas>();
+  return std::unique_ptr<ui::SurfaceOzoneCanvas>();
 }
 
 void WaylandDisplay::InitializeDisplay() {
@@ -466,7 +466,7 @@ void WaylandDisplay::MoveWindow(unsigned widget,
                                 unsigned parent,
                                 ui::WidgetType type,
                                 const gfx::Rect& rect) {
-  WaylandWindow::ShellType shell_type;
+  WaylandWindow::ShellType shell_type = WaylandWindow::None;
   switch (type) {
   case ui::WINDOW:
     shell_type = WaylandWindow::TOPLEVEL;
@@ -661,7 +661,7 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandDisplay_Title, SetWidgetTitle)
   IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, AddRegion)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SubRegion, SubRegion)
-  IPC_MESSAGE_HANDLER(WaylandDisplay_CursorSet, SetCursorBitmap)
+ // IPC_MESSAGE_HANDLER(WaylandDisplay_CursorSet, SetCursorBitmap)
   IPC_MESSAGE_HANDLER(WaylandDisplay_MoveCursor, MoveCursor)
   IPC_MESSAGE_HANDLER(WaylandDisplay_ImeReset, ResetIme)
   IPC_MESSAGE_HANDLER(WaylandDisplay_ShowInputPanel, ShowInputPanel)

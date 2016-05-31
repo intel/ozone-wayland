@@ -454,7 +454,7 @@ void WindowManagerWayland::PostUiEvent(Event* event) {
   DispatchEvent(event);
 }
 
-void WindowManagerWayland::DispatchUiEventTask(scoped_ptr<Event> event) {
+void WindowManagerWayland::DispatchUiEventTask(std::unique_ptr<Event> event) {
   DispatchEvent(event.get());
 }
 

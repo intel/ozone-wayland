@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
 #include "ozone/platform/window_constants.h"
@@ -108,19 +108,20 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   intptr_t GetNativeDisplay() override;
 
   // Ownership is passed to the caller.
-  scoped_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
+  std::unique_ptr<ui::SurfaceOzoneEGL> CreateEGLSurfaceForWidget(
       gfx::AcceleratedWidget widget) override;
 
   bool LoadEGLGLES2Bindings(
       ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
       ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
       proc_address) override;
-  const int32* GetEGLSurfaceProperties(const int32* desired_list) override;
+  const int32_t* GetEGLSurfaceProperties(const int32_t* desired_list);
+ // const int32_t* GetEGLSurfaceProperties(const int32_t* desired_list) override;
   scoped_refptr<ui::NativePixmap> CreateNativePixmap(
       gfx::AcceleratedWidget widget, gfx::Size size, gfx::BufferFormat format,
           gfx::BufferUsage usage) override;
 
-  scoped_ptr<ui::SurfaceOzoneCanvas> CreateCanvasForWidget(
+  std::unique_ptr<ui::SurfaceOzoneCanvas> CreateCanvasForWidget(
       gfx::AcceleratedWidget widget) override;
 
   void MotionNotify(float x, float y);

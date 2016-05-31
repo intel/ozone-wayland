@@ -53,7 +53,7 @@ class CONTENT_EXPORT VaapiWrapper {
   // Return an instance of VaapiWrapper initialized for |va_profile| and
   // |mode|. |report_error_to_uma_cb| will be called independently from
   // reporting errors to clients via method return values.
-  static scoped_ptr<VaapiWrapper> Create(
+  static std::unique_ptr<VaapiWrapper> Create(
       CodecMode mode,
       VAProfile va_profile,
       const base::Closure& report_error_to_uma_cb);
@@ -62,7 +62,7 @@ class CONTENT_EXPORT VaapiWrapper {
   // |profile| to VAProfile.
   // |report_error_to_uma_cb| will be called independently from reporting
   // errors to clients via method return values.
-  static scoped_ptr<VaapiWrapper> CreateForVideoCodec(
+  static std::unique_ptr<VaapiWrapper> CreateForVideoCodec(
       CodecMode mode,
       media::VideoCodecProfile profile,
       const base::Closure& report_error_to_uma_cb);
@@ -173,7 +173,7 @@ class CONTENT_EXPORT VaapiWrapper {
   // to the encode job.
   bool DownloadAndDestroyCodedBuffer(VABufferID buffer_id,
                                      VASurfaceID sync_surface_id,
-                                     uint8* target_ptr,
+                                     uint8_t* target_ptr,
                                      size_t target_size,
                                      size_t* coded_data_size);
 

@@ -16,7 +16,8 @@ DesktopScreenWayland::DesktopScreenWayland()
     : gfx::Screen(),
       rect_(0, 0, 0, 0),
       displays_() {
-  platform_Screen_ = CreatePlatformScreen(this);
+  platform_Screen_ = ui::CreatePlatformScreen(this);
+  SetGeometry(gfx::Rect(0, 0, 800, 600));
 }
 
 DesktopScreenWayland::~DesktopScreenWayland() {
@@ -53,6 +54,7 @@ gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
 
 gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(
     const gfx::Point& point) {
+  return nullptr;
   const std::vector<aura::Window*>& windows =
       views::DesktopWindowTreeHostOzone::GetAllOpenWindows();
   for (std::vector<aura::Window*>::const_iterator it = windows.begin();

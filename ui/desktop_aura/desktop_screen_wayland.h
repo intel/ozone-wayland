@@ -50,7 +50,7 @@ class DesktopScreenWayland : public gfx::Screen,
 
   // The display objects we present to chrome.
   std::vector<gfx::Display> displays_;
-  scoped_ptr<ui::DesktopPlatformScreen> platform_Screen_;
+  std::unique_ptr<ui::DesktopPlatformScreen> platform_Screen_;
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
 

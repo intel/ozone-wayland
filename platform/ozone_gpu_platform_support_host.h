@@ -15,7 +15,7 @@
 
 namespace ui {
 
-class ChannelObserver;
+class GpuThreadObserver;
 
 class OzoneGpuPlatformSupportHost : public GpuPlatformSupportHost,
                                     public IPC::Sender {
@@ -26,8 +26,8 @@ class OzoneGpuPlatformSupportHost : public GpuPlatformSupportHost,
   void RegisterHandler(GpuPlatformSupportHost* handler);
   void UnregisterHandler(GpuPlatformSupportHost* handler);
 
-  void AddChannelObserver(ChannelObserver* observer);
-  void RemoveChannelObserver(ChannelObserver* observer);
+  void AddGpuThreadObserver(GpuThreadObserver* observer);
+  void RemoveGpuThreadObserver(GpuThreadObserver* observer);
 
   bool IsConnected();
 
@@ -51,7 +51,7 @@ class OzoneGpuPlatformSupportHost : public GpuPlatformSupportHost,
   base::Callback<void(IPC::Message*)> send_callback_;
 
   std::vector<GpuPlatformSupportHost*> handlers_;  // Not owned.
-  base::ObserverList<ChannelObserver> channel_observers_;
+  base::ObserverList<GpuThreadObserver> channel_observers_;
 };
 
 }  // namespace ui

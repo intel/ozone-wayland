@@ -18,7 +18,7 @@ class DesktopPlatformScreenDelegate;
 // Constructor hook for use in ozone_platform_list.cc
 OZONE_WAYLAND_EXPORT OzonePlatform* CreateOzonePlatformWayland();
 // TODO(kalyan): This is a hack, get rid  of this.
-OZONE_WAYLAND_EXPORT scoped_ptr<DesktopPlatformScreen> CreatePlatformScreen(
+OZONE_WAYLAND_EXPORT std::unique_ptr<DesktopPlatformScreen> CreatePlatformScreen(
       DesktopPlatformScreenDelegate* delegate);
 }  // namespace ui
 

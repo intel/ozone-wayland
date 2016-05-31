@@ -7,13 +7,13 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/memory/shared_memory.h"
 #include "base/strings/string16.h"
+#include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_message_utils.h"
-#include "ipc/ipc_param_traits.h"
-#include "ipc/param_traits_macros.h"
+#include "ipc/ipc_platform_file.h"
 #include "ozone/platform/window_constants.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/events/event_constants.h"
@@ -179,9 +179,10 @@ IPC_MESSAGE_CONTROL5(WaylandDisplay_SubRegion,  // NOLINT(readability/fn_size)
                      int /* right */,
                      int /* bottom */)
 
-IPC_MESSAGE_CONTROL2(WaylandDisplay_CursorSet,  // NOLINT(readability/fn_size)
+/*IPC_MESSAGE_CONTROL2(WaylandDisplay_CursorSet,  // NOLINT(readability/fn_size)
                      std::vector<SkBitmap>,
                      gfx::Point)
+*/
 
 IPC_MESSAGE_CONTROL1(WaylandDisplay_MoveCursor,  // NOLINT(readability/fn_size)
                      gfx::Point)

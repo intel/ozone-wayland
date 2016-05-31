@@ -40,10 +40,10 @@ ui::SelectFileDialog* OzoneWebUI::CreateSelectFileDialog(
   return ui::SelectFileDialogImplWebUI::Create(listener, policy);
 }
 
-scoped_ptr<ui::LinuxInputMethodContext> OzoneWebUI::CreateInputMethodContext(
+std::unique_ptr<ui::LinuxInputMethodContext> OzoneWebUI::CreateInputMethodContext(
       ui::LinuxInputMethodContextDelegate* delegate, bool is_simple) const {
   DCHECK(host_);
-  return scoped_ptr<ui::LinuxInputMethodContext>(
+  return std::unique_ptr<ui::LinuxInputMethodContext>(
            new ui::InputMethodContextImplWayland(delegate, host_));
 }
 
@@ -130,10 +130,10 @@ bool OzoneWebUI::IsStatusIconSupported() const {
   return false;
 }
 
-scoped_ptr<StatusIconLinux> OzoneWebUI::CreateLinuxStatusIcon(
+std::unique_ptr<StatusIconLinux> OzoneWebUI::CreateLinuxStatusIcon(
   const gfx::ImageSkia& image,
   const base::string16& tool_tip) const {
-  return scoped_ptr<views::StatusIconLinux>();
+  return std::unique_ptr<views::StatusIconLinux>();
 }
 
 gfx::Image OzoneWebUI::GetIconForContentType(
@@ -141,10 +141,10 @@ gfx::Image OzoneWebUI::GetIconForContentType(
   return gfx::Image();
 }
 
-scoped_ptr<Border> OzoneWebUI::CreateNativeBorder(
+std::unique_ptr<Border> OzoneWebUI::CreateNativeBorder(
   views::LabelButton* owning_button,
-  scoped_ptr<views::LabelButtonBorder> border) {
-  return border.Pass();
+  std::unique_ptr<views::LabelButtonBorder> border) {
+  return nullptr;
 }
 
 void OzoneWebUI::AddWindowButtonOrderObserver(
