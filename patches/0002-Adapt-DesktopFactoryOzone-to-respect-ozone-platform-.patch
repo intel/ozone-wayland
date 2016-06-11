@@ -1,0 +1,93 @@
+From dba08e4e0dee6dfbb30ed30ffcf36f12646dfa4e Mon Sep 17 00:00:00 2001
+From: Antonio Gomes <tonikitoo@igalia.com>
+Date: Sat, 11 Jun 2016 10:30:30 -0400
+Subject: [PATCH] Adapt DesktopFactoryOzone to respect --ozone-platform
+ parameter.
+
+Patch removes SetInstance method from DesktopFactoryOzone and
+as well as ::GetNativeTheme implementation.
+
+The former is not necessary given that DesktopFactoryOzone::GetInstance
+instantiate the proper DesktopFactoryOzone now, either according
+to --ozone-platform={platform_name} or to a default platform name.
+---
+ .../widget/desktop_aura/desktop_factory_ozone.cc     | 20 ++++++++++++++------
+ ui/views/widget/desktop_aura/desktop_factory_ozone.h |  3 ---
+ .../desktop_aura/desktop_window_tree_host_ozone.cc   |  5 -----
+ 3 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/ui/views/widget/desktop_aura/desktop_factory_ozone.cc b/ui/views/widget/desktop_aura/desktop_factory_ozone.cc
+index e0a4489..d39aecd 100644
+--- a/ui/views/widget/desktop_aura/desktop_factory_ozone.cc
++++ b/ui/views/widget/desktop_aura/desktop_factory_ozone.cc
+@@ -5,25 +5,33 @@
+ #include "ui/views/widget/desktop_aura/desktop_factory_ozone.h"
+ 
+ #include "base/logging.h"
++#include "ui/ozone/platform_object.h"
+ 
+ namespace views {
+ 
+ // static
+-DesktopFactoryOzone* DesktopFactoryOzone::impl_ = NULL;
++DesktopFactoryOzone* DesktopFactoryOzone::impl_ = nullptr;
+ 
+ DesktopFactoryOzone::DesktopFactoryOzone() {
++  DCHECK(!impl_) << "There should only be a single DesktopFactoryOzone.";
++  impl_ = this;
+ }
+ 
+ DesktopFactoryOzone::~DesktopFactoryOzone() {
++  DCHECK_EQ(impl_, this);
++  impl_ = nullptr;
+ }
+ 
+ DesktopFactoryOzone* DesktopFactoryOzone::GetInstance() {
+-  CHECK(impl_) << "DesktopFactoryOzone accessed before constructed";
++  if (!impl_) {
++    scoped_ptr<DesktopFactoryOzone> factory =
++        ui::PlatformObject<DesktopFactoryOzone>::Create();
++
++    // TODO(tonikitoo): Currently need to leak this object.
++    DesktopFactoryOzone* leaky = factory.release();
++    DCHECK_EQ(impl_, leaky);
++  }
+   return impl_;
+ }
+ 
+-void DesktopFactoryOzone::SetInstance(DesktopFactoryOzone* impl) {
+-  impl_ = impl;
+-}
+-
+ } // namespace views
+diff --git a/ui/views/widget/desktop_aura/desktop_factory_ozone.h b/ui/views/widget/desktop_aura/desktop_factory_ozone.h
+index 2af191b..8e45864 100644
+--- a/ui/views/widget/desktop_aura/desktop_factory_ozone.h
++++ b/ui/views/widget/desktop_aura/desktop_factory_ozone.h
+@@ -28,9 +28,6 @@ class VIEWS_EXPORT DesktopFactoryOzone {
+   // Returns the instance.
+   static DesktopFactoryOzone* GetInstance();
+ 
+-  // Sets the implementation delegate. Ownership is retained by the caller.
+-  static void SetInstance(DesktopFactoryOzone* impl);
+-
+   // Delegates implementation of DesktopWindowTreeHost::Create externally to
+   // Ozone implementation.
+   virtual DesktopWindowTreeHost* CreateWindowTreeHost(
+diff --git a/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc b/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
+index e67af41..a83f53d 100644
+--- a/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
++++ b/ui/views/widget/desktop_aura/desktop_window_tree_host_ozone.cc
+@@ -18,9 +18,4 @@ DesktopWindowTreeHost* DesktopWindowTreeHost::Create(
+                                          desktop_native_widget_aura);
+ }
+ 
+-// static
+-ui::NativeTheme* DesktopWindowTreeHost::GetNativeTheme(aura::Window* window) {
+-  return ui::NativeThemeAura::instance();
+-}
+-
+ }  // namespace views
+-- 
+2.7.4
+
