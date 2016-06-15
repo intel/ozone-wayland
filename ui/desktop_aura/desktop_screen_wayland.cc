@@ -152,8 +152,4 @@ void DesktopScreenWayland::OnOutputSizeChanged(unsigned width,
   SetGeometry(gfx::Rect(0, 0, width, height));
 }
 
-gfx::Screen* CreateDesktopScreen() {
-  return new DesktopScreenWayland();
-}
-
 }  // namespace views
