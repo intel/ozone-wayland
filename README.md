@@ -114,7 +114,7 @@ That's all. At this point you should be able to connect Chromium on Weston using
 
   ```
   $ ~/git/weston/src/weston &
-  $ ./out/Debug/chrome --no-sandbox
+  $ ./out/Debug/chrome --no-sandbox --ignore-gpu-blacklist
   ```
 ###Sandboxing
 If you want to enable Sandboxing provided by Chromium, please follow the instructions from here:
