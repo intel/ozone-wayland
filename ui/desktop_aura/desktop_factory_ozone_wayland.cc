@@ -5,7 +5,7 @@
 #include "ozone/ui/desktop_aura/desktop_factory_ozone_wayland.h"
 
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
-#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.cc"
+#include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 
 namespace views {
 
