@@ -209,27 +209,6 @@ bool WaylandDisplay::LoadEGLGLES2Bindings(
   return true;
 }
 
-const int32_t*
-WaylandDisplay::GetEGLSurfaceProperties(const int32_t* desired_list) {
-  static const EGLint kConfigAttribs[] = {
-    EGL_BUFFER_SIZE, 32,
-    EGL_ALPHA_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_RED_SIZE, 8,
-  // According to egl spec depth size defaulted to zero and smallest size
-  // preffered. Force depth to 24 bits to have same depth buffer on different
-  // platforms.
-
-    EGL_DEPTH_SIZE, 24,
-    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE
-  };
-
-  return kConfigAttribs;
-}
-
 scoped_refptr<ui::NativePixmap> WaylandDisplay::CreateNativePixmap(
     gfx::AcceleratedWidget widget,
     gfx::Size size,

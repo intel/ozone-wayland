@@ -115,8 +115,6 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
       ui::SurfaceFactoryOzone::AddGLLibraryCallback add_gl_library,
       ui::SurfaceFactoryOzone::SetGLGetProcAddressProcCallback
       proc_address) override;
-  const int32_t* GetEGLSurfaceProperties(const int32_t* desired_list);
- // const int32_t* GetEGLSurfaceProperties(const int32_t* desired_list) override;
   scoped_refptr<ui::NativePixmap> CreateNativePixmap(
       gfx::AcceleratedWidget widget, gfx::Size size, gfx::BufferFormat format,
           gfx::BufferUsage usage) override;
