@@ -54,6 +54,7 @@ gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
 
 gfx::NativeWindow DesktopScreenWayland::GetWindowAtScreenPoint(
     const gfx::Point& point) {
+  // FIXME: Crash in the below code.
   return nullptr;
   const std::vector<aura::Window*>& windows =
       views::DesktopWindowTreeHostOzone::GetAllOpenWindows();
