@@ -40,7 +40,6 @@ class OzoneWaylandScreen : public ui::DesktopPlatformScreen {
       uint32_t version);
   WaylandScreen* look_ahead_screen_;
   ui::DesktopPlatformScreenDelegate* observer_;
-  //DISALLOW_COPY_AND_ASSIGN(OzoneWaylandScreen);
 };
 
 }  // namespace ozonewayland
