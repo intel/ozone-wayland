@@ -1,0 +1,48 @@
+From dc851e4b4dbaac13b5e23a1c81e1d9b5b7238085 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 1 Nov 2016 22:38:15 -0700
+Subject: [PATCH 11/19] use unique_ptr
+
+---
+ ui/ozone/platform/wayland/wayland_egl_surface.cc | 2 +-
+ ui/ozone/platform/wayland/wayland_egl_surface.h  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/ui/ozone/platform/wayland/wayland_egl_surface.cc b/ui/ozone/platform/wayland/wayland_egl_surface.cc
+index 73fff3e..96e83d2 100644
+--- a/ui/ozone/platform/wayland/wayland_egl_surface.cc
++++ b/ui/ozone/platform/wayland/wayland_egl_surface.cc
+@@ -51,7 +51,7 @@ void WaylandEGLSurface::OnSwapBuffersAsync(
+   NOTREACHED();
+ }
+ 
+-scoped_ptr<gfx::VSyncProvider> WaylandEGLSurface::CreateVSyncProvider() {
++std::unique_ptr<gfx::VSyncProvider> WaylandEGLSurface::CreateVSyncProvider() {
+   NOTIMPLEMENTED();
+   return nullptr;
+ }
+diff --git a/ui/ozone/platform/wayland/wayland_egl_surface.h b/ui/ozone/platform/wayland/wayland_egl_surface.h
+index c36b949..7bf302d 100644
+--- a/ui/ozone/platform/wayland/wayland_egl_surface.h
++++ b/ui/ozone/platform/wayland/wayland_egl_surface.h
+@@ -31,7 +31,7 @@ class WaylandEGLSurface : public SurfaceOzoneEGL {
+   bool ResizeNativeWindow(const gfx::Size& viewport_size) override;
+   bool OnSwapBuffers() override;
+   void OnSwapBuffersAsync(const SwapCompletionCallback& callback) override;
+-  scoped_ptr<gfx::VSyncProvider> CreateVSyncProvider() override;
++  std::unique_ptr<gfx::VSyncProvider> CreateVSyncProvider() override;
+   void* /* EGLConfig */ GetEGLSurfaceConfig(
+       const EglConfigCallbacks& egl) override;
+ 
+@@ -39,7 +39,7 @@ class WaylandEGLSurface : public SurfaceOzoneEGL {
+   WaylandWindow* window_;
+ 
+   gfx::Size size_;
+-  scoped_ptr<wl_egl_window, EGLWindowDeleter> egl_window_;
++  std::unique_ptr<wl_egl_window, EGLWindowDeleter> egl_window_;
+ 
+   DISALLOW_COPY_AND_ASSIGN(WaylandEGLSurface);
+ };
+-- 
+2.7.4
+

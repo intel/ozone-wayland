@@ -1,0 +1,55 @@
+From a21b7f7f84209560f533e0d9b656dc057429379d Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 1 Nov 2016 22:50:57 -0700
+Subject: [PATCH 16/19] Apply GetImageSkiaName change
+
+---
+ .../ui/views/frame/browser_desktop_root_window_host_ozone.cc  | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
+index 4eea86a..ba4ea2f 100644
+--- a/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
++++ b/chrome/browser/ui/views/frame/browser_desktop_root_window_host_ozone.cc
+@@ -8,7 +8,6 @@
+ #include "chrome/browser/themes/theme_service_factory.h"
+ #include "chrome/browser/ui/views/frame/browser_frame.h"
+ #include "chrome/browser/ui/views/frame/browser_view.h"
+-#include "chrome/browser/ui/views/theme_image_mapper.h"
+ 
+ namespace {
+ 
+@@ -25,8 +24,7 @@ class DesktopThemeProvider : public ui::ThemeProvider {
+   }
+ 
+   gfx::ImageSkia* GetImageSkiaNamed(int id) const override {
+-    return delegate_.GetImageSkiaNamed(
+-        chrome::MapThemeImage(chrome::HOST_DESKTOP_TYPE_NATIVE, id));
++    return delegate_.GetImageSkiaNamed(id);
+   }
+   SkColor GetColor(int id) const override { return delegate_.GetColor(id); }
+   int GetDisplayProperty(int id) const override {
+@@ -36,8 +34,7 @@ class DesktopThemeProvider : public ui::ThemeProvider {
+     return delegate_.ShouldUseNativeFrame();
+   }
+   bool HasCustomImage(int id) const override {
+-    return delegate_.HasCustomImage(
+-        chrome::MapThemeImage(chrome::HOST_DESKTOP_TYPE_NATIVE, id));
++    return delegate_.HasCustomImage(id);
+   }
+   base::RefCountedMemory* GetRawData(int id, ui::ScaleFactor scale_factor)
+       const override {
+@@ -63,10 +60,6 @@ BrowserDesktopWindowTreeHostOzone::BrowserDesktopWindowTreeHostOzone(
+     : DesktopWindowTreeHostOzone(native_widget_delegate,
+                                    desktop_native_widget_aura),
+       browser_view_(browser_view) {
+-  scoped_ptr<ui::ThemeProvider> theme_provider(
+-      new DesktopThemeProvider(ThemeService::GetThemeProviderForProfile(
+-          browser_view->browser()->profile())));
+-  browser_frame->SetThemeProvider(theme_provider.Pass());
+ }
+ 
+ 
+-- 
+2.7.4
+

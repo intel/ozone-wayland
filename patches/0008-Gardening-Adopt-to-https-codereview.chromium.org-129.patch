@@ -1,7 +1,7 @@
-From 0f25407dd932eef4d8a1ff08875a45fe547f75a6 Mon Sep 17 00:00:00 2001
+From 41150ec8d65fafc04b694f2941237f879f754633 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Thu, 17 Dec 2015 11:04:22 -0800
-Subject: [PATCH 11/14] Gardening: Adopt to
+Subject: [PATCH 08/19] Gardening: Adopt to
  https://codereview.chromium.org/1299713003
 
 ---
@@ -24,10 +24,10 @@ index c130832..de81e23 100644
 +
  }  // namespace gl
 diff --git a/ui/gl/gl_image_egl.h b/ui/gl/gl_image_egl.h
-index bb68e10..22d141c 100644
+index b613182..3d2b899 100644
 --- a/ui/gl/gl_image_egl.h
 +++ b/ui/gl/gl_image_egl.h
-@@ -32,6 +32,9 @@ class GL_EXPORT GLImageEGL : public GLImage {
+@@ -33,6 +33,9 @@ class GL_EXPORT GLImageEGL : public GLImage {
                              gfx::OverlayTransform transform,
                              const gfx::Rect& bounds_rect,
                              const gfx::RectF& crop_rect) override;
@@ -38,5 +38,5 @@ index bb68e10..22d141c 100644
   protected:
    ~GLImageEGL() override;
 -- 
-1.9.1
+2.7.4
 

@@ -1,7 +1,7 @@
-From 5bd399976aaf3b2d308968d905537afdb11423c7 Mon Sep 17 00:00:00 2001
+From e434619e8e33293fa8d8187762769472d59bbf8b Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 3 Mar 2015 14:29:53 -0800
-Subject: [PATCH 01/14] Browser: Support Desktop Aura creation on Ozone
+Subject: [PATCH 01/19] Browser: Support Desktop Aura creation on Ozone
 
 ---
  .../browser_desktop_root_window_host_ozone.cc      | 123 +++++++++++++++++++++
@@ -192,10 +192,10 @@ index 0000000..4096680
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_BROWSER_DESKTOP_ROOT_WINDOW_HOST_OZONE_H_
 diff --git a/chrome/chrome_browser_ui.gypi b/chrome/chrome_browser_ui.gypi
-index 8a0b093..534237d 100644
+index c7ea21b..2a9f77a 100644
 --- a/chrome/chrome_browser_ui.gypi
 +++ b/chrome/chrome_browser_ui.gypi
-@@ -1348,6 +1348,8 @@
+@@ -1393,6 +1393,8 @@
        'browser/ui/views/frame/browser_desktop_window_tree_host_x11.h',
        'browser/ui/views/frame/desktop_browser_frame_auralinux.cc',
        'browser/ui/views/frame/desktop_browser_frame_auralinux.h',
@@ -205,5 +205,5 @@ index 8a0b093..534237d 100644
        'browser/ui/views/frame/global_menu_bar_registrar_x11.h',
        'browser/ui/views/frame/global_menu_bar_x11.cc',
 -- 
-1.9.1
+2.7.4
 

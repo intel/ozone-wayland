@@ -1,7 +1,7 @@
-From 86f7ac1527e0fee6f26bcf53542abcba01bb04bf Mon Sep 17 00:00:00 2001
+From 485ef71025c4953273beb4f132e569af967717d9 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Wed, 8 Jul 2015 16:56:56 -0700
-Subject: [PATCH 10/14] Remove ATK dependency
+Subject: [PATCH 07/19] Remove ATK dependency
 
 ---
  ui/views/accessibility/native_view_accessibility.cc | 2 ++
@@ -9,10 +9,10 @@ Subject: [PATCH 10/14] Remove ATK dependency
  2 files changed, 6 insertions(+)
 
 diff --git a/ui/views/accessibility/native_view_accessibility.cc b/ui/views/accessibility/native_view_accessibility.cc
-index 431268f..fac5a86 100644
+index ab86be1..120655c 100644
 --- a/ui/views/accessibility/native_view_accessibility.cc
 +++ b/ui/views/accessibility/native_view_accessibility.cc
-@@ -24,7 +24,9 @@ NativeViewAccessibility::NativeViewAccessibility(View* view)
+@@ -25,7 +25,9 @@ NativeViewAccessibility::NativeViewAccessibility(View* view)
      : view_(view),
        parent_widget_(nullptr),
        ax_node_(nullptr) {
@@ -23,10 +23,10 @@ index 431268f..fac5a86 100644
  
  NativeViewAccessibility::~NativeViewAccessibility() {
 diff --git a/ui/views/view.cc b/ui/views/view.cc
-index d2bc11e..06dd1ea 100644
+index 431ba34..b407092 100644
 --- a/ui/views/view.cc
 +++ b/ui/views/view.cc
-@@ -1296,8 +1296,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
+@@ -1326,8 +1326,10 @@ bool View::ExceededDragThreshold(const gfx::Vector2d& delta) {
  // Accessibility----------------------------------------------------------------
  
  gfx::NativeViewAccessible View::GetNativeViewAccessible() {
@@ -37,7 +37,7 @@ index d2bc11e..06dd1ea 100644
    if (native_view_accessibility_)
      return native_view_accessibility_->GetNativeObject();
    return NULL;
-@@ -1310,8 +1312,10 @@ void View::NotifyAccessibilityEvent(
+@@ -1340,8 +1342,10 @@ void View::NotifyAccessibilityEvent(
      ViewsDelegate::GetInstance()->NotifyAccessibilityEvent(this, event_type);
  
    if (send_native_event && GetWidget()) {
@@ -49,5 +49,5 @@ index d2bc11e..06dd1ea 100644
        native_view_accessibility_->NotifyAccessibilityEvent(event_type);
    }
 -- 
-1.9.1
+2.7.4
 
