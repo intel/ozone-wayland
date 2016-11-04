@@ -1,0 +1,27 @@
+From afc36d2ce5e9aa4fe718ede413c1bc45744f9364 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 1 Nov 2016 22:52:04 -0700
+Subject: [PATCH 17/19] add WindowFinder::GetLocalProcessWindowAtPoint
+
+---
+ chrome/browser/ui/views/tabs/window_finder.cc | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/chrome/browser/ui/views/tabs/window_finder.cc b/chrome/browser/ui/views/tabs/window_finder.cc
+index 7f95d12..449cf08 100644
+--- a/chrome/browser/ui/views/tabs/window_finder.cc
++++ b/chrome/browser/ui/views/tabs/window_finder.cc
+@@ -6,3 +6,10 @@
+ 
+ WindowFinder::WindowFinder() {}
+ WindowFinder::~WindowFinder() {}
++
++gfx::NativeWindow WindowFinder::GetLocalProcessWindowAtPoint(
++    const gfx::Point& screen_point,
++    const std::set<gfx::NativeWindow>& ignore) {
++  return NULL;
++}
++
+-- 
+2.7.4
+

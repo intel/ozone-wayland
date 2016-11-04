@@ -1,20 +1,20 @@
-From 9bf21357ea3608510bf71fc6de24b43be8f09f56 Mon Sep 17 00:00:00 2001
+From 680e0facce5ab62ce9ddcf0abaf98b1e111e79a8 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Fri, 11 Sep 2015 22:31:20 -0700
-Subject: [PATCH 07/14] Add needed support in PlatformWindow.
+Date: Tue, 1 Nov 2016 22:41:42 -0700
+Subject: [PATCH 14/19] Add needed support in PlatformWindow.
 
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.
 ---
- ui/platform_window/platform_window.h | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ ui/platform_window/platform_window.h | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
 diff --git a/ui/platform_window/platform_window.h b/ui/platform_window/platform_window.h
-index a8fd6ee..95dd61e 100644
+index ab16bef..4d652b5 100644
 --- a/ui/platform_window/platform_window.h
 +++ b/ui/platform_window/platform_window.h
-@@ -8,11 +8,14 @@
- #include "base/memory/scoped_ptr.h"
+@@ -9,11 +9,14 @@
+ 
  #include "base/strings/string16.h"
  #include "ui/base/cursor/cursor.h"
 +#include "ui/gfx/native_widget_types.h"
@@ -28,7 +28,7 @@ index a8fd6ee..95dd61e 100644
  namespace ui {
  
  class PlatformImeController;
-@@ -24,8 +27,39 @@ class PlatformWindowDelegate;
+@@ -25,8 +28,40 @@ class PlatformWindowDelegate;
  // underlying platform windowing system (i.e. X11/Win/OSX).
  class PlatformWindow {
   public:
@@ -65,9 +65,10 @@ index a8fd6ee..95dd61e 100644
 +                                  const std::string& mime_type) { }
 +  virtual void DragWillBeRejected(uint32_t serial) { }
 +
++
    virtual void Show() = 0;
    virtual void Hide() = 0;
    virtual void Close() = 0;
 -- 
-1.9.1
+2.7.4
 

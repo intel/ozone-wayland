@@ -1,0 +1,39 @@
+From a20bd4671fe3fe3c2d10ea688b05eed127bd81a1 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 1 Nov 2016 22:40:49 -0700
+Subject: [PATCH 13/19] remove views_desktop_aura_ozone_sources
+
+---
+ ui/views/views.gyp | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/ui/views/views.gyp b/ui/views/views.gyp
+index 08cfcd9..84fdcf8 100644
+--- a/ui/views/views.gyp
++++ b/ui/views/views.gyp
+@@ -482,12 +482,6 @@
+       'widget/desktop_aura/desktop_window_tree_host_win.cc',
+       'widget/desktop_aura/desktop_window_tree_host_win.h',
+     ],
+-    'views_desktop_aura_ozone_sources': [
+-      'widget/desktop_aura/desktop_factory_ozone.cc',
+-      'widget/desktop_aura/desktop_factory_ozone.h',
+-      'widget/desktop_aura/desktop_screen_ozone.cc',
+-      'widget/desktop_aura/desktop_window_tree_host_ozone.cc',
+-    ],
+     'views_test_support_sources': [
+       'animation/test/flood_fill_ink_drop_animation_test_api.cc',
+       'animation/test/flood_fill_ink_drop_animation_test_api.h',
+@@ -792,9 +786,6 @@
+             ['OS == "win"', {
+               'sources': [ '<@(views_desktop_aura_win_sources)' ],
+             }],
+-            ['use_ozone==1', {
+-              'sources': [ '<@(views_desktop_aura_ozone_sources)' ],
+-            }],
+           ],
+         }],
+         ['OS=="mac"', {
+-- 
+2.7.4
+
