@@ -1,18 +1,18 @@
-From d618a2ff740ae7ca6a4c989ecc5f7404f5dd4f2e Mon Sep 17 00:00:00 2001
+From e3b70de05d4074bc39ad3af22f877c2672db3611 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
-Date: Wed, 16 Sep 2015 18:54:04 -0700
-Subject: [PATCH 02/19] Remove usage of DesktopFactory.
+Date: Fri, 4 Nov 2016 16:07:33 -0700
+Subject: [PATCH 15/16] Remove usage of DesktopFactory.
 
 This is highly experimental. Eventually, the goal is to only have
 platform specific parts in Wayland and core implementation as part
 of Chromium. Once, we have more matured implementation, initiate
 discussion upstream.
 ---
- .../widget/desktop_aura/desktop_factory_ozone.cc   | 29 -------------
- .../widget/desktop_aura/desktop_factory_ozone.h    | 50 ----------------------
- .../widget/desktop_aura/desktop_screen_ozone.cc    | 15 -------
+ .../widget/desktop_aura/desktop_factory_ozone.cc   | 29 ------------
+ .../widget/desktop_aura/desktop_factory_ozone.h    | 53 ----------------------
+ .../widget/desktop_aura/desktop_screen_ozone.cc    | 15 ------
  .../desktop_aura/desktop_window_tree_host_ozone.cc | 26 -----------
- 4 files changed, 120 deletions(-)
+ 4 files changed, 123 deletions(-)
  delete mode 100644 ui/views/widget/desktop_aura/desktop_factory_ozone.cc
  delete mode 100644 ui/views/widget/desktop_aura/desktop_factory_ozone.h
  delete mode 100644 ui/views/widget/desktop_aura/desktop_screen_ozone.cc
@@ -55,10 +55,10 @@ index e0a4489..0000000
 -} // namespace views
 diff --git a/ui/views/widget/desktop_aura/desktop_factory_ozone.h b/ui/views/widget/desktop_aura/desktop_factory_ozone.h
 deleted file mode 100644
-index 2af191b..0000000
+index bb6cbd2..0000000
 --- a/ui/views/widget/desktop_aura/desktop_factory_ozone.h
 +++ /dev/null
-@@ -1,50 +0,0 @@
+@@ -1,53 +0,0 @@
 -// Copyright 2013 The Chromium Authors. All rights reserved.
 -// Use of this source code is governed by a BSD-style license that can be
 -// found in the LICENSE file.
@@ -68,9 +68,12 @@ index 2af191b..0000000
 -
 -#include "ui/views/views_export.h"
 -
+-namespace display {
+-class Screen;
+-}
+-
 -namespace gfx {
 -class Rect;
--class Screen;
 -}
 -
 -namespace views {
@@ -100,7 +103,7 @@ index 2af191b..0000000
 -
 -  // Delegates implementation of DesktopScreen externally to
 -  // Ozone implementation.
--  virtual gfx::Screen* CreateDesktopScreen() = 0;
+-  virtual display::Screen* CreateDesktopScreen() = 0;
 -
 - private:
 -  static DesktopFactoryOzone* impl_; // not owned
@@ -111,7 +114,7 @@ index 2af191b..0000000
 -#endif // UI_VIEWS_WIDGET_DESKTOP_AURA_DESKTOP_FACTORY_OZONE_H_
 diff --git a/ui/views/widget/desktop_aura/desktop_screen_ozone.cc b/ui/views/widget/desktop_aura/desktop_screen_ozone.cc
 deleted file mode 100644
-index 9708ad8..0000000
+index 870413f..0000000
 --- a/ui/views/widget/desktop_aura/desktop_screen_ozone.cc
 +++ /dev/null
 @@ -1,15 +0,0 @@
@@ -125,7 +128,7 @@ index 9708ad8..0000000
 -
 -namespace views {
 -
--gfx::Screen* CreateDesktopScreen() {
+-display::Screen* CreateDesktopScreen() {
 -  return DesktopFactoryOzone::GetInstance()->CreateDesktopScreen();
 -}
 -

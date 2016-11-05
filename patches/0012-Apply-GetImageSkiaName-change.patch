@@ -1,7 +1,7 @@
-From a21b7f7f84209560f533e0d9b656dc057429379d Mon Sep 17 00:00:00 2001
+From c991a9542bad443a6492fd738046682827ef0fe6 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:50:57 -0700
-Subject: [PATCH 16/19] Apply GetImageSkiaName change
+Subject: [PATCH 12/16] Apply GetImageSkiaName change
 
 ---
  .../ui/views/frame/browser_desktop_root_window_host_ozone.cc  | 11 ++---------

@@ -1,7 +1,7 @@
-From 41150ec8d65fafc04b694f2941237f879f754633 Mon Sep 17 00:00:00 2001
+From f936555a63a790d22d068b5d5d81e27129087787 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Thu, 17 Dec 2015 11:04:22 -0800
-Subject: [PATCH 08/19] Gardening: Adopt to
+Subject: [PATCH 06/16] Gardening: Adopt to
  https://codereview.chromium.org/1299713003
 
 ---
@@ -10,10 +10,10 @@ Subject: [PATCH 08/19] Gardening: Adopt to
  2 files changed, 8 insertions(+)
 
 diff --git a/ui/gl/gl_image_egl.cc b/ui/gl/gl_image_egl.cc
-index c130832..de81e23 100644
+index a13214d..c81e1d91 100644
 --- a/ui/gl/gl_image_egl.cc
 +++ b/ui/gl/gl_image_egl.cc
-@@ -82,4 +82,9 @@ bool GLImageEGL::ScheduleOverlayPlane(gfx::AcceleratedWidget widget,
+@@ -79,4 +79,9 @@ bool GLImageEGL::ScheduleOverlayPlane(gfx::AcceleratedWidget widget,
    return false;
  }
  
@@ -24,10 +24,10 @@ index c130832..de81e23 100644
 +
  }  // namespace gl
 diff --git a/ui/gl/gl_image_egl.h b/ui/gl/gl_image_egl.h
-index b613182..3d2b899 100644
+index 33f4de8..32ba8df 100644
 --- a/ui/gl/gl_image_egl.h
 +++ b/ui/gl/gl_image_egl.h
-@@ -33,6 +33,9 @@ class GL_EXPORT GLImageEGL : public GLImage {
+@@ -34,6 +34,9 @@ class GL_EXPORT GLImageEGL : public GLImage {
                              gfx::OverlayTransform transform,
                              const gfx::Rect& bounds_rect,
                              const gfx::RectF& crop_rect) override;

@@ -1,17 +1,17 @@
-From c02e8355134d0d8208351d5505ede3a668ed3196 Mon Sep 17 00:00:00 2001
+From 8d7ae4d0e8a1fa7643c93177334c2205a857a000 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 15 Sep 2015 01:34:13 -0700
-Subject: [PATCH 06/19] Media: Use upstream Video Accelerator.
+Subject: [PATCH 04/16] Media: Use upstream Video Accelerator.
 
 ---
  content/common/sandbox_linux/bpf_gpu_policy_linux.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-index 077a710..7b2cfd5 100644
+index d356897..e23e0e2 100644
 --- a/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
 +++ b/content/common/sandbox_linux/bpf_gpu_policy_linux.cc
-@@ -316,7 +316,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
+@@ -317,7 +317,7 @@ bool GpuProcessPolicy::PreSandboxHook() {
          dlopen(I965HybridDrvVideoPath, RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
        dlopen("libva.so.1", RTLD_NOW|RTLD_GLOBAL|RTLD_NODELETE);
  #if defined(USE_OZONE)

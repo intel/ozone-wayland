@@ -1,7 +1,7 @@
-From afc36d2ce5e9aa4fe718ede413c1bc45744f9364 Mon Sep 17 00:00:00 2001
+From 91284d3595879c2ac5a4fa952ba9080a698ec9bd Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:52:04 -0700
-Subject: [PATCH 17/19] add WindowFinder::GetLocalProcessWindowAtPoint
+Subject: [PATCH 13/16] add WindowFinder::GetLocalProcessWindowAtPoint
 
 ---
  chrome/browser/ui/views/tabs/window_finder.cc | 7 +++++++

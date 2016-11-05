@@ -1,17 +1,17 @@
-From ef050a39867c5de5b3c5cebea20cca17744691e5 Mon Sep 17 00:00:00 2001
+From 82da4eebfb564bdc525cca2d4564c8cc373da072 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:36:03 -0700
-Subject: [PATCH 10/19] EGL support
+Subject: [PATCH 08/16] EGL support
 
 ---
  ui/gl/gl_surface_egl.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/ui/gl/gl_surface_egl.cc b/ui/gl/gl_surface_egl.cc
-index 43befdd..067e944 100644
+index aefd724..67752ef 100644
 --- a/ui/gl/gl_surface_egl.cc
 +++ b/ui/gl/gl_surface_egl.cc
-@@ -286,7 +286,7 @@ EGLConfig ChooseConfig(GLSurface::Format format) {
+@@ -290,7 +290,7 @@ EGLConfig ChooseConfig(GLSurface::Format format) {
  
    EGLint surface_type = (format == GLSurface::SURFACE_SURFACELESS)
                              ? EGL_DONT_CARE

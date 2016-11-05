@@ -1,17 +1,17 @@
-From 671bb960c72dc83a333a1448c0860b22f1840090 Mon Sep 17 00:00:00 2001
+From 762f4470101a1574e9141167bee84fefcc44ce1c Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:49:28 -0700
-Subject: [PATCH 15/19] WebUI support
+Subject: [PATCH 11/16] WebUI support
 
 ---
  .../ui/views/chrome_browser_main_extra_parts_views_linux.cc      | 9 ++++++++-
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc b/chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 1254e59..4fdb025 100644
+index 8355677..077a7b5 100644
 --- a/chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ b/chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -29,8 +29,11 @@
+@@ -30,8 +30,11 @@
  #include "ui/views/widget/desktop_aura/desktop_screen.h"
  #include "ui/views/widget/native_widget_aura.h"
  
@@ -24,7 +24,7 @@ index 1254e59..4fdb025 100644
  ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
    if (!window)
      return nullptr;
-@@ -70,10 +73,14 @@ ChromeBrowserMainExtraPartsViewsLinux::
+@@ -71,10 +74,14 @@ ChromeBrowserMainExtraPartsViewsLinux::
      ~ChromeBrowserMainExtraPartsViewsLinux() {}
  
  void ChromeBrowserMainExtraPartsViewsLinux::PreEarlyInitialization() {

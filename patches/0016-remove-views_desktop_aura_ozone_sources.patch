@@ -1,17 +1,17 @@
-From a20bd4671fe3fe3c2d10ea688b05eed127bd81a1 Mon Sep 17 00:00:00 2001
+From 58641a34e5a950cf37af64ae8bf6ce416a19e73b Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
-Date: Tue, 1 Nov 2016 22:40:49 -0700
-Subject: [PATCH 13/19] remove views_desktop_aura_ozone_sources
+Date: Fri, 4 Nov 2016 16:13:21 -0700
+Subject: [PATCH 16/16] remove views_desktop_aura_ozone_sources
 
 ---
  ui/views/views.gyp | 9 ---------
  1 file changed, 9 deletions(-)
 
 diff --git a/ui/views/views.gyp b/ui/views/views.gyp
-index 08cfcd9..84fdcf8 100644
+index b5b122e..f7032c6 100644
 --- a/ui/views/views.gyp
 +++ b/ui/views/views.gyp
-@@ -482,12 +482,6 @@
+@@ -486,12 +486,6 @@
        'widget/desktop_aura/desktop_window_tree_host_win.cc',
        'widget/desktop_aura/desktop_window_tree_host_win.h',
      ],
@@ -22,9 +22,9 @@ index 08cfcd9..84fdcf8 100644
 -      'widget/desktop_aura/desktop_window_tree_host_ozone.cc',
 -    ],
      'views_test_support_sources': [
-       'animation/test/flood_fill_ink_drop_animation_test_api.cc',
-       'animation/test/flood_fill_ink_drop_animation_test_api.h',
-@@ -792,9 +786,6 @@
+       'animation/test/flood_fill_ink_drop_ripple_test_api.cc',
+       'animation/test/flood_fill_ink_drop_ripple_test_api.h',
+@@ -816,9 +810,6 @@
              ['OS == "win"', {
                'sources': [ '<@(views_desktop_aura_win_sources)' ],
              }],

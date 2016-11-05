@@ -1,7 +1,7 @@
-From 4b3c86213f9ecde3192bd983755891e54fa4190f Mon Sep 17 00:00:00 2001
+From 06b02ec3f2300b99bd353600f256fa62e71cf51a Mon Sep 17 00:00:00 2001
 From: Michael Catanzaro <mcatanzaro@igalia.com>
 Date: Mon, 13 Jul 2015 19:46:39 -0500
-Subject: [PATCH 09/19] Add drag-and-drop interfaces to PlatformWindowDelegate
+Subject: [PATCH 07/16] Add drag-and-drop interfaces to PlatformWindowDelegate
 
 Based on a patch by Kalyan Kondapally
 ---

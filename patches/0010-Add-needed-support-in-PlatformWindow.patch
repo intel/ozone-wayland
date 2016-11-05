@@ -1,7 +1,7 @@
-From 680e0facce5ab62ce9ddcf0abaf98b1e111e79a8 Mon Sep 17 00:00:00 2001
+From 01dc49ee54fa6434b088cd50130b1347dc8a18c7 Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 1 Nov 2016 22:41:42 -0700
-Subject: [PATCH 14/19] Add needed support in PlatformWindow.
+Subject: [PATCH 10/16] Add needed support in PlatformWindow.
 
 This patch adds necessary API support in PlatformWindow. The changes
 need to be evaluated further before trying to upstream them.

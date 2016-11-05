@@ -1,7 +1,7 @@
-From 6b5b08516143dc5065ac167973d6657d1476feb6 Mon Sep 17 00:00:00 2001
+From c67cb660d10103a53ddf67f04d3e24e06decc165 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Mon, 27 Oct 2014 15:22:48 -0700
-Subject: [PATCH 05/19] Fix crash when switching to console(VT) mode
+Subject: [PATCH 03/16] Fix crash when switching to console(VT) mode
 
 Buffer swapping should not be synchronized so that the GPU process
 is not blocked by waiting for a frame update from Weston.
@@ -12,7 +12,7 @@ Bug: TC-341
  1 file changed, 5 insertions(+)
 
 diff --git a/ui/gl/gl_context_egl.cc b/ui/gl/gl_context_egl.cc
-index 2d3615b..3a64844 100644
+index 98ac5cf..ce7490d 100644
 --- a/ui/gl/gl_context_egl.cc
 +++ b/ui/gl/gl_context_egl.cc
 @@ -128,6 +128,11 @@ bool GLContextEGL::MakeCurrent(GLSurface* surface) {

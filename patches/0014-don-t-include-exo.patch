@@ -1,17 +1,17 @@
-From dc9d533a470f582c98e42ccf1038391329b173df Mon Sep 17 00:00:00 2001
+From 760998b406b5a31372daec00632e2ae5459d2b62 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:52:56 -0700
-Subject: [PATCH 18/19] don't include exo
+Subject: [PATCH 14/16] don't include exo
 
 ---
  components/components.gyp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/components.gyp b/components/components.gyp
-index fd1bf30..6979f65 100644
+index bbf5779..1d0ab8a 100644
 --- a/components/components.gyp
 +++ b/components/components.gyp
-@@ -203,7 +203,7 @@
+@@ -212,7 +212,7 @@
          'rlz.gypi',
        ],
      }],
