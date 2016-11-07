@@ -16,7 +16,7 @@ DesktopWindowTreeHost* DesktopFactoryOzoneWayland::CreateWindowTreeHost(
                                         desktop_native_widget_aura);
 }
 
-gfx::Screen* DesktopFactoryOzoneWayland::CreateDesktopScreen() {
+display::Screen* DesktopFactoryOzoneWayland::CreateDesktopScreen() {
   return new DesktopScreenWayland;
 }
 

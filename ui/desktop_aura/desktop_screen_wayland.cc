@@ -9,11 +9,12 @@
 #include "ozone/ui/desktop_aura/desktop_window_tree_host_ozone.h"
 #include "ui/aura/window.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
+#include "ui/display/display.h"
 
 namespace views {
 
 DesktopScreenWayland::DesktopScreenWayland()
-    : gfx::Screen(),
+    : display::Screen(),
       rect_(0, 0, 0, 0),
       displays_() {
   platform_Screen_ = ui::CreatePlatformScreen(this);
@@ -26,8 +27,8 @@ DesktopScreenWayland::~DesktopScreenWayland() {
 void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
   rect_ = geometry;
   int max_area = 0;
-  const gfx::Display* matching = NULL;
-  for (std::vector<gfx::Display>::const_iterator it = displays_.begin();
+  const display::Display* matching = NULL;
+  for (std::vector<display::Display>::const_iterator it = displays_.begin();
        it != displays_.end(); ++it) {
     gfx::Rect intersect = gfx::IntersectRects(it->bounds(), rect_);
     int area = intersect.width() * intersect.height();
@@ -38,8 +39,8 @@ void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
   }
 
   if (!matching) {
-    std::vector<gfx::Display> old_displays = displays_;
-    displays_.push_back(gfx::Display(displays_.size(), rect_));
+    std::vector<display::Display> old_displays = displays_;
+    displays_.push_back(display::Display(displays_.size(), rect_));
     change_notifier_.NotifyDisplaysChanged(old_displays, displays_);
   }
 }
@@ -69,11 +70,11 @@ int DesktopScreenWayland::GetNumDisplays() const {
   return displays_.size();
 }
 
-std::vector<gfx::Display> DesktopScreenWayland::GetAllDisplays() const {
+std::vector<display::Display> DesktopScreenWayland::GetAllDisplays() const {
   return displays_;
 }
 
-gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
+display::Display DesktopScreenWayland::GetDisplayNearestWindow(
     gfx::NativeView window) const {
   DCHECK(!rect_.IsEmpty());
   if (displays_.size() == 1)
@@ -99,12 +100,12 @@ gfx::Display DesktopScreenWayland::GetDisplayNearestWindow(
   return GetPrimaryDisplay();
 }
 
-gfx::Display DesktopScreenWayland::GetDisplayNearestPoint(
+display::Display DesktopScreenWayland::GetDisplayNearestPoint(
     const gfx::Point& point) const {
   if (displays_.size() == 1)
     return displays_.front();
 
-  for (std::vector<gfx::Display>::const_iterator it = displays_.begin();
+  for (std::vector<display::Display>::const_iterator it = displays_.begin();
          it != displays_.end(); ++it) {
     if (it->bounds().Contains(point))
       return *it;
@@ -113,15 +114,15 @@ gfx::Display DesktopScreenWayland::GetDisplayNearestPoint(
   return GetPrimaryDisplay();
 }
 
-gfx::Display DesktopScreenWayland::GetDisplayMatching(
+display::Display DesktopScreenWayland::GetDisplayMatching(
     const gfx::Rect& match_rect) const {
   if (displays_.size() == 1)
     return displays_.front();
 
   DCHECK(!rect_.IsEmpty());
   int max_area = 0;
-  const gfx::Display* matching = NULL;
-  for (std::vector<gfx::Display>::const_iterator it = displays_.begin();
+  const display::Display* matching = NULL;
+  for (std::vector<display::Display>::const_iterator it = displays_.begin();
        it != displays_.end(); ++it) {
     gfx::Rect intersect = gfx::IntersectRects(it->bounds(), match_rect);
     int area = intersect.width() * intersect.height();
@@ -135,16 +136,16 @@ gfx::Display DesktopScreenWayland::GetDisplayMatching(
   return matching ? *matching : GetPrimaryDisplay();
 }
 
-gfx::Display DesktopScreenWayland::GetPrimaryDisplay() const {
+display::Display DesktopScreenWayland::GetPrimaryDisplay() const {
   DCHECK(!rect_.IsEmpty());
   return displays_.front();
 }
 
-void DesktopScreenWayland::AddObserver(gfx::DisplayObserver* observer) {
+void DesktopScreenWayland::AddObserver(display::DisplayObserver* observer) {
   change_notifier_.AddObserver(observer);
 }
 
-void DesktopScreenWayland::RemoveObserver(gfx::DisplayObserver* observer) {
+void DesktopScreenWayland::RemoveObserver(display::DisplayObserver* observer) {
   change_notifier_.RemoveObserver(observer);
 }
 

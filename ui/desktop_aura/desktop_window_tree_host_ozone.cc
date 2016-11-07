@@ -15,6 +15,8 @@
 #include "ui/aura/window_property.h"
 #include "ui/base/hit_test.h"
 #include "ui/base/ime/input_method.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/gfx/geometry/insets.h"
 #include "ui/gfx/path.h"
@@ -359,11 +361,11 @@ gfx::Rect DesktopWindowTreeHostOzone::GetRestoredBounds() const {
 
 gfx::Rect DesktopWindowTreeHostOzone::GetWorkAreaBoundsInScreen() const {
   // TODO(kalyan): Take into account wm decorations. i.e Dock, panel etc.
-  gfx::Screen *screen = gfx::Screen::GetScreen();
+  display::Screen *screen = display::Screen::GetScreen();
   if (!screen)
-    NOTREACHED() << "Unable to retrieve valid gfx::Screen";
+    NOTREACHED() << "Unable to retrieve valid display::Screen";
 
-  gfx::Display display = screen->GetPrimaryDisplay();
+  display::Display display = screen->GetPrimaryDisplay();
   return ToDIPRect(display.bounds());
 }
 
@@ -614,9 +616,9 @@ void DesktopWindowTreeHostOzone::SizeConstraintsChanged() {
 // DesktopWindowTreeHostOzone, aura::WindowTreeHost implementation:
 
 gfx::Transform DesktopWindowTreeHostOzone::GetRootTransform() const {
-  gfx::Display display = gfx::Screen::GetScreen()->GetPrimaryDisplay();
+  display::Display display = display::Screen::GetScreen()->GetPrimaryDisplay();
   aura::Window* win = const_cast<aura::Window*>(window());
-  display = gfx::Screen::GetScreen()->GetDisplayNearestWindow(win);
+  display = display::Screen::GetScreen()->GetDisplayNearestWindow(win);
 
   float scale = display.device_scale_factor();
   gfx::Transform transform;
@@ -966,8 +968,8 @@ DesktopWindowTreeHostOzone::open_windows() {
 
 gfx::Size DesktopWindowTreeHostOzone::AdjustSize(
     const gfx::Size& requested_size_in_pixels) {
-  std::vector<gfx::Display> displays =
-      gfx::Screen::GetScreen()->GetAllDisplays();
+  std::vector<display::Display> displays =
+      display::Screen::GetScreen()->GetAllDisplays();
   // Compare against all monitor sizes. The window manager can move the window
   // to whichever monitor it wants.
   for (size_t i = 0; i < displays.size(); ++i) {

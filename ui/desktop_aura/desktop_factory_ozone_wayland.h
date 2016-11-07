@@ -30,7 +30,7 @@ class VIEWS_EXPORT DesktopFactoryOzoneWayland : public DesktopFactoryOzone {
 
   // Delegates implementation of DesktopScreen externally to
   // Ozone implementation.
-  gfx::Screen* CreateDesktopScreen() override;
+  display::Screen* CreateDesktopScreen() override;
 };
 
 DesktopFactoryOzone* CreateDesktopFactoryOzoneWayland();

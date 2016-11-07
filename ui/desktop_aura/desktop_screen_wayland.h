@@ -8,8 +8,9 @@
 #include <vector>
 
 #include "ozone/platform/desktop_platform_screen_delegate.h"
-#include "ui/gfx/display_change_notifier.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/display_change_notifier.h"
+#include "ui/display/screen.h"
+#include "ui/gfx/geometry/rect.h"
 
 namespace aura {
 class Window;
@@ -21,7 +22,7 @@ class DesktopPlatformScreen;
 
 namespace views {
 
-class DesktopScreenWayland : public gfx::Screen,
+class DesktopScreenWayland : public display::Screen,
                              public ui::DesktopPlatformScreenDelegate {
  public:
   DesktopScreenWayland();
@@ -34,22 +35,23 @@ class DesktopScreenWayland : public gfx::Screen,
   void SetGeometry(const gfx::Rect& geometry);
   // Overridden from gfx::Screen:
   gfx::Point GetCursorScreenPoint() override;
-  gfx::NativeWindow GetWindowUnderCursor() override;
+  bool IsWindowUnderCursor(gfx::NativeWindow window) override;
+  gfx::NativeWindow GetWindowUnderCursor();
   gfx::NativeWindow GetWindowAtScreenPoint(const gfx::Point& point) override;
   int GetNumDisplays() const override;
-  std::vector<gfx::Display> GetAllDisplays() const override;
-  gfx::Display GetDisplayNearestWindow(gfx::NativeView window) const override;
-  gfx::Display GetDisplayNearestPoint(const gfx::Point& point) const override;
-  gfx::Display GetDisplayMatching(const gfx::Rect& match_rect) const override;
-  gfx::Display GetPrimaryDisplay() const override;
-  void AddObserver(gfx::DisplayObserver* observer) override;
-  void RemoveObserver(gfx::DisplayObserver* observer) override;
+  std::vector<display::Display> GetAllDisplays() const override;
+  display::Display GetDisplayNearestWindow(gfx::NativeView window) const override;
+  display::Display GetDisplayNearestPoint(const gfx::Point& point) const override;
+  display::Display GetDisplayMatching(const gfx::Rect& match_rect) const override;
+  display::Display GetPrimaryDisplay() const override;
+  void AddObserver(display::DisplayObserver* observer) override;
+  void RemoveObserver(display::DisplayObserver* observer) override;
 
   gfx::Rect rect_;
-  gfx::DisplayChangeNotifier change_notifier_;
+  display::DisplayChangeNotifier change_notifier_;
 
   // The display objects we present to chrome.
-  std::vector<gfx::Display> displays_;
+  std::vector<display::Display> displays_;
   std::unique_ptr<ui::DesktopPlatformScreen> platform_Screen_;
   DISALLOW_COPY_AND_ASSIGN(DesktopScreenWayland);
 };
