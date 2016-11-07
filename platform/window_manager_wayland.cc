@@ -8,7 +8,7 @@
 #include <string>
 
 #include "base/bind.h"
-#include "base/thread_task_runner_handle.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "ozone/platform/desktop_platform_screen_delegate.h"
 #include "ozone/platform/messages.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"

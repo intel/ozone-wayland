@@ -7,7 +7,7 @@
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/thread_task_runner_handle.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "ozone/platform/messages.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ui/base/ime/composition_text.h"
