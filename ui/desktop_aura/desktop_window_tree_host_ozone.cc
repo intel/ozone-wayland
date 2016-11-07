@@ -359,6 +359,11 @@ gfx::Rect DesktopWindowTreeHostOzone::GetRestoredBounds() const {
   return GetWindowBoundsInScreen();
 }
 
+std::string DesktopWindowTreeHostOzone::GetWorkspace() const {
+
+  return std::string();
+}
+
 gfx::Rect DesktopWindowTreeHostOzone::GetWorkAreaBoundsInScreen() const {
   // TODO(kalyan): Take into account wm decorations. i.e Dock, panel etc.
   display::Screen *screen = display::Screen::GetScreen();
