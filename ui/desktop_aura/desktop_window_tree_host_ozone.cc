@@ -568,7 +568,7 @@ bool DesktopWindowTreeHostOzone::IsFullscreen() const {
   return state_ & FullScreen;
 }
 
-void DesktopWindowTreeHostOzone::SetOpacity(unsigned char opacity) {
+void DesktopWindowTreeHostOzone::SetOpacity(float opacity) {
   content_window_->layer()->SetOpacity(opacity / 255.0);
   platform_window_->SetOpacity(opacity);
 }
