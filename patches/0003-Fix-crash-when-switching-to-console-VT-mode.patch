@@ -1,7 +1,7 @@
-From c67cb660d10103a53ddf67f04d3e24e06decc165 Mon Sep 17 00:00:00 2001
+From 5877746b5e0e3b27048aa9223ed29dc142da7f2c Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Mon, 27 Oct 2014 15:22:48 -0700
-Subject: [PATCH 03/16] Fix crash when switching to console(VT) mode
+Subject: [PATCH 03/18] Fix crash when switching to console(VT) mode
 
 Buffer swapping should not be synchronized so that the GPU process
 is not blocked by waiting for a frame update from Weston.

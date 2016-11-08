@@ -1,0 +1,45 @@
+From a58d4e165cf420be1b3fa4cb18882d3d222d3805 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Fri, 4 Nov 2016 23:01:11 -0700
+Subject: [PATCH 15/18] Remove CreateNativePixmapFromHandle
+
+---
+ ui/ozone/platform/wayland/wayland_surface_factory.cc | 8 --------
+ ui/ozone/platform/wayland/wayland_surface_factory.h  | 4 ----
+ 2 files changed, 12 deletions(-)
+
+diff --git a/ui/ozone/platform/wayland/wayland_surface_factory.cc b/ui/ozone/platform/wayland/wayland_surface_factory.cc
+index f9619eb..8236a0c 100644
+--- a/ui/ozone/platform/wayland/wayland_surface_factory.cc
++++ b/ui/ozone/platform/wayland/wayland_surface_factory.cc
+@@ -179,12 +179,4 @@ scoped_refptr<NativePixmap> WaylandSurfaceFactory::CreateNativePixmap(
+   return nullptr;
+ }
+ 
+-scoped_refptr<NativePixmap> WaylandSurfaceFactory::CreateNativePixmapFromHandle(
+-    gfx::Size size,
+-    gfx::BufferFormat format,
+-    const gfx::NativePixmapHandle& handle) {
+-  NOTIMPLEMENTED();
+-  return nullptr;
+-}
+-
+ }  // namespace ui
+diff --git a/ui/ozone/platform/wayland/wayland_surface_factory.h b/ui/ozone/platform/wayland/wayland_surface_factory.h
+index 25fa77e..64f9053 100644
+--- a/ui/ozone/platform/wayland/wayland_surface_factory.h
++++ b/ui/ozone/platform/wayland/wayland_surface_factory.h
+@@ -29,10 +29,6 @@ class WaylandSurfaceFactory : public SurfaceFactoryOzone {
+       gfx::Size size,
+       gfx::BufferFormat format,
+       gfx::BufferUsage usage) override;
+-  scoped_refptr<NativePixmap> CreateNativePixmapFromHandle(
+-      gfx::Size size,
+-      gfx::BufferFormat format,
+-      const gfx::NativePixmapHandle& handle) override;
+ 
+  private:
+   WaylandDisplay* display_;
+-- 
+2.7.4
+

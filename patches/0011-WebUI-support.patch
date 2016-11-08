@@ -1,7 +1,7 @@
-From 762f4470101a1574e9141167bee84fefcc44ce1c Mon Sep 17 00:00:00 2001
+From 0ace4c20160dac52911fca4b0870bcb0440b3d53 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:49:28 -0700
-Subject: [PATCH 11/16] WebUI support
+Subject: [PATCH 11/18] WebUI support
 
 ---
  .../ui/views/chrome_browser_main_extra_parts_views_linux.cc      | 9 ++++++++-

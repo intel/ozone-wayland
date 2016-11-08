@@ -1,0 +1,25 @@
+From eb2f7b838e8e18efeb2a86f3dda1091a78d88410 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Tue, 8 Nov 2016 12:57:52 -0800
+Subject: [PATCH 17/18] Add a guard for Ozone
+
+---
+ chrome/browser/ui/startup/startup_browser_creator.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/startup/startup_browser_creator.cc b/chrome/browser/ui/startup/startup_browser_creator.cc
+index 8cb76a7..e9899b0 100644
+--- a/chrome/browser/ui/startup/startup_browser_creator.cc
++++ b/chrome/browser/ui/startup/startup_browser_creator.cc
+@@ -700,7 +700,7 @@ bool StartupBrowserCreator::ProcessCmdLineImpl(
+   }
+ #endif  // defined(OS_WIN)
+ 
+-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
++#if defined(OS_LINUX) && !defined(OS_CHROMEOS) && !defined(USE_OZONE)
+   // Our request to Activate may be discarded on some linux window
+   // managers unless given a recent timestamp, so update the timestamp if
+   // we were given one.
+-- 
+2.7.4
+

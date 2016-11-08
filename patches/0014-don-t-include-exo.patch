@@ -1,7 +1,7 @@
-From 760998b406b5a31372daec00632e2ae5459d2b62 Mon Sep 17 00:00:00 2001
+From 84690ea4da5dcf42371d9b932cf5dc581dacdecd Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:52:56 -0700
-Subject: [PATCH 14/16] don't include exo
+Subject: [PATCH 14/18] don't include exo
 
 ---
  components/components.gyp | 2 +-

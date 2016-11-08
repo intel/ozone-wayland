@@ -1,7 +1,7 @@
-From a0cee6ebe206439309ea057a6c4596ed4e52dc3a Mon Sep 17 00:00:00 2001
+From 24a74016823011cda03e102dcbd6102dbf64aa24 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:39:11 -0700
-Subject: [PATCH 09/16] ozone support
+Subject: [PATCH 09/18] ozone support
 
 ---
  ui/base/ime/input_method_factory.cc | 4 ++--

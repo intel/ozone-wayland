@@ -1,7 +1,7 @@
-From 82da4eebfb564bdc525cca2d4564c8cc373da072 Mon Sep 17 00:00:00 2001
+From 7b7ee80b89bacb1c1e31ac8ff77053c4221d0964 Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Tue, 1 Nov 2016 22:36:03 -0700
-Subject: [PATCH 08/16] EGL support
+Subject: [PATCH 08/18] EGL support
 
 ---
  ui/gl/gl_surface_egl.cc | 2 +-

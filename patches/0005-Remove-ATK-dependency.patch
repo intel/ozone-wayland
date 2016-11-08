@@ -1,7 +1,7 @@
-From 3c2ee10dd5dd3e1ca32160a9823e75ea9652f02c Mon Sep 17 00:00:00 2001
+From 99fad190e31fb5401f251bf673a1dd98aacbadfd Mon Sep 17 00:00:00 2001
 From: Joone Hur <joone.hur@intel.com>
 Date: Wed, 8 Jul 2015 16:56:56 -0700
-Subject: [PATCH 05/16] Remove ATK dependency
+Subject: [PATCH 05/18] Remove ATK dependency
 
 ---
  ui/views/accessibility/native_view_accessibility.cc | 2 ++

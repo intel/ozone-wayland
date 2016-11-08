@@ -1,7 +1,7 @@
-From 8d7ae4d0e8a1fa7643c93177334c2205a857a000 Mon Sep 17 00:00:00 2001
+From e87fbcd62b2927bfb3e842661304ab651a8a372b Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Tue, 15 Sep 2015 01:34:13 -0700
-Subject: [PATCH 04/16] Media: Use upstream Video Accelerator.
+Subject: [PATCH 04/18] Media: Use upstream Video Accelerator.
 
 ---
  content/common/sandbox_linux/bpf_gpu_policy_linux.cc | 2 +-

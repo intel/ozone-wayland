@@ -1,7 +1,7 @@
-From f936555a63a790d22d068b5d5d81e27129087787 Mon Sep 17 00:00:00 2001
+From 095b5b43915957555b97ffae740a6c137078256b Mon Sep 17 00:00:00 2001
 From: Kalyan Kondapally <kalyan.kondapally@intel.com>
 Date: Thu, 17 Dec 2015 11:04:22 -0800
-Subject: [PATCH 06/16] Gardening: Adopt to
+Subject: [PATCH 06/18] Gardening: Adopt to
  https://codereview.chromium.org/1299713003
 
 ---

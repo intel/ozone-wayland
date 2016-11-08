@@ -1,0 +1,25 @@
+From 619a9c5c819ab99447059f7de6e29576fac7df95 Mon Sep 17 00:00:00 2001
+From: Joone Hur <joone.hur@intel.com>
+Date: Thu, 10 Nov 2016 14:06:07 -0800
+Subject: [PATCH 18/18] Use intptr_t as native widget type for Ozone
+
+---
+ ui/gfx/native_widget_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ui/gfx/native_widget_types.h b/ui/gfx/native_widget_types.h
+index 4f814c2..9148558 100644
+--- a/ui/gfx/native_widget_types.h
++++ b/ui/gfx/native_widget_types.h
+@@ -209,7 +209,7 @@ const AcceleratedWidget kNullAcceleratedWidget = 0;
+ typedef ANativeWindow* AcceleratedWidget;
+ const AcceleratedWidget kNullAcceleratedWidget = 0;
+ #elif defined(USE_OZONE)
+-typedef int32_t AcceleratedWidget;
++typedef intptr_t AcceleratedWidget;
+ const AcceleratedWidget kNullAcceleratedWidget = 0;
+ #else
+ #error unknown platform
+-- 
+2.7.4
+
