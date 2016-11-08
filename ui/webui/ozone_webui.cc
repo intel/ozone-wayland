@@ -56,6 +56,7 @@ void OzoneWebUI::GetDefaultFontDescription(
     std::string* family_out,
     int* size_pixels_out,
     int* style_out,
+    gfx::Font::Weight* weight_out,
     gfx::FontRenderParams* params_out) const {
   NOTIMPLEMENTED();
 }

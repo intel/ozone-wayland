@@ -24,6 +24,7 @@
 #include "ui/views/controls/button/label_button_border.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/window/frame_buttons.h"
+#include "ui/gfx/font.h"
 
 class SkBitmap;
 
@@ -67,6 +68,7 @@ class OZONE_WAYLAND_EXPORT OzoneWebUI : public views::LinuxUI {
       std::string* family_out,
       int* size_pixels_out,
       int* style_out,
+      gfx::Font::Weight* weight_out,
       gfx::FontRenderParams* params_out) const override;
 
   // ui::LinuxUI:
