@@ -72,6 +72,7 @@ class OZONE_WAYLAND_EXPORT OzoneWebUI : public views::LinuxUI {
 
   // ui::LinuxUI:
   void Initialize() override;
+  void MaterialDesignControllerReady() override {}
 
   // These methods are not needed
   gfx::Image GetThemeImageNamed(int id) const override;
