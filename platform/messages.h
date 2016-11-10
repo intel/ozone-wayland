@@ -25,7 +25,7 @@
 #define IPC_MESSAGE_START LastIPCMsgStart
 
 IPC_ENUM_TRAITS_MAX_VALUE(ui::EventFlags,
-                          ui::EF_ALTGR_DOWN)
+                          ui::EF_FORWARD_MOUSE_BUTTON)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::EventType,
                           ui::ET_LAST)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetState,
