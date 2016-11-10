@@ -49,6 +49,10 @@ gfx::Point DesktopScreenWayland::GetCursorScreenPoint() {
   return platform_Screen_->GetCursorScreenPoint();
 }
 
+bool DesktopScreenWayland::IsWindowUnderCursor(gfx::NativeWindow window) {
+  return GetWindowAtScreenPoint(GetCursorScreenPoint()) == window;
+}
+
 gfx::NativeWindow DesktopScreenWayland::GetWindowUnderCursor() {
   return GetWindowAtScreenPoint(GetCursorScreenPoint());
 }
