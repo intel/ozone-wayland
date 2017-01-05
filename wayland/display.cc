@@ -18,6 +18,7 @@ WaylandDisplay* WaylandDisplay::instance_ = NULL;
 WaylandDisplay::WaylandDisplay(RegistrationType type) : display_(NULL),
     registry_(NULL),
     compositor_(NULL),
+    xdg_shell_(NULL),
     shell_(NULL),
     shm_(NULL),
     primary_screen_(NULL),
@@ -222,6 +223,9 @@ void WaylandDisplay::terminate() {
   if (compositor_)
     wl_compositor_destroy(compositor_);
 
+  if (xdg_shell_)
+    xdg_shell_destroy(xdg_shell_);
+
   if (shell_)
     wl_shell_destroy(shell_);
 
@@ -272,6 +276,11 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
     WaylandInputDevice *input_device = new WaylandInputDevice(disp, name);
     disp->input_list_.push_back(input_device);
     disp->primary_input_ = disp->input_list_.front();
+  } else if (strcmp(interface, "xdg_shell") == 0) {
+    disp->xdg_shell_ = static_cast<xdg_shell*>(
+        wl_registry_bind(registry, name, &xdg_shell_interface, 1));
+        xdg_shell_use_unstable_version(disp->xdg_shell_,
+                                       XDG_SHELL_VERSION_CURRENT);
   } else if (strcmp(interface, "wl_shell") == 0) {
     disp->shell_ = static_cast<wl_shell*>(
         wl_registry_bind(registry, name, &wl_shell_interface, 1));

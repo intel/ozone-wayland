@@ -17,33 +17,34 @@ class WaylandWindow;
 
 class WaylandShellSurface {
  public:
-  explicit WaylandShellSurface(WaylandWindow* window);
-  ~WaylandShellSurface();
+  // Creates shell surface for a given WaylandWindow. This can be either
+  // wl_shell, xdg_shell or any shell which supports wayland protocol.
+  // Ownership is passed to the caller.
+  static WaylandShellSurface* CreateShellSurface(WaylandWindow* window);
+  WaylandShellSurface();
+  virtual ~WaylandShellSurface();
 
-  void UpdateShellSurface(WaylandWindow::ShellType type,
-                          WaylandShellSurface* shell_parent,
-                          unsigned x,
-                          unsigned y) const;
-  void SetWindowTitle(const base::string16& title);
-  void Maximize() const;
   WaylandSurface* Surface() const { return surface_; }
 
-  static void HandleConfigure(void *data,
-                              struct wl_shell_surface *shell_surface,
-                              uint32_t edges,
-                              int32_t width,
-                              int32_t height);
-  static void HandlePopupDone(void *data,
-                              struct wl_shell_surface *shell_surface);
-  static void HandlePing(void *data,
-                         struct wl_shell_surface *shell_surface,
-                         uint32_t serial);
+  virtual void UpdateShellSurface(WaylandWindow::ShellType type,
+                                  WaylandShellSurface* shell_parent,
+                                  unsigned x,
+                                  unsigned y) = 0;
+  virtual void SetWindowTitle(const base::string16& title) = 0;
+  virtual void Maximize() = 0;
+  virtual void Minimize() = 0;
+  //static functions
+  static void PopupDone();
+  static void WindowResized(void *data, unsigned width, unsigned height);
+
+ protected:
+  void FlushDisplay() const;
+  // The implementation should initialize the shell and set up all
+  // necessary callbacks.
+  virtual void InitializeShellSurface(WaylandWindow* window) = 0;
 
  private:
-  void FlushDisplay() const;
-
   WaylandSurface* surface_;
-  wl_shell_surface* shell_surface_;
   DISALLOW_COPY_AND_ASSIGN(WaylandShellSurface);
 };
 
