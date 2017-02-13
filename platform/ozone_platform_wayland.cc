@@ -23,6 +23,7 @@
 #include "ui/ozone/common/native_display_delegate_ozone.h"
 #include "ui/ozone/platform/drm/host/drm_cursor.h"
 #include "ui/ozone/platform/drm/host/drm_gpu_platform_support_host.h"
+#include "ui/ozone/platform/drm/host/drm_overlay_manager.h"
 #include "ui/ozone/platform/drm/host/drm_window_host_manager.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/ozone/public/system_input_injector.h"
@@ -48,6 +49,10 @@ class OzonePlatformWayland : public OzonePlatform {
   // OzonePlatform:
   ui::SurfaceFactoryOzone* GetSurfaceFactoryOzone() override {
     return wayland_display_.get();
+  }
+
+  OverlayManagerOzone* GetOverlayManager() override {
+    return overlay_manager_.get();
   }
 
   CursorFactoryOzone* GetCursorFactoryOzone() override {
@@ -89,6 +94,8 @@ class OzonePlatformWayland : public OzonePlatform {
     window_manager_.reset(new ui::DrmWindowHostManager());
     cursor_.reset(new ui::DrmCursor(window_manager_.get()));
     gpu_platform_host_.reset(new ui::DrmGpuPlatformSupportHost(cursor_.get()));
+    overlay_manager_.reset(new ui::DrmOverlayManager(false,
+                                                     gpu_platform_host_.get()));
     // Needed as Browser creates accelerated widgets through SFO.
     wayland_display_.reset(new ozonewayland::WaylandDisplay());
 #if !defined(COMPONENT_BUILD)
@@ -141,6 +148,7 @@ class OzonePlatformWayland : public OzonePlatform {
   scoped_ptr<ui::RemoteStateChangeHandler> state_change_handler_;
   scoped_ptr<ozonewayland::WaylandDisplay> wayland_display_;
   XkbEvdevCodes xkb_evdev_code_converter_;
+  scoped_ptr<ui::OverlayManagerOzone> overlay_manager_;
   DISALLOW_COPY_AND_ASSIGN(OzonePlatformWayland);
 };
 
