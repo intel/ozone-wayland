@@ -1,0 +1,247 @@
+Overview of drag-and-drop status in Ozone-Wayland
+
+==================
+Where is the code?
+==================
+
+https://github.com/01org/ozone-wayland/commit/a12c78e2d87c08e52d4319c87b3db1036b2e3c39
+
+Yes, it's unfortunately all in one commit; I had to rebase it so many times that
+it became difficult to keep it split into smaller commits.
+
+===========
+What works?
+===========
+
+Dragging flowers into Chrome from weston-dnd under Weston. You should be able to
+drag them into text areas.
+
+====
+GTK+
+====
+
+Broken.
+
+We'll never be able to support GTK+ 3.18, which suffered due to
+https://bugs.freedesktop.org/show_bug.cgi?id=91944.
+
+We should be able to get it working with GTK+ 3.20, though, without any changes
+in GTK+. You should be able to drag text from gedit into text areas. You should
+be able to drag images from Nautilus into the imgur upload form, or into GitHub
+comments. (I actually had this working in the past, but broke it when making
+some necessary changes.)
+
+Contact: Carlos Garnacho from Red Hat.
+
+==
+Qt
+==
+
+Drags from Qt apps are untested. I was hardly going to work on this before GTK+,
+right? This might require changes in Qt.
+
+=================
+Other Compositors
+=================
+
+So far, it's only tested under Weston, but Weston is not really intended for use
+in production environments. Drags need to be tested under mutter. Eventually
+they need to be tested under KWin, but I'm not sure how far along Wayland
+support in KWin is right now.
+
+==========
+MIME Types
+==========
+
+Only a few MIME types are supported. See
+DesktopDragDropClientWayland::AddToOSExchangeData.
+
+It's not clear exactly which MIME types we ought to support, as there is no
+equivalent of ICCCM for Wayland. See
+https://bugs.freedesktop.org/show_bug.cgi?id=48989
+
+Ultimately, we need to make sure the same types of drags that work under X
+generally work the same under Wayland. However, we should consider avoiding hack
+MIME types (MOZILLA_URI, NETSCAPE_URI and the like). Since Wayland is a new
+thing, this is our chance to eliminate old compatibility hacks if possible.
+
+=====================
+Wayland documentation
+=====================
+
+Pretty important to carefully read the upstream Wayland drag-and-drop
+documentation:
+
+https://wayland.freedesktop.org/docs/html/ch04.html#sect-Protocol-data-sharing
+
+Also the documentation of the relevant protocol objects: wl_data_offer,
+wl_data_source, wl_data_device, and wl_data_device_manager. That begins here:
+
+https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_data_offer
+
+See the Chrome wrapper classes WaylandDataDevice and WaylandDataOffer. These
+wrapper classes all live in the GPU process. In Ozone-Wayland, only the GPU
+process gets linked to the Wayland client library and is able to use the Wayland
+APIs.
+
+===============
+Receiving Drags
+===============
+
+For receiving drags, the general idea is:
+
+ * wl_data_device::data_offer is sent immediately before wl_data_device::enter.
+ * wl_data_device::enter is sent when pointer enters the window during a drag.
+ * wl_data_device::motion is sent for each pixel of pointer movement when the
+   pointer is inside the window during a drag.
+ * wl_data_device::leave is sent when the pointer leaves the window WITHOUT
+   performing a drop.
+ * wl_data_device::drop is sent when the drop occurs.
+
+For Chrome, this is mostly implemented in WaylandDataDevice. Note that the
+WaylandDataDevice has two separate WaylandDataOffers with independent lifetimes:
+the drag offer for drag-and-drop, and the selection offer for the clipboard (NOT
+for primary selection).
+
+So events go from the compositor to the GPU process to the browser process.
+Here's an example of the code flow:
+
+ * WaylandDataDevice::OnDataOffer gets triggered by the compositor and passed
+   a new wl_data_offer. It gets encapsulated in a WaylandDataOffer object and
+   saved in the new_offer_ member variable (anything ending in an underscore is
+   a private member variable).
+ * WaylandDataDevice::OnEnter is called. The WaylandDataOffer gets transferred
+   from new_offer_ to drag_offer_. (Had WaylandDataDevice::OnSelection been
+   called instead, it would have been transferred to selection_offer_.)
+ * Remember WaylandDataDevice is in the GPU process. We need to get the event
+   to the browser process to inform Chrome that it has occurred. WaylandDisplay
+   is the god class used for sending messages to the browser process.
+   WaylandDataDevice keeps a reference to the WaylandDisplay it was created for,
+   and so calls WaylandDisplay::DragEnter.
+ * WaylandDisplay::DragEnter sends a DragEnter message (defined in
+   src/ozone/platform/messages.h) to the browser process.
+ * The message is received in the browser process by
+   DesktopWindowTreeHostOzone::OnDragEnter (via the PlatformWindowDelegate
+   interface).
+ * DesktopWindowTreeHostOzone::OnDragEnter forwards the event to
+   DesktopDragDropClientWayland::OnDragEnter.
+
+The other events are handled similarly.
+
+In response to wl_data_device::motion, Chrome needs to send the
+wl_data_offer::accept request, either with a MIME type to indicate the drag
+would be accepted at the current coordinates, or with NULL to indicate failure.
+The code was written under the assumption that accept was only used by the drag
+source to change the pointer image, but this is no longer the case; see the
+Protocol Changes section below.
+
+Here's an example of the code flow for sending the accept(/reject) requests
+(from the browser process to the GPU process to the compositor):
+
+ * DesktopDragDropClientWayland::IndicateDragWillBeAccepted is called from
+   DesktopDragDropClientWayland::OnDragMotion.
+ * DesktopDragDropClientWayland::IndicateDragWillBeAccepted calls
+   OzoneWaylandWindow::DragWillBeAccepted (via the PlatformWindow interface).
+ * OzoneWaylandWindow sends a DragWillBeAccepted message to the browser process.
+ * The message is received in the browser process by
+   WaylandDisplay::DragWillBeAccepted, which calls
+   WaylandDataDevice::DragWillBeAccepted.
+ * WaylandDataDevice::DragWillBeAccepted calls WaylandDataOffer::Accept, which
+   sends the request to the compositor.
+
+================
+Initiating Drags
+================
+
+There is no support yet for initiating drags from Chrome. Use
+wl_data_device::start_drag.
+
+============================
+DesktopDragDropClientWayland
+============================
+
+This is where most of the action happens, and it's surely the most complicated
+part of the code, though I don't think it's too bad. It lives in the browser
+process, and is responsible for translating between the Wayland drag-and-drop
+API and Chrome's internal drag-and-drop API.
+
+I guess this is the portion of code that most needs documented, but it's also
+the portion of code I remember the least-well. A few points of note:
+
+ * delegate_ is the interface to Chrome's DnD API. Fortunately, it's pretty
+   similar to the way Wayland operates, so it's not too hard to use.
+ * OSExchangeData is how we pass the transferred data into Chrome.
+ * DesktopDragDropClientWayland::DragDataCollector is documented in the header
+   file.
+
+=====
+FIXME
+=====
+
+DesktopDragDropClientWayland::OnDragDrop has a bug that I did not notice until
+after the code got committed. Kalyan noticed a race condition and asked me to
+fix it. I added a comment "Unlikely case" explaining the problem, and started
+writing some code to fix it, but promptly forgot; it got committed unfinished,
+oops. So the code under that comment basically does nothing. We need to add a
+way to wait until all the data has been received, and then call
+delegate_->OnPerformDrop.
+
+===
+Tip
+===
+
+In Ozone-Wayland, gfx::AcceleratedWidget is always a window handle (an int).
+
+=====
+Tests
+=====
+
+Manual.
+
+This is no good, we should write unit tests to make it easier and safer to
+develop this code. See
+src/ui/views/widget/desktop_aura/desktop_drag_drop_client_aurax11_unittest.cc
+for inspiration.
+
+================
+Protocol Changes
+================
+
+Wayland 2.10 has undergone substantial changes to the drag-and-drop protocol.
+The changes are (theoretically) opt-in by requesting newer version of protocol
+objects (wl_data_offer, wl_data_device, etc.). Notably:
+
+ * accept requests now affect the correctness of the drag. This miiight be
+   problematic; see the obsolete note in
+   src/ui/platform_window/platform_window.h.
+ * There now exist drag actions that can be used to indicate whether files
+   should be moved or copied, for example. These need to be forwarded on to
+   Chrome. See DesktopDragDropClientWayland::CreateDropTargetEvent.
+ * Most importantly, there is now a wl_data_offer::finish request that we
+   probably need to call when appropriate.
+
+Contact: Carlos Garnacho again.
+
+=========
+Clipboard
+=========
+
+This document focused on drag-and-drop, but clipboard support is similar, as it
+goes through all the same Wayland data transfer objects; the main difference is
+that you won't be using DesktopDragDropClientWayland. Supporting pastes into
+Chrome would just require implementing WaylandDataDevice::OnSelection and should
+probably be easy. Copying stuff out of Chrome would require using
+wl_data_device::set_selection.
+
+=================
+Primary Selection
+=================
+
+There's a new primary selection protocol in Wayland (for middle-click paste),
+which is *completely separate* from the main clipboard and drag-and-drop
+protocol. It's actually in some protocol extension somewhere, not the main
+documentation. There's no way to handle primary selection with just the vanilla
+Wayland protocol. I mention this just to clarify that it would be a totally
+separate project from clipboard support, should you wind up working on that.
+
+ - Michael Catanzaro
